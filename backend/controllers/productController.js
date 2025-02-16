@@ -131,7 +131,7 @@ const addProduct = async (req, res) => {
       frameTypes, // Array of frame type IDs
       subFrameTypes, // Array of sub frame type IDs
       sizes, // Array of size IDs
-      price,
+      startFromPrice,
       mainImage,
       thumbnails,
       subFrameImages, // Array of subframe image URLs
@@ -226,7 +226,7 @@ const updateProduct = async (req, res) => {
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { productName, description, quantity, frameTypes, subFrameTypes, sizes, price, mainImage, thumbnails },
+      { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, mainImage, thumbnails },
       { new: true }
     );
 
@@ -675,7 +675,7 @@ const processExcelFile = async (req, res) => {
         productName: data['Product Name'],
         description: data['Description'],
         quantity: parseInt(data['Quantity'], 10) || 0,
-        price: parseFloat(data['Price']) || 0,
+        startFromPrice: parseFloat(data['StartFromPrice']) || 0, // Add startFromPrice processing
         frameTypes: data['FrameTypes'] ? data['FrameTypes'].split(',').map(ft => frameTypeMap[ft.trim()]).filter(Boolean) : [],
         subFrameTypes: data['SubFrameTypes'] ? data['SubFrameTypes'].split(',').map(sft => subFrameTypeMap[sft.trim()]).filter(Boolean) : [],
         sizes: data['Sizes'] ? data['Sizes'].split(',').map(size => sizeMap[size.trim()]).filter(Boolean) : [],

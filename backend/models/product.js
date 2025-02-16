@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema(
     mainImage: { type: String, required: true }, // Main product image
     thumbnails: { type: [String], default: [] }, // Array of thumbnail images
     quantity: { type: Number, required: true },
-
+    startFromPrice: { type: Number, required: true }, // Base starting price of the product
     frameTypes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FrameType', required: true }], // Multiple frame types
     subFrameTypes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SubFrameType' }], // Multiple sub frame types
 

@@ -232,7 +232,7 @@ const ProductListing = () => {
                       src={`${product.mainImage}`}
                       className="card-img-top product-image"
                       alt={product.productName}
-                      style={{ objectFit: 'contain', height: '250px', width: '100%' }}
+                      onClick={() => handleProductClick(product._id)}
                     />
                     <div
                       className="wishlist-icon position-absolute"
@@ -251,14 +251,10 @@ const ProductListing = () => {
                       />
                     </div>
                   </div>
-                  <div className="card-body text-center d-flex flex-column justify-content-between">
+
+                  <div className="card-body text-center d-flex flex-column">
                     <h5 className="card-title product-title">{product.productName}</h5>
                     <p className="card-text text-muted">{product.description.slice(0, 100)}...</p>
-                    <div className="d-flex justify-content-between align-items-center">
-                    <Button variant="primary" onClick={() => handleProductClick(product._id)}>
-                        Quick View
-                      </Button>
-                    </div>
                   </div>
                 </div>
               </div>

@@ -1,0 +1,115 @@
+.secondary-navbar {
+    position: static;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: transparent;
+    color: #fff;
+    padding: 1rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 999;
+    width: 100%;
+  }
+  
+  .search-container {
+    position: relative;
+    width: 100%;
+}
+.secondary-navbar .container {
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0;
+  width: 100%;
+}  
+  .secondary-navbar .all-button {
+    background-color: #2F231F;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  
+  .secondary-navbar .search-bar form {
+    display: flex;
+    align-items: center;
+  }
+  
+  .secondary-navbar .search-bar input {
+    width: 90%;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+  }
+  
+  .secondary-navbar .search-bar button {
+    background-color: #2F231F;
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-left: 10px;
+  }
+  
+  .secondary-navbar .search-results {
+    position: absolute;
+    background-color: #fff;
+    color: #2F231F;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ccc;
+    z-index: 1000;
+  }
+  
+  .secondary-navbar .search-results li {
+    padding: 0.5rem 1rem;
+  }
+  
+  .secondary-navbar .search-results li:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .secondary-navbar .history-button {
+    position: relative;
+  }
+  
+  .secondary-navbar .history-button button,
+  .secondary-navbar .wishlist-button button,
+  .secondary-navbar .cart-button button {
+    border: none;
+    background: none;
+  }
+  
+  .secondary-navbar .history-dropdown {
+    position: absolute;
+    background-color: #fff;
+    color: #2F231F;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ccc;
+    display: none;
+    z-index: 1000;
+  }
+  
+  .secondary-navbar .history-button:hover .history-dropdown {
+    display: block;
+  }
+  .wishlist-button span.badge {
+    right: 23px;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+}

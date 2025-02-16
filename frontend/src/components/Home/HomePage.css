@@ -1,0 +1,174 @@
+/* General Styles for the Home Page */
+.home-page {
+  font-family: "Lexend Deca", serif;
+  color: #333;
+  margin: auto;
+}
+
+/* Hero Section */
+.home-page .hero-section {
+  background-image: url('./images/hero-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  padding: 120px 0;
+}
+
+.home-page .hero-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.home-page .hero-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 40px;
+}
+
+.home-page .hero-section .btn {
+  padding: 12px 30px;
+  font-size: 1.125rem;
+  border-radius: 50px;
+}
+
+/* Products Section */
+.home-page .products-section {
+  background-color: #f7f7f7;
+  padding: 20px 0;
+  height: auto;
+  max-height: 100%;
+}
+
+.home-page .products-section .nav-tabs {
+  border-bottom: none;
+  justify-content: space-evenly;
+  margin: 0 0 5px 0 ;
+}
+
+.home-page .products-section .nav-tabs .nav-link {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.home-page .products-section .nav-tabs .nav-item {
+  width: 20%;
+  margin: 0 10px;
+}
+
+.home-page .products-section .nav-tabs .nav-link.active {
+  background-color: #E2D9D5;
+  color: #000000;
+}
+
+.home-page .products-section .nav-tabs .nav-link:hover {
+  background-color: #E2D9D5;
+  color: #000000;
+}
+
+/* Recently Added Products Section */
+.home-page .recently-added-products-section {
+  background-color: #f7f7f7;
+  padding: 40px 0;
+}
+
+.home-page .recently-added-products-section .section-title {
+  font-weight: bold;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Camera Section */
+.home-page .camera-section {
+  background-color: #f1f1f1;
+  padding: 40px 0;
+}
+
+.home-page .camera-section .section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* About Us Section */
+.home-page .about-us-section {
+  background-color: #f8f9fa;
+  padding: 40px 0;
+}
+
+.home-page .about-us-section .section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.home-page .about-us-section .section-description {
+  font-size: 1.125rem;
+  color: #555;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Testimonials Section */
+.home-page .testimonials-section {
+  background-color: #ffffff;
+  padding: 40px 0;
+}
+
+.home-page .testimonials-section .testimonial-card {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.home-page .testimonials-section .testimonial-card p {
+  font-size: 1.125rem;
+  color: #555;
+  font-style: italic;
+}
+
+.home-page .testimonials-section .testimonial-card h5 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* Call to Action Section */
+.home-page .cta-section {
+  background-color: #5B2EFF;
+  padding: 40px 0;
+}
+
+.home-page .cta-section .cta-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.home-page .cta-section .cta-description {
+  font-size: 1.25rem;
+  margin-bottom: 40px;
+  color: white;
+}
+
+.home-page .cta-section .btn {
+  padding: 12px 30px;
+  font-size: 1.125rem;
+  border-radius: 50px;
+  border: none;
+  background-color: #ffffff;
+  color: #5B2EFF;
+}
+
+.home-page .cta-section .btn:hover {
+  background-color: #5B2EFF;
+  color: white;
+}

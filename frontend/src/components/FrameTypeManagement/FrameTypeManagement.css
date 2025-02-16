@@ -1,0 +1,21 @@
+.frame-type-management {
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+.frame-type-management .card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.frame-type-management h1 {
+  font-size: 2rem;
+  color: #333;
+}
+
+.frame-type-management .form-label {
+  font-weight: 600;
+}
+
+.frame-type-management button {
+  width: 100%;
+}

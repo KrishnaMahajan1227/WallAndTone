@@ -1,0 +1,47 @@
+/* SearchSuggestions.css */
+.search-suggestions-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.suggestion-item {
+  padding: 10px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  border-bottom: 1px solid #ccc;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.suggestion-item:hover {
+  background-color: #f5f5f5;
+}
+
+.suggestion-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.suggestion-image {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.suggestion-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestion-name {
+  font-weight: 500;
+  color: #2D2D2D;
+}
+.suggestion-item:last-child {
+  border-bottom: none;
+}

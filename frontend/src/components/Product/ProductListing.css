@@ -1,0 +1,106 @@
+/* Parent Class for Product Listing */
+.product-listing {
+  padding: 0px;
+}
+
+/* Product Card Layout */
+.product-listing .product-card {
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Product Image Wrapper */
+.product-listing .product-image-wrapper {
+  position: relative;
+  height: 250px; /* Fixed height for all product images */
+}
+
+.product-listing .product-image {
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+  border-radius: 8px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Card Body */
+.product-listing .card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 140px; /* Fixed height for the card body */
+}
+
+/* Card Footer */
+.product-listing .card-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Product Title */
+.product-listing .product-title {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  margin: 10px 0;
+}
+
+/* Product Description Text */
+.product-listing .card-text {
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Add to Cart / Remove Button */
+.product-listing button {
+  width: 100%;
+  border-radius: 5px;
+  font-size: 15px;
+}
+
+/* Wishlist Icon */
+.product-listing .wishlist-icon {
+  top: 10px;
+  right: 20px;
+}
+
+.product-listing .wishlist-icon img {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 6px 4px;
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(138,138,138,0.6643907563025211) 0%);
+}
+
+/* Price and Rating */
+/* Product Description Text - Single line with ellipsis */
+.product-listing .card-body p {
+  font-size: 15px;
+  margin: 5px 0;
+  white-space: nowrap;             /* Prevent text from wrapping to a new line */
+  overflow: hidden;               /* Hide any text that overflows */
+  text-overflow: ellipsis;        /* Add ellipsis (...) for overflow text */
+}
+
+.product-listing button {
+  background: rgb(88, 77, 77) !important;
+  border: none;
+}
+
+.product-listing button:hover {
+  background: rgb(60, 43, 43) !important;
+  border: none;
+}
+
+.layout-toggle-button.mb-4.text-end button.btn.btn-outline-secondary {
+  background: #2F231F !important;
+  padding: 5px;
+  max-width: fit-content;
+}

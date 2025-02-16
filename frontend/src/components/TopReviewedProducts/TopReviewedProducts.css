@@ -1,0 +1,56 @@
+.top-reviewed-products-container {
+  margin-top: 0px;
+}
+
+.top-reviewed-products-container .top-reviewed-product-card {
+  margin: 20px;
+}
+
+.top-reviewed-products-container .card {
+  border: none !important;
+  max-width: 300px;
+  height: 450px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.top-reviewed-products-container .card-img-top {
+  border-radius: 8px;
+    height: 280px;
+    object-fit: cover;
+}
+
+.top-reviewed-products-container .card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-reviewed-products-container .card-title {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.top-reviewed-products-container .card-text {
+  font-size: 16px;
+  color: #666;
+}
+
+.top-reviewed-products-container .top-reviewed-products-message {
+  font-size: 18px;
+  color: #666;
+}
+
+.top-reviewed-products-container .slick-slide {
+  margin: 10px;
+}
+
+.top-reviewed-products-container .slick-list {
+  margin: 0 -10px;
+  max-height: 550px;
+}
+
+.top-reviewed-products-container .btn {
+  padding: 5px 10px;
+  font-size: 14px;
+}

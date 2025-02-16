@@ -1,0 +1,50 @@
+.sizes-admin-dashboard {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sizes-admin-dashboard__title {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .sizes-admin-dashboard__form-container {
+    margin-bottom: 20px;
+  }
+  
+  .sizes-admin-dashboard__form {
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sizes-admin-dashboard__form-label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .sizes-admin-dashboard__sizes-container {
+    margin-top: 20px;
+  }
+  
+  .sizes-admin-dashboard__sizes-title {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .btn {
+    margin-left: 10px;
+  }

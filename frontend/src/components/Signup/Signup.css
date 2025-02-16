@@ -1,0 +1,79 @@
+.signup-container {
+    background-image: url('./Images/loginBg.jpg'); /* Replace with a related eCommerce poster image */
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .signup-form {
+    background: rgba(0, 0, 0, 0.6); /* Dark overlay to improve contrast */
+    padding: 40px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 600px;
+    color: white;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .signup-form h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .form-group input {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    width: 100%;
+    transition: border-color 0.3s ease;
+  }
+  
+  .form-group input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  .form-group .alert {
+    margin-top: 5px;
+    font-size: 0.875rem;
+  }
+  
+  .btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .alert {
+    margin-top: 15px;
+  }
+  
+  @media (max-width: 768px) {
+    .signup-form {
+      padding: 20px;
+    }
+  
+    .signup-form h2 {
+      font-size: 1.5rem;
+    }
+  }
+  

@@ -1,0 +1,153 @@
+.main-navbar {
+  width: 18%; /* Sidebar width at 18% */
+  position: sticky;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-top: 20px;
+  background-color: #2F231F; /* New background color */
+}
+
+.main-navbar .logo-container {
+  display: flex;
+  margin: 0 20px;
+  align-items: center;
+  margin-bottom: 50px;
+  position: relative;
+  z-index: 1;
+}
+
+.main-navbar .logo-container .logo {
+  width: 120px; /* Logo size adjusted */
+  height: auto;
+  object-fit: contain;
+}
+
+.main-navbar .navbar-toggler {
+  margin: 0 20px;
+  position: relative;
+  z-index: 1;
+  display: none;
+}
+
+.main-navbar .links-container {
+  flex-direction: column;
+  align-items: center; /* Align items horizontally on larger screens */
+  width: 100%;
+  padding-left: 0;
+  margin-bottom: 1rem;
+  background-color: #2F231F; /* New background color */
+}
+
+.main-navbar .links-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-left: 0;
+  margin-bottom: 1rem;
+  padding-right: 10px;
+  align-items: center;
+}
+
+.main-navbar .links-list .nav-item {
+  width: 100%;
+  text-align: center;
+}
+
+.main-navbar .links-list .nav-item .nav-link {
+  font-size: 16px;
+  font-weight: 400;
+  color: #fff;
+  padding: 12px 20px;
+  width: 100%;
+  text-align: left;
+  transition: all 0.3s ease;
+  line-height: 20px;
+}
+
+.main-navbar .links-list .nav-item .nav-link:hover {
+  color: #5B2EFF;
+  background-color: #444;
+  border-radius: 5px;
+}
+
+.main-navbar .user-info-container {
+  margin-top: auto;
+  align-items: flex-start;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.main-navbar .user-info-container .d-flex {
+  justify-content: center;
+}
+
+.main-navbar .user-info-container .d-flex .text-white {
+  cursor: pointer;
+}
+
+.main-navbar .user-info-container .d-flex .btn {
+  margin-top: 10px;
+}
+
+.user-info {
+  margin: 0 20px;
+}
+
+
+/* Mobile View */
+@media (max-width: 767px) {
+  .main-navbar {
+    width: 100%; /* Full width for smaller screens */
+    height: auto;
+    position: relative;
+  }
+
+  .main-navbar .logo-container .logo {
+    width: 80px; /* Smaller logo size for mobile */
+  }
+
+  .main-navbar .links-list .nav-item .nav-link {
+    font-size: 16px; /* Slightly smaller font size for mobile */
+  }
+
+  .main-navbar .links-list {
+    flex-direction: column;
+    padding-left: 0;
+    align-items: center; /* Center align items */
+  }
+
+  .main-navbar .links-list .nav-item {
+    width: 100%;
+    text-align: center;
+  }
+
+  .main-navbar .logo-container {
+    padding-bottom: 10px; /* Adjust padding for mobile view */
+  }
+
+  .main-navbar .navbar-toggler {
+    display: block;
+  }
+
+  .main-navbar .links-container {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    transition: left 0.5s;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .main-navbar .links-container.show {
+    left: 0;
+  }
+}

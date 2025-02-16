@@ -7,7 +7,7 @@ const { protectUser } = require('../middleware/authMiddleware');
 // Add to Cart
 router.post('/add', protectUser, async (req, res) => {
   try {
-    const { productId, quantity, frameType, subFrameType, size, image, isCustom } = req.body;
+    const { quantity, frameType, subFrameType, size, image, isCustom, productId } = req.body;
 
     // Validate input
     if (!quantity || !frameType || !subFrameType || !size) {
@@ -16,17 +16,11 @@ router.post('/add', protectUser, async (req, res) => {
       });
     }
 
-    // For custom images, validate image URL
+    // For custom images, validate image
     if (isCustom && !image) {
       return res.status(400).json({
-        message: 'Image URL is required for custom artwork'
+        message: 'Image is required for custom artwork'
       });
-    }
-
-    // Find or create cart
-    let cart = await Cart.findOne({ userId: req.user.id });
-    if (!cart) {
-      cart = new Cart({ userId: req.user.id, items: [] });
     }
 
     // For regular products, check if product exists
@@ -37,18 +31,23 @@ router.post('/add', protectUser, async (req, res) => {
       }
     }
 
-    // Check if item already exists in cart
+    // Find or create cart
+    let cart = await Cart.findOne({ userId: req.user.id });
+    if (!cart) {
+      cart = new Cart({ userId: req.user.id, items: [] });
+    }
+
+    // Check if item already exists in cart with same frame configuration
     const existingItemIndex = cart.items.findIndex(item => {
+      const sameFrameConfig = 
+        item.frameType.toString() === frameType &&
+        item.subFrameType.toString() === subFrameType &&
+        item.size.toString() === size;
+
       if (isCustom) {
-        return item.image === image &&
-               item.frameType.toString() === frameType &&
-               item.subFrameType.toString() === subFrameType &&
-               item.size.toString() === size;
+        return sameFrameConfig && item.isCustom && item.image === image;
       } else {
-        return item.productId?.toString() === productId &&
-               item.frameType.toString() === frameType &&
-               item.subFrameType.toString() === subFrameType &&
-               item.size.toString() === size;
+        return sameFrameConfig && !item.isCustom && item.productId?.toString() === productId;
       }
     });
 
@@ -97,7 +96,13 @@ router.post('/add', protectUser, async (req, res) => {
     ]);
 
     // Calculate total price
-    const totalPrice = cart.calculateTotalPrice();
+    const totalPrice = cart.items.reduce((total, item) => {
+      const frameTypePrice = item.frameType?.price || 0;
+      const subFrameTypePrice = item.subFrameType?.price || 0;
+      const sizePrice = item.size?.price || 0;
+      const productPrice = item.productId?.price || 0;
+      return total + (item.quantity * (frameTypePrice + subFrameTypePrice + sizePrice + productPrice));
+    }, 0);
 
     res.status(200).json({
       cart: {
@@ -131,7 +136,14 @@ router.get('/', protectUser, async (req, res) => {
       });
     }
 
-    const totalPrice = cart.calculateTotalPrice();
+    // Calculate total price
+    const totalPrice = cart.items.reduce((total, item) => {
+      const frameTypePrice = item.frameType?.price || 0;
+      const subFrameTypePrice = item.subFrameType?.price || 0;
+      const sizePrice = item.size?.price || 0;
+      const productPrice = item.productId?.price || 0;
+      return total + (item.quantity * (frameTypePrice + subFrameTypePrice + sizePrice + productPrice));
+    }, 0);
 
     res.status(200).json({
       items: cart.items,
@@ -165,10 +177,33 @@ router.put('/update/:itemId', protectUser, async (req, res) => {
       return res.status(404).json({ message: 'Item not found in cart' });
     }
 
-    cart.items[itemIndex].quantity = quantity;
-    if (frameType) cart.items[itemIndex].frameType = frameType;
-    if (subFrameType) cart.items[itemIndex].subFrameType = subFrameType;
-    if (size) cart.items[itemIndex].size = size;
+    // Check if updated configuration matches any existing item
+    const existingItemIndex = cart.items.findIndex((item, index) => {
+      if (index === itemIndex) return false; // Skip the current item
+
+      const sameFrameConfig = 
+        (frameType ? item.frameType.toString() === frameType : item.frameType.toString() === cart.items[itemIndex].frameType.toString()) &&
+        (subFrameType ? item.subFrameType.toString() === subFrameType : item.subFrameType.toString() === cart.items[itemIndex].subFrameType.toString()) &&
+        (size ? item.size.toString() === size : item.size.toString() === cart.items[itemIndex].size.toString());
+
+      if (cart.items[itemIndex].isCustom) {
+        return sameFrameConfig && item.isCustom && item.image === cart.items[itemIndex].image;
+      } else {
+        return sameFrameConfig && !item.isCustom && item.productId?.toString() === cart.items[itemIndex].productId?.toString();
+      }
+    });
+
+    if (existingItemIndex > -1) {
+      // Merge quantities and remove the current item
+      cart.items[existingItemIndex].quantity += quantity;
+      cart.items.splice(itemIndex, 1);
+    } else {
+      // Update the current item
+      cart.items[itemIndex].quantity = quantity;
+      if (frameType) cart.items[itemIndex].frameType = frameType;
+      if (subFrameType) cart.items[itemIndex].subFrameType = subFrameType;
+      if (size) cart.items[itemIndex].size = size;
+    }
 
     await cart.save();
 
@@ -191,7 +226,14 @@ router.put('/update/:itemId', protectUser, async (req, res) => {
       }
     ]);
 
-    const totalPrice = cart.calculateTotalPrice();
+    // Calculate total price
+    const totalPrice = cart.items.reduce((total, item) => {
+      const frameTypePrice = item.frameType?.price || 0;
+      const subFrameTypePrice = item.subFrameType?.price || 0;
+      const sizePrice = item.size?.price || 0;
+      const productPrice = item.productId?.price || 0;
+      return total + (item.quantity * (frameTypePrice + subFrameTypePrice + sizePrice + productPrice));
+    }, 0);
 
     res.status(200).json({
       cart: {
@@ -245,7 +287,14 @@ router.delete('/remove/:itemId', protectUser, async (req, res) => {
       }
     ]);
 
-    const totalPrice = cart.calculateTotalPrice();
+    // Calculate total price
+    const totalPrice = cart.items.reduce((total, item) => {
+      const frameTypePrice = item.frameType?.price || 0;
+      const subFrameTypePrice = item.subFrameType?.price || 0;
+      const sizePrice = item.size?.price || 0;
+      const productPrice = item.productId?.price || 0;
+      return total + (item.quantity * (frameTypePrice + subFrameTypePrice + sizePrice + productPrice));
+    }, 0);
 
     res.status(200).json({
       cart: {

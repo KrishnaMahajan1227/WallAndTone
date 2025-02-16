@@ -16,54 +16,86 @@ const CartComponent = () => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  // Fetch cart and wishlist data
-  useEffect(() => {
-    const fetchCartAndWishlist = async () => {
-      setLoading(true);
-      try {
-        if (token) {
-          const [cartResponse, wishlistResponse] = await Promise.all([
-            fetch("http://localhost:5000/api/cart", {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            fetch("http://localhost:5000/api/wishlist", {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-          ]);
+  const fetchCartAndWishlist = async () => {
+    setLoading(true);
+    try {
+      if (token) {
+        const [cartResponse, wishlistResponse] = await Promise.all([
+          fetch("http://localhost:5000/api/cart", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch("http://localhost:5000/api/wishlist", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-          if (!cartResponse.ok || !wishlistResponse.ok) {
-            throw new Error("Failed to fetch cart or wishlist");
-          }
+        if (!cartResponse.ok || !wishlistResponse.ok) {
+          throw new Error("Failed to fetch cart or wishlist");
+        }
 
-          const cartData = await cartResponse.json();
-          const wishlistData = await wishlistResponse.json();
+        const cartData = await cartResponse.json();
+        const wishlistData = await wishlistResponse.json();
 
-          // Add a unique identifier to each cart item
-          const itemsWithUniqueId = (cartData.items || []).map((item) => ({
-            ...item,
-            uniqueId: item.uniqueId || uuidv4(),
-          }));
+        // Deduplicate items based on product, frame, and size configuration
+        const uniqueItems = [];
+        const seenConfigurations = new Set();
 
-          setCart({
-            items: itemsWithUniqueId,
-            totalPrice: cartData.totalPrice || 0,
-            cartCount: itemsWithUniqueId.length || 0,
+        (cartData.items || []).forEach((item) => {
+          const configKey = JSON.stringify({
+            productId: item.productId?._id,
+            frameType: item.frameType?._id,
+            subFrameType: item.subFrameType?._id,
+            size: item.size?._id,
+            isCustom: item.isCustom,
+            image: item.isCustom ? item.image : null
           });
 
-          setWishlist(wishlistData.items || []);
-          setError(null);
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+          if (!seenConfigurations.has(configKey)) {
+            seenConfigurations.add(configKey);
+            uniqueItems.push({
+              ...item,
+              uniqueId: uuidv4()
+            });
+          } else {
+            // Find the existing item and update its quantity
+            const existingItem = uniqueItems.find(existing => {
+              const existingConfig = JSON.stringify({
+                productId: existing.productId?._id,
+                frameType: existing.frameType?._id,
+                subFrameType: existing.subFrameType?._id,
+                size: existing.size?._id,
+                isCustom: existing.isCustom,
+                image: existing.isCustom ? existing.image : null
+              });
+              return existingConfig === configKey;
+            });
 
+            if (existingItem) {
+              existingItem.quantity += item.quantity;
+            }
+          }
+        });
+
+        setCart({
+          items: uniqueItems,
+          totalPrice: cartData.totalPrice || 0,
+          cartCount: uniqueItems.length || 0,
+        });
+
+        setWishlist(wishlistData.items || []);
+        setError(null);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCartAndWishlist();
   }, [token]);
 
-  // Update item quantity in cart
   const handleUpdateQuantity = async (e, item, newQuantity) => {
     e.preventDefault();
 
@@ -93,8 +125,7 @@ const CartComponent = () => {
           throw new Error(errorData.message || "Failed to update quantity.");
         }
 
-        const data = await response.json();
-        setCart(data.cart);
+        await fetchCartAndWishlist(); // Refresh cart to get the merged items
         setAlertMessage("Quantity updated successfully!");
       } catch (err) {
         console.error(err);
@@ -103,7 +134,6 @@ const CartComponent = () => {
     }
   };
 
-  // Add item to wishlist
   const handleAddToWishlist = async (e, product) => {
     e.preventDefault();
     if (!product) return;
@@ -129,7 +159,7 @@ const CartComponent = () => {
           throw new Error("Failed to add to wishlist.");
         }
 
-        setWishlist((prevWishlist) => [...prevWishlist, { productId: product }]);
+        await fetchCartAndWishlist(); // Refresh both cart and wishlist
         setAlertMessage("Added to wishlist successfully!");
       } catch (error) {
         console.error("Error adding product to wishlist:", error);
@@ -138,7 +168,6 @@ const CartComponent = () => {
     }
   };
 
-  // Remove item from wishlist
   const handleRemoveFromWishlist = async (e, product) => {
     e.preventDefault();
     if (!product) return;
@@ -159,11 +188,7 @@ const CartComponent = () => {
           throw new Error("Failed to remove from wishlist.");
         }
 
-        setWishlist((prevWishlist) =>
-          prevWishlist.filter(
-            (item) => item.productId && item.productId._id !== product._id
-          )
-        );
+        await fetchCartAndWishlist(); // Refresh both cart and wishlist
         setAlertMessage("Removed from wishlist successfully!");
       } catch (error) {
         console.error("Error removing product from wishlist:", error);
@@ -190,8 +215,7 @@ const CartComponent = () => {
           throw new Error(errorData.message || "Failed to remove item");
         }
 
-        const data = await response.json();
-        setCart(data.cart);
+        await fetchCartAndWishlist(); // Refresh both cart and wishlist
         setAlertMessage("Item removed from cart successfully!");
       } catch (error) {
         console.error("Error removing item:", error);
@@ -286,7 +310,7 @@ const CartComponent = () => {
                         min="1"
                         onChange={(e) => {
                           const value = parseInt(e.target.value, 10);
-                          if (!isNaN(value)) {
+                          if (!isNaN(value) && value >= 1) {
                             handleUpdateQuantity(e, item, value);
                           }
                         }}
@@ -308,18 +332,17 @@ const CartComponent = () => {
                       Remove from Cart
                     </button>
 
-                    {!item.isCustom && (
+                    {!item.isCustom && item.productId && (
                       <button
                         type="button"
                         className="wishlist-btn"
                         onClick={(e) => {
-                          if (
-                            wishlist.some(
-                              (wishItem) =>
-                                wishItem.productId &&
-                                wishItem.productId._id === item.productId._id
-                            )
-                          ) {
+                          const isInWishlist = wishlist.some(
+                            (wishItem) =>
+                              wishItem.productId?._id === item.productId._id
+                          );
+                          
+                          if (isInWishlist) {
                             handleRemoveFromWishlist(e, item.productId);
                           } else {
                             handleAddToWishlist(e, item.productId);
@@ -330,8 +353,7 @@ const CartComponent = () => {
                           src={
                             wishlist.some(
                               (wishItem) =>
-                                wishItem.productId &&
-                                wishItem.productId._id === item.productId._id
+                                wishItem.productId?._id === item.productId._id
                             )
                               ? heartIconFilled
                               : heartIcon
@@ -353,16 +375,31 @@ const CartComponent = () => {
           <div className="cart-summary">
             <h2>Order Summary</h2>
             <div className="summary-details">
+              <p>Subtotal: {originalPrice} Rs.</p>
               <p>Shipping Cost: 300 Rs.</p>
-              <p>Discount: {couponApplied ? `- ${couponDiscount}%` : "N/A"}</p>
               <p>Tax: 50 Rs.</p>
               {couponApplied && (
-                <p>Original Price: {originalPrice} Rs.</p>
-              )}
-              {couponApplied && (
-                <p>Discount Amount: {discountAmount} Rs.</p>
+                <>
+                  <p>Discount: {couponDiscount}%</p>
+                  <p>Discount Amount: - {discountAmount} Rs.</p>
+                </>
               )}
               <h3>Total: {totalPrice} Rs.</h3>
+            </div>
+            
+            <div className="cart-actions">
+              <button
+                className="checkout-btn"
+                onClick={() => navigate("/checkout")}
+              >
+                Proceed to Checkout
+              </button>
+              <button
+                className="continue-shopping-btn"
+                onClick={() => navigate("/products")}
+              >
+                Continue Shopping
+              </button>
             </div>
           </div>
         </div>

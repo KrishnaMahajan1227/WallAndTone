@@ -142,32 +142,18 @@ const FreepikCustomization = () => {
       setAlertMessage('Please select all options before adding to cart');
       return;
     }
-
+  
     try {
-      // First, upload the image to Cloudinary
-      const imageFormData = new FormData();
-      imageFormData.append('image', generatedImage);
-      
-      const uploadResponse = await axios.post(
-        'http://localhost:5000/api/upload/image',
-        imageFormData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
+      // Create the cart item without image upload first
       const cartItem = {
-        image: uploadResponse.data.imageUrl,
         quantity,
         frameType: selectedFrameType._id,
         subFrameType: selectedSubFrameType._id,
         size: selectedSize._id,
-        isCustom: true
+        isCustom: true,
+        image: generatedImage // Use the image directly
       };
-
+  
       if (token) {
         const response = await axios.post(
           'http://localhost:5000/api/cart/add',
@@ -176,9 +162,14 @@ const FreepikCustomization = () => {
             headers: { Authorization: `Bearer ${token}` }
           }
         );
-        setCart(response.data);
-        setAlertMessage('Added to cart successfully!');
-        setSubCartOpen(true);
+  
+        if (response.data.cart) {
+          setCart(response.data.cart);
+          setAlertMessage('Added to cart successfully!');
+          setSubCartOpen(true);
+        } else {
+          throw new Error('Invalid response from server');
+        }
       } else {
         const updatedCart = [...guestCart, cartItem];
         setCart({ items: updatedCart, totalPrice: parseFloat(calculateTotalPrice()) });
@@ -187,8 +178,8 @@ const FreepikCustomization = () => {
         setSubCartOpen(true);
       }
     } catch (err) {
-      setAlertMessage('Failed to add to cart');
-      console.error(err);
+      console.error('Add to cart error:', err);
+      setAlertMessage(err.response?.data?.message || 'Failed to add to cart');
     }
   };
 

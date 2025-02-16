@@ -89,10 +89,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
+  display: box; /* added for compatibility */
   -webkit-line-clamp: 2;
+  line-clamp: 2; /* added for compatibility */
   -webkit-box-orient: vertical;
+  box-orient: vertical; /* added for compatibility */
 }
-
 .freepik-generator__previous-date {
   display: block;
   font-size: 0.75rem;

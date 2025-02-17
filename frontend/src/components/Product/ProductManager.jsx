@@ -359,7 +359,7 @@ const handleSubframeImageChange = (e) => {
                     ))}
                   </ul>
                 </td>
-                <td>${product.price}</td>
+                <td>${product.startFromPrice}</td>
                 <td>{product.quantity}</td>
                 <td>
                   <div className="d-flex flex-column gap-2">

@@ -71,7 +71,7 @@ const getSubFrameTypesByFrameType = async (req, res) => {
 // Product Controllers
 const addProduct = async (req, res) => {
   try {
-    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, price } = req.body;
+    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice } = req.body;
     let mainImage = null;
     let thumbnails = [];
     let subframeImages = [];
@@ -93,11 +93,10 @@ const addProduct = async (req, res) => {
     if (subFrameTypes && Array.isArray(subFrameTypes) && subFrameTypes.length > 0) {
       const validSubFrameTypes = await SubFrameType.find({
         '_id': { $in: subFrameTypes }
-      }).select('_id'); // Select only _id for validation
+      }).select('_id');
 
       const validSubFrameTypeIds = validSubFrameTypes.map(subFrameType => subFrameType._id.toString());
 
-      // If any sub frame type ID is invalid, return an error
       const invalidSubFrameTypes = subFrameTypes.filter(subFrameTypeId => !validSubFrameTypeIds.includes(subFrameTypeId));
       if (invalidSubFrameTypes.length > 0) {
         return res.status(400).json({ message: `Invalid sub frame type IDs: ${invalidSubFrameTypes.join(', ')}` });
@@ -110,11 +109,10 @@ const addProduct = async (req, res) => {
     if (sizes && Array.isArray(sizes) && sizes.length > 0) {
       const validSizes = await Size.find({
         '_id': { $in: sizes }
-      }).select('_id'); // Select only _id for validation
+      }).select('_id');
 
       const validSizeIds = validSizes.map(size => size._id.toString());
 
-      // If any size ID is invalid, return an error
       const invalidSizes = sizes.filter(sizeId => !validSizeIds.includes(sizeId));
       if (invalidSizes.length > 0) {
         return res.status(400).json({ message: `Invalid size IDs: ${invalidSizes.join(', ')}` });
@@ -123,24 +121,24 @@ const addProduct = async (req, res) => {
       return res.status(400).json({ message: 'Sizes must be an array with at least one valid ID.' });
     }
 
-    // Create a new product with multiple frame types, sub frame types, and sizes
+    // Create a new product
     const newProduct = new Product({
       productName,
       description,
       quantity,
-      frameTypes, // Array of frame type IDs
-      subFrameTypes, // Array of sub frame type IDs
-      sizes, // Array of size IDs
+      frameTypes,
+      subFrameTypes,
+      sizes,
       startFromPrice,
       mainImage,
       thumbnails,
-      subFrameImages, // Array of subframe image URLs
+      subFrameImages,
     });
 
     await newProduct.save();
     res.status(201).json(newProduct);
   } catch (err) {
-    console.error('Error adding product:', err); // Log the full error
+    console.error('Error adding product:', err);
     res.status(500).json({ message: 'Error adding product', error: err.message });
   }
 };
@@ -167,13 +165,14 @@ const getAllProducts = async (req, res) => {
         .populate('sizes', 'width height price', null, { strictPopulate: false })
         .populate('thumbnails', 'filename', null, { strictPopulate: false });
     }
-    // Calculate total price for each product
+    
     products.forEach(product => {
       const frameTypePrice = product.frameTypes.reduce((sum, frameType) => sum + frameType.price, 0);
       const subFrameTypePrice = product.subFrameTypes.reduce((sum, subFrameType) => sum + subFrameType.price, 0);
       const sizePrice = product.sizes.reduce((sum, size) => sum + size.price, 0);
       product.totalPrice = frameTypePrice + subFrameTypePrice + sizePrice;
     });
+    
     res.status(200).json(products);
   } catch (err) {
     console.error('Error fetching products:', err.message);
@@ -211,11 +210,10 @@ const getProductById = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, price } = req.body;
+    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice } = req.body;
     let mainImage = null;
     let thumbnails = [];
 
-    // Handle file uploads if provided
     if (req.files.mainImage) {
       mainImage = await uploadImage(req.files.mainImage[0]);
     }
@@ -308,7 +306,6 @@ const deleteReview = async (req, res) => {
 
     product.reviews.splice(reviewIndex, 1);
 
-    // Recalculate average rating
     product.rating =
       product.reviews.length > 0
         ? product.reviews.reduce((acc, review) => acc + review.rating, 0) / product.reviews.length
@@ -408,7 +405,6 @@ const getSubframeImages = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Group images by subframe type
     const groupedImages = product.subFrameImages.reduce((acc, img) => {
       const key = img.subFrameType._id.toString();
       if (!acc[key]) {
@@ -436,7 +432,10 @@ const getSubframeImageById = async (req, res) => {
   try {
     const { productId, subframeImageId } = req.params;
 
-    const product = await Product.findById(productId).populate('subFrameImages.subFrameType').populate('subFrameImages.frameType');
+    const product = await Product.findById(productId)
+      .populate('subFrameImages.subFrameType')
+      .populate('subFrameImages.frameType');
+    
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
@@ -496,7 +495,6 @@ const deleteSubframeImage = async (req, res) => {
     }
 
     product.subFrameImages.splice(subframeImageIndex, 1);
-
     await product.save();
 
     res.status(200).json({ message: 'Subframe image deleted successfully' });
@@ -508,14 +506,21 @@ const deleteSubframeImage = async (req, res) => {
 const getProductSubframeImages = async (req, res) => {
   try {
     const productId = req.params.id;
-    const product = await Product.findById(productId).populate('subFrameTypes').populate('subFrameImages');
+    const product = await Product.findById(productId)
+      .populate('subFrameTypes')
+      .populate('subFrameImages');
+    
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
+    
     const subframeImages = product.subFrameTypes.map(subFrameType => {
-      const subframeImage = product.subFrameImages.find(image => image.subFrameType.toString() === subFrameType._id.toString());
+      const subframeImage = product.subFrameImages.find(image => 
+        image.subFrameType.toString() === subFrameType._id.toString()
+      );
       return subframeImage ? subframeImage.imageUrl : null;
     });
+    
     res.status(200).json(subframeImages);
   } catch (err) {
     console.error('Error fetching subframe images:', err.message);
@@ -530,7 +535,9 @@ const getSubframeImage = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    const subFrameImage = product.subFrameImages.find(img => img.subFrameType.toString() === subFrameTypeId);
+    const subFrameImage = product.subFrameImages.find(img => 
+      img.subFrameType.toString() === subFrameTypeId
+    );
     if (!subFrameImage) {
       return res.status(404).json({ message: 'Subframe image not found' });
     }
@@ -541,7 +548,6 @@ const getSubframeImage = async (req, res) => {
   }
 };
 
-// Update the processExcelFile function to handle Cloudinary uploads
 const processExcelFile = async (req, res) => {
   try {
     if (!req.file) {
@@ -563,14 +569,25 @@ const processExcelFile = async (req, res) => {
 
     // Process and upload images to Cloudinary
     const processedData = await Promise.all(sheetData.map(async (row) => {
+      // Validate required fields first
+      if (!row['Product Name'] || !row['Description'] || !row['StartFromPrice'] || !row['MainImage']) {
+        console.error(`Missing required fields for product: ${row['Product Name'] || 'Unknown Product'}`);
+        return null;
+      }
+
       // Upload main image
       let mainImageUrl = '';
       if (row['MainImage']) {
-        const publicId = path.basename(row['MainImage']).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
         try {
+          const publicId = path.basename(row['MainImage']).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
           mainImageUrl = await uploadLocalToCloudinary(row['MainImage'], publicId);
+          if (!mainImageUrl) {
+            console.error(`Failed to upload main image for ${row['Product Name']}`);
+            return null;
+          }
         } catch (error) {
           console.error(`Error uploading main image for ${row['Product Name']}:`, error);
+          return null;
         }
       }
 
@@ -579,12 +596,12 @@ const processExcelFile = async (req, res) => {
       if (row['Thumbnails']) {
         const thumbnailPaths = row['Thumbnails'].split(',').map(t => t.trim());
         thumbnailUrls = await Promise.all(thumbnailPaths.map(async (thumbnailPath) => {
-          const publicId = path.basename(thumbnailPath).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
           try {
+            const publicId = path.basename(thumbnailPath).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
             return await uploadLocalToCloudinary(thumbnailPath, publicId);
           } catch (error) {
             console.error(`Error uploading thumbnail for ${row['Product Name']}:`, error);
-            return '';
+            return null;
           }
         }));
       }
@@ -594,20 +611,28 @@ const processExcelFile = async (req, res) => {
       if (row['SubframeImageMap']) {
         const mappings = row['SubframeImageMap'].split(',').map(mapping => {
           const [imagePath, frameType, subFrameType] = mapping.split(':');
-          return { imagePath: imagePath.trim(), frameType: frameType.trim(), subFrameType: subFrameType.trim() };
+          return { 
+            imagePath: imagePath.trim(), 
+            frameType: frameType.trim(), 
+            subFrameType: subFrameType.trim() 
+          };
         });
 
         subframeImageMap = await Promise.all(mappings.map(async (mapping) => {
-          const publicId = path.basename(mapping.imagePath).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
           try {
+            const publicId = path.basename(mapping.imagePath).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
             const imageUrl = await uploadLocalToCloudinary(mapping.imagePath, publicId);
+            if (!imageUrl) {
+              console.error(`Failed to upload subframe image for ${row['Product Name']}`);
+              return null;
+            }
             return {
               ...mapping,
               imageUrl
             };
           } catch (error) {
             console.error(`Error uploading subframe image for ${row['Product Name']}:`, error);
-            return mapping;
+            return null;
           }
         }));
       }
@@ -615,27 +640,29 @@ const processExcelFile = async (req, res) => {
       return {
         ...row,
         mainImage: mainImageUrl,
-        thumbnails: thumbnailUrls,
-        subframeImageMap
+        thumbnails: thumbnailUrls.filter(Boolean),
+        subframeImageMap: subframeImageMap.filter(Boolean)
       };
     }));
 
     // Clean up the temporary Excel file
     fs.unlinkSync(filePath);
 
-    // Validate required fields using the correct field names from Excel
-    const invalidProducts = processedData.filter(data => !data['Product Name'] || !data['Description'] || !data['MainImage']);
-    if (invalidProducts.length > 0) {
+    // Filter out failed products
+    const validProducts = processedData.filter(Boolean);
+    const failedProducts = processedData.filter(data => !data);
+
+    if (validProducts.length === 0) {
       return res.status(400).json({ 
-        message: 'Some products are missing required fields (Product Name, Description, or Main Image)',
-        invalidProducts
+        message: 'No valid products to process',
+        failedCount: failedProducts.length
       });
     }
 
     // Fetch and validate frame types
     const frameTypeDocs = await FrameType.find({
       name: { 
-        $in: [...new Set(processedData.reduce((acc, d) => {
+        $in: [...new Set(validProducts.reduce((acc, d) => {
           const frameTypes = d['FrameTypes'] ? d['FrameTypes'].split(',').map(ft => ft.trim()) : [];
           return acc.concat(frameTypes);
         }, []))]
@@ -646,7 +673,7 @@ const processExcelFile = async (req, res) => {
     // Fetch and validate sub frame types
     const subFrameTypeDocs = await SubFrameType.find({
       name: { 
-        $in: [...new Set(processedData.reduce((acc, d) => {
+        $in: [...new Set(validProducts.reduce((acc, d) => {
           const subFrameTypes = d['SubFrameTypes'] ? d['SubFrameTypes'].split(',').map(sft => sft.trim()) : [];
           return acc.concat(subFrameTypes);
         }, []))]
@@ -663,24 +690,26 @@ const processExcelFile = async (req, res) => {
     });
 
     // Process and create products
-    const products = processedData.map(data => {
-      // Process subframe images with their mappings
-      const subFrameImages = data.subframeImageMap.map(mapping => ({
-        imageUrl: mapping.imageUrl,
-        frameType: frameTypeMap[mapping.frameType],
-        subFrameType: subFrameTypeMap[mapping.subFrameType.split(',')[0]] // Take first subframe type if multiple
-      })).filter(img => img.frameType && img.subFrameType);
+    const products = validProducts.map(data => {
+      const subFrameImages = (data.subframeImageMap || [])
+        .filter(mapping => mapping && mapping.imageUrl)
+        .map(mapping => ({
+          imageUrl: mapping.imageUrl,
+          frameType: frameTypeMap[mapping.frameType],
+          subFrameType: subFrameTypeMap[mapping.subFrameType.split(',')[0]]
+        }))
+        .filter(img => img.frameType && img.subFrameType);
 
       return {
         productName: data['Product Name'],
         description: data['Description'],
         quantity: parseInt(data['Quantity'], 10) || 0,
-        startFromPrice: parseFloat(data['StartFromPrice']) || 0, // Add startFromPrice processing
+        startFromPrice: parseFloat(data['StartFromPrice']) || 0,
         frameTypes: data['FrameTypes'] ? data['FrameTypes'].split(',').map(ft => frameTypeMap[ft.trim()]).filter(Boolean) : [],
         subFrameTypes: data['SubFrameTypes'] ? data['SubFrameTypes'].split(',').map(sft => subFrameTypeMap[sft.trim()]).filter(Boolean) : [],
         sizes: data['Sizes'] ? data['Sizes'].split(',').map(size => sizeMap[size.trim()]).filter(Boolean) : [],
         mainImage: data.mainImage,
-        thumbnails: data.thumbnails.filter(Boolean),
+        thumbnails: data.thumbnails,
         subFrameImages
       };
     });
@@ -691,6 +720,7 @@ const processExcelFile = async (req, res) => {
     res.status(200).json({ 
       message: 'Products uploaded successfully', 
       count: savedProducts.length,
+      failedCount: failedProducts.length,
       products: savedProducts
     });
 
@@ -702,7 +732,6 @@ const processExcelFile = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   addFrameType,

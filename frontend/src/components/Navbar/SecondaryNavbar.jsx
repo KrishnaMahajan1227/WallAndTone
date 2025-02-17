@@ -1,6 +1,5 @@
-// SecondaryNavbar.js
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import HistoryDropdown from '../History/HistoryDropdown';
 import { WishlistContext } from '../Wishlist/WishlistContext';
@@ -13,8 +12,10 @@ import './SecondaryNavbar.css';
 const SecondaryNavbar = () => {
   const [historyList, setHistoryList] = useState([]);
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
+  const [navigationHistory, setNavigationHistory] = useState([]);
   const { wishlistCount } = useContext(WishlistContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem('token');
   const historyRef = useRef(null);
 
@@ -38,6 +39,40 @@ const SecondaryNavbar = () => {
   }, [token]);
 
   useEffect(() => {
+    // Get path name without leading slash
+    const currentPath = location.pathname.substring(1);
+    if (!currentPath) return; // Skip if on home page
+
+    // Convert path to readable name
+    const pathName = currentPath
+      .split('/')
+      .pop()
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+    // Update navigation history
+    setNavigationHistory(prev => {
+      const newHistory = [
+        ...prev.filter(item => item.path !== currentPath),
+        { path: currentPath, name: pathName }
+      ].slice(-3); // Keep only last 3 items, starting from the end
+
+      // Save to localStorage
+      localStorage.setItem('navHistory', JSON.stringify(newHistory));
+      return newHistory;
+    });
+  }, [location]);
+
+  useEffect(() => {
+    // Load navigation history from localStorage on component mount
+    const savedHistory = localStorage.getItem('navHistory');
+    if (savedHistory) {
+      setNavigationHistory(JSON.parse(savedHistory));
+    }
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (historyRef.current && !historyRef.current.contains(event.target)) {
         setShowHistoryDropdown(false);
@@ -56,6 +91,25 @@ const SecondaryNavbar = () => {
   return (
     <nav className="secondary-navbar">
       <div className="container">
+        {/* Breadcrumbs */}
+        <div className="breadcrumbs">
+          <div className="All-btn">
+          <Link to="/products" className="all-products-btn">
+            All
+          </Link>
+          </div>
+          <div className="history-breadcrump">
+          {navigationHistory.map((item, index) => (
+            <React.Fragment key={item.path}>
+              {index > 0 && <span className="breadcrumb-separator"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="none" stroke="#2F231F" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m9 6l6 6l-6 6"/></svg></span>}
+              <Link to={`/${item.path}`} className="breadcrumb-item">
+                {item.name}
+              </Link>
+            </React.Fragment>
+          ))}
+          </div>
+        </div>
+
         <div className="nav-buttons">
           <div className="history-button" ref={historyRef}>
             <button onClick={() => setShowHistoryDropdown(!showHistoryDropdown)}>
@@ -74,9 +128,13 @@ const SecondaryNavbar = () => {
           </Link>
 
           <Link to="/wishlist" className="wishlist-button">
-  <img src={wishlistCount > 0 ? wishlistIconUrl : heartIconUrl} alt="Wishlist" className="wishlist-icon" />
-  {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
-</Link>
+            <img 
+              src={wishlistCount > 0 ? wishlistIconUrl : heartIconUrl} 
+              alt="Wishlist" 
+              className="wishlist-icon" 
+            />
+            {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
+          </Link>
         </div>
       </div>
     </nav>

@@ -194,6 +194,108 @@ const ProductListing = () => {
   if (loading) return <div className="text-center my-5">Loading...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
 
+  const renderProductCard = (product, isLarge = false) => (
+    <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
+      <div className="product-image-wrapper position-relative">
+        <img
+          src={`${product.mainImage}`}
+          className="card-img-top product-image"
+          alt={product.productName}
+          onClick={() => handleProductClick(product._id)}
+        />
+        <div
+          className="wishlist-icon position-absolute"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (wishlist && wishlist.some((item) => item.productId && item.productId._id === product._id)) {
+              handleRemoveFromWishlist(product);
+            } else {
+              handleAddToWishlist(product);
+            }
+          }}
+        >
+          <img
+            src={wishlist && wishlist.some((item) => item.productId && item.productId._id === product._id) ? heartIconFilled : heartIcon}
+            alt="Heart Icon"
+          />
+        </div>
+      </div>
+
+      <div className="card-body text-center d-flex flex-column">
+        <h5 className="card-title product-title">{product.productName}</h5>
+        <p className="card-text text-muted">{product.description.slice(0, isLarge ? 150 : 100)}...</p>
+        <p className="card-text text-muted">Starting From Rs {product.startFromPrice}/-</p>
+      </div>
+    </div>
+  );
+
+  const renderProductRows = () => {
+    const rows = [];
+    let remainingProducts = [...products];
+
+    // Process products in groups of 7 (6 regular + 1 featured)
+    while (remainingProducts.length >= 7) {
+      const regularProducts = remainingProducts.slice(0, 6);
+      const featuredProduct = remainingProducts[6];
+      const isEvenRow = rows.length % 2 === 0;
+
+      rows.push(
+        <div key={rows.length} className={`products-container mb-4 ${isEvenRow ? 'featured-right' : 'featured-left'}`}>
+          {isEvenRow ? (
+            <>
+              <div className="regular-products">
+                {regularProducts.map((product) => (
+                  product && product._id ? (
+                    <div key={product._id} className="regular-product-item">
+                      {renderProductCard(product)}
+                    </div>
+                  ) : null
+                ))}
+              </div>
+              <div className="featured-product">
+                {renderProductCard(featuredProduct, true)}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="featured-product">
+                {renderProductCard(featuredProduct, true)}
+              </div>
+              <div className="regular-products">
+                {regularProducts.map((product) => (
+                  product && product._id ? (
+                    <div key={product._id} className="regular-product-item">
+                      {renderProductCard(product)}
+                    </div>
+                  ) : null
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      );
+
+      remainingProducts = remainingProducts.slice(7);
+    }
+
+    // Handle remaining products in a single row if any
+    if (remainingProducts.length > 0) {
+      rows.push(
+        <div key="remaining" className="remaining-products-container mb-4">
+          {remainingProducts.map((product) => (
+            product && product._id ? (
+              <div key={product._id} className="remaining-product-item">
+                {renderProductCard(product)}
+              </div>
+            ) : null
+          ))}
+        </div>
+      );
+    }
+
+    return rows;
+  };
+
   return (
     <div className="product-listing container">
       {/* Authentication Popup */}
@@ -219,47 +321,8 @@ const ProductListing = () => {
 
       {/* Products Grid */}
       {products && products.length > 0 ? (
-        <div className="row g-3">
-          {products.map((product) => (
-            product && product._id ? (
-              <div key={product._id} className="col-md-3 mb-4">
-                <div
-                  className="card product-card h-100"
-                  style={{ boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', borderRadius: '8px' }}
-                >
-                  <div className="product-image-wrapper position-relative">
-                    <img
-                      src={`${product.mainImage}`}
-                      className="card-img-top product-image"
-                      alt={product.productName}
-                      onClick={() => handleProductClick(product._id)}
-                    />
-                    <div
-                      className="wishlist-icon position-absolute"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (wishlist && wishlist.some((item) => item.productId && item.productId._id === product._id)) {
-                          handleRemoveFromWishlist(product);
-                        } else {
-                          handleAddToWishlist(product);
-                        }
-                      }}
-                    >
-                      <img
-                        src={wishlist && wishlist.some((item) => item.productId && item.productId._id === product._id) ? heartIconFilled : heartIcon}
-                        alt="Heart Icon"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="card-body text-center d-flex flex-column">
-                    <h5 className="card-title product-title">{product.productName}</h5>
-                    <p className="card-text text-muted">{product.description.slice(0, 100)}...</p>
-                  </div>
-                </div>
-              </div>
-            ) : null
-          ))}
+        <div className="all-products-container">
+          {renderProductRows()}
         </div>
       ) : (
         <div className="text-center my-5">No products found.</div>

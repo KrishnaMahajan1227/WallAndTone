@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
 import HomePage from './components/Home/HomePage';
@@ -23,42 +23,44 @@ import Search from './components/Search/Search';
 import CameraComponent from './components/CameraComponent/CameraComponent';
 import FreepikCustomization from './components/FreepikCustomization/FreepikCustomization';
 
-function App() {
-  const location = useLocation(); // Get the current location path
 
+
+function App() {
   return (
     <UserProvider>
       <WishlistProvider>
-        <Router>
-          <div className="Main-app">
-            {location.pathname !== '/livePreview' && <Navbar />}
-            <div className="Main-content container">
-              {location.pathname !== '/livePreview' && <SecondaryNavbar className="secondary-navbar-container" />}
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/search" element={<Search />} />
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/products" element={<ProductListing />} />
-                <Route path="/Cart" element={<CartComponent />} />
-                <Route path="/Wishlist" element={<WishlistComponent />} />
-                <Route path="/product/:productId" element={<ProductDetails />} />
-                <Route path="/profile" element={<UserProfile />} />
-                <Route path="/FreepikGenerator" element={<FreepikGenerator />} />
-                <Route path="/livePreview" element={<CameraComponent />} />
-                <Route path="/customize" element={<FreepikCustomization />} />
+      <Router>
+        <div className="Main-app">
+          {location.pathname !== '/livePreview' && <Navbar />}
+          <div className="Main-content container">
+          {location.pathname !== '/livePreview' && <SecondaryNavbar className="secondary-navbar-container"/>}
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/search" element={<Search />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/products" element={<ProductListing />} />
+              <Route path="/Cart" element={<CartComponent />} />
+              <Route path="/Wishlist" element={<WishlistComponent />} />
+              <Route path="/product/:productId" element={<ProductDetails/>} />
+              <Route path="/profile" element={<UserProfile/>} />
+              <Route path="/FreepikGenerator" element={<FreepikGenerator/>} />
+              <Route path="/livePreview" element={<CameraComponent/>} />
+              <Route path="/customize" element={<FreepikCustomization />} />
 
-                {/* Admin Routes */}
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dashboard/manageProducts" element={<ProductManager />} />
-                <Route path="/dashboard/FrameTypeManagement" element={<FrameTypeManagement />} />
-                <Route path="/dashboard/CouponAdmin" element={<CouponAdmin />} />
-                <Route path="/dashboard/SizesAdmin" element={<SizesAdmin />} />
-              </Routes>
-            </div>
+
+
+              {/* Admin Routes */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard/manageProducts" element={<ProductManager />} />
+              <Route path="/dashboard/FrameTypeManagement" element={<FrameTypeManagement/>} />
+              <Route path="/dashboard/CouponAdmin" element={<CouponAdmin/>} />
+              <Route path="/dashboard/SizesAdmin" element={<SizesAdmin/>} />
+            </Routes>
           </div>
-        </Router>
+        </div>
+      </Router>
       </WishlistProvider>
     </UserProvider>
   );

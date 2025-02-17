@@ -4,16 +4,25 @@ import { UserContext } from '../../contexts/UserContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Navbar.css';
 import whiteLogo from '../../assets/logo/wall-n-tone-white.png';
+import HistoryDropdown from '../History/HistoryDropdown';
+import { WishlistContext } from '../Wishlist/WishlistContext';
+import cartIconUrl from '../../assets/icons/cart-icon.svg';
+import historyIconUrl from '../../assets/icons/history-icon.svg';
+import heartIconUrl from '../../assets/icons/heart-icon.svg';
+import wishlistIconUrl from '../../assets/icons/heart-icon-filled.svg';
 
 const Navbar = () => {
   const { user, logout } = useContext(UserContext);
   const navigate = useNavigate();
   const location = useLocation();
-
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const { wishlistCount } = useContext(WishlistContext);
+  
   // Handle logout
   const handleLogout = () => {
     logout();
     navigate('/');
+    setIsNavOpen(false);
   };
 
   // Update navigation history when user clicks on a link
@@ -24,6 +33,10 @@ const Navbar = () => {
       ...currentHistory.filter(item => item.path !== path)
     ].slice(0, 3);
     localStorage.setItem('navHistory', JSON.stringify(newHistory));
+  };
+
+  const toggleNav = () => {
+    setIsNavOpen(!isNavOpen);
   };
 
   // Navbar links for regular users
@@ -147,38 +160,54 @@ const Navbar = () => {
   );
 
   return (
-    <nav className="main-navbar navbar-expand-lg navbar-dark sticky-top">
+    <nav className={`main-navbar ${isNavOpen ? 'show' : ''}`}>
       <div className="navbar-container container-fluid flex-column p-0">
-        <a 
-          href="/" 
-          className="navbar-brand logo-container d-flex align-items-center"
+        <Link 
+          to="/" 
+          className="navbar-brand logo-container"
           onClick={() => handleNavigation('', 'Home')}
         >
           <img src={whiteLogo} alt="Logo" className="logo" />
-        </a>
-    
+        </Link>
+
         <button 
           className="navbar-toggler" 
           type="button" 
-          data-bs-toggle="collapse" 
-          data-bs-target="#navbarSupportedContent" 
-          aria-controls="navbarSupportedContent" 
-          aria-expanded="false" 
+          onClick={toggleNav}
           aria-label="Toggle navigation"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
-    
-        <div className="collapse navbar-collapse links-container flex-column align-items-center" id="navbarSupportedContent">
+
+        <div className={`links-container ${isNavOpen ? 'show' : ''}`}>
           <ul className="navbar-nav links-list w-100">
             {user && user.role === 'superadmin' ? superAdminLinks : userLinks}
           </ul>
-    
-          <div className="user-info-container mt-auto">
+
+          {/* Mobile Secondary Nav */}
+          <div className="mobile-secondary-nav">
+            <Link to="/products" className="all-products-btn">
+              All Products
+            </Link>
+            <div className="nav-buttons">
+              <Link to="/cart" className="nav-button">
+                <img src={cartIconUrl} alt="Cart" />
+              </Link>
+              <Link to="/wishlist" className="nav-button">
+                <img 
+                  src={wishlistCount > 0 ? wishlistIconUrl : heartIconUrl} 
+                  alt="Wishlist"
+                />
+                {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
+              </Link>
+            </div>
+          </div>
+
+          <div className="user-info-container">
             {user ? (
-              <div className="user-info d-flex align-items-center flex-column align-items-lg-center justify-content-center">
+              <div className="user-info d-flex flex-column align-items-center">
                 <p
-                  className="user-name text-white text-capitalize clickable"
+                  className="user-name text-white text-capitalize clickable mb-2"
                   onClick={() => {
                     handleNavigation('profile', 'Profile');
                     navigate('/profile');
@@ -186,15 +215,15 @@ const Navbar = () => {
                 >
                   {user.firstName}
                 </p>
-                <button className="logout-btn btn btn-danger" onClick={handleLogout}>
+                <button className="btn btn-danger" onClick={handleLogout}>
                   Logout
                 </button>
               </div>
             ) : (
-              <div className="login-container w-100 text-center">
+              <div className="login-container text-center">
                 <Link 
                   to="/login" 
-                  className="login-btn btn btn-primary"
+                  className="btn btn-primary"
                   onClick={() => handleNavigation('login', 'Login')}
                 >
                   Login

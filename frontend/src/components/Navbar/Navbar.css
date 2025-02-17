@@ -1,56 +1,94 @@
+/* Base styles for the navbar */
 .main-navbar {
-  width: 18%; /* Sidebar width at 18% */
-  position: sticky;
+  width: 18%;
+  position: fixed;
   height: 100vh;
   top: 0;
   left: 0;
   bottom: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding-top: 20px;
-  background-color: #2F231F; /* New background color */
+  background-color: #2F231F;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.main-navbar .navbar-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .main-navbar .logo-container {
   display: flex;
-  margin: 0 20px;
+  margin: 0 10px;
   align-items: center;
   margin-bottom: 50px;
   position: relative;
-  z-index: 1;
+  z-index: 1001;
+  margin-top: 20px;
 }
 
 .main-navbar .logo-container .logo {
-  width: 120px; /* Logo size adjusted */
+  width: 120px;
   height: auto;
   object-fit: contain;
 }
 
 .main-navbar .navbar-toggler {
-  margin: 0 20px;
-  position: relative;
-  z-index: 1;
   display: none;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1001;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.main-navbar .navbar-toggler-icon {
+  display: block;
+  width: 30px;
+  height: 3px;
+  background-color: #fff;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.main-navbar .navbar-toggler-icon::before,
+.main-navbar .navbar-toggler-icon::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+
+.main-navbar .navbar-toggler-icon::before {
+  transform: translateY(-8px);
+}
+
+.main-navbar .navbar-toggler-icon::after {
+  transform: translateY(8px);
 }
 
 .main-navbar .links-container {
+  display: flex;
   flex-direction: column;
-  align-items: center; /* Align items horizontally on larger screens */
+  flex: 1;
   width: 100%;
-  padding-left: 0;
-  margin-bottom: 1rem;
-  background-color: #2F231F; /* New background color */
+  background-color: #2F231F;
+  overflow-y: auto;
 }
 
 .main-navbar .links-list {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-left: 0;
-  margin-bottom: 1rem;
-  padding-right: 10px;
-  align-items: center;
+  padding: 0 10px 20px 0;
+  margin: 0;
 }
 
 .main-navbar .links-list .nav-item {
@@ -75,79 +113,145 @@
   border-radius: 5px;
 }
 
+/* User info container - positioned at bottom */
 .main-navbar .user-info-container {
+  width: 100%;
+  padding: 20px;
+  background-color: #2F231F;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin-top: auto;
-  align-items: flex-start;
-  justify-content: center;
+}
+
+.main-navbar .user-info {
   display: flex;
   flex-direction: column;
-  position: absolute;
-  bottom: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.main-navbar .user-info .user-name {
+  color: #fff;
+  margin: 0;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.main-navbar .user-info .user-name:hover {
+  color: #5B2EFF;
+}
+
+.main-navbar .user-info .btn-danger {
+  width: 100%;
+  padding: 8px 16px;
+}
+
+.main-navbar .login-container {
   width: 100%;
 }
 
-.main-navbar .user-info-container .d-flex {
+.main-navbar .login-container .btn-primary {
+  width: 100%;
+  padding: 8px 16px;
+}
+
+/* Secondary nav items in main nav (mobile) */
+.mobile-secondary-nav {
+  display: none;
+  width: 100%;
+  padding: 15px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-secondary-nav .nav-buttons {
+  display: flex;
+  gap: 20px;
   justify-content: center;
+  align-items: center;
 }
 
-.main-navbar .user-info-container .d-flex .text-white {
+.mobile-secondary-nav .nav-button {
+  color: white;
+  background: none;
+  border: none;
+  padding: 8px;
   cursor: pointer;
+  position: relative;
 }
 
-.main-navbar .user-info-container .d-flex .btn {
-  margin-top: 10px;
+.mobile-secondary-nav .nav-button img {
+  width: 24px;
+  height: 24px;
+  filter: invert(1);
 }
 
-.user-info {
-  margin: 0 20px;
+.mobile-secondary-nav .badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  min-width: 1.5rem;
+  text-align: center;
 }
 
+.mobile-secondary-nav .all-products-btn {
+  background-color: white;
+  color: #2F231F;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 15px;
+  display: inline-block;
+}
 
-/* Mobile View */
-@media (max-width: 767px) {
+/* Tablet and Mobile Styles */
+@media (max-width: 991px) {
   .main-navbar {
-    width: 100%; /* Full width for smaller screens */
-    height: auto;
-    position: relative;
+    width: 280px;
+    left: -280px;
   }
 
-  .main-navbar .logo-container .logo {
-    width: 80px; /* Smaller logo size for mobile */
-  }
-
-  .main-navbar .links-list .nav-item .nav-link {
-    font-size: 16px; /* Slightly smaller font size for mobile */
-  }
-
-  .main-navbar .links-list {
-    flex-direction: column;
-    padding-left: 0;
-    align-items: center; /* Center align items */
-  }
-
-  .main-navbar .links-list .nav-item {
-    width: 100%;
-    text-align: center;
-  }
-
-  .main-navbar .logo-container {
-    padding-bottom: 10px; /* Adjust padding for mobile view */
+  .main-navbar.show {
+    left: 0;
   }
 
   .main-navbar .navbar-toggler {
     display: block;
   }
 
-  .main-navbar .links-container {
-    position: absolute;
+  .main-navbar.show .navbar-toggler-icon {
+    background-color: transparent;
+  }
+
+  .main-navbar.show .navbar-toggler-icon::before {
+    transform: rotate(45deg);
+  }
+
+  .main-navbar.show .navbar-toggler-icon::after {
+    transform: rotate(-45deg);
+  }
+
+  .main-navbar .logo-container {
+    position: fixed;
     top: 0;
-    left: -100%;
-    transition: left 0.5s;
-    height: 100vh;
+    left: 0;
+    padding: 20px;
+    background-color: #2F231F;
+    width: 100%;
+    margin: 0;
+  }
+
+  .main-navbar .links-container {
+    margin-top: 80px;
+    height: calc(100vh - 80px);
     overflow-y: auto;
   }
 
-  .main-navbar .links-container.show {
-    left: 0;
+  .mobile-secondary-nav {
+    display: block;
   }
 }

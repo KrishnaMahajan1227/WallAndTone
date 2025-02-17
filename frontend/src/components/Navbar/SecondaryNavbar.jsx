@@ -39,11 +39,9 @@ const SecondaryNavbar = () => {
   }, [token]);
 
   useEffect(() => {
-    // Get path name without leading slash
     const currentPath = location.pathname.substring(1);
-    if (!currentPath) return; // Skip if on home page
+    if (!currentPath) return;
   
-    // Define main navigation items
     const mainNavigationItems = [
       'search',
       'products',
@@ -52,9 +50,7 @@ const SecondaryNavbar = () => {
       'FreepikGenerator',
     ];
   
-    // Check if current path is a main navigation item
     if (mainNavigationItems.includes(currentPath)) {
-      // Convert path to readable name
       const pathName = currentPath
         .split('/')
         .pop()
@@ -62,14 +58,12 @@ const SecondaryNavbar = () => {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
   
-      // Update navigation history
       setNavigationHistory(prev => {
         const newHistory = [
           ...prev.filter(item => item.path !== currentPath),
           { path: currentPath, name: pathName }
-        ].slice(-3); // Keep only last 3 items, starting from the end
+        ].slice(-3);
   
-        // Save to localStorage
         localStorage.setItem('navHistory', JSON.stringify(newHistory));
         return newHistory;
       });
@@ -77,7 +71,6 @@ const SecondaryNavbar = () => {
   }, [location]);
 
   useEffect(() => {
-    // Load navigation history from localStorage on component mount
     const savedHistory = localStorage.getItem('navHistory');
     if (savedHistory) {
       setNavigationHistory(JSON.parse(savedHistory));
@@ -103,22 +96,27 @@ const SecondaryNavbar = () => {
   return (
     <nav className="secondary-navbar">
       <div className="container">
-        {/* Breadcrumbs */}
         <div className="breadcrumbs">
           <div className="All-btn">
-          <Link to="/products" className="all-products-btn">
-            All
-          </Link>
+            <Link to="/products" className="all-products-btn">
+              All
+            </Link>
           </div>
           <div className="history-breadcrump">
-          {navigationHistory.map((item, index) => (
-            <React.Fragment key={item.path}>
-              {index > 0 && <span className="breadcrumb-separator"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="none" stroke="#2F231F" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m9 6l6 6l-6 6"/></svg></span>}
-              <Link to={`/${item.path}`} className="breadcrumb-item">
-                {item.name}
-              </Link>
-            </React.Fragment>
-          ))}
+            {navigationHistory.map((item, index) => (
+              <React.Fragment key={item.path}>
+                {index > 0 && (
+                  <span className="breadcrumb-separator">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                      <path fill="none" stroke="#2F231F" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="m9 6l6 6l-6 6"/>
+                    </svg>
+                  </span>
+                )}
+                <Link to={`/${item.path}`} className="breadcrumb-item">
+                  {item.name}
+                </Link>
+              </React.Fragment>
+            ))}
           </div>
         </div>
 

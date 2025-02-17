@@ -42,26 +42,38 @@ const SecondaryNavbar = () => {
     // Get path name without leading slash
     const currentPath = location.pathname.substring(1);
     if (!currentPath) return; // Skip if on home page
-
-    // Convert path to readable name
-    const pathName = currentPath
-      .split('/')
-      .pop()
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-
-    // Update navigation history
-    setNavigationHistory(prev => {
-      const newHistory = [
-        ...prev.filter(item => item.path !== currentPath),
-        { path: currentPath, name: pathName }
-      ].slice(-3); // Keep only last 3 items, starting from the end
-
-      // Save to localStorage
-      localStorage.setItem('navHistory', JSON.stringify(newHistory));
-      return newHistory;
-    });
+  
+    // Define main navigation items
+    const mainNavigationItems = [
+      'search',
+      'products',
+      'about',
+      'contact',
+      'FreepikGenerator',
+    ];
+  
+    // Check if current path is a main navigation item
+    if (mainNavigationItems.includes(currentPath)) {
+      // Convert path to readable name
+      const pathName = currentPath
+        .split('/')
+        .pop()
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+  
+      // Update navigation history
+      setNavigationHistory(prev => {
+        const newHistory = [
+          ...prev.filter(item => item.path !== currentPath),
+          { path: currentPath, name: pathName }
+        ].slice(-3); // Keep only last 3 items, starting from the end
+  
+        // Save to localStorage
+        localStorage.setItem('navHistory', JSON.stringify(newHistory));
+        return newHistory;
+      });
+    }
   }, [location]);
 
   useEffect(() => {

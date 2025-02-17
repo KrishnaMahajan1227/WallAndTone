@@ -208,16 +208,9 @@ const WishlistComponent = () => {
                   </div>
                   <div className="wishlist-item-details">
                     <h3 className="wishlist-item-title">{item.productId.productName}</h3>
-                    <p className="wishlist-item-size">
-                      <strong>Size:</strong> {item.productId.size}
+                    <p className="wishlist-item-Description">
+                      <strong>Description:</strong> {item.productId.description}
                     </p>
-                    <p className="wishlist-item-frame">
-                      <strong>Frame:</strong> {item.productId.frameType}
-                    </p>
-                    <p className="wishlist-item-total">
-                      Total: {item.productId.price} Rs.
-                    </p>
-                    <p className="wishlist-item-delivery">(Delivery in X days)</p>
                     <div className="wishlist-item-actions">
                       {isInCart ? (
                         <button

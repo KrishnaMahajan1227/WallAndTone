@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const sizeController = require('../controllers/SizeController');
+const sizeController = require('../controllers/sizeController.js');
 
 router.get('/getsizes', sizeController.getAllSizes);
 

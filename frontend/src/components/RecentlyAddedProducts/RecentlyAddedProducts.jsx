@@ -23,7 +23,7 @@ const handleProductClick = (productId) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/products");
+        const response = await axios.get("http://localhost:8080/api/products");
         console.log("API Response:", response.data);
 
         const recentProducts = response.data.slice(0, 10); // Get the 10 most recent products

@@ -20,7 +20,7 @@ const { uploadExcel, uploadImage } = require('./middleware/upload');
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json({ limit: '50mb' }));

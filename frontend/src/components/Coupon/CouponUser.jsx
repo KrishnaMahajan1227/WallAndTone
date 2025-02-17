@@ -8,7 +8,7 @@ const CouponUser = ({ onApplyCoupon }) => {
   const handleApplyCoupon = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/user/coupons/apply", { code });
+      const response = await axios.post("http://localhost:8080/api/user/coupons/apply", { code });
       if (response.data.success) {
         setMessage(`Coupon applied successfully! Discount: ${response.data.discount}%`);
         onApplyCoupon(true, response.data.discount);

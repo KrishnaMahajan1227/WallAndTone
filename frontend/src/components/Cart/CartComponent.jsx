@@ -21,10 +21,10 @@ const CartComponent = () => {
     try {
       if (token) {
         const [cartResponse, wishlistResponse] = await Promise.all([
-          fetch("http://localhost:8080/api/cart", {
+          fetch("http://backend.wallandtone.com/api/cart", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:8080/api/wishlist", {
+          fetch("http://backend.wallandtone.com/api/wishlist", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -104,7 +104,7 @@ const CartComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/cart/update/${item._id}`,
+          `http://backend.wallandtone.com/api/cart/update/${item._id}`,
           {
             method: "PUT",
             headers: {
@@ -146,7 +146,7 @@ const CartComponent = () => {
 
     if (token) {
       try {
-        const response = await fetch("http://localhost:8080/api/wishlist/add", {
+        const response = await fetch("http://backend.wallandtone.com/api/wishlist/add", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -175,7 +175,7 @@ const CartComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/wishlist/remove/${product._id}`,
+          `http://backend.wallandtone.com/api/wishlist/remove/${product._id}`,
           {
             method: "DELETE",
             headers: {
@@ -201,7 +201,7 @@ const CartComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/cart/remove/${item._id}`,
+          `http://backend.wallandtone.com/api/cart/remove/${item._id}`,
           {
             method: "DELETE",
             headers: {

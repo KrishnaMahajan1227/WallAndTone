@@ -14,7 +14,7 @@ const HistoryDropdown = ({ onSelect }) => {
     const fetchHistory = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('https://wallandtone.com/api/history', {
+        const response = await axios.get('http://localhost:8080/api/history', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

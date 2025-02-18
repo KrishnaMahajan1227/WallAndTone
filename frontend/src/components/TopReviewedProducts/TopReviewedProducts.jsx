@@ -14,7 +14,7 @@ const TopReviewedProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("https://wallandtone.com/api/products");
+        const response = await axios.get("http://localhost:8080/api/products");
         console.log("API Response:", response.data);
 
         const products = Array.isArray(response.data) ? response.data : [];

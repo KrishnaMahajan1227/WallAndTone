@@ -20,7 +20,7 @@ function SizesAdmin() {
 
   useEffect(() => {
     if (token) {
-      axios.get('https://wallandtone.com/api/admin/sizes/getsizes', {
+      axios.get('http://localhost:8080/api/admin/sizes/getsizes', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -41,7 +41,7 @@ function SizesAdmin() {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (mode === 'create') {
-      axios.post('https://wallandtone.com/api/admin/sizes/addsize', {
+      axios.post('http://localhost:8080/api/admin/sizes/addsize', {
         width,
         height,
         price,
@@ -64,7 +64,7 @@ function SizesAdmin() {
           console.error(error);
         });
     } else {
-      axios.put(`https://wallandtone.com/api/admin/sizes/updatesize/${id}`, {
+      axios.put(`http://localhost:8080/api/admin/sizes/updatesize/${id}`, {
         width,
         height,
         price,
@@ -97,7 +97,7 @@ function SizesAdmin() {
   };
 
   const handleDelete = (id) => {
-    axios.delete(`https://wallandtone.com/api/admin/sizes/deletesize/${id}`, {
+    axios.delete(`http://localhost:8080/api/admin/sizes/deletesize/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

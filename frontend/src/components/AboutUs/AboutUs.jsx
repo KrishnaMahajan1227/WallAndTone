@@ -1,30 +1,46 @@
 import React from 'react';
 import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
+import aboutturningcanvases from '../../assets/about/About-Turning-Canvases.png';
+import AboutDiscoverCollection from '../../assets/about/About-Discover-Collection.png';
+import Empoweringchange from '../../assets/about/Empowering-change.png';
+
 import './AboutUs.css';
+
 
 const AboutContent = () => (
   <>
     <section className="aboutus-hero">
       <div className="aboutus-container">
-        <h1>Turning Walls Into Canvases</h1>
-        <p className="aboutus-hero-text">
-          At Wall & Tone, we believe in the power of art to transform spaces
-          and evoke emotions.
-        </p>
+        <div className="abt-sec1-content">
+            <div className="content">
+            <h2>Turning Walls Into Canvases</h2>
+        {/* <p className="aboutus-hero-text">
+        At Wall & Tone, we believe in the power of art to transform spaces and evoke emotions. 
+        Our mission is to offer art that speaks to you—pieces that inspire, uplift, and make a statement. Born from a legacy of artists, and with a focus on craftsmanship, quality, and innovative designs, we ensure every piece is not just a decoration, but a piece of emotion, history, and personal connection.
+        </p> */}
         <p className="aboutus-hero-subtext">
-          Our mission is to offer art that speaks to you—pieces that inspire,
-          uplift, and make a statement. Born from a legacy of artists, and
-          with a focus on craftsmanship, quality, and innovative designs, we
-          bring you a curated collection that embodies our rich artistic
-          history and personal connection.
+        At Wall & Tone, we believe in the power of art to transform spaces and evoke emotions. 
+        Our mission is to offer art that speaks to you—pieces that inspire, uplift, and make a statement. Born from a legacy of artists, and with a focus on craftsmanship, quality, and innovative designs, we ensure every piece is not just a decoration, but a piece of emotion, history, and personal connection.
         </p>
         <button className="aboutus-primary-button">Explore Collection</button>
+            </div>
+            <div className="img-sec">
+                <img src={aboutturningcanvases} alt="about-turning-canvases" />
+            </div>
+        </div>
       </div>
     </section>
 
     <section className="aboutus-collection-section">
       <div className="aboutus-container">
         <div className="aboutus-collection-grid">
+          <div className="aboutus-collection-image">
+            <img 
+              src={AboutDiscoverCollection} 
+              alt="About-Discover-Collection"
+              className="aboutus-gallery-image"
+            />
+          </div>
           <div className="aboutus-collection-text">
             <h2>Discover the Wall & Tone Collection & Offerings</h2>
             <p>
@@ -76,15 +92,9 @@ const AboutContent = () => (
                 At Wall & Tone, your walls do the talking—let's make them say
                 something unforgettable!
               </p>
-              <button className="aboutus-primary-button">Explore Collection</button>
             </div>
-          </div>
-          <div className="aboutus-collection-image">
-            <img 
-              src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80" 
-              alt="Gallery wall with framed artwork"
-              className="aboutus-gallery-image"
-            />
+            <button className="aboutus-primary-button">Explore Collection</button>
+
           </div>
         </div>
       </div>
@@ -167,16 +177,20 @@ function AboutUs() {
 
       <section className="aboutus-impact-section">
         <div className="aboutus-container">
-          <h2>Empowering change, One wall at a Time</h2>
-          <p>
-            With every sector you buy, we donate to support children's
-            education and welfare through art.org
-          </p>
-          <img 
-            src="https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
-            alt="Happy children learning"
-            className="aboutus-impact-image"
-          />
+          <div className="aboutus-impact-image-container">
+            <div className="aboutus-impact-content">
+              <h2>Empowering change, One wall at a Time</h2>
+              <p>
+                With every sector you buy, we donate to support children's
+                education and welfare through art.org
+              </p>
+            </div>
+            <img 
+              src={Empoweringchange}
+              alt="Happy children learning"
+              className="aboutus-impact-image"
+            />
+          </div>
         </div>
       </section>
     </div>

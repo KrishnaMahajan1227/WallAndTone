@@ -45,7 +45,7 @@ const CameraComponent = () => {
       if (!token) return;
 
       try {
-        const wishlistResponse = await fetch('http://backend.wallandtone.com/api/wishlist', {
+        const wishlistResponse = await fetch('https://wallandtone.com/api/wishlist', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ const CameraComponent = () => {
         const wishlistProductIds = wishlistData.items.filter((item) => item.productId !== null).map((item) => item.productId._id);
         console.log('wishlistProductIds:', wishlistProductIds);
 
-        const productsResponse = await fetch('http://backend.wallandtone.com/api/products', {
+        const productsResponse = await fetch('https://wallandtone.com/api/products', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -85,14 +85,14 @@ const CameraComponent = () => {
       if (!token) return;
 
       try {
-        const cartResponse = await fetch('http://backend.wallandtone.com/api/cart', {
+        const cartResponse = await fetch('https://wallandtone.com/api/cart', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
-        const wishlistResponse = await fetch('http://backend.wallandtone.com/api/wishlist', {
+        const wishlistResponse = await fetch('https://wallandtone.com/api/wishlist', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -195,7 +195,7 @@ const handleProductSelect = (product) => {
   const productIndex = selectedProducts.indexOf(product);
   const productImage = document.querySelectorAll('.selected-product img.product-on-wall')[productIndex];
   if (productImage) {
-    productImage.src = `http://backend.wallandtone.com/${product.mainImage}`;
+    productImage.src = `https://wallandtone.com/${product.mainImage}`;
   }
 };
 
@@ -209,7 +209,7 @@ const handleProductSelect = (product) => {
   // Fetch product data
   const fetchProductData = async (productId) => {
     try {
-      const response = await fetch(`http://backend.wallandtone.com/api/products/${productId}`);
+      const response = await fetch(`https://wallandtone.com/api/products/${productId}`);
       if (!response.ok) {
         throw new Error(`Error fetching product data: ${response.status} ${response.statusText}`);
       }
@@ -294,7 +294,7 @@ const handleSizeSelect = (size) => {
     }
 
     try {
-      await fetch('http://backend.wallandtone.com/api/wishlist/add', {
+      await fetch('https://wallandtone.com/api/wishlist/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -312,7 +312,7 @@ const handleSizeSelect = (size) => {
   // Remove from wishlist
   const handleRemoveFromWishlist = async (wishlistItem) => {
     try {
-      await fetch(`http://backend.wallandtone.com/api/wishlist/remove/${wishlistItem.productId._id}`, {
+      await fetch(`https://wallandtone.com/api/wishlist/remove/${wishlistItem.productId._id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -342,7 +342,7 @@ const handleSizeSelect = (size) => {
   // Fetch frame types
   const fetchFrameTypes = async (productId) => {
     try {
-      const response = await fetch(`http://backend.wallandtone.com/api/products/${productId}/frame-types`);
+      const response = await fetch(`https://wallandtone.com/api/products/${productId}/frame-types`);
       if (!response.ok) {
         if (response.status === 404) {
           console.error('Frame types not found for product ID:', productId);
@@ -360,7 +360,7 @@ const handleSizeSelect = (size) => {
   // Fetch sub frame types
   const fetchSubFrameTypes = async (productId) => {
     try {
-      const response = await fetch(`http://backend.wallandtone.com/api/products/${productId}/sub-frame-types`);
+      const response = await fetch(`https://wallandtone.com/api/products/${productId}/sub-frame-types`);
       if (!response.ok) {
         if (response.status === 404) {
           console.error('Sub frame types not found for product ID:', productId);
@@ -378,7 +378,7 @@ const handleSizeSelect = (size) => {
   // Fetch sizes
   const fetchSizes = async (productId) => {
     try {
-      const response = await fetch(`http://backend.wallandtone.com/api/products/${productId}/sizes`);
+      const response = await fetch(`https://wallandtone.com/api/products/${productId}/sizes`);
       const data = await response.json();
       console.log('Sizes:', data);
       setSizes(data);
@@ -395,7 +395,7 @@ const handleSizeSelect = (size) => {
     // Ensure image URL is correctly formatted
     const formattedImageUrl = subFrameType.imageUrl?.startsWith("http")
       ? subFrameType.imageUrl
-      : `http://backend.wallandtone.com/uploads/${subFrameType.imageUrl}`;
+      : `https://wallandtone.com/uploads/${subFrameType.imageUrl}`;
   
     // Update product details in state
     setProductDetails((prevDetails) => ({
@@ -407,10 +407,10 @@ const handleSizeSelect = (size) => {
     localStorage.setItem("subFrameType", JSON.stringify({ ...subFrameType, imageUrl: formattedImageUrl }));
   
     try {
-      console.log(`📤 Fetching image from API: http://backend.wallandtone.com/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`);
+      console.log(`📤 Fetching image from API: https://wallandtone.com/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`);
       
       const response = await fetch(
-        `http://backend.wallandtone.com/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`
+        `https://wallandtone.com/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`
       );
   
       if (!response.ok) {
@@ -464,7 +464,7 @@ const handleSizeSelect = (size) => {
 
       console.log('Request body:', cartProduct);
 
-      const response = await fetch('http://backend.wallandtone.com/api/cart/add', {
+      const response = await fetch('https://wallandtone.com/api/cart/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -518,7 +518,7 @@ const handleFrameTypeSelect = (frameType) => {
   // Fetch sub frame types by frame type
   const fetchSubFrameTypesByFrameType = async (frameTypeId) => {
     try {
-      const response = await fetch(`http://backend.wallandtone.com/api/sub-frame-types/${frameTypeId}`);
+      const response = await fetch(`https://wallandtone.com/api/sub-frame-types/${frameTypeId}`);
       if (!response.ok) {
         throw new Error(`Error fetching sub frame types: ${response.status} ${response.statusText}`);
       }
@@ -758,7 +758,7 @@ const handleFrameTypeSelect = (frameType) => {
   </select>
   {productDetails.subFrameType && (
     <img
-    src={`http://backend.wallandtone.com/uploads/${productDetails.subFrameType.imageUrl}`}
+    src={`https://wallandtone.com/uploads/${productDetails.subFrameType.imageUrl}`}
       alt={productDetails.subFrameType.name}
       style={{ width: '100%', height: '100px', objectFit: 'cover' }}
     />

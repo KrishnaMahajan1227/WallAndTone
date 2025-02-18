@@ -52,7 +52,7 @@ const Signup = () => {
     setSuccessMessage('');
 
     try {
-      const response = await axios.post('http://backend.wallandtone.com/api/signup', formData);
+      const response = await axios.post('https://wallandtone.com/api/signup', formData);
 
       if (response.status === 201) {
         setSuccessMessage(response.data.message);

@@ -30,7 +30,7 @@ const Login = () => {
     e.preventDefault();
     
     try {
-      const response = await axios.post('http://backend.wallandtone.com/api/login', {
+      const response = await axios.post('https://wallandtone.com/api/login', {
         email,
         password,
       });

@@ -47,7 +47,7 @@ const FreepikCustomization = () => {
   useEffect(() => {
     const fetchFrameTypes = async () => {
       try {
-        const response = await axios.get('http://backend.wallandtone.com/api/frame-types');
+        const response = await axios.get('https://wallandtone.com/api/frame-types');
         setFrameTypes(response.data);
         if (response.data.length > 0) {
           setSelectedFrameType(response.data[0]);
@@ -64,7 +64,7 @@ const FreepikCustomization = () => {
     const fetchSubFrameTypes = async () => {
       if (selectedFrameType?._id) {
         try {
-          const response = await axios.get(`http://backend.wallandtone.com/api/sub-frame-types/${selectedFrameType._id}`);
+          const response = await axios.get(`https://wallandtone.com/api/sub-frame-types/${selectedFrameType._id}`);
           setSubFrameTypes(response.data);
           if (response.data.length > 0) {
             setSelectedSubFrameType(response.data[0]);
@@ -81,7 +81,7 @@ const FreepikCustomization = () => {
   useEffect(() => {
     const fetchSizes = async () => {
       try {
-        const response = await axios.get('http://backend.wallandtone.com/api/admin/sizes/getsizes');
+        const response = await axios.get('https://wallandtone.com/api/admin/sizes/getsizes');
         setSizes(response.data);
         if (response.data.length > 0) {
           setSelectedSize(response.data[0]);
@@ -156,7 +156,7 @@ const FreepikCustomization = () => {
   
       if (token) {
         const response = await axios.post(
-          'http://backend.wallandtone.com/api/cart/add',
+          'https://wallandtone.com/api/cart/add',
           cartItem,
           {
             headers: { Authorization: `Bearer ${token}` }
@@ -195,7 +195,7 @@ const FreepikCustomization = () => {
       imageFormData.append('image', generatedImage);
       
       const uploadResponse = await axios.post(
-        'http://backend.wallandtone.com/api/upload/image',
+        'https://wallandtone.com/api/upload/image',
         imageFormData,
         {
           headers: {
@@ -215,7 +215,7 @@ const FreepikCustomization = () => {
 
       if (token) {
         const response = await axios.post(
-          'http://backend.wallandtone.com/api/wishlist/add',
+          'https://wallandtone.com/api/wishlist/add',
           wishlistItem,
           {
             headers: { Authorization: `Bearer ${token}` }

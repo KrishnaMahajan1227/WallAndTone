@@ -32,7 +32,7 @@ const FreepikImageGenerator = () => {
 
   const fetchUserGeneratedImages = async () => {
     try {
-      const response = await axios.get('http://backend.wallandtone.com/api/users/generated-images', {
+      const response = await axios.get('https://wallandtone.com/api/users/generated-images', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const sortedImages = response.data.images.sort((a, b) => 
@@ -55,7 +55,7 @@ const FreepikImageGenerator = () => {
 
     try {
       const response = await axios.post(
-        'http://backend.wallandtone.com/api/freepik/generate-image',
+        'https://wallandtone.com/api/freepik/generate-image',
         { prompt, styling },
         {
           headers: {
@@ -113,7 +113,7 @@ const FreepikImageGenerator = () => {
 
         for (let i = 0; i < chunks.length; i++) {
           const response = await axios.post(
-            'http://backend.wallandtone.com/api/users/generated-images/chunk',
+            'https://wallandtone.com/api/users/generated-images/chunk',
             {
               image: chunks[i],
               prompt,

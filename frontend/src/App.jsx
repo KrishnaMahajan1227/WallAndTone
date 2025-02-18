@@ -22,6 +22,7 @@ import SecondaryNavbar from './components/Navbar/SecondaryNavbar';
 import Search from './components/Search/Search';
 import CameraComponent from './components/CameraComponent/CameraComponent';
 import FreepikCustomization from './components/FreepikCustomization/FreepikCustomization';
+import AboutUs from './components/AboutUs/AboutUs';
 
 
 
@@ -48,6 +49,7 @@ function App() {
               <Route path="/FreepikGenerator" element={<FreepikGenerator/>} />
               <Route path="/livePreview" element={<CameraComponent/>} />
               <Route path="/customize" element={<FreepikCustomization />} />
+              <Route path="/aboutus" element={<AboutUs/>} />
 
 
 

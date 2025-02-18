@@ -62,7 +62,7 @@ const Navbar = () => {
       </li>
       <li className="nav-item">
         <Link 
-          to="/about" 
+          to="/aboutus" 
           className="nav-link"
           onClick={() => handleNavigation('about', 'About Us')}
         >

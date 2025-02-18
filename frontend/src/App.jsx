@@ -49,7 +49,7 @@ function App() {
               <Route path="/FreepikGenerator" element={<FreepikGenerator/>} />
               <Route path="/livePreview" element={<CameraComponent/>} />
               <Route path="/customize" element={<FreepikCustomization />} />
-              <Route path="/aboutus" element={<AboutUs/>} />
+              <Route path="/aboutus/*" element={<AboutUs/>} />
 
 
 

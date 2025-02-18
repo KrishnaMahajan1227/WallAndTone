@@ -1,283 +1,337 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
 .aboutus-page {
-    font-family: 'Inter', sans-serif;
-    color: #333;
-    width: 100%;
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.aboutus-tabs-container {
+  background-color: #f8f5f3;
+  padding-top: 20px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.aboutus-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background-color: transparent;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.aboutus-tab-button {
+  background-color: #E2D9D5;
+  border: none;
+  padding: 8px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  color: #333;
+  text-decoration: none;
+}
+
+.aboutus-tab-button:hover {
+  background-color: #d6ccc7;
+  transform: translateY(-2px);
+}
+
+.aboutus-tab-button.active {
+  background-color: #d6ccc7;
+  position: relative;
+}
+
+.aboutus-tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #333;
+  transform: scaleX(1);
+}
+
+.aboutus-tab-divider {
+  width: 1px;
+  height: 20px;
+  background-color: #333;
+  margin: 0 2px;
+}
+
+.aboutus-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* Section Animations */
+.aboutus-hero,
+.aboutus-collection-section,
+.aboutus-production,
+.aboutus-impact-section {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.aboutus-collection-section {
+  animation-delay: 0.2s;
+}
+
+.aboutus-impact-section {
+  animation-delay: 0.4s;
+}
+
+/* Content Styles */
+.aboutus-hero {
+  padding: 80px 0;
+  background-color: #f8f5f3;
+}
+
+.aboutus-hero h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #2d2d2d;
+}
+
+.aboutus-hero-text {
+  font-size: 20px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  max-width: 600px;
+}
+
+.aboutus-hero-subtext {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #666;
+  margin-bottom: 32px;
+  max-width: 600px;
+}
+
+.aboutus-primary-button {
+  background-color: #4a4a4a;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.aboutus-primary-button:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.aboutus-collection-section {
+  padding: 80px 0;
+  background-color: white;
+}
+
+.aboutus-collection-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.aboutus-collection-text h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #2d2d2d;
+}
+
+.aboutus-collections-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin: 32px 0;
+}
+
+.aboutus-collection-list h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #2d2d2d;
+}
+
+.aboutus-collection-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.aboutus-collection-list li {
+  margin-bottom: 8px;
+  color: #666;
+  transition: transform 0.3s ease;
+  padding: 4px 0;
+}
+
+.aboutus-collection-list li:hover {
+  transform: translateX(8px);
+  color: #333;
+}
+
+.aboutus-gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  transition: transform 0.5s ease;
+}
+
+.aboutus-gallery-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+/* Production Section */
+.aboutus-production {
+  padding: 80px 0;
+  background-color: #f8f5f3;
+}
+
+.aboutus-production-content h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 48px;
+  color: #2d2d2d;
+  text-align: center;
+}
+
+.aboutus-production-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.aboutus-process-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Impact Section */
+.aboutus-impact-section {
+  padding: 80px 0;
+  background-color: #f8f5f3;
+  text-align: center;
+}
+
+.aboutus-impact-section h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #2d2d2d;
+}
+
+.aboutus-impact-section p {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.aboutus-impact-image {
+  width: 100%;
+  max-width: 1000px;
+  border-radius: 12px;
+  margin: 0 auto;
+  transition: transform 0.5s ease;
+}
+
+.aboutus-impact-image:hover {
+  transform: scale(1.02);
+}
+
+/* Animation Keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .aboutus-collection-grid,
+  .aboutus-production-grid {
+    gap: 40px;
   }
   
-  .aboutus-tabs-container {
-    background-color: #f8f5f3;
-    padding-top: 20px;
-    display: flex;
-    justify-content: center;
-    width: 100%;
+  .aboutus-hero h1,
+  .aboutus-production-content h1 {
+    font-size: 42px;
   }
-  
-  .aboutus-tabs {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    background-color: transparent;
-    padding: 4px;
-    border-radius: 8px;
-  }
-  
-  .aboutus-tab-button {
-    background-color: #E2D9D5;
-    border: none;
-    padding: 8px 24px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 4px;
-    color: #333;
-    white-space: nowrap;
-  }
-  
-  .aboutus-tab-button:hover {
-    background-color: #d6ccc7;
-  }
-  
-  .aboutus-tab-button.active {
-    background-color: #d6ccc7;
-  }
-  
-  .aboutus-tab-divider {
-    width: 1px;
-    height: 20px;
-    background-color: #333;
-    margin: 0 2px;
-  }
-  
-  .aboutus-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    width: 100%;
-  }
-  
-  .aboutus-hero {
-    padding: 80px 0;
-    background-color: #f8f5f3;
-    width: 100%;
-  }
-  
-  .aboutus-hero h1 {
-    font-size: 48px;
-    font-weight: 700;
-    margin-bottom: 24px;
-    color: #2d2d2d;
-  }
-  
-  .aboutus-hero-text {
-    font-size: 20px;
-    line-height: 1.6;
-    margin-bottom: 16px;
-    max-width: 600px;
-  }
-  
-  .aboutus-hero-subtext {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #666;
-    margin-bottom: 32px;
-    max-width: 600px;
-  }
-  
-  .aboutus-primary-button {
-    background-color: #4a4a4a;
-    color: white;
-    border: none;
-    padding: 12px 32px;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .aboutus-primary-button:hover {
-    background-color: #333;
-  }
-  
-  .aboutus-collection-section {
-    padding: 80px 0;
-    background-color: white;
-    width: 100%;
-  }
-  
-  .aboutus-collection-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: start;
-  }
-  
-  .aboutus-collection-text h2 {
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 24px;
-    color: #2d2d2d;
+}
+
+@media (max-width: 768px) {
+  .aboutus-collection-grid,
+  .aboutus-production-grid {
+    grid-template-columns: 1fr;
   }
   
   .aboutus-collections-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    margin: 32px 0;
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
   
-  .aboutus-collection-list h3 {
+  .aboutus-hero h1,
+  .aboutus-production-content h1 {
+    font-size: 36px;
+  }
+  
+  .aboutus-hero-text {
     font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    color: #2d2d2d;
   }
   
-  .aboutus-collection-list ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .aboutus-collection-text h2 {
+    font-size: 28px;
   }
   
-  .aboutus-collection-list li {
-    margin-bottom: 8px;
-    color: #666;
+  .aboutus-container {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .aboutus-hero,
+  .aboutus-production {
+    padding: 60px 0;
   }
   
-  .aboutus-offerings {
-    margin-top: 40px;
-  }
-  
-  .aboutus-offerings h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    color: #2d2d2d;
-  }
-  
-  .aboutus-offerings ul {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 24px 0;
-  }
-  
-  .aboutus-offerings li {
-    margin-bottom: 8px;
-    color: #666;
-  }
-  
-  .aboutus-offerings-note {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 24px;
-    line-height: 1.6;
-  }
-  
-  .aboutus-brand-promise {
-    font-size: 16px;
-    font-weight: 500;
-    color: #2d2d2d;
-    margin-bottom: 32px;
-  }
-  
-  .aboutus-gallery-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 12px;
-  }
-  
-  .aboutus-impact-section {
-    padding: 80px 0;
-    background-color: #f8f5f3;
-    text-align: center;
-    width: 100%;
-  }
-  
-  .aboutus-impact-section h2 {
+  .aboutus-hero h1,
+  .aboutus-production-content h1 {
     font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: #2d2d2d;
   }
   
-  .aboutus-impact-section p {
-    font-size: 18px;
-    color: #666;
-    margin-bottom: 40px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+  .aboutus-tab-button {
+    padding: 8px 16px;
+    font-size: 14px;
   }
-  
-  .aboutus-impact-image {
-    width: 100%;
-    max-width: 1000px;
-    border-radius: 12px;
-    margin: 0 auto;
-  }
-  
-  /* Enhanced Responsive Design */
-  @media (max-width: 1024px) {
-    .aboutus-collection-grid {
-      gap: 40px;
-    }
-    
-    .aboutus-hero h1 {
-      font-size: 42px;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .aboutus-collection-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .aboutus-collections-container {
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-    
-    .aboutus-hero h1 {
-      font-size: 36px;
-    }
-    
-    .aboutus-hero-text {
-      font-size: 18px;
-    }
-    
-    .aboutus-collection-text h2 {
-      font-size: 28px;
-    }
-    
-    .aboutus-container {
-      padding: 0 16px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .aboutus-hero {
-      padding: 60px 0;
-    }
-    
-    .aboutus-hero h1 {
-      font-size: 32px;
-    }
-    
-    .aboutus-collection-section {
-      padding: 60px 0;
-    }
-    
-    .aboutus-tab-button {
-      padding: 8px 16px;
-      font-size: 14px;
-    }
-    
-    .aboutus-impact-section h2 {
-      font-size: 28px;
-    }
-    
-    .aboutus-impact-section p {
-      font-size: 16px;
-    }
-  }
+}

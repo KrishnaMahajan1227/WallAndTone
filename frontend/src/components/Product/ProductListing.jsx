@@ -24,7 +24,7 @@ const ProductListing = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        let url = 'http://wallandtone.com/api/products';
+        let url = '/api/products';
         if (location.search) {
           url += location.search;
         }
@@ -52,7 +52,7 @@ const ProductListing = () => {
     const fetchWishlist = async () => {
       if (token) {
         try {
-          const wishlistResponse = await fetch('http://wallandtone.com/api/wishlist', {
+          const wishlistResponse = await fetch('/api/wishlist', {
             method: 'GET',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -129,7 +129,7 @@ const ProductListing = () => {
     setWishlistCount(updatedWishlist.length);
 
     try {
-      const response = await fetch('http://wallandtone.com/api/wishlist/add', {
+      const response = await fetch('/api/wishlist/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ const ProductListing = () => {
     setWishlistCount(updatedWishlist.length);
 
     try {
-      const response = await fetch(`http://wallandtone.com/api/wishlist/remove/${product._id}`, {
+      const response = await fetch(`/api/wishlist/remove/${product._id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

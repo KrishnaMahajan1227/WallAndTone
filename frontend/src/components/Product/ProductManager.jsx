@@ -46,7 +46,7 @@ const ProductManager = () => {
 
   const fetchFrameTypes = async () => {
     try {
-      const response = await axios.get('http://wallandtone.com/api/frame-types');
+      const response = await axios.get('/api/frame-types');
       setFrameTypes(response.data);
     } catch (err) {
       handleError('Failed to fetch frame types');
@@ -55,7 +55,7 @@ const ProductManager = () => {
 
   const fetchSubFrameTypes = async () => {
     try {
-      const response = await axios.get('http://wallandtone.com/api/sub-frame-types');
+      const response = await axios.get('/api/sub-frame-types');
       setSubFrameTypes(response.data);
     } catch (err) {
       handleError('Failed to fetch sub frame types');
@@ -64,7 +64,7 @@ const ProductManager = () => {
 
   const fetchSizes = async () => {
     try {
-      const response = await axios.get('http://wallandtone.com/api/admin/sizes/getsizes');
+      const response = await axios.get('/api/admin/sizes/getsizes');
       setSizes(response.data);
     } catch (err) {
       handleError('Failed to fetch sizes');
@@ -73,7 +73,7 @@ const ProductManager = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://wallandtone.com/api/products');
+      const response = await axios.get('/api/products');
       setProducts(response.data);
     } catch (err) {
       handleError('Failed to fetch products');
@@ -148,8 +148,8 @@ const ProductManager = () => {
 
     try {
       const url = formData._id
-        ? `http://wallandtone.com/api/products/${formData._id}`
-        : 'http://wallandtone.com/api/products';
+        ? `/api/products/${formData._id}`
+        : '/api/products';
       
       const method = formData._id ? 'put' : 'post';
       const response = await axios[method](url, formDataToSend);
@@ -184,7 +184,7 @@ const ProductManager = () => {
     formDataToSend.append('excelFile', excelFile);
 
     try {
-      await axios.post('http://wallandtone.com/api/products/excel', formDataToSend);
+      await axios.post('/api/products/excel', formDataToSend);
       fetchProducts();
       setSuccess('Products uploaded successfully');
       setExcelFile(null);
@@ -207,7 +207,7 @@ const ProductManager = () => {
 
     try {
       await axios.post(
-        `http://wallandtone.com/api/products/${selectedProduct._id}/subframe-images`,
+        `/api/products/${selectedProduct._id}/subframe-images`,
         formDataToSend,
         {
           headers: {
@@ -273,7 +273,7 @@ const handleSubframeImageChange = (e) => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://wallandtone.com/api/products/${id}`);
+      await axios.delete(`/api/products/${id}`);
       setProducts(prev => prev.filter(p => p._id !== id));
       setSuccess('Product deleted successfully');
     } catch (err) {

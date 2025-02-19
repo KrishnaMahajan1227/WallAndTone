@@ -23,7 +23,7 @@ const handleProductClick = (productId) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://wallandtone.com/api/products");
+        const response = await axios.get("/api/products");
         console.log("API Response:", response.data);
 
         const recentProducts = response.data.slice(0, 10); // Get the 10 most recent products

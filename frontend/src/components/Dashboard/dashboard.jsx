@@ -33,7 +33,7 @@ const Dashboard = () => {
         return;
       }
   
-      const response = await axios.get('http://wallandtone.com/api/users', {
+      const response = await axios.get('/api/users', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -77,7 +77,7 @@ const Dashboard = () => {
       }
   
       // Make the DELETE request to delete the user
-      const response = await axios.delete(`http://wallandtone.com/api/users/${id}`, {
+      const response = await axios.delete(`/api/users/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,  // Send the token in the Authorization header
         },
@@ -103,7 +103,7 @@ const Dashboard = () => {
       const token = localStorage.getItem('token');  // Ensure token is retrieved from localStorage
   
       // Make the PUT request to update the user
-      const response = await axios.put(`http://wallandtone.com/api/users/${editingUser._id}`, editingUser, {
+      const response = await axios.put(`/api/users/${editingUser._id}`, editingUser, {
         headers: {
           'Authorization': `Bearer ${token}`,  // Send token in the Authorization header
         },

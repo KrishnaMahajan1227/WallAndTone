@@ -21,7 +21,7 @@ const Search = () => {
 
       if (query.length >= 2) {
         try {
-          const response = await axios.get(`http://wallandtone.com/api/search/suggestions?q=${query}`, {
+          const response = await axios.get(`/api/search/suggestions?q=${query}`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           });
           setSearchResults(response.data);

@@ -22,7 +22,7 @@ const SecondaryNavbar = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await axios.get('http://wallandtone.com/api/history', {
+        const response = await axios.get('/api/history', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

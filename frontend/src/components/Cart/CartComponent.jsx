@@ -21,10 +21,10 @@ const CartComponent = () => {
     try {
       if (token) {
         const [cartResponse, wishlistResponse] = await Promise.all([
-          fetch("http://wallandtone.com/api/cart", {
+          fetch("/api/cart", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://wallandtone.com/api/wishlist", {
+          fetch("/api/wishlist", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -104,7 +104,7 @@ const CartComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://wallandtone.com/api/cart/update/${item._id}`,
+          `/api/cart/update/${item._id}`,
           {
             method: "PUT",
             headers: {
@@ -146,7 +146,7 @@ const CartComponent = () => {
 
     if (token) {
       try {
-        const response = await fetch("http://wallandtone.com/api/wishlist/add", {
+        const response = await fetch("/api/wishlist/add", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -175,7 +175,7 @@ const CartComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://wallandtone.com/api/wishlist/remove/${product._id}`,
+          `/api/wishlist/remove/${product._id}`,
           {
             method: "DELETE",
             headers: {
@@ -201,7 +201,7 @@ const CartComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://wallandtone.com/api/cart/remove/${item._id}`,
+          `/api/cart/remove/${item._id}`,
           {
             method: "DELETE",
             headers: {

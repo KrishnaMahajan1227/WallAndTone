@@ -21,7 +21,7 @@ const CouponAdmin = () => {
 
   const fetchCoupons = async () => {
     try {
-      const response = await axios.get("http://wallandtone.com/api/admin/coupons/get");
+      const response = await axios.get("/api/admin/coupons/get");
       setCoupons(response.data);
     } catch (err) {
       setError("Failed to fetch coupons.");
@@ -31,7 +31,7 @@ const CouponAdmin = () => {
   const handleAddCoupon = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://wallandtone.com/api/admin/coupons/add", {
+      const response = await axios.post("/api/admin/coupons/add", {
         code,
         discount,
         expirationDate,
@@ -51,7 +51,7 @@ const CouponAdmin = () => {
 
   const handleUpdateCoupon = async () => {
     try {
-      await axios.put(`http://wallandtone.com/api/admin/coupons/update/${editCoupon._id}`, {
+      await axios.put(`/api/admin/coupons/update/${editCoupon._id}`, {
         code,
         discount,
         expirationDate,
@@ -71,7 +71,7 @@ const CouponAdmin = () => {
 
   const handleDeleteCoupon = async (id) => {
     try {
-      await axios.delete(`http://wallandtone.com/api/admin/coupons/delete/${id}`);
+      await axios.delete(`/api/admin/coupons/delete/${id}`);
       setCoupons(coupons.filter((coupon) => coupon._id !== id));
     } catch (err) {
       setError("Failed to delete coupon.");

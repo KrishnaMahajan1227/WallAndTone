@@ -31,10 +31,10 @@ const WishlistComponent = () => {
     try {
       if (token) {
         const [wishlistResponse, cartResponse] = await Promise.all([
-          fetch("http://wallandtone.com/api/wishlist", {
+          fetch("/api/wishlist", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://wallandtone.com/api/cart", {
+          fetch("/api/cart", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -84,7 +84,7 @@ const WishlistComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://wallandtone.com/api/cart/remove/${product._id}`,
+          `/api/cart/remove/${product._id}`,
           {
             method: "DELETE",
             headers: {
@@ -126,7 +126,7 @@ const WishlistComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://wallandtone.com/api/wishlist/remove/${product._id}`,
+          `/api/wishlist/remove/${product._id}`,
           {
             method: "DELETE",
             headers: {

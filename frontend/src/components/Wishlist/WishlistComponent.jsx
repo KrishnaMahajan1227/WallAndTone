@@ -31,10 +31,10 @@ const WishlistComponent = () => {
     try {
       if (token) {
         const [wishlistResponse, cartResponse] = await Promise.all([
-          fetch("/api/wishlist", {
+          fetch("http://localhost:8080/api/wishlist", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("/api/cart", {
+          fetch("http://localhost:8080/api/cart", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -84,7 +84,7 @@ const WishlistComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `/api/cart/remove/${product._id}`,
+          `http://localhost:8080/api/cart/remove/${product._id}`,
           {
             method: "DELETE",
             headers: {
@@ -126,7 +126,7 @@ const WishlistComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `/api/wishlist/remove/${product._id}`,
+          `http://localhost:8080/api/wishlist/remove/${product._id}`,
           {
             method: "DELETE",
             headers: {

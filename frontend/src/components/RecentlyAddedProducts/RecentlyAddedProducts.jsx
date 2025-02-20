@@ -5,33 +5,36 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./RecentlyAddedProducts.css";
-import { useNavigate } from 'react-router-dom';
-import { Alert, Modal, Button } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
+import { Button } from "react-bootstrap";
 
 const RecentlyAddedProducts = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState([]); // Ensure products is an array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-// Get all the quick view buttons
   const navigate = useNavigate();
 
-const handleProductClick = (productId) => {
+  const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
   };
-
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("/api/products");
+        const response = await axios.get("http://localhost:8080/api/products");
         console.log("API Response:", response.data);
 
-        const recentProducts = response.data.slice(0, 10); // Get the 10 most recent products
-
-        setProducts(recentProducts);
+        if (Array.isArray(response.data)) {
+          const recentProducts = response.data.slice(0, 10); // Get the 10 most recent products
+          setProducts(recentProducts);
+        } else {
+          console.error("Unexpected API response structure:", response.data);
+          setProducts([]); // Fallback to an empty array
+        }
       } catch (err) {
         console.error("Error fetching products:", err);
         setError(err.message);
+        setProducts([]); // Fallback to an empty array on error
       } finally {
         setLoading(false);
       }
@@ -41,24 +44,20 @@ const handleProductClick = (productId) => {
   }, []);
 
   const sliderSettings = {
-    infinite: false, /* Set infinite to false to prevent the slider from looping */
+    infinite: false,
     speed: 500,
     slidesToShow: 4,
     slidesToScroll: 1,
-    arrows: false, /* Remove the arrows as they are not needed */
-    dots: true, /* Remove the dots as they are not needed */
-responsive: [
+    arrows: false,
+    dots: true,
+    responsive: [
       {
         breakpoint: 1024,
-        settings: {
-          slidesToShow: 2,
-        },
+        settings: { slidesToShow: 2 },
       },
       {
         breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-        },
+        settings: { slidesToShow: 1 },
       },
     ],
   };
@@ -74,14 +73,18 @@ responsive: [
             <div key={product._id} className="recently-added-product-card">
               <div className="card">
                 <img
-                  src={`${product.mainImage}`}
+                  src={product.mainImage}
                   alt={product.productName}
                   className="card-img-top"
                 />
                 <div className="overlay">
-                <Button variant="primary" onClick={() => handleProductClick(product._id)} className="quick-view-button">
+                  <Button
+                    variant="primary"
+                    onClick={() => handleProductClick(product._id)}
+                    className="quick-view-button"
+                  >
                     Quick View
-                </Button>                
+                  </Button>
                 </div>
                 <div className="card-body">
                   <h5 className="card-title">{product.productName}</h5>
@@ -89,7 +92,7 @@ responsive: [
                   <p className="card-text">
                     <strong>${product.price}</strong>
                   </p>
-                 </div>
+                </div>
               </div>
             </div>
           ))}

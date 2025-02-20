@@ -23,7 +23,7 @@ const UserProfile = () => {
           throw new Error('User not authenticated');
         }
 
-        const response = await axios.get('/api/user/profile', {
+        const response = await axios.get('http://localhost:8080/api/user/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -60,7 +60,7 @@ const UserProfile = () => {
       }
 
       const response = await axios.put(
-        '/api/user/profile',
+        'http://localhost:8080/api/user/profile',
         { ...profile },
         { headers: { Authorization: `Bearer ${token}` } }
       );

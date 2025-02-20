@@ -52,7 +52,7 @@ const Signup = () => {
     setSuccessMessage('');
 
     try {
-      const response = await axios.post('/api/signup', formData);
+      const response = await axios.post('http://localhost:8080/api/signup', formData);
 
       if (response.status === 201) {
         setSuccessMessage(response.data.message);

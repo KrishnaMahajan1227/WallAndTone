@@ -2,6 +2,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 const generateImage = async (req, res) => {
+  const apiKey = process.env.FREEPIK_API_KEY;
   const { prompt, negativePrompt, styling } = req.body;
 
   if (!prompt) {
@@ -41,7 +42,7 @@ const generateImage = async (req, res) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          'x-freepik-api-key': process.env.FREEPIK_API_KEY,
+          'x-freepik-api-key': apiKey,
         },
       }
     );

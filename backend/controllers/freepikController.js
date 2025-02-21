@@ -41,7 +41,7 @@ const generateImage = async (req, res) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          'x-freepik-api-key': 'FPSX1d9c55a998c24f9ea04e7054d2f1a80f',
+          'x-freepik-api-key': process.env.FREEPIK_API_KEY,
         },
       }
     );

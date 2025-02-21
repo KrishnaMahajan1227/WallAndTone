@@ -74,12 +74,15 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`'${apiUrl}/api/products'`);
-      setProducts(response.data);
+      // Fixed the API URL string - removed extra quotes
+      const response = await axios.get(`${apiUrl}/api/products`);
+      setProducts(Array.isArray(response.data) ? response.data : []); // Ensure we always set an array
     } catch (err) {
       handleError('Failed to fetch products');
+      setProducts([]); // Set empty array on error
     }
   };
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

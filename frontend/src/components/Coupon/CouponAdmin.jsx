@@ -4,7 +4,7 @@ import { Button, Form, Table, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const CouponAdmin = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
   const [coupons, setCoupons] = useState([]);
   const [code, setCode] = useState("");
   const [discount, setDiscount] = useState("");

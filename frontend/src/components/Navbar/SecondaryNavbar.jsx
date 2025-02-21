@@ -10,7 +10,7 @@ import wishlistIconUrl from '../../assets/icons/heart-icon-filled.svg';
 import './SecondaryNavbar.css';
 
 const SecondaryNavbar = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
   const [historyList, setHistoryList] = useState([]);
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const [navigationHistory, setNavigationHistory] = useState([]);

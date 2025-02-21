@@ -9,7 +9,8 @@ import { WishlistContext } from '../Wishlist/WishlistContext';
 import './ProductListing.css';
 
 const ProductListing = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+
   const { wishlistCount, setWishlistCount } = useContext(WishlistContext);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

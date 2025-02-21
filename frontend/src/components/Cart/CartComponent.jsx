@@ -6,7 +6,7 @@ import heartIconFilled from "../../assets/icons/heart-icon-filled.svg";
 import { v4 as uuidv4 } from "uuid";
 
 const CartComponent = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
 
   const [cart, setCart] = useState({ items: [], totalPrice: 0, cartCount: 0 });
   const [wishlist, setWishlist] = useState([]);
@@ -106,7 +106,7 @@ const CartComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/cart/update/${item._id}`,
+          `http://localhost:8080api/cart/update/${item._id}`,
           {
             method: "PUT",
             headers: {

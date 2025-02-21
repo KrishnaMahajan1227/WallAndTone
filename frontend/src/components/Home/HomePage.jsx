@@ -12,7 +12,7 @@ import ImageContentComponent from '../ImageContentComponent/ImageContentComponen
 import searchImage from '../../assets/searchPage/searchPagebusinesec.png';
 
 const HomePage = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [showLoginModal, setShowLoginModal] = useState(false);

@@ -8,7 +8,7 @@ import heartIconFilled from "../../assets/icons/heart-icon-filled.svg";
 import educationalImage from "../../assets/school-children-1.jpg"; // Replace with your image path
 
 const WishlistComponent = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
 
   const { wishlistCount, setWishlistCount } = useContext(WishlistContext);
   const [wishlist, setWishlist] = useState([]);

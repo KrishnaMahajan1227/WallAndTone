@@ -5,7 +5,7 @@ import { ChevronRight } from 'lucide-react';
 import './FreepikImageGenerator.css';
 
 const FreepikImageGenerator = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
 
   const [prompt, setPrompt] = useState('');
   const [generatedImages, setGeneratedImages] = useState([]);

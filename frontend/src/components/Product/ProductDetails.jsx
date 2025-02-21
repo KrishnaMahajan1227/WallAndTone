@@ -5,7 +5,7 @@ import './ProductDetails.css';
 import axios from 'axios';
 
 const ProductDetails = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
 
   const { productId } = useParams();
   const navigate = useNavigate();

@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
 
 const RecentlyAddedProducts = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
 
   const [products, setProducts] = useState([]); // Ensure products is an array
   const [loading, setLoading] = useState(true);

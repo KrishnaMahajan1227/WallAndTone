@@ -12,7 +12,7 @@ import WoodenDarkBrown from '../../assets/FrameBlank/Dark.png';
 
 const CameraComponent = () => {
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
 
   const [capturedImage, setCapturedImage] = useState(null);
   const [error, setError] = useState(null);

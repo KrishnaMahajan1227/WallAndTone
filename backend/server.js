@@ -25,17 +25,13 @@ const port = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json({ limit: '50mb' }));
-app.use(cors({ origin: "*", methods: "GET,POST,PUT,DELETE", allowedHeaders: "Content-Type,Authorization" }));
+app.use(cors()); 
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Static File Serving (for product images)
 app.use('/uploads', express.static('uploads'));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use((req, res, next) => {
-  res.setHeader("Content-Type", "application/json");
-  next();
-});
 
 
 // MongoDB connection

@@ -71,27 +71,16 @@ const RecentlyAddedProducts = () => {
         <Slider {...sliderSettings}>
           {products.map((product) => (
             <div key={product._id} className="recently-added-product-card">
-              <div className="card">
+              <div className="card" onClick={() => handleProductClick(product._id)}>
                 <img
                   src={product.mainImage}
                   alt={product.productName}
                   className="card-img-top"
                 />
-                <div className="overlay">
-                  <Button
-                    variant="primary"
-                    onClick={() => handleProductClick(product._id)}
-                    className="quick-view-button"
-                  >
-                    Quick View
-                  </Button>
-                </div>
                 <div className="card-body">
                   <h5 className="card-title">{product.productName}</h5>
                   <p className="card-text">{product.description}</p>
-                  <p className="card-text">
-                    <strong>${product.price}</strong>
-                  </p>
+                  <p className="card-text text-muted">Starting From Rs {product.startFromPrice}/-</p>
                 </div>
               </div>
             </div>

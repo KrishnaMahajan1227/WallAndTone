@@ -46,7 +46,7 @@ function App() {
               <Route path="/Wishlist" element={<WishlistComponent />} />
               <Route path="/product/:productId" element={<ProductDetails/>} />
               <Route path="/profile" element={<UserProfile/>} />
-              <Route path="/FreepikGenerator" element={<FreepikGenerator/>} />
+              <Route path="/AiCreation" element={<FreepikGenerator/>} />
               <Route path="/livePreview" element={<CameraComponent/>} />
               <Route path="/customize" element={<FreepikCustomization />} />
               <Route path="/aboutus/*" element={<AboutUs/>} />

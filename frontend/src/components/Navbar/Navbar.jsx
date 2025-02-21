@@ -1,31 +1,27 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './Navbar.css';
-import whiteLogo from '../../assets/logo/wall-n-tone-white.png';
-import HistoryDropdown from '../History/HistoryDropdown';
 import { WishlistContext } from '../Wishlist/WishlistContext';
+import { X, Sparkles, Lock, ArrowRight } from "lucide-react";
+import whiteLogo from '../../assets/logo/wall-n-tone-white.png';
 import cartIconUrl from '../../assets/icons/cart-icon.svg';
-import historyIconUrl from '../../assets/icons/history-icon.svg';
 import heartIconUrl from '../../assets/icons/heart-icon.svg';
 import wishlistIconUrl from '../../assets/icons/heart-icon-filled.svg';
+import './Navbar.css';
 
 const Navbar = () => {
   const { user, logout } = useContext(UserContext);
   const navigate = useNavigate();
-  const location = useLocation();
   const [isNavOpen, setIsNavOpen] = useState(false);
   const { wishlistCount } = useContext(WishlistContext);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   
-  // Handle logout
   const handleLogout = () => {
     logout();
     navigate('/');
     setIsNavOpen(false);
   };
 
-  // Update navigation history when user clicks on a link
   const handleNavigation = (path, name) => {
     const currentHistory = JSON.parse(localStorage.getItem('navHistory') || '[]');
     const newHistory = [
@@ -33,13 +29,81 @@ const Navbar = () => {
       ...currentHistory.filter(item => item.path !== path)
     ].slice(0, 3);
     localStorage.setItem('navHistory', JSON.stringify(newHistory));
+    setIsNavOpen(false);
   };
 
-  const toggleNav = () => {
-    setIsNavOpen(!isNavOpen);
+  const handleAiCreationClick = (e) => {
+    e.preventDefault();
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+    navigate('/AiCreation');
+    setIsNavOpen(false);
   };
 
-  // Navbar links for regular users
+  const LoginModal = () => (
+    <div className="homepage-login-modal">
+      <div className="homepage-modal-content">
+        <button 
+          className="homepage-modal-close" 
+          onClick={() => setShowLoginModal(false)}
+          aria-label="Close modal"
+        >
+          <X size={24} />
+        </button>
+        
+        <div className="homepage-modal-header">
+          <div className="homepage-modal-icon">
+            <Sparkles className="sparkle-icon" size={32} />
+          </div>
+          <h2>Unlock AI Creation Magic!</h2>
+          <div className="homepage-modal-subheader">
+            <Lock size={16} />
+            <span>Exclusive Feature</span>
+          </div>
+        </div>
+
+        <div className="homepage-modal-body">
+          <p>Transform your ideas into stunning wall art with our AI-powered creation tools.</p>
+          <ul className="homepage-modal-features">
+            <li>
+              <Sparkles size={16} />
+              <span>Create unique, personalized designs</span>
+            </li>
+            <li>
+              <Sparkles size={16} />
+              <span>Access exclusive AI art styles</span>
+            </li>
+            <li>
+              <Sparkles size={16} />
+              <span>Save and modify your creations</span>
+            </li>
+          </ul>
+        </div>
+
+        <div className="homepage-modal-buttons">
+          <button 
+            className="homepage-btn-primary" 
+            onClick={() => {
+              setShowLoginModal(false);
+              navigate('/login');
+            }}
+          >
+            <span>Login Now</span>
+            <ArrowRight size={16} />
+          </button>
+          <button 
+            className="homepage-btn-secondary" 
+            onClick={() => setShowLoginModal(false)}
+          >
+            Continue Browsing
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   const userLinks = (
     <>
       <li className="nav-item">
@@ -80,17 +144,16 @@ const Navbar = () => {
       </li>
       <li className="nav-item">
         <Link 
-          to="/FreepikGenerator" 
+          to="/AiCreation" 
           className="nav-link"
-          onClick={() => handleNavigation('FreepikGenerator', 'Freepik Generator')}
+          onClick={handleAiCreationClick}
         >
-          FreepikGenerator
+          Create With AI
         </Link>
       </li>
     </>
   );
 
-  // Navbar links for superadmin
   const superAdminLinks = (
     <>
       <li className="nav-item">
@@ -126,7 +189,7 @@ const Navbar = () => {
           className="nav-link"
           onClick={() => handleNavigation('dashboard/FrameTypeManagement', 'Frame Types')}
         >
-          FrameTypeManagement
+          Frame Types
         </Link>
       </li>
       <li className="nav-item">
@@ -160,80 +223,85 @@ const Navbar = () => {
   );
 
   return (
-    <nav className={`main-navbar ${isNavOpen ? 'show' : ''}`}>
-      <div className="navbar-container container-fluid flex-column p-0">
-        <Link 
-          to="/" 
-          className="navbar-brand logo-container"
-          onClick={() => handleNavigation('', 'Home')}
-        >
-          <img src={whiteLogo} alt="Logo" className="logo" />
-        </Link>
-
-        <button 
-          className="navbar-toggler" 
-          type="button" 
-          onClick={toggleNav}
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className={`links-container ${isNavOpen ? 'show' : ''}`}>
-          <ul className="navbar-nav links-list w-100">
-            {user && user.role === 'superadmin' ? superAdminLinks : userLinks}
-          </ul>
-
-          {/* Mobile Secondary Nav */}
-          <div className="mobile-secondary-nav">
-            <Link to="/products" className="all-products-btn">
-              All Products
+    <>
+      <div className={`main-navbar-overlay ${isNavOpen ? 'show' : ''}`} onClick={() => setIsNavOpen(false)} />
+      <nav className={`main-navbar ${isNavOpen ? 'show' : ''}`}>
+        {showLoginModal && <LoginModal />}
+        <div className="navbar-container">
+          <div className="navbar-header">
+            <Link 
+              to="/" 
+              className="logo-container"
+              onClick={() => handleNavigation('', 'Home')}
+            >
+              <img src={whiteLogo} alt="Logo" className="logo" />
             </Link>
-            <div className="nav-buttons">
-              <Link to="/cart" className="nav-button">
-                <img src={cartIconUrl} alt="Cart" />
-              </Link>
-              <Link to="/wishlist" className="nav-button">
-                <img 
-                  src={wishlistCount > 0 ? wishlistIconUrl : heartIconUrl} 
-                  alt="Wishlist"
-                />
-                {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
-              </Link>
-            </div>
+
+            <button 
+              className="navbar-toggler" 
+              type="button" 
+              onClick={() => setIsNavOpen(!isNavOpen)}
+              aria-label="Toggle navigation"
+            >
+              <span className="navbar-toggler-icon"></span>
+            </button>
           </div>
 
-          <div className="user-info-container">
-            {user ? (
-              <div className="user-info d-flex flex-column align-items-center">
-                <p
-                  className="user-name text-white text-capitalize clickable mb-2"
-                  onClick={() => {
-                    handleNavigation('profile', 'Profile');
-                    navigate('/profile');
-                  }}
-                >
-                  {user.firstName}
-                </p>
-                <button className="btn btn-danger" onClick={handleLogout}>
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <div className="login-container text-center">
-                <Link 
-                  to="/login" 
-                  className="btn btn-primary"
-                  onClick={() => handleNavigation('login', 'Login')}
-                >
-                  Login
+          <div className={`links-container ${isNavOpen ? 'show' : ''}`}>
+            <ul className="navbar-nav links-list">
+              {user && user.role === 'superadmin' ? superAdminLinks : userLinks}
+            </ul>
+
+            <div className="mobile-secondary-nav">
+              <Link to="/products" className="all-products-btn">
+                All Products
+              </Link>
+              <div className="nav-buttons">
+                <Link to="/cart" className="nav-button">
+                  <img src={cartIconUrl} alt="Cart" />
+                </Link>
+                <Link to="/wishlist" className="nav-button">
+                  <img 
+                    src={wishlistCount > 0 ? wishlistIconUrl : heartIconUrl} 
+                    alt="Wishlist"
+                  />
+                  {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
                 </Link>
               </div>
-            )}
+            </div>
+
+            <div className="user-info-container">
+              {user ? (
+                <div className="user-info">
+                  <p
+                    className="user-name"
+                    onClick={() => {
+                      handleNavigation('profile', 'Profile');
+                      navigate('/profile');
+                    }}
+                  >
+                    {user.firstName}
+                  </p>
+                  <button className="btn-logout" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="login-container">
+                  <Link 
+                    to="/login" 
+                    className="btn-login"
+                    onClick={() => handleNavigation('login', 'Login')}
+                  >
+                    Login
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 };
 

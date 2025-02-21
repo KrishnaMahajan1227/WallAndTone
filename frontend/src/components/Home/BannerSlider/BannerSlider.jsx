@@ -1,10 +1,11 @@
-import React from "react";
-import Slider from "react-slick";
+import React from 'react';
+import Slider from 'react-slick';
+import { Link } from 'react-router-dom';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./BannerSlider.css";
 
-const BannerSlider = ({ BannerImages }) => {
+const BannerSlider = ({ BannerImages, isLoggedIn }) => {
   const settings = {
     dots: true,
     infinite: true,
@@ -30,6 +31,16 @@ const BannerSlider = ({ BannerImages }) => {
     ),
   };
 
+  const handleClick = (e, image) => {
+    if (image.ctaLink1 === "/AiCreation") {
+      e.preventDefault();
+      if (!isLoggedIn && image.onClick) {
+        image.onClick(e);
+        return;
+      }
+    }
+  };
+
   return (
     <div className="banner-slider-container">
       <Slider {...settings}>
@@ -38,10 +49,17 @@ const BannerSlider = ({ BannerImages }) => {
             <img src={image.src} alt={image.alt} className="slider-image" />
             <div className="slider-cta-container">
               <div className="slider-content">
+                <p className="slider-caption">{image.caption}</p>
                 <h2 className="slider-heading">{image.heading}</h2>
                 <p className="slider-subheading">{image.subheading}</p>
                 <div className="cta-buttons">
-                  <a href={image.ctaLink1} className="cta-button">{image.ctaText1}</a>
+                  <Link
+                    to={image.ctaLink1}
+                    className="cta-button"
+                    onClick={(e) => handleClick(e, image)}
+                  >
+                    {image.ctaText1}
+                  </Link>
                 </div>
               </div>
             </div>

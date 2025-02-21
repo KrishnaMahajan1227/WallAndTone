@@ -18,7 +18,7 @@ const multer = require('multer');
 const upload = require('./middleware/upload'); 
 const { uploadExcel, uploadImage } = require('./middleware/upload');
 
-require('dotenv').config();
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 8080;

@@ -5,6 +5,8 @@ import './ProductDetails.css';
 import axios from 'axios';
 
 const ProductDetails = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const { productId } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
@@ -69,10 +71,10 @@ const ProductDetails = () => {
   useEffect(() => {
     const updateHistory = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/products/${productId}`);
+        const response = await axios.get(`${apiUrl}/api/products/${productId}`);
         const productData = response.data;
   
-        await axios.post('http://localhost:8080/api/history/add', {
+        await axios.post(`${apiUrl}/api/history/add`, {
           productId: productData._id,
           productName: productData.productName,
           productImage: productData.mainImage,
@@ -95,7 +97,7 @@ const ProductDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
+        const response = await fetch(`${apiUrl}/api/products/${productId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         
@@ -123,10 +125,10 @@ const ProductDetails = () => {
       if (token) {
         try {
           const [wishlistRes, cartRes] = await Promise.all([
-            fetch('http://localhost:8080/api/wishlist', {
+            fetch(`${apiUrl}/api/wishlist`, {
               headers: { Authorization: `Bearer ${token}` }
             }),
-            fetch('http://localhost:8080/api/cart', {
+            fetch(`${apiUrl}/api/cart`, {
               headers: { Authorization: `Bearer ${token}` }
             })
           ]);
@@ -157,7 +159,7 @@ const ProductDetails = () => {
   // Fetch subFrameTypes when frameType changes
   useEffect(() => {
     if (selectedFrameType?._id) {
-      fetch(`http://localhost:8080/api/sub-frame-types/${selectedFrameType._id}`)
+      fetch(`${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`)
         .then(res => res.json())
         .then(data => setSubFrameTypes(Array.isArray(data) ? data : []))
         .catch(err => {
@@ -172,7 +174,7 @@ const ProductDetails = () => {
   // Fetch sizes when product changes
   useEffect(() => {
     if (product?._id) {
-      fetch(`http://localhost:8080/api/products/${product._id}/sizes`)
+      fetch(`${apiUrl}/api/products/${product._id}/sizes`)
         .then(res => res.json())
         .then(data => setSizes(Array.isArray(data) ? data : []))
         .catch(err => {
@@ -252,7 +254,7 @@ const ProductDetails = () => {
 
   const handleFrameTypeSelect = async (frameType) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/frame-types/${frameType._id}`);
+      const response = await fetch(`${apiUrl}/api/frame-types/${frameType._id}`);
       if (!response.ok) throw new Error('Failed to fetch frame type details');
       
       const data = await response.json();
@@ -271,7 +273,7 @@ const ProductDetails = () => {
     setLoadingSubFrame(true);
   
     try {
-      const response = await fetch(`http://localhost:8080/api/products/${product._id}/subframe-image/${subFrameType._id}`);
+      const response = await fetch(`${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`);
       if (!response.ok) {
         throw new Error(`Error fetching subframe image: ${response.status} ${response.statusText}`);
       }
@@ -313,7 +315,7 @@ const ProductDetails = () => {
 
     if (token) {
       try {
-        const response = await fetch('http://localhost:8080/api/cart/add', {
+        const response = await fetch('${apiUrl}/api/cart/add', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -356,7 +358,7 @@ const ProductDetails = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/wishlist/${inWishlist ? 'remove' : 'add'}`,
+          `${apiUrl}/api/wishlist/${inWishlist ? 'remove' : 'add'}`,
           {
             method: 'POST',
             headers: {
@@ -421,7 +423,7 @@ const ProductDetails = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/cart/update/${item.productId._id}`,
+          `${apiUrl}/api/cart/update/${item.productId._id}`,
           {
             method: 'PUT',
             headers: {
@@ -467,7 +469,7 @@ const ProductDetails = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/cart/remove/${item.productId._id}/${item.frameType._id}/${item.subFrameType._id}/${item.size._id}`,
+          `${apiUrl}/api/cart/remove/${item.productId._id}/${item.frameType._id}/${item.subFrameType._id}/${item.size._id}`,
           {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
@@ -516,7 +518,7 @@ const ProductDetails = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/products/${productId}/reviews`,
+        `${apiUrl}/api/products/${productId}/reviews`,
         {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },

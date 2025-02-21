@@ -5,6 +5,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Signup = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const [formData, setFormData] = useState({
     firstName: '',
     email: '',
@@ -52,7 +54,7 @@ const Signup = () => {
     setSuccessMessage('');
 
     try {
-      const response = await axios.post('http://localhost:8080/api/signup', formData);
+      const response = await axios.post(`${apiUrl}/api/signup`, formData);
 
       if (response.status === 201) {
         setSuccessMessage(response.data.message);

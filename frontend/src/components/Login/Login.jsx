@@ -5,6 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import './Login.css';
 
 const Login = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [generalError, setGeneralError] = useState('');
@@ -30,7 +31,7 @@ const Login = () => {
     e.preventDefault();
     
     try {
-      const response = await axios.post('http://localhost:8080/api/login', {
+      const response = await axios.post(`${apiUrl}/api/login`, {
         email,
         password,
       });

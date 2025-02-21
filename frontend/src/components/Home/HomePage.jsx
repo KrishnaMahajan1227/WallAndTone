@@ -12,6 +12,7 @@ import ImageContentComponent from '../ImageContentComponent/ImageContentComponen
 import searchImage from '../../assets/searchPage/searchPagebusinesec.png';
 
 const HomePage = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -21,7 +22,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/products");
+        const response = await axios.get(`${apiUrl}/api/products`);
         setProducts(response.data);
       } catch (error) {
         console.error("Error fetching products:", error);

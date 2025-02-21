@@ -8,6 +8,8 @@ import './search.css';
 import searchImage from '../../assets/searchPage/searchPagebusinesec.png';
 
 const Search = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -21,7 +23,7 @@ const Search = () => {
 
       if (query.length >= 2) {
         try {
-          const response = await axios.get(`http://localhost:8080/api/search/suggestions?q=${query}`, {
+          const response = await axios.get(`${apiUrl}/api/search/suggestions?q=${query}`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           });
           setSearchResults(response.data);

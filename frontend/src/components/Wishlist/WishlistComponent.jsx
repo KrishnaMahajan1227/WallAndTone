@@ -8,6 +8,8 @@ import heartIconFilled from "../../assets/icons/heart-icon-filled.svg";
 import educationalImage from "../../assets/school-children-1.jpg"; // Replace with your image path
 
 const WishlistComponent = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const { wishlistCount, setWishlistCount } = useContext(WishlistContext);
   const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
@@ -31,10 +33,10 @@ const WishlistComponent = () => {
     try {
       if (token) {
         const [wishlistResponse, cartResponse] = await Promise.all([
-          fetch("http://localhost:8080/api/wishlist", {
+          fetch(`${apiUrl}/api/wishlist`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:8080/api/cart", {
+          fetch(`${apiUrl}/api/cart`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -84,7 +86,7 @@ const WishlistComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/cart/remove/${product._id}`,
+          `${apiUrl}/api/cart/remove/${product._id}`,
           {
             method: "DELETE",
             headers: {
@@ -126,7 +128,7 @@ const WishlistComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/wishlist/remove/${product._id}`,
+          `${apiUrl}/api/wishlist/remove/${product._id}`,
           {
             method: "DELETE",
             headers: {

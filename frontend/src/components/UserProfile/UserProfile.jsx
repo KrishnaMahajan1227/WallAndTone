@@ -3,6 +3,8 @@ import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
 
 const UserProfile = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const { user, logout } = useContext(UserContext);
   const [profile, setProfile] = useState({
     firstName: '',
@@ -23,7 +25,7 @@ const UserProfile = () => {
           throw new Error('User not authenticated');
         }
 
-        const response = await axios.get('http://localhost:8080/api/user/profile', {
+        const response = await axios.get(`${apiUrl}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -60,7 +62,7 @@ const UserProfile = () => {
       }
 
       const response = await axios.put(
-        'http://localhost:8080/api/user/profile',
+        `${apiUrl}/api/user/profile`,
         { ...profile },
         { headers: { Authorization: `Bearer ${token}` } }
       );

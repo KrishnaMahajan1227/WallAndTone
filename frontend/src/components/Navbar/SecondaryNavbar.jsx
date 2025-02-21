@@ -10,6 +10,7 @@ import wishlistIconUrl from '../../assets/icons/heart-icon-filled.svg';
 import './SecondaryNavbar.css';
 
 const SecondaryNavbar = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
   const [historyList, setHistoryList] = useState([]);
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const [navigationHistory, setNavigationHistory] = useState([]);
@@ -22,7 +23,7 @@ const SecondaryNavbar = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/history', {
+        const response = await axios.get(`${apiUrl}/api/history`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

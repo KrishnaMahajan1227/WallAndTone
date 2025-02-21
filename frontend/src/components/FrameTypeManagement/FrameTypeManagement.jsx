@@ -3,6 +3,8 @@ import axios from 'axios';
 import './FrameTypeManagement.css'; // Custom CSS
 
 const FrameTypeManagement = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
   const [newFrameType, setNewFrameType] = useState({ name: '', description: '', price: 0 });
@@ -25,7 +27,7 @@ const FrameTypeManagement = () => {
 
   const fetchFrameTypes = async () => {
     try {
-      const { data } = await axios.get('http://localhost:8080/api/frame-types');
+      const { data } = await axios.get('${apiUrl}/api/frame-types');
       setFrameTypes(data);
       setLoadingFrameTypes(false);
     } catch (err) {
@@ -36,7 +38,7 @@ const FrameTypeManagement = () => {
 
   const fetchSubFrameTypes = async () => {
     try {
-      const { data } = await axios.get('http://localhost:8080/api/sub-frame-types');
+      const { data } = await axios.get(`${apiUrl}/api/sub-frame-types`);
       setSubFrameTypes(data);
       setLoadingSubFrameTypes(false);
     } catch (err) {
@@ -52,7 +54,7 @@ const FrameTypeManagement = () => {
     }
 
     try {
-      const { data } = await axios.post('http://localhost:8080/api/frame-types', newFrameType);
+      const { data } = await axios.post(`${apiUrl}/api/frame-types`, newFrameType);
       setFrameTypes([...frameTypes, data]);
       setNewFrameType({ name: '', description: '', price: 0 });
       setError('');
@@ -68,7 +70,7 @@ const FrameTypeManagement = () => {
     }
 
     try {
-      const { data } = await axios.post('http://localhost:8080/api/sub-frame-types', newSubFrameType);
+      const { data } = await axios.post(`${apiUrl}/api/sub-frame-types`, newSubFrameType);
       setSubFrameTypes([...subFrameTypes, data]);
       setNewSubFrameType({ name: '', frameType: '', description: '', price: 0 });
       setError('');
@@ -94,7 +96,7 @@ const FrameTypeManagement = () => {
     }
 
     try {
-      const { data } = await axios.put(`http://localhost:8080/api/frame-types/${editingFrameType._id}`, newFrameType);
+      const { data } = await axios.put(`${apiUrl}/api/frame-types/${editingFrameType._id}`, newFrameType);
       const updatedFrameTypes = frameTypes.map((frameType) => (frameType._id === editingFrameType._id ? data : frameType));
       setFrameTypes(updatedFrameTypes);
       setNewFrameType({ name: '', description: '', price: 0 });
@@ -112,7 +114,7 @@ const FrameTypeManagement = () => {
     }
 
     try {
-      const { data } = await axios.put(`http://localhost:8080/api/sub-frame-types/${editingSubFrameType._id}`, newSubFrameType);
+      const { data } = await axios.put(`${apiUrl}/api/sub-frame-types/${editingSubFrameType._id}`, newSubFrameType);
       const updatedSubFrameTypes = subFrameTypes.map((subFrameType) => (subFrameType._id === editingSubFrameType._id ? data : subFrameType));
       setSubFrameTypes(updatedSubFrameTypes);
       setNewSubFrameType({ name: '', frameType: '', description: '', price: 0 });

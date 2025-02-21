@@ -5,6 +5,8 @@ import { ChevronRight } from 'lucide-react';
 import './FreepikImageGenerator.css';
 
 const FreepikImageGenerator = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const [prompt, setPrompt] = useState('');
   const [generatedImages, setGeneratedImages] = useState([]);
   const [error, setError] = useState(null);
@@ -32,7 +34,7 @@ const FreepikImageGenerator = () => {
 
   const fetchUserGeneratedImages = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/users/generated-images', {
+      const response = await axios.get(`${apiUrl}/api/users/generated-images`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const sortedImages = response.data.images.sort((a, b) => 
@@ -55,7 +57,7 @@ const FreepikImageGenerator = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:8080/api/freepik/generate-image',
+        `${apiUrl}/api/freepik/generate-image`,
         { prompt, styling },
         {
           headers: {
@@ -113,7 +115,7 @@ const FreepikImageGenerator = () => {
 
         for (let i = 0; i < chunks.length; i++) {
           const response = await axios.post(
-            'http://localhost:8080/api/users/generated-images/chunk',
+            `${apiUrl}/api/users/generated-images/chunk`,
             {
               image: chunks[i],
               prompt,

@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
 
 const RecentlyAddedProducts = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const [products, setProducts] = useState([]); // Ensure products is an array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,7 +23,7 @@ const RecentlyAddedProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/products");
+        const response = await axios.get(`${apiUrl}/api/products`);
         console.log("API Response:", response.data);
 
         if (Array.isArray(response.data)) {

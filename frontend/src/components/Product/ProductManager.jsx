@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductManager.css';
 
 const ProductManager = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
   const [products, setProducts] = useState([]);
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
@@ -46,7 +47,7 @@ const ProductManager = () => {
 
   const fetchFrameTypes = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/frame-types');
+      const response = await axios.get(`${apiUrl}/api/frame-types`);
       setFrameTypes(response.data);
     } catch (err) {
       handleError('Failed to fetch frame types');
@@ -55,7 +56,7 @@ const ProductManager = () => {
 
   const fetchSubFrameTypes = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/sub-frame-types');
+      const response = await axios.get(`${apiUrl}/api/sub-frame-types`);
       setSubFrameTypes(response.data);
     } catch (err) {
       handleError('Failed to fetch sub frame types');
@@ -64,7 +65,7 @@ const ProductManager = () => {
 
   const fetchSizes = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/admin/sizes/getsizes');
+      const response = await axios.get(`${apiUrl}/api/admin/sizes/getsizes`);
       setSizes(response.data);
     } catch (err) {
       handleError('Failed to fetch sizes');
@@ -73,7 +74,7 @@ const ProductManager = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/products');
+      const response = await axios.get(`'${apiUrl}/api/products'`);
       setProducts(response.data);
     } catch (err) {
       handleError('Failed to fetch products');
@@ -148,8 +149,8 @@ const ProductManager = () => {
 
     try {
       const url = formData._id
-        ? `http://localhost:8080/api/products/${formData._id}`
-        : 'http://localhost:8080/api/products';
+        ? `${apiUrl}/api/products/${formData._id}`
+        : `'${apiUrl}/api/products`;
       
       const method = formData._id ? 'put' : 'post';
       const response = await axios[method](url, formDataToSend);
@@ -184,7 +185,7 @@ const ProductManager = () => {
     formDataToSend.append('excelFile', excelFile);
 
     try {
-      await axios.post('http://localhost:8080/api/products/excel', formDataToSend);
+      await axios.post(`${apiUrl}/api/products/excel`, formDataToSend);
       fetchProducts();
       setSuccess('Products uploaded successfully');
       setExcelFile(null);
@@ -207,7 +208,7 @@ const ProductManager = () => {
 
     try {
       await axios.post(
-        `http://localhost:8080/api/products/${selectedProduct._id}/subframe-images`,
+        `${apiUrl}/api/products/${selectedProduct._id}/subframe-images`,
         formDataToSend,
         {
           headers: {
@@ -273,7 +274,7 @@ const handleSubframeImageChange = (e) => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/products/${id}`);
+      await axios.delete(`${apiUrl}/api/products/${id}`);
       setProducts(prev => prev.filter(p => p._id !== id));
       setSuccess('Product deleted successfully');
     } catch (err) {

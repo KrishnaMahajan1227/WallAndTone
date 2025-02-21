@@ -9,6 +9,7 @@ import { WishlistContext } from '../Wishlist/WishlistContext';
 import './ProductListing.css';
 
 const ProductListing = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
   const { wishlistCount, setWishlistCount } = useContext(WishlistContext);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +25,7 @@ const ProductListing = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        let url = 'http://localhost:8080/api/products';
+        let url = `${apiUrl}/api/products`;
         if (location.search) {
           url += location.search;
         }
@@ -52,7 +53,7 @@ const ProductListing = () => {
     const fetchWishlist = async () => {
       if (token) {
         try {
-          const wishlistResponse = await fetch('http://localhost:8080/api/wishlist', {
+          const wishlistResponse = await fetch(`${apiUrl}/api/wishlist`, {
             method: 'GET',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -129,7 +130,7 @@ const ProductListing = () => {
     setWishlistCount(updatedWishlist.length);
 
     try {
-      const response = await fetch('http://localhost:8080/api/wishlist/add', {
+      const response = await fetch(`${apiUrl}/api/wishlist/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -169,7 +170,7 @@ const ProductListing = () => {
     setWishlistCount(updatedWishlist.length);
 
     try {
-      const response = await fetch(`http://localhost:8080/api/wishlist/remove/${product._id}`, {
+      const response = await fetch(`${apiUrl}/api/wishlist/remove/${product._id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

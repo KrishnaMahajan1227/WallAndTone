@@ -7,6 +7,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./TopReviewedProducts.css";
 
 const TopReviewedProducts = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,7 +16,7 @@ const TopReviewedProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/products");
+        const response = await axios.get(`${apiUrl}/api/products`);
         console.log("API Response:", response.data);
 
         const products = Array.isArray(response.data) ? response.data : [];

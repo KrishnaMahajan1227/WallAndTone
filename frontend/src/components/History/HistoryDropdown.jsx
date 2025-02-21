@@ -5,6 +5,7 @@ import axios from 'axios';
 import './HistoryDropdown.css';
 
 const HistoryDropdown = ({ onSelect }) => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -14,7 +15,7 @@ const HistoryDropdown = ({ onSelect }) => {
     const fetchHistory = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:8080/api/history', {
+        const response = await axios.get(`${apiUrl}/api/history`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

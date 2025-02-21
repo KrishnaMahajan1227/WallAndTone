@@ -3,6 +3,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function SizesAdmin() {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
   const [sizes, setSizes] = useState([]);
   const [width, setWidth] = useState('');
   const [height, setHeight] = useState('');
@@ -20,7 +21,7 @@ function SizesAdmin() {
 
   useEffect(() => {
     if (token) {
-      axios.get('http://localhost:8080/api/admin/sizes/getsizes', {
+      axios.get(`${apiUrl}/api/admin/sizes/getsizes`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -41,7 +42,7 @@ function SizesAdmin() {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (mode === 'create') {
-      axios.post('http://localhost:8080/api/admin/sizes/addsize', {
+      axios.post(`${apiUrl}/api/admin/sizes/addsize`, {
         width,
         height,
         price,
@@ -64,7 +65,7 @@ function SizesAdmin() {
           console.error(error);
         });
     } else {
-      axios.put(`http://localhost:8080/api/admin/sizes/updatesize/${id}`, {
+      axios.put(`${apiUrl}/api/admin/sizes/updatesize/${id}`, {
         width,
         height,
         price,
@@ -97,7 +98,7 @@ function SizesAdmin() {
   };
 
   const handleDelete = (id) => {
-    axios.delete(`http://localhost:8080/api/admin/sizes/deletesize/${id}`, {
+    axios.delete(`${apiUrl}/api/admin/sizes/deletesize/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -6,6 +6,8 @@ import { frameBackgrounds } from '../constants/frameImages';
 import './FreepikCustomization.css';
 
 const FreepikCustomization = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const location = useLocation();
   const navigate = useNavigate();
   const generatedImage = location.state?.image;
@@ -47,7 +49,7 @@ const FreepikCustomization = () => {
   useEffect(() => {
     const fetchFrameTypes = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/frame-types');
+        const response = await axios.get(`${apiUrl}/api/frame-types`);
         setFrameTypes(response.data);
         if (response.data.length > 0) {
           setSelectedFrameType(response.data[0]);
@@ -64,7 +66,7 @@ const FreepikCustomization = () => {
     const fetchSubFrameTypes = async () => {
       if (selectedFrameType?._id) {
         try {
-          const response = await axios.get(`http://localhost:8080/api/sub-frame-types/${selectedFrameType._id}`);
+          const response = await axios.get(`${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`);
           setSubFrameTypes(response.data);
           if (response.data.length > 0) {
             setSelectedSubFrameType(response.data[0]);
@@ -81,7 +83,7 @@ const FreepikCustomization = () => {
   useEffect(() => {
     const fetchSizes = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/admin/sizes/getsizes');
+        const response = await axios.get(`${apiUrl}/api/admin/sizes/getsizes`);
         setSizes(response.data);
         if (response.data.length > 0) {
           setSelectedSize(response.data[0]);
@@ -156,7 +158,7 @@ const FreepikCustomization = () => {
   
       if (token) {
         const response = await axios.post(
-          'http://localhost:8080/api/cart/add',
+          `${apiUrl}/api/cart/add`,
           cartItem,
           {
             headers: { Authorization: `Bearer ${token}` }
@@ -195,7 +197,7 @@ const FreepikCustomization = () => {
       imageFormData.append('image', generatedImage);
       
       const uploadResponse = await axios.post(
-        'http://localhost:8080/api/upload/image',
+        `${apiUrl}/api/upload/image`,
         imageFormData,
         {
           headers: {
@@ -215,7 +217,7 @@ const FreepikCustomization = () => {
 
       if (token) {
         const response = await axios.post(
-          'http://localhost:8080/api/wishlist/add',
+          `${apiUrl}/api/wishlist/add`,
           wishlistItem,
           {
             headers: { Authorization: `Bearer ${token}` }

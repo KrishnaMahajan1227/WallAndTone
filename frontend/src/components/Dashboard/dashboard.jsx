@@ -5,6 +5,8 @@ import { faEdit, faTrash, faTimes, faUser } from '@fortawesome/free-solid-svg-ic
 import './Dashboard.css';
 
 const Dashboard = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
   const [alert, setAlert] = useState({ message: '', type: '', visible: false });
@@ -33,7 +35,7 @@ const Dashboard = () => {
         return;
       }
   
-      const response = await axios.get('http://localhost:8080/api/users', {
+      const response = await axios.get(`${apiUrl}/api/users'`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -77,7 +79,7 @@ const Dashboard = () => {
       }
   
       // Make the DELETE request to delete the user
-      const response = await axios.delete(`http://localhost:8080/api/users/${id}`, {
+      const response = await axios.delete(`${apiUrl}/api/users/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,  // Send the token in the Authorization header
         },
@@ -103,7 +105,7 @@ const Dashboard = () => {
       const token = localStorage.getItem('token');  // Ensure token is retrieved from localStorage
   
       // Make the PUT request to update the user
-      const response = await axios.put(`http://localhost:8080/api/users/${editingUser._id}`, editingUser, {
+      const response = await axios.put(`${apiUrl}/api/users/${editingUser._id}`, editingUser, {
         headers: {
           'Authorization': `Bearer ${token}`,  // Send token in the Authorization header
         },

@@ -6,6 +6,8 @@ import heartIconFilled from "../../assets/icons/heart-icon-filled.svg";
 import { v4 as uuidv4 } from "uuid";
 
 const CartComponent = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const [cart, setCart] = useState({ items: [], totalPrice: 0, cartCount: 0 });
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,10 +23,10 @@ const CartComponent = () => {
     try {
       if (token) {
         const [cartResponse, wishlistResponse] = await Promise.all([
-          fetch("http://localhost:8080/api/cart", {
+          fetch(`${apiUrl}/api/cart`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:8080/api/wishlist", {
+          fetch(`${apiUrl}/api/wishlist`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -146,7 +148,7 @@ const CartComponent = () => {
 
     if (token) {
       try {
-        const response = await fetch("http://localhost:8080/api/wishlist/add", {
+        const response = await fetch(`${apiUrl}/api/wishlist/add`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -175,7 +177,7 @@ const CartComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/wishlist/remove/${product._id}`,
+          `${apiUrl}/api/wishlist/remove/${product._id}`,
           {
             method: "DELETE",
             headers: {
@@ -201,7 +203,7 @@ const CartComponent = () => {
     if (token) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/cart/remove/${item._id}`,
+          `${apiUrl}/api/cart/remove/${item._id}`,
           {
             method: "DELETE",
             headers: {

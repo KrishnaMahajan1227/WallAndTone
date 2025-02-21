@@ -11,6 +11,9 @@ import WoodenDarkBrown from '../../assets/FrameBlank/Dark.png';
 
 
 const CameraComponent = () => {
+
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+
   const [capturedImage, setCapturedImage] = useState(null);
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
@@ -45,7 +48,7 @@ const CameraComponent = () => {
       if (!token) return;
 
       try {
-        const wishlistResponse = await fetch('http://localhost:8080/api/wishlist', {
+        const wishlistResponse = await fetch(`${apiUrl}/api/wishlist`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -62,7 +65,7 @@ const CameraComponent = () => {
         const wishlistProductIds = wishlistData.items.filter((item) => item.productId !== null).map((item) => item.productId._id);
         console.log('wishlistProductIds:', wishlistProductIds);
 
-        const productsResponse = await fetch('http://localhost:8080/api/products', {
+        const productsResponse = await fetch(`${apiUrl}/api/products`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -85,14 +88,14 @@ const CameraComponent = () => {
       if (!token) return;
 
       try {
-        const cartResponse = await fetch('http://localhost:8080/api/cart', {
+        const cartResponse = await fetch(`${apiUrl}/api/cart`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
-        const wishlistResponse = await fetch('http://localhost:8080/api/wishlist', {
+        const wishlistResponse = await fetch(`${apiUrl}/api/wishlist`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -209,7 +212,7 @@ const handleProductSelect = (product) => {
   // Fetch product data
   const fetchProductData = async (productId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/products/${productId}`);
+      const response = await fetch(`${apiUrl}/api/products/${productId}`);
       if (!response.ok) {
         throw new Error(`Error fetching product data: ${response.status} ${response.statusText}`);
       }
@@ -294,7 +297,7 @@ const handleSizeSelect = (size) => {
     }
 
     try {
-      await fetch('http://localhost:8080/api/wishlist/add', {
+      await fetch(`${apiUrl}/api/wishlist/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -312,7 +315,7 @@ const handleSizeSelect = (size) => {
   // Remove from wishlist
   const handleRemoveFromWishlist = async (wishlistItem) => {
     try {
-      await fetch(`http://localhost:8080/api/wishlist/remove/${wishlistItem.productId._id}`, {
+      await fetch(`${apiUrl}/api/wishlist/remove/${wishlistItem.productId._id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -342,7 +345,7 @@ const handleSizeSelect = (size) => {
   // Fetch frame types
   const fetchFrameTypes = async (productId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/products/${productId}/frame-types`);
+      const response = await fetch(`${apiUrl}/api/products/${productId}/frame-types`);
       if (!response.ok) {
         if (response.status === 404) {
           console.error('Frame types not found for product ID:', productId);
@@ -360,7 +363,7 @@ const handleSizeSelect = (size) => {
   // Fetch sub frame types
   const fetchSubFrameTypes = async (productId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/products/${productId}/sub-frame-types`);
+      const response = await fetch(`${apiUrl}/api/products/${productId}/sub-frame-types`);
       if (!response.ok) {
         if (response.status === 404) {
           console.error('Sub frame types not found for product ID:', productId);
@@ -378,7 +381,7 @@ const handleSizeSelect = (size) => {
   // Fetch sizes
   const fetchSizes = async (productId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/products/${productId}/sizes`);
+      const response = await fetch(`${apiUrl}/api/products/${productId}/sizes`);
       const data = await response.json();
       console.log('Sizes:', data);
       setSizes(data);
@@ -407,10 +410,10 @@ const handleSizeSelect = (size) => {
     localStorage.setItem("subFrameType", JSON.stringify({ ...subFrameType, imageUrl: formattedImageUrl }));
   
     try {
-      console.log(`📤 Fetching image from API: http://localhost:8080/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`);
+      console.log(`📤 Fetching image from API: ${apiUrl}/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`);
       
       const response = await fetch(
-        `http://localhost:8080/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`
+        `${apiUrl}/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`
       );
   
       if (!response.ok) {
@@ -464,7 +467,7 @@ const handleSizeSelect = (size) => {
 
       console.log('Request body:', cartProduct);
 
-      const response = await fetch('http://localhost:8080/api/cart/add', {
+      const response = await fetch(`${apiUrl}/api/cart/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -518,7 +521,7 @@ const handleFrameTypeSelect = (frameType) => {
   // Fetch sub frame types by frame type
   const fetchSubFrameTypesByFrameType = async (frameTypeId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/sub-frame-types/${frameTypeId}`);
+      const response = await fetch(`${apiUrl}/api/sub-frame-types/${frameTypeId}`);
       if (!response.ok) {
         throw new Error(`Error fetching sub frame types: ${response.status} ${response.statusText}`);
       }

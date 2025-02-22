@@ -8,6 +8,7 @@ import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
 import whiteLogo from '../../assets/logo/wall-n-tone-white.png';
 import './CameraComponent.css';
 import WoodenDarkBrown from '../../assets/FrameBlank/Dark.png';
+import Footer from '../Footer/Footer';
 
 
 const CameraComponent = () => {
@@ -807,6 +808,7 @@ const handleFrameTypeSelect = (frameType) => {
           <p className="text-center">Rs. {calculateTotalPrice()}</p>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

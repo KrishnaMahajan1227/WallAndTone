@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Signup.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Footer from '../Footer/Footer';
 
 const Signup = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -165,6 +166,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           Already have an account? <Link to="/login">Log in here</Link>
         </p>
       </div>
+      <Footer/>
     </div>
   );
 };

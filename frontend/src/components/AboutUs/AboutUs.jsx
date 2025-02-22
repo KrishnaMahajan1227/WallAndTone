@@ -15,6 +15,7 @@ import FramesDefineSpaces from '../../assets/about/Frames-Define-Spaces.png';
 
 import './AboutUs.css';
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
+import Footer from '../Footer/Footer';
 
 
 const AboutContent = () => (
@@ -288,6 +289,8 @@ function AboutUs() {
         <Route path="about" element={<AboutContent />} />
         <Route path="production" element={<ProductionContent />} />
       </Routes>
+
+      <Footer/>
     </div>
   );
 }

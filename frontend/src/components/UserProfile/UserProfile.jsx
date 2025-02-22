@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
+import Footer from '../Footer/Footer';
 
 const UserProfile = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -132,6 +133,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       )}
 
       <button style={styles.logoutButton} onClick={logout}>Logout</button>
+      <Footer/>
     </div>
   );
 };

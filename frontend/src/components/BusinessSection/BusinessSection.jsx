@@ -1,5 +1,5 @@
-import React from 'react';
-import { Mail, Apple as WhatsApp, MessageSquare } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import emailjs from '@emailjs/browser';
 import './BusinessSection.css';
 import mailiconblack from '../../assets/icons/mail-icon-black.png';
 import messageiconblack from '../../assets/icons/message-icon-black.png';
@@ -8,10 +8,89 @@ import ForBusinessbanner from '../../assets/forBusiness/For-Business-banner.png'
 import ForBusinessemail from '../../assets/forBusiness/For-Business-email.png';
 import ForBusinessshortlist from '../../assets/forBusiness/For-Business-shortlist.png';
 import ForBusinesswhatsappreach from '../../assets/forBusiness/For-Business-whatsapp-reach.png';
+import Footer from '../Footer/Footer';
 
 const BusinessSection = () => {
+  const [showThankYou, setShowThankYou] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const formRef = useRef();
+  const fileInputRef = useRef();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const formData = new FormData(e.target);
+      const file = fileInputRef.current.files[0];
+
+      const templateParams = {
+        from_name: formData.get('name'),
+        company_name: formData.get('companyName'),
+        business_type: formData.get('businessType'),
+        requirements: formData.get('requirements'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        screenshots: file ? `Screenshot: ${file.name}` : 'No screenshots',
+      };
+
+      await emailjs.send(
+        'service_iafvbdi',  // Your EmailJS service ID
+        'template_7hjkgfk', // Your EmailJS template ID
+        templateParams,
+        '5sscvhVAwptcmyQnp'  // Your EmailJS public key
+      );
+
+      setShowThankYou(true);
+      e.target.reset();
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('There was an error sending your message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const ThankYouModal = () => (
+    <div className="thank-you-modal">
+      <div className="thank-you-content">
+        <button 
+          className="close-button"
+          onClick={() => setShowThankYou(false)}
+          aria-label="Close modal"
+        >
+          <span>&times;</span>
+        </button>
+        
+        <div className="success-icon">✓</div>
+        
+        <h2>Thank You!</h2>
+        <p>We've received your business inquiry and will get back to you shortly.</p>
+        
+        <div className="next-steps">
+          <h3>What's Next?</h3>
+          <ul>
+            <li>Our team will review your requirements</li>
+            <li>We'll prepare a custom quote for your project</li>
+            <li>Expect a response within 24-48 business hours</li>
+          </ul>
+        </div>
+        
+        <button 
+          className="close-modal-button"
+          onClick={() => setShowThankYou(false)}
+        >
+          Continue Browsing
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="business-section">
+      {showThankYou && <ThankYouModal />}
+      
       <div className="business-hero">
         <div className="business-content">
           <h1>Custom Wall Art for Businesses.</h1>
@@ -34,12 +113,12 @@ const BusinessSection = () => {
         </p>
 
         <div className="contact-section">
-          <h3>Follow the the steps below to unlock the best discounts on your bulk order.</h3>
+          <h3>Follow the steps below to unlock the best discounts on your bulk order.</h3>
 
           <div className="contact-methods">
             <div className="contact-method">
               <div className="contact-method-icon">
-              <img src={mailiconblack} alt="mail-icon-black" />
+                <img src={mailiconblack} alt="mail-icon-black" />
               </div>
               <div className="contact-method-text">
                 <p>Reach out to us using the chat bubble at the bottom of your screen.</p>
@@ -55,7 +134,7 @@ const BusinessSection = () => {
 
             <div className="contact-method">
               <div className="contact-method-icon">
-              <img src={whatsappiconblack} alt="whatsapp-icon-black" />
+                <img src={whatsappiconblack} alt="whatsapp-icon-black" />
               </div>
               <div className="contact-method-text">
                 <p>Reach out to us on Whatsapp at +91-9226735394</p>
@@ -71,13 +150,13 @@ const BusinessSection = () => {
 
             <div className="contact-method">
               <div className="contact-method-icon">
-              <img src={messageiconblack} alt="message-icon-black" />
+                <img src={messageiconblack} alt="message-icon-black" />
               </div>
               <div className="contact-method-text">
                 <p>Send us an Email at hello@wallantone.com</p>
               </div>
               <div className="contact-method-illustration">
-              <img src={ForBusinessemail} alt="For-Business-email" />
+                <img src={ForBusinessemail} alt="For-Business-email" />
               </div>
               <h4 className="contact-method-title">Leave the rest to us</h4>
               <p className="contact-method-description">
@@ -86,7 +165,7 @@ const BusinessSection = () => {
             </div>
           </div>
 
-          <form className="contact-form">
+          <form ref={formRef} onSubmit={handleSubmit} className="contact-form">
             <h3>Please reach out to us.</h3>
             
             <div className="form-row">
@@ -94,7 +173,9 @@ const BusinessSection = () => {
                 <label>Name</label>
                 <input 
                   type="text" 
-                  placeholder="Enter Full Name" 
+                  name="name"
+                  placeholder="Enter Full Name"
+                  required 
                 />
               </div>
 
@@ -102,13 +183,18 @@ const BusinessSection = () => {
                 <label>Company Name</label>
                 <input 
                   type="text" 
-                  placeholder="Enter Company Name" 
+                  name="companyName"
+                  placeholder="Enter Company Name"
+                  required 
                 />
               </div>
 
               <div className="form-group">
                 <label>What type of business are you?</label>
-                <select>
+                <select
+                  name="businessType"
+                  required
+                >
                   <option value="">Select Type</option>
                   <option value="interior">Interior Designer</option>
                   <option value="architect">Architect</option>
@@ -121,8 +207,10 @@ const BusinessSection = () => {
             <div className="form-group full-width">
               <label>How can we help you?</label>
               <textarea 
+                name="requirements"
                 placeholder="Enter Requirements"
                 rows="4"
+                required
               ></textarea>
             </div>
 
@@ -131,7 +219,9 @@ const BusinessSection = () => {
                 <label>Email</label>
                 <input 
                   type="email" 
-                  placeholder="Enter Email" 
+                  name="email"
+                  placeholder="Enter Email"
+                  required 
                 />
               </div>
 
@@ -139,7 +229,9 @@ const BusinessSection = () => {
                 <label>Phone Number</label>
                 <input 
                   type="tel" 
-                  placeholder="Enter Number" 
+                  name="phone"
+                  placeholder="Enter Number"
+                  required 
                 />
               </div>
 
@@ -149,22 +241,36 @@ const BusinessSection = () => {
                   type="text"
                   placeholder="Enter Screenshot of your cart"
                   readOnly
-                  onClick={() => document.getElementById('fileInput').click()}
+                  onClick={() => fileInputRef.current.click()}
                 />
                 <input 
+                  ref={fileInputRef}
                   type="file"
-                  id="fileInput"
+                  name="screenshots"
                   accept="image/*"
                   style={{ display: 'none' }}
                   multiple
+                  onChange={(e) => {
+                    const fileNames = Array.from(e.target.files || [])
+                      .map(file => file.name)
+                      .join(', ');
+                    e.target.previousSibling.value = fileNames || 'Enter Screenshot of your cart';
+                  }}
                 />
               </div>
             </div>
 
-            <button type="submit" className="submit-btn">Submit</button>
+            <button 
+              type="submit" 
+              className={`submit-btn ${loading ? 'loading' : ''}`}
+              disabled={loading}
+            >
+              {loading ? 'Sending...' : 'Submit'}
+            </button>
           </form>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

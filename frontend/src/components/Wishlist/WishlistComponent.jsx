@@ -6,6 +6,7 @@ import "./WishlistComponent.css";
 import heartIcon from "../../assets/icons/heart-icon.svg";
 import heartIconFilled from "../../assets/icons/heart-icon-filled.svg";
 import educationalImage from "../../assets/school-children-1.jpg"; // Replace with your image path
+import Footer from "../Footer/Footer";
 
 const WishlistComponent = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -270,6 +271,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           </div>
         </div>
       )}
+      <Footer/>
     </div>
   );
 };

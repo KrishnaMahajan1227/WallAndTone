@@ -4,6 +4,7 @@ import { ArrowLeft, ShoppingCart, Heart, X } from 'lucide-react';
 import axios from 'axios';
 import { frameBackgrounds } from '../constants/frameImages';
 import './FreepikCustomization.css';
+import Footer from '../Footer/Footer';
 
 const FreepikCustomization = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -433,6 +434,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           </div>
         </div>
       )}
+      <Footer/>
     </div>
   );
 };

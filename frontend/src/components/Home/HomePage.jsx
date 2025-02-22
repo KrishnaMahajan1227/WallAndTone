@@ -10,6 +10,7 @@ import TopReviewedProducts from "../TopReviewedProducts/TopReviewedProducts";
 import RecentlyAddedProducts from "../RecentlyAddedProducts/RecentlyAddedProducts";
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
 import searchImage from '../../assets/searchPage/searchPagebusinesec.png';
+import Footer from "../Footer/Footer";
 
 const HomePage = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -198,6 +199,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           </p>
         </div>
       </section>
+      <Footer/>
     </div>
   );
 };

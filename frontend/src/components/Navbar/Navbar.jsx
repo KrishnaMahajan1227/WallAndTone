@@ -128,7 +128,7 @@ const Navbar = () => {
         <Link 
           to="/aboutus" 
           className="nav-link"
-          onClick={() => handleNavigation('about', 'About Us')}
+          onClick={() => handleNavigation('About Us', 'About Us')}
         >
           About Us
         </Link>
@@ -143,18 +143,23 @@ const Navbar = () => {
         </Link>
       </li>
       <li className="nav-item">
-        <Link 
-          to="/AiCreation" 
-          className="nav-link"
-          onClick={handleAiCreationClick}
-        >
-          Create With AI
-        </Link>
-      </li>
+  <Link 
+    to="/AiCreation" 
+    className="nav-link"
+    onClick={(event) => {
+      handleAiCreationClick(event);  // Keep the existing function
+      handleNavigation('AiCreation', 'Create With AI');  // Add new function
+    }}
+  >
+    Create With AI
+  </Link>
+</li>
+
       <li className="nav-item">
         <Link 
           to="/forbusiness" 
           className="nav-link"
+          onClick={() => handleNavigation('forbusiness', 'For Business')}
         >
           For Business
         </Link>
@@ -290,7 +295,7 @@ const Navbar = () => {
                   >
                     {user.firstName}
                   </p>
-                  <button className="btn-logout" onClick={handleLogout}>
+                  <button className="btn-logout btn btn-danger" onClick={handleLogout}>
                     Logout
                   </button>
                 </div>

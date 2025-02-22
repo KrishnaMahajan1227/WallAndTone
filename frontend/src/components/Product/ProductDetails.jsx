@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, ShoppingCart, Heart, X } from 'lucide-react';
 import './ProductDetails.css';
 import axios from 'axios';
+import Footer from '../Footer/Footer';
 
 const ProductDetails = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -871,6 +872,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           </div>
         </div>
       )}
+      <Footer/>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ChevronRight } from 'lucide-react';
 import './FreepikImageGenerator.css';
+import Footer from '../Footer/Footer';
 
 const FreepikImageGenerator = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -366,6 +367,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           {error}
         </div>
       )}
+      <Footer/>
     </div>
   );
 };

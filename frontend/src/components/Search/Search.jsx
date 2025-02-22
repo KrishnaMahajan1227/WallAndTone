@@ -6,6 +6,7 @@ import SearchSuggestions from './SearchSuggestions';
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
 import './search.css';
 import searchImage from '../../assets/searchPage/searchPagebusinesec.png';
+import Footer from '../Footer/Footer';
 
 const Search = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -109,6 +110,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       />
 </div>
 
+<Footer/>
     </div>
   );
 };

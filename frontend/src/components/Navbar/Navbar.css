@@ -1,4 +1,8 @@
 /* Base styles for the navbar */
+
+::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
 .main-navbar {
   width: 18%;
   position: fixed;
@@ -38,7 +42,7 @@
 .main-navbar .navbar-toggler {
   display: none;
   position: fixed;
-  top: 20px;
+  top: 30px;
   right: 20px;
   z-index: 1001;
   background: transparent;
@@ -67,11 +71,11 @@
 }
 
 .main-navbar .navbar-toggler-icon::before {
-  transform: translateY(-8px);
+  transform: translate(-15px , -8px);
 }
 
 .main-navbar .navbar-toggler-icon::after {
-  transform: translateY(8px);
+  transform: translate(-15px, 8px);
 }
 
 .main-navbar .links-container {
@@ -122,10 +126,18 @@
   margin-top: auto;
 }
 
+.main-navbar a.btn-login {
+  background-color: #5B2EFF;
+  text-decoration: none;
+  color: #FFFFFF;
+  padding: 10px 35px;
+  border-radius: 8px;
+}
+
 .main-navbar .user-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
 }
 
@@ -140,9 +152,13 @@
   color: #5B2EFF;
 }
 
-.main-navbar .user-info .btn-danger {
-  width: 100%;
-  padding: 8px 16px;
+.main-navbar .btn-logout {
+  background-color: #ff2e2e;
+  text-decoration: none;
+  color: #FFFFFF;
+  padding: 10px 35px;
+  border-radius: 8px;
+  width: fit-content;
 }
 
 .main-navbar .login-container {
@@ -254,4 +270,20 @@
   .mobile-secondary-nav {
     display: block;
   }
+}
+
+@media(max-width:500px){
+  .main-navbar .logo-container .logo {
+    width: 80px;
+    height: auto;
+    object-fit: contain;
+}
+.main-navbar .navbar-toggler {
+  top: 24px;
+  right: 20px;
+}
+.main-navbar .navbar-toggler-icon {
+  width: 31px;
+  height: 3px;
+}
 }

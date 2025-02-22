@@ -1,5 +1,7 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
-
+.aboutus-page::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+}
 .aboutus-page {
   font-family: 'Inter', sans-serif;
   color: #333;

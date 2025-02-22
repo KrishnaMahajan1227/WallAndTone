@@ -24,6 +24,7 @@ import CameraComponent from './components/CameraComponent/CameraComponent';
 import FreepikCustomization from './components/FreepikCustomization/FreepikCustomization';
 import AboutUs from './components/AboutUs/AboutUs';
 import BusinessSection from './components/BusinessSection/BusinessSection';
+import Footer from './components/Footer/Footer';
 
 
 

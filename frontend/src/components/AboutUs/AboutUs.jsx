@@ -4,7 +4,17 @@ import aboutturningcanvases from '../../assets/about/About-Turning-Canvases.png'
 import AboutDiscoverCollection from '../../assets/about/About-Discover-Collection.png';
 import Empoweringchange from '../../assets/about/Empowering-change.png';
 
+// ProductionImages
+import PrecisionQualityCraftsmanship from '../../assets/about/Precision-Quality-Craftsmanship.png';
+import MadeInIndia from '../../assets/about/Made-In-India.png';
+import InHouseProduction from '../../assets/about/In-House-Production.png';
+import PaperMatters from '../../assets/about/Paper-Matters.png';
+import InHousePrinting from '../../assets/about/In-House-Printing.png';
+import FramesDefineSpaces from '../../assets/about/Frames-Define-Spaces.png';
+
+
 import './AboutUs.css';
+import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
 
 
 const AboutContent = () => (
@@ -99,6 +109,24 @@ const AboutContent = () => (
         </div>
       </div>
     </section>
+    <section className="aboutus-impact-section">
+        <div className="aboutus-container">
+          <div className="aboutus-impact-image-container">
+            <div className="aboutus-impact-content">
+              <h2>Empowering change, One wall at a Time</h2>
+              <p>
+                With every sector you buy, we donate to support children's
+                education and welfare through art.org
+              </p>
+            </div>
+            <img 
+              src={Empoweringchange}
+              alt="Happy children learning"
+              className="aboutus-impact-image"
+            />
+          </div>
+        </div>
+      </section>
   </>
 );
 
@@ -106,39 +134,125 @@ const ProductionContent = () => (
   <section className="aboutus-production">
     <div className="aboutus-container">
       <div className="aboutus-production-content">
-        <h1>Our Production Process</h1>
-        <div className="aboutus-production-grid">
-          <div className="aboutus-production-text">
-            <h2>Crafting Excellence in Every Print</h2>
-            <p className="aboutus-production-intro">
-              Our production process combines cutting-edge technology with traditional craftsmanship to ensure every piece meets our exacting standards.
-            </p>
-            
-            <div className="aboutus-process-steps">
-              <div className="aboutus-process-step">
-                <h3>1. Digital Mastering</h3>
-                <p>Each artwork undergoes precise digital optimization to ensure perfect color accuracy and detail preservation.</p>
-              </div>
-              
-              <div className="aboutus-process-step">
-                <h3>2. Premium Materials</h3>
-                <p>We use museum-grade papers and archival inks that guarantee your art will remain vibrant for generations.</p>
-              </div>
-              
-              <div className="aboutus-process-step">
-                <h3>3. Quality Control</h3>
-                <p>Every print is individually inspected to meet our rigorous quality standards before being carefully packaged.</p>
-              </div>
+        
+      <div className="aboutus-production-content-Precision">
+      <ImageContentComponent
+  image={PrecisionQualityCraftsmanship}
+  heading="Precision, Quality and Craftsmanship"
+  description={
+    <>
+      <p>
+        Unlike mass-produced wall art, every frame, print, and material is thoughtfully designed, carefully sourced, and expertly crafted to guarantee an unmatchable quality, innovation, and artistry.
+      </p>
+      <p className="mt-4">
+        We partner with expert manufacturers who blend automated precision with years of craftsmanship, allowing us to perform with best-in-class frames and give room for future innovation. Our printing is done fully in-house, giving us full control over color accuracy, texture, and detail, ensuring that each frame stands for true artistic excellence.
+      </p>
+    </>
+  }
+  reverse="yes"
+/>
+</div>
+
+<div className="aboutus-production-content-Frames-Spaces">
+  <ImageContentComponent
+    image={FramesDefineSpaces}
+    heading="Frames That Define Spaces"
+    description={
+      <>
+        <p>
+          The frame is not just an edge; the frame is part of the artwork. With a huge inventory of solid wood, sleek metal, and bright neon acrylic frames, we cater to various styles:
+        </p>
+        <ul className="mt-2">
+          <li>- Minimalist black & metal frames for modern interiors.</li>
+          <li>- Warm wooden frames for a timeless and classic feel.</li>
+          <li>- Eye-catching neon acrylics for bold statement pieces.</li>
+        </ul>
+        <p className="mt-4">
+          Each frame receives construction from quality materials and assembly with fastidious attention to enhance your space.
+        </p>
+      </>
+    }
+  />
+</div>
+
+
+<div className="aboutus-production-content-Paper-Matters">
+  <ImageContentComponent
+    image={PaperMatters}
+    heading="Paper Matters, for Every Artwork"
+    description={
+      <>
+        <p>We do not just print; we curate materials that do justice to the artwork. These include:</p>
+        <ul className="mt-2">
+          <li>Museum-Grade Canvas: Textured and stretched for eternal elegance.</li>
+          <li>Glass-Framed Prints: High-density, low-reflection paper for bright displays without glare.</li>
+          <li>No-Glass Frames: High-texture matte paper.</li>
+          <li>Acrylic Wall Art: Ultra-clear acrylic glass with a UV filter for eternal brilliance.</li>
+          <li>Rolled Prints: Available in gloss, matte, and fine art paper for versatility.</li>
+        </ul>
+      </>
+    }
+    reverse="yes"
+  />
+</div>
+
+
+        <div className="aboutus-impact-image-container">
+            <div className="aboutus-impact-content">
+              <h2>In-House Production for Premium Wall-Art</h2>
+              <p>
+              Crafting Every Piece with Precision, Quality and Expertise
+              </p>
             </div>
-          </div>
-          <div className="aboutus-production-image">
             <img 
-              src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80" 
-              alt="Production process showcase"
-              className="aboutus-gallery-image"
+              src={InHouseProduction}
+              alt="Happy children learning"
+              className="aboutus-impact-image"
             />
-          </div>
         </div>
+
+        <div className="aboutus-production-content-In-House-Printing">
+  <ImageContentComponent
+    image={InHousePrinting}
+    heading="In-House Printing"
+    description={
+      <>
+        <p>
+          Using state-of-the-art UV and Giclée print technologies, we produce vivid colors, precise details, and enhanced depth. Our in-house printing assures:
+        </p>
+        <ul className="mt-2">
+          <li>✔ Intricacy is maintained, from brush strokes to gradients.</li>
+          <li>✔ Our prints never fade; their glory holds for years to come.</li>
+          <li>✔ Best visibility under all lighting conditions.</li>
+        </ul>
+        <p className="mt-4">
+          We have kept printing in-house to undergo a continuous cycle of experimentation, refinement, and perfection for each artwork—achieving optimum results that surpass general expectations.
+        </p>
+      </>
+    }
+    reverse="yes"
+  />
+</div>
+
+
+<div className="aboutus-production-content-Proudly-Made-INDIA">
+  <ImageContentComponent
+    image={MadeInIndia}
+    heading="Proudly Made in INDIA"
+    description={
+      <>
+        <p>
+        Wall & Tone is a fully homegrown Indian bran, dedicated to creating high-quality wall art and wall frames. Every canvas, poster and frame is crafted in India by skilled Indian artisans using premium materials. We take pride in our in-house production, supporting local tent, ensuring exceptional craftsmanship.
+        </p>
+        <p className="mt-0">
+        With Wall & Tone, you’re not just decorating your space; you’re celebrating innovation and excellence, proudly Made in India.
+        </p>
+      </>
+    }
+  />
+</div>
+
+        
       </div>
     </div>
   </section>
@@ -174,25 +288,6 @@ function AboutUs() {
         <Route path="about" element={<AboutContent />} />
         <Route path="production" element={<ProductionContent />} />
       </Routes>
-
-      <section className="aboutus-impact-section">
-        <div className="aboutus-container">
-          <div className="aboutus-impact-image-container">
-            <div className="aboutus-impact-content">
-              <h2>Empowering change, One wall at a Time</h2>
-              <p>
-                With every sector you buy, we donate to support children's
-                education and welfare through art.org
-              </p>
-            </div>
-            <img 
-              src={Empoweringchange}
-              alt="Happy children learning"
-              className="aboutus-impact-image"
-            />
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

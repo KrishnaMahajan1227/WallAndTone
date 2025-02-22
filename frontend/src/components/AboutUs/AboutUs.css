@@ -190,17 +190,15 @@
 
 /* Production Section */
 .aboutus-production {
-  padding: 80px 0;
+  padding:0;
+  padding-bottom: 80px;
   background-color: #f8f5f3;
 }
 
-.aboutus-production-content h1 {
-  font-size: 48px;
-  font-weight: 700;
-  margin-bottom: 48px;
-  color: #2d2d2d;
-  text-align: center;
+.aboutus-production a.cta-button {
+    display: none;
 }
+
 
 .aboutus-production-grid {
   display: grid;
@@ -289,8 +287,8 @@
   }
 
   .aboutus-container .aboutus-impact-content  h2 {
-    font-size: 40px;
-    line-height: 45px;
+    font-size: 48px;
+    line-height: 48px;
     color: #FFFFFF;
     font-weight: 500;
     margin: 0;
@@ -301,12 +299,21 @@
     gap: 30px;
 }
 
-.aboutus-container h2 {
+.aboutus-container h2,
+.aboutus-production .aboutus-production-content h2  {
     font-size: 34px;
     line-height: 45px;
     color: #2D2D2D;
     font-weight: 500;
     margin: 0;
+}
+
+.aboutus-production ul.mt-2 li {
+    list-style: none;
+}
+.aboutus-production ul.mt-2 {
+    padding: 0;
+    margin: 0 !important;
 }
 
 .aboutus-container .abt-sec1-content .content {
@@ -315,13 +322,27 @@
     align-items: flex-start;
     justify-content: space-between;
 }
-.aboutus-hero-subtext, .aboutus-collection-text p {
+.aboutus-hero-subtext, .aboutus-collection-text p,
+.aboutus-production-content .description p,
+.aboutus-production ul.mt-2 li {
     font-size: 18px;
     line-height: 30px;
     font-weight: 300;
-    color: #666;
+    color: #2D2D2D;
     max-width: 600px;
     margin: 0;
+}
+.aboutus-production .aboutus-production-content-Paper-Matters ul.mt-2 li{
+ list-style: disc;
+}
+.aboutus-production .aboutus-production-content-Paper-Matters ul.mt-2{
+    padding-left: 25px;
+   }
+   .aboutus-production .image-content-component{
+    margin: 50px 0;
+   }
+   .aboutus-production .image-content-component .row {
+    align-items: flex-start;
 }
 .img-sec img {
     object-fit: contain;
@@ -363,6 +384,26 @@
   }
 }
 
+section.aboutus-production .aboutus-impact-content {
+    top: unset;
+    bottom: -10%;
+}
+section.aboutus-production .aboutus-impact-content h2 {
+    color: #FFFFFF;
+}
+section.aboutus-production .aboutus-impact-content h2 {
+    color: #FFFFFF;
+    font-size: 48px;
+    line-height: 48px;
+    font-weight: 500;
+}
+section.aboutus-production .aboutus-impact-content p {
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 30px;
+    margin: 0;
+    margin-top: 15px;
+}
 /* Responsive Design */
 @media (max-width: 1024px) {
   .aboutus-collection-grid,

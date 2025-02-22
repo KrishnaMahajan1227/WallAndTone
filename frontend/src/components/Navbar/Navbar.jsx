@@ -151,6 +151,14 @@ const Navbar = () => {
           Create With AI
         </Link>
       </li>
+      <li className="nav-item">
+        <Link 
+          to="/forbusiness" 
+          className="nav-link"
+        >
+          For Business
+        </Link>
+      </li>
     </>
   );
 

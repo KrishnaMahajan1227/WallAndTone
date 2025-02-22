@@ -23,6 +23,7 @@ import Search from './components/Search/Search';
 import CameraComponent from './components/CameraComponent/CameraComponent';
 import FreepikCustomization from './components/FreepikCustomization/FreepikCustomization';
 import AboutUs from './components/AboutUs/AboutUs';
+import BusinessSection from './components/BusinessSection/BusinessSection';
 
 
 
@@ -50,7 +51,7 @@ function App() {
               <Route path="/livePreview" element={<CameraComponent/>} />
               <Route path="/customize" element={<FreepikCustomization />} />
               <Route path="/aboutus/*" element={<AboutUs/>} />
-
+              <Route path="/forbusiness" element={<BusinessSection/>} />
 
 
               {/* Admin Routes */}

@@ -166,7 +166,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           Already have an account? <Link to="/login">Log in here</Link>
         </p>
       </div>
-      <Footer/>
     </div>
   );
 };

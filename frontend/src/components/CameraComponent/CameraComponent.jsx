@@ -808,7 +808,7 @@ const handleFrameTypeSelect = (frameType) => {
           <p className="text-center">Rs. {calculateTotalPrice()}</p>
         </div>
       </div>
-      <Footer/>
+      
     </div>
   );
 };

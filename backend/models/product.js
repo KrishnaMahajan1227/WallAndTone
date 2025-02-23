@@ -1,12 +1,11 @@
-// productSchema
 const mongoose = require('mongoose');
 
 // Review Schema
 const reviewSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to User
-  rating: { type: Number, required: true, min: 1, max: 5 }, // Rating between 1 and 5
-  comment: { type: String, required: true }, // Review comment
-  images: { type: [String], default: [] }, // Store image URLs if reviews contain images
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: { type: String, required: true },
+  images: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -15,31 +14,37 @@ const productSchema = new mongoose.Schema(
   {
     productName: { type: String, required: true },
     description: { type: String, required: true },
-    mainImage: { type: String, required: true }, // Main product image
-    thumbnails: { type: [String], default: [] }, // Array of thumbnail images
+    mainImage: { type: String, required: true },
+    thumbnails: { type: [String], default: [] },
     quantity: { type: Number, required: true },
-    startFromPrice: { type: Number, required: true }, // Base starting price of the product
-    frameTypes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FrameType', required: true }], // Multiple frame types
-    subFrameTypes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SubFrameType' }], // Multiple sub frame types
-
-    // SubFrame Images - Storing images specific to a product's subframes
+    startFromPrice: { type: Number, required: true },
+    frameTypes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FrameType', required: true }],
+    subFrameTypes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SubFrameType' }],
+    colors: [{
+      type: String,
+      enum: [
+        'Black', 'White', 'Gold', 'Gray', 'Pink', 'Green', 'Orange', 'Red', 'Blue',
+        'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels',
+        'Earth Tones', 'Muted Tones', 'Cool Tones', 'Fiery Orange', 'Deep Blue',
+        'Silver', 'Peach', 'Coral', 'Lavender', 'Dark Green', 'Light Brown',
+        'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
+      ]
+    }],
+    
     subFrameImages: [
       {
-        subFrameType: { type: mongoose.Schema.Types.ObjectId, ref: 'SubFrameType', required: true }, // Related subframe
-        frameType: { type: mongoose.Schema.Types.ObjectId, ref: 'FrameType', required: true }, // Related frame type
-        imageUrl: { type: String, required: true }, // Image specific to this subframe for this product
+        subFrameType: { type: mongoose.Schema.Types.ObjectId, ref: 'SubFrameType', required: true },
+        frameType: { type: mongoose.Schema.Types.ObjectId, ref: 'FrameType', required: true },
+        imageUrl: { type: String, required: true },
       },
     ],
-
-    sizes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Size', required: true }], // Multiple sizes
-
-    reviews: { type: [reviewSchema], default: [] }, // Array of reviews
-    rating: { type: Number, default: 0 }, // Average rating
+    sizes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Size', required: true }],
+    reviews: { type: [reviewSchema], default: [] },
+    rating: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-// Ensure product's average rating is updated when a review is added
 productSchema.methods.updateAverageRating = function () {
   if (this.reviews.length === 0) {
     this.rating = 0;
@@ -49,7 +54,6 @@ productSchema.methods.updateAverageRating = function () {
   }
 };
 
-// Middleware to update the average rating before saving the product
 productSchema.pre('save', function (next) {
   if (this.isModified('reviews')) {
     this.updateAverageRating();

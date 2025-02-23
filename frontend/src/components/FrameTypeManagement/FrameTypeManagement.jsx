@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './FrameTypeManagement.css'; // Custom CSS
+import './FrameTypeManagement.css';
 
 const FrameTypeManagement = () => {
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
 
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
@@ -27,22 +27,26 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   const fetchFrameTypes = async () => {
     try {
-      const { data } = await axios.get('${apiUrl}/api/frame-types');
-      setFrameTypes(data);
+      const response = await axios.get(`${apiUrl}/api/frame-types`);
+      setFrameTypes(Array.isArray(response.data) ? response.data : []);
       setLoadingFrameTypes(false);
     } catch (err) {
+      console.error('Error fetching frame types:', err);
       setError('Error fetching frame types');
+      setFrameTypes([]); // Ensure frameTypes is always an array
       setLoadingFrameTypes(false);
     }
   };
 
   const fetchSubFrameTypes = async () => {
     try {
-      const { data } = await axios.get(`${apiUrl}/api/sub-frame-types`);
-      setSubFrameTypes(data);
+      const response = await axios.get(`${apiUrl}/api/sub-frame-types`);
+      setSubFrameTypes(Array.isArray(response.data) ? response.data : []);
       setLoadingSubFrameTypes(false);
     } catch (err) {
+      console.error('Error fetching sub frame types:', err);
       setError('Error fetching sub frame types');
+      setSubFrameTypes([]); // Ensure subFrameTypes is always an array
       setLoadingSubFrameTypes(false);
     }
   };
@@ -54,11 +58,12 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }
 
     try {
-      const { data } = await axios.post(`${apiUrl}/api/frame-types`, newFrameType);
-      setFrameTypes([...frameTypes, data]);
+      const response = await axios.post(`${apiUrl}/api/frame-types`, newFrameType);
+      setFrameTypes(prev => [...prev, response.data]);
       setNewFrameType({ name: '', description: '', price: 0 });
       setError('');
     } catch (err) {
+      console.error('Error adding frame type:', err);
       setError('Error adding frame type');
     }
   };
@@ -70,23 +75,33 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }
 
     try {
-      const { data } = await axios.post(`${apiUrl}/api/sub-frame-types`, newSubFrameType);
-      setSubFrameTypes([...subFrameTypes, data]);
+      const response = await axios.post(`${apiUrl}/api/sub-frame-types`, newSubFrameType);
+      setSubFrameTypes(prev => [...prev, response.data]);
       setNewSubFrameType({ name: '', frameType: '', description: '', price: 0 });
       setError('');
     } catch (err) {
+      console.error('Error adding sub frame type:', err);
       setError('Error adding sub frame type');
     }
   };
 
-  const handleEditFrameType = async (frameType) => {
+  const handleEditFrameType = (frameType) => {
     setEditingFrameType(frameType);
-    setNewFrameType({ name: frameType.name, description: frameType.description, price: frameType.price });
+    setNewFrameType({
+      name: frameType.name,
+      description: frameType.description,
+      price: frameType.price
+    });
   };
 
-  const handleEditSubFrameType = async (subFrameType) => {
+  const handleEditSubFrameType = (subFrameType) => {
     setEditingSubFrameType(subFrameType);
-    setNewSubFrameType({ name: subFrameType.name, frameType: subFrameType.frameType, description: subFrameType.description, price: subFrameType.price });
+    setNewSubFrameType({
+      name: subFrameType.name,
+      frameType: subFrameType.frameType._id,
+      description: subFrameType.description,
+      price: subFrameType.price
+    });
   };
 
   const handleUpdateFrameType = async () => {
@@ -96,13 +111,13 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }
 
     try {
-      const { data } = await axios.put(`${apiUrl}/api/frame-types/${editingFrameType._id}`, newFrameType);
-      const updatedFrameTypes = frameTypes.map((frameType) => (frameType._id === editingFrameType._id ? data : frameType));
-      setFrameTypes(updatedFrameTypes);
+      const response = await axios.put(`${apiUrl}/api/frame-types/${editingFrameType._id}`, newFrameType);
+      setFrameTypes(prev => prev.map(ft => ft._id === editingFrameType._id ? response.data : ft));
       setNewFrameType({ name: '', description: '', price: 0 });
       setEditingFrameType(null);
       setError('');
     } catch (err) {
+      console.error('Error updating frame type:', err);
       setError('Error updating frame type');
     }
   };
@@ -114,13 +129,13 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }
 
     try {
-      const { data } = await axios.put(`${apiUrl}/api/sub-frame-types/${editingSubFrameType._id}`, newSubFrameType);
-      const updatedSubFrameTypes = subFrameTypes.map((subFrameType) => (subFrameType._id === editingSubFrameType._id ? data : subFrameType));
-      setSubFrameTypes(updatedSubFrameTypes);
+      const response = await axios.put(`${apiUrl}/api/sub-frame-types/${editingSubFrameType._id}`, newSubFrameType);
+      setSubFrameTypes(prev => prev.map(sft => sft._id === editingSubFrameType._id ? response.data : sft));
       setNewSubFrameType({ name: '', frameType: '', description: '', price: 0 });
       setEditingSubFrameType(null);
       setError('');
     } catch (err) {
+      console.error('Error updating sub frame type:', err);
       setError('Error updating sub frame type');
     }
   };
@@ -173,7 +188,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                 className="form-control"
                 placeholder="Enter price"
                 value={newFrameType.price}
-                onChange={(e) => setNewFrameType({ ...newFrameType, price: e.target.value })}
+                onChange={(e) => setNewFrameType({ ...newFrameType, price: parseFloat(e.target.value) })}
               />
             </div>
             {editingFrameType ? (
@@ -218,7 +233,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                 onChange={(e) => setNewSubFrameType({ ...newSubFrameType, frameType: e.target.value })}
               >
                 <option value="">Choose a frame type</option>
-                {frameTypes.map((frameType) => (
+                {Array.isArray(frameTypes) && frameTypes.map((frameType) => (
                   <option key={frameType._id} value={frameType._id}>
                     {frameType.name}
                   </option>
@@ -234,9 +249,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                 className="form-control"
                 placeholder="Enter description"
                 value={newSubFrameType.description}
-                onChange={(e) =>
-                  setNewSubFrameType({ ...newSubFrameType, description: e.target.value })
-                }
+                onChange={(e) => setNewSubFrameType({ ...newSubFrameType, description: e.target.value })}
               ></textarea>
             </div>
             <div className="mb-3">
@@ -249,7 +262,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                 className="form-control"
                 placeholder="Enter price"
                 value={newSubFrameType.price}
-                onChange={(e) => setNewSubFrameType({ ...newSubFrameType, price: e.target.value })}
+                onChange={(e) => setNewSubFrameType({ ...newSubFrameType, price: parseFloat(e.target.value) })}
               />
             </div>
             {editingSubFrameType ? (
@@ -264,65 +277,69 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           </div>
         </div>
 
-{/* Frame Types and Sub Frame Types */}
-<div className="row">
-  <div className="col-md-6">
-    <div className="card">
-      <div className="card-header bg-info text-white">
-        <h5>Frame Types</h5>
-      </div>
-      <div className="card-body">
-        {loadingFrameTypes ? (
-          <div>Loading Frame Types...</div>
-        ) : (
-          <ul className="list-group">
-            {frameTypes.map((frameType) => (
-              <li key={frameType._id} className="list-group-item d-flex justify-content-between">
-                <span>
-                  {frameType.name} - ${frameType.price}
-                </span>
-                <button
-                  className="btn btn-sm btn-primary w-25"
-                  onClick={() => handleEditFrameType(frameType)}
-                >
-                  Edit
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
-  </div>
-  <div className="col-md-6">
-    <div className="card">
-      <div className="card-header bg-warning text-dark">
-        <h5>Sub Frame Types</h5>
-      </div>
-      <div className="card-body">
-        {subFrameTypes.length === 0 ? (
-          <div>No sub frame types available.</div>
-        ) : (
-          <ul className="list-group">
-            {subFrameTypes.map((subFrameType) => (
-              <li key={subFrameType._id} className="list-group-item d-flex justify-content-between">
-                <span>
-                  {subFrameType.name} - ${subFrameType.price} - {subFrameType.frameType ? subFrameType.frameType.name : 'Frame Type Not Found'}
-                </span>
-                <button
-                  className="btn btn-sm btn-secondary w-25"
-                  onClick={() => handleEditSubFrameType(subFrameType)}
-                >
-                  Edit
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
+        {/* Frame Types and Sub Frame Types */}
+        <div className="row">
+          <div className="col-md-6">
+            <div className="card">
+              <div className="card-header bg-info text-white">
+                <h5>Frame Types</h5>
+              </div>
+              <div className="card-body">
+                {loadingFrameTypes ? (
+                  <div>Loading Frame Types...</div>
+                ) : frameTypes.length === 0 ? (
+                  <div>No frame types available.</div>
+                ) : (
+                  <ul className="list-group">
+                    {frameTypes.map((frameType) => (
+                      <li key={frameType._id} className="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                          {frameType.name} - ${frameType.price}
+                        </span>
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => handleEditFrameType(frameType)}
+                        >
+                          Edit
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6">
+            <div className="card">
+              <div className="card-header bg-warning text-dark">
+                <h5>Sub Frame Types</h5>
+              </div>
+              <div className="card-body">
+                {loadingSubFrameTypes ? (
+                  <div>Loading Sub Frame Types...</div>
+                ) : subFrameTypes.length === 0 ? (
+                  <div>No sub frame types available.</div>
+                ) : (
+                  <ul className="list-group">
+                    {subFrameTypes.map((subFrameType) => (
+                      <li key={subFrameType._id} className="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                          {subFrameType.name} - ${subFrameType.price} - {subFrameType.frameType?.name || 'Frame Type Not Found'}
+                        </span>
+                        <button
+                          className="btn btn-sm btn-secondary"
+                          onClick={() => handleEditSubFrameType(subFrameType)}
+                        >
+                          Edit
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

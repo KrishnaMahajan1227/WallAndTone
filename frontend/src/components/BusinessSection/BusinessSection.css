@@ -122,7 +122,7 @@
   .business-section .business-info {
     max-width: 100%;
     margin: 0 auto;
-    padding: calc(var(--spacing-unit) * 4) var(--spacing-unit);
+    padding: 20px 0;
   }
   
   .business-section .business-description,

@@ -71,10 +71,28 @@ const getSubFrameTypesByFrameType = async (req, res) => {
 // Product Controllers
 const addProduct = async (req, res) => {
   try {
-    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice } = req.body;
+    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, colors } = req.body;
     let mainImage = null;
     let thumbnails = [];
     let subframeImages = [];
+
+    // Validate colors
+    const validColors = [
+      'Black', 'White', 'Gold', 'Gray', 'Pink', 'Green', 'Orange', 'Red', 'Blue',
+      'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels',
+      'Earth Tones', 'Muted Tones', 'Cool Tones', 'Fiery Orange', 'Deep Blue',
+      'Silver', 'Peach', 'Coral', 'Lavender', 'Dark Green', 'Light Brown',
+      'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
+    ];
+
+    if (!colors || !Array.isArray(colors) || colors.length === 0) {
+      return res.status(400).json({ message: 'At least one color must be selected' });
+    }
+
+    const invalidColors = colors.filter(color => !validColors.includes(color));
+    if (invalidColors.length > 0) {
+      return res.status(400).json({ message: `Invalid colors: ${invalidColors.join(', ')}` });
+    }
 
     // Handle file uploads for main image and thumbnails
     if (req.files.mainImage) {
@@ -130,6 +148,7 @@ const addProduct = async (req, res) => {
       subFrameTypes,
       sizes,
       startFromPrice,
+      colors,
       mainImage,
       thumbnails,
       subFrameImages,
@@ -142,6 +161,7 @@ const addProduct = async (req, res) => {
     res.status(500).json({ message: 'Error adding product', error: err.message });
   }
 };
+
 
 const getAllProducts = async (req, res) => {
   try {
@@ -567,11 +587,27 @@ const processExcelFile = async (req, res) => {
       return res.status(400).json({ message: 'Excel file is empty or invalid' });
     }
 
+    const validColors = [
+      'Black', 'White', 'Gold', 'Gray', 'Pink', 'Green', 'Orange', 'Red', 'Blue',
+      'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels',
+      'Earth Tones', 'Muted Tones', 'Cool Tones', 'Fiery Orange', 'Deep Blue',
+      'Silver', 'Peach', 'Coral', 'Lavender', 'Dark Green', 'Light Brown',
+      'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
+    ];
+
     // Process and upload images to Cloudinary
     const processedData = await Promise.all(sheetData.map(async (row) => {
       // Validate required fields first
-      if (!row['Product Name'] || !row['Description'] || !row['StartFromPrice'] || !row['MainImage']) {
+      if (!row['Product Name'] || !row['Description'] || !row['StartFromPrice'] || !row['MainImage'] || !row['Colors']) {
         console.error(`Missing required fields for product: ${row['Product Name'] || 'Unknown Product'}`);
+        return null;
+      }
+
+      // Process colors
+      const colors = row['Colors'].split(',').map(color => color.trim());
+      const invalidColors = colors.filter(color => !validColors.includes(color));
+      if (invalidColors.length > 0) {
+        console.error(`Invalid colors for product ${row['Product Name']}: ${invalidColors.join(', ')}`);
         return null;
       }
 
@@ -641,7 +677,8 @@ const processExcelFile = async (req, res) => {
         ...row,
         mainImage: mainImageUrl,
         thumbnails: thumbnailUrls.filter(Boolean),
-        subframeImageMap: subframeImageMap.filter(Boolean)
+        subframeImageMap: subframeImageMap.filter(Boolean),
+        colors: colors
       };
     }));
 
@@ -708,6 +745,7 @@ const processExcelFile = async (req, res) => {
         frameTypes: data['FrameTypes'] ? data['FrameTypes'].split(',').map(ft => frameTypeMap[ft.trim()]).filter(Boolean) : [],
         subFrameTypes: data['SubFrameTypes'] ? data['SubFrameTypes'].split(',').map(sft => subFrameTypeMap[sft.trim()]).filter(Boolean) : [],
         sizes: data['Sizes'] ? data['Sizes'].split(',').map(size => sizeMap[size.trim()]).filter(Boolean) : [],
+        colors: data.colors,
         mainImage: data.mainImage,
         thumbnails: data.thumbnails,
         subFrameImages

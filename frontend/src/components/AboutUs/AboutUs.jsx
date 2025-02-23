@@ -290,7 +290,7 @@ function AboutUs() {
         <Route path="production" element={<ProductionContent />} />
       </Routes>
 
-      <Footer/>
+      
     </div>
   );
 }

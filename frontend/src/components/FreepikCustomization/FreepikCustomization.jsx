@@ -434,7 +434,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           </div>
         </div>
       )}
-      <Footer/>
+      
     </div>
   );
 };

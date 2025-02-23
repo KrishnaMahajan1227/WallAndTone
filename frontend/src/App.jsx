@@ -35,7 +35,8 @@ function App() {
       <Router>
         <div className="Main-app">
           {location.pathname !== '/livePreview' && <Navbar />}
-          <div className="Main-content container">
+          <div className="Main-content container-fluid">
+          <div className="container">
           {location.pathname !== '/livePreview' && <SecondaryNavbar className="secondary-navbar-container"/>}
             <Routes>
               {/* Public Routes */}
@@ -62,6 +63,8 @@ function App() {
               <Route path="/dashboard/CouponAdmin" element={<CouponAdmin/>} />
               <Route path="/dashboard/SizesAdmin" element={<SizesAdmin/>} />
             </Routes>
+          </div>
+          <Footer/>
           </div>
         </div>
       </Router>

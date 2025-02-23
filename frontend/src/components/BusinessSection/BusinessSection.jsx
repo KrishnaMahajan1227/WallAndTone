@@ -270,7 +270,7 @@ const BusinessSection = () => {
           </form>
         </div>
       </div>
-      <Footer/>
+      
     </div>
   );
 };

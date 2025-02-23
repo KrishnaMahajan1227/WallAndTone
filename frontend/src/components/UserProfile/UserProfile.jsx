@@ -133,7 +133,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       )}
 
       <button style={styles.logoutButton} onClick={logout}>Logout</button>
-      <Footer/>
+      
     </div>
   );
 };

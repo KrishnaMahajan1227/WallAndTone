@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductManager.css';
 
 const ProductManager = () => {
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
   const [products, setProducts] = useState([]);
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
@@ -18,6 +18,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     subFrameTypes: [],
     sizes: [],
     price: '',
+    colors: []
   });
   const [files, setFiles] = useState({
     mainImage: null,
@@ -32,6 +33,14 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedFrameType, setSelectedFrameType] = useState(null);
   const [subframeImage, setSubframeImage] = useState(null);
+
+  const availableColors = [
+    'Black', 'White', 'Gold', 'Gray', 'Pink', 'Green', 'Orange', 'Red', 'Blue',
+    'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels',
+    'Earth Tones', 'Muted Tones', 'Cool Tones', 'Fiery Orange', 'Deep Blue',
+    'Silver', 'Peach', 'Coral', 'Lavender', 'Dark Green', 'Light Brown',
+    'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
+  ];
 
   useEffect(() => {
     fetchFrameTypes();
@@ -74,15 +83,13 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   const fetchProducts = async () => {
     try {
-      // Fixed the API URL string - removed extra quotes
       const response = await axios.get(`${apiUrl}/api/products`);
-      setProducts(Array.isArray(response.data) ? response.data : []); // Ensure we always set an array
+      setProducts(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       handleError('Failed to fetch products');
-      setProducts([]); // Set empty array on error
+      setProducts([]);
     }
   };
-
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -124,6 +131,16 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }));
   };
 
+  const handleColorChange = (e) => {
+    const { value, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      colors: checked
+        ? [...prev.colors, value]
+        : prev.colors.filter(color => color !== value)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
@@ -153,7 +170,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     try {
       const url = formData._id
         ? `${apiUrl}/api/products/${formData._id}`
-        : `'${apiUrl}/api/products`;
+        : `${apiUrl}/api/products`;
       
       const method = formData._id ? 'put' : 'post';
       const response = await axios[method](url, formDataToSend);
@@ -197,70 +214,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }
   };
 
-  const handleAddSubframeImage = async (e) => {
-    e.preventDefault();
-    if (!selectedProduct || !selectedSubFrameType || !selectedFrameType || !subframeImage) {
-      handleError('Please select all required fields');
-      return;
-    }
-
-    const formDataToSend = new FormData();
-    formDataToSend.append('subFrameType', selectedSubFrameType);
-    formDataToSend.append('frameType', selectedFrameType);
-    formDataToSend.append('subframeImage', subframeImage); // File upload
-
-    try {
-      await axios.post(
-        `${apiUrl}/api/products/${selectedProduct._id}/subframe-images`,
-        formDataToSend,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      fetchProducts();
-      setSuccess('Subframe image added successfully');
-      handleSubframeImageModalClose();
-    } catch (err) {
-      handleError(err.response?.data?.message || 'Failed to add subframe image');
-    }
-};
-
-const handleSubframeImageChange = (e) => {
-  setSubframeImage(e.target.files[0]);
-};
-
-  const handleSubframeImageModalClose = () => {
-    setSubframeImageModalVisible(false);
-    setSelectedProduct(null);
-    setSelectedSubFrameType(null);
-    setSelectedFrameType(null);
-    setSubframeImage(null);
-  };
-
-  const handleAddSubframeImageClick = (product) => {
-    setSelectedProduct(product);
-    setSubframeImageModalVisible(true);
-  };
-
-  const resetForm = () => {
-    setFormData({
-      _id: '',
-      productName: '',
-      description: '',
-      quantity: '',
-      frameTypes: [],
-      subFrameTypes: [],
-      sizes: [],
-      price: '',
-    });
-    setFiles({
-      mainImage: null,
-      thumbnails: [],
-    });
-  };
-
   const handleEdit = (product) => {
     setFormData({
       _id: product._id,
@@ -271,6 +224,7 @@ const handleSubframeImageChange = (e) => {
       subFrameTypes: product.subFrameTypes.map(sft => sft._id),
       sizes: product.sizes.map(s => s._id),
       price: product.price,
+      colors: product.colors || []
     });
     setModalVisible(true);
   };
@@ -283,6 +237,24 @@ const handleSubframeImageChange = (e) => {
     } catch (err) {
       handleError('Failed to delete product');
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      _id: '',
+      productName: '',
+      description: '',
+      quantity: '',
+      frameTypes: [],
+      subFrameTypes: [],
+      sizes: [],
+      price: '',
+      colors: []
+    });
+    setFiles({
+      mainImage: null,
+      thumbnails: [],
+    });
   };
 
   return (
@@ -329,6 +301,7 @@ const handleSubframeImageChange = (e) => {
               <th>Frame Types</th>
               <th>Sub Frame Types</th>
               <th>Sizes</th>
+              <th>Colors</th>
               <th>Price</th>
               <th>Quantity</th>
               <th>Images</th>
@@ -363,24 +336,31 @@ const handleSubframeImageChange = (e) => {
                     ))}
                   </ul>
                 </td>
+                <td>
+                  <ul className="list-unstyled mb-0">
+                    {product.colors?.map((color, index) => (
+                      <li key={index}>{color}</li>
+                    ))}
+                  </ul>
+                </td>
                 <td>${product.startFromPrice}</td>
                 <td>{product.quantity}</td>
                 <td>
                   <div className="d-flex flex-column gap-2">
                     {product.mainImage && (
                       <img
-                        src={`${product.mainImage}`}
+                        src={product.mainImage}
                         alt="Main"
                         className="img-thumbnail"
                         style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                       />
                     )}
                     <div className="d-flex gap-1">
-                      {product.subFrameImages.map((img, index) => (
+                      {product.thumbnails?.map((thumbnail, index) => (
                         <img
                           key={index}
-                          src={`${img.imageUrl }`}
-                          alt={`Subframe ${index + 1}`}
+                          src={thumbnail}
+                          alt={`Thumbnail ${index + 1}`}
                           className="img-thumbnail"
                           style={{ width: '50px', height: '50px', objectFit: 'cover' }}
                         />
@@ -402,12 +382,6 @@ const handleSubframeImageChange = (e) => {
                     >
                       Delete
                     </button>
-                    <button
-                      className="btn btn-sm btn-info"
-                      onClick={() => handleAddSubframeImageClick(product)}
-                    >
-                      Add Subframe Image
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -416,10 +390,9 @@ const handleSubframeImageChange = (e) => {
         </table>
       </div>
 
-      {/* Product Modal */}
       {modalVisible && (
         <div className="modal show d-block" tabIndex="-1">
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
@@ -481,6 +454,27 @@ const handleSubframeImageChange = (e) => {
                   </div>
 
                   <div className="mb-3">
+                    <label className="form-label">Colors</label>
+                    <div className="color-selection-grid">
+                      {availableColors.map(color => (
+                        <div key={color} className="form-check">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            id={`color-${color}`}
+                            value={color}
+                            checked={formData.colors.includes(color)}
+                            onChange={handleColorChange}
+                          />
+                          <label className="form-check-label" htmlFor={`color-${color}`}>
+                            {color}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
                     <label className="form-label">Frame Types</label>
                     {frameTypes.map(ft => (
                       <div key={ft._id} className="form-check">
@@ -531,7 +525,7 @@ const handleSubframeImageChange = (e) => {
                           onChange={handleSizeChange}
                         />
                         <label className="form-check-label" htmlFor={`size-${size._id}`}>
- {size.width}x{size.height}
+                          {size.width}x{size.height}
                         </label>
                       </div>
                     ))}
@@ -579,87 +573,7 @@ const handleSubframeImageChange = (e) => {
         </div>
       )}
 
-      {/* Subframe Image Modal */}
-      {subframeImageModalVisible && (
-        <div className="modal show d-block" tabIndex="-1">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Add Subframe Image</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={handleSubframeImageModalClose}
-                />
-              </div>
-              <div className="modal-body">
-                <form onSubmit={handleAddSubframeImage}>
-                  <div className="mb-3">
-                    <label className="form-label">Sub Frame Type</label>
-                    <select
-                      className="form-select"
-                      value={selectedSubFrameType || ''}
-                      onChange={(e) => setSelectedSubFrameType(e.target.value)}
-                      required
-                    >
-                      <option value="">Select Sub Frame Type</option>
-                      {selectedProduct?.subFrameTypes.map(sft => (
-                        <option key={sft._id} value={sft._id}>
-                          {sft.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label">Frame Type</label>
-                    <select
-                      className="form-select"
-                      value={selectedFrameType || ''}
-                      onChange={(e) => setSelectedFrameType(e.target.value)}
-                      required
-                    >
-                      <option value="">Select Frame Type</option>
-                      {selectedProduct?.frameTypes.map(ft => (
-                        <option key={ft._id} value={ft._id}>
-                          {ft.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label">Image</label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      onChange={handleSubframeImageChange}
-                      accept="image/*"
-                      required
-                    />
-                  </div>
-
-                  <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={handleSubframeImageModalClose}
-                    >
-                      Cancel
-                    </button>
-                    <button type="submit" className="btn btn-primary">
-                      Add Image
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Backdrop */}
-      {(modalVisible || subframeImageModalVisible) && (
+      {(modalVisible) && (
         <div className="modal-backdrop show"></div>
       )}
     </div>

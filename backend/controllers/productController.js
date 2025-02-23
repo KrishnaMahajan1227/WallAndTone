@@ -71,7 +71,7 @@ const getSubFrameTypesByFrameType = async (req, res) => {
 // Product Controllers
 const addProduct = async (req, res) => {
   try {
-    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, colors, orientations } = req.body;
+    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, colors, orientations, categories } = req.body;
     let mainImage = null;
     let thumbnails = [];
     let subframeImages = [];
@@ -104,6 +104,28 @@ const addProduct = async (req, res) => {
     const invalidOrientations = orientations.filter(orientation => !validOrientations.includes(orientation));
     if (invalidOrientations.length > 0) {
       return res.status(400).json({ message: `Invalid orientations: ${invalidOrientations.join(', ')}` });
+    }
+
+    // Validate categories (new functionality)
+    const validCategories = [        'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
+    'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
+    'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
+    'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
+    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
+    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
+    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
+    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
+    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
+    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
+    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
+    'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
+    'Love & Romance', 'Seasonal Art', 'Nautical'];
+    if (!categories || !Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({ message: 'At least one category must be selected' });
+    }
+    const invalidCategories = categories.filter(category => !validCategories.includes(category));
+    if (invalidCategories.length > 0) {
+      return res.status(400).json({ message: `Invalid categories: ${invalidCategories.join(', ')}` });
     }
 
     // Handle file uploads for main image and thumbnails
@@ -162,6 +184,7 @@ const addProduct = async (req, res) => {
       startFromPrice,
       colors,
       orientations,
+      categories,
       mainImage,
       thumbnails,
       subFrameImages,
@@ -174,7 +197,6 @@ const addProduct = async (req, res) => {
     res.status(500).json({ message: 'Error adding product', error: err.message });
   }
 };
-
 
 const getAllProducts = async (req, res) => {
   try {
@@ -243,21 +265,69 @@ const getProductById = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice } = req.body;
+    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, colors, orientations, categories } = req.body;
     let mainImage = null;
     let thumbnails = [];
 
+    // Validate colors
+    const validColors = [
+      'Black', 'White', 'Gold', 'Gray', 'Pink', 'Green', 'Orange', 'Red', 'Blue',
+      'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels',
+      'Earth Tones', 'Muted Tones', 'Cool Tones', 'Fiery Orange', 'Deep Blue',
+      'Silver', 'Peach', 'Coral', 'Lavender', 'Dark Green', 'Light Brown',
+      'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
+    ];
+    if (!colors || !Array.isArray(colors) || colors.length === 0) {
+      return res.status(400).json({ message: 'At least one color must be selected' });
+    }
+    const invalidColors = colors.filter(color => !validColors.includes(color));
+    if (invalidColors.length > 0) {
+      return res.status(400).json({ message: `Invalid colors: ${invalidColors.join(', ')}` });
+    }
+
+    // Validate orientations
+    const validOrientations = ['Portrait', 'Landscape', 'Square'];
+    if (!orientations || !Array.isArray(orientations) || orientations.length === 0) {
+      return res.status(400).json({ message: 'At least one orientation must be selected' });
+    }
+    const invalidOrientations = orientations.filter(orientation => !validOrientations.includes(orientation));
+    if (invalidOrientations.length > 0) {
+      return res.status(400).json({ message: `Invalid orientations: ${invalidOrientations.join(', ')}` });
+    }
+
+    // Validate categories
+    const validCategories = [        'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
+    'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
+    'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
+    'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
+    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
+    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
+    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
+    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
+    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
+    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
+    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
+    'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
+    'Love & Romance', 'Seasonal Art', 'Nautical'];
+    if (!categories || !Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({ message: 'At least one category must be selected' });
+    }
+    const invalidCategories = categories.filter(category => !validCategories.includes(category));
+    if (invalidCategories.length > 0) {
+      return res.status(400).json({ message: `Invalid categories: ${invalidCategories.join(', ')}` });
+    }
+
+    // Handle file uploads if provided
     if (req.files.mainImage) {
       mainImage = await uploadImage(req.files.mainImage[0]);
     }
-
     if (req.files.thumbnails) {
       thumbnails = await Promise.all(req.files.thumbnails.map(file => uploadImage(file)));
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, mainImage, thumbnails },
+      { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, mainImage, thumbnails, colors, orientations, categories },
       { new: true }
     );
 
@@ -270,6 +340,7 @@ const updateProduct = async (req, res) => {
     res.status(500).json({ message: 'Error updating product', error: err.message });
   }
 };
+
 
 const deleteProduct = async (req, res) => {
   try {
@@ -600,7 +671,7 @@ const processExcelFile = async (req, res) => {
       return res.status(400).json({ message: 'Excel file is empty or invalid' });
     }
 
-    // Define valid colors and orientations
+    // Define valid colors, orientations and categories
     const validColors = [
       'Black', 'White', 'Gold', 'Gray', 'Pink', 'Green', 'Orange', 'Red', 'Blue',
       'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels',
@@ -610,11 +681,24 @@ const processExcelFile = async (req, res) => {
     ];
 
     const validOrientations = ['Portrait', 'Landscape', 'Square'];
+    const validCategories = [        'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
+    'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
+    'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
+    'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
+    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
+    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
+    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
+    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
+    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
+    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
+    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
+    'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
+    'Love & Romance', 'Seasonal Art', 'Nautical'];
 
     // Process and upload images to Cloudinary
     const processedData = await Promise.all(sheetData.map(async (row) => {
       // Validate required fields first
-      if (!row['Product Name'] || !row['Description'] || !row['StartFromPrice'] || !row['MainImage'] || !row['Colors'] || !row['Orientations']) {
+      if (!row['Product Name'] || !row['Description'] || !row['StartFromPrice'] || !row['MainImage'] || !row['Colors'] || !row['Orientations'] || !row['Categories']) {
         console.error(`Missing required fields for product: ${row['Product Name'] || 'Unknown Product'}`);
         return null;
       }
@@ -632,6 +716,14 @@ const processExcelFile = async (req, res) => {
       const invalidOrientations = orientations.filter(orientation => !validOrientations.includes(orientation));
       if (invalidOrientations.length > 0) {
         console.error(`Invalid orientations for product ${row['Product Name']}: ${invalidOrientations.join(', ')}`);
+        return null;
+      }
+
+      // Process categories (new functionality)
+      const categories = row['Categories'].split(',').map(category => category.trim());
+      const invalidCategories = categories.filter(category => !validCategories.includes(category));
+      if (invalidCategories.length > 0) {
+        console.error(`Invalid categories for product ${row['Product Name']}: ${invalidCategories.join(', ')}`);
         return null;
       }
 
@@ -703,7 +795,8 @@ const processExcelFile = async (req, res) => {
         thumbnails: thumbnailUrls.filter(Boolean),
         subframeImageMap: subframeImageMap.filter(Boolean),
         colors: colors,
-        orientations: orientations
+        orientations: orientations,
+        categories: categories
       };
     }));
 
@@ -772,6 +865,7 @@ const processExcelFile = async (req, res) => {
         sizes: data['Sizes'] ? data['Sizes'].split(',').map(size => sizeMap[size.trim()]).filter(Boolean) : [],
         colors: data.colors,
         orientations: data.orientations,
+        categories: data.categories,
         mainImage: data.mainImage,
         thumbnails: data.thumbnails,
         subFrameImages

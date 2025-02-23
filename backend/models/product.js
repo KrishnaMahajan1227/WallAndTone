@@ -34,6 +34,24 @@ const productSchema = new mongoose.Schema(
       type: String,
       enum: ['Portrait', 'Landscape', 'Square']
     }],
+    categories: [{
+      type: String,
+      enum: [
+        'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
+    'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
+    'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
+    'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
+    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
+    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
+    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
+    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
+    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
+    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
+    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
+    'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
+    'Love & Romance', 'Seasonal Art', 'Nautical'
+      ]
+    }],
     subFrameImages: [
       {
         subFrameType: { type: mongoose.Schema.Types.ObjectId, ref: 'SubFrameType', required: true },

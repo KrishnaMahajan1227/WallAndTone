@@ -17,9 +17,10 @@ const ProductManager = () => {
     frameTypes: [],
     subFrameTypes: [],
     sizes: [],
-    price: '',
+    startFromPrice: '',
     colors: [],
-    orientations: []
+    orientations: [],
+    categories: []
   });
   const [files, setFiles] = useState({
     mainImage: null,
@@ -44,6 +45,19 @@ const ProductManager = () => {
   ];
 
   const availableOrientations = ['Portrait', 'Landscape', 'Square'];
+  const availableCategories = ['Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
+    'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
+    'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
+    'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
+    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
+    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
+    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
+    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
+    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
+    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
+    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
+    'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
+    'Love & Romance', 'Seasonal Art', 'Nautical'];
 
   useEffect(() => {
     fetchFrameTypes();
@@ -154,6 +168,16 @@ const ProductManager = () => {
     }));
   };
 
+  const handleCategoryChange = (e) => {
+    const { value, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      categories: checked
+        ? [...prev.categories, value]
+        : prev.categories.filter(category => category !== value)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
@@ -234,9 +258,10 @@ const ProductManager = () => {
       frameTypes: product.frameTypes.map(ft => ft._id),
       subFrameTypes: product.subFrameTypes.map(sft => sft._id),
       sizes: product.sizes.map(s => s._id),
-      price: product.price,
+      startFromPrice: product.startFromPrice,
       colors: product.colors || [],
-      orientations: product.orientations || []
+      orientations: product.orientations || [],
+      categories: product.categories || []
     });
     setModalVisible(true);
   };
@@ -260,9 +285,10 @@ const ProductManager = () => {
       frameTypes: [],
       subFrameTypes: [],
       sizes: [],
-      price: '',
+      startFromPrice: '',
       colors: [],
-      orientations: []
+      orientations: [],
+      categories: []
     });
     setFiles({
       mainImage: null,
@@ -316,6 +342,7 @@ const ProductManager = () => {
               <th>Sizes</th>
               <th>Colors</th>
               <th>Orientations</th>
+              <th>Categories</th>
               <th>Price</th>
               <th>Quantity</th>
               <th>Images</th>
@@ -361,6 +388,13 @@ const ProductManager = () => {
                   <ul className="list-unstyled mb-0">
                     {product.orientations?.map((orientation, index) => (
                       <li key={index}>{orientation}</li>
+                    ))}
+                  </ul>
+                </td>
+                <td>
+                  <ul className="list-unstyled mb-0">
+                    {product.categories?.map((category, index) => (
+                      <li key={index}>{category}</li>
                     ))}
                   </ul>
                 </td>
@@ -467,8 +501,8 @@ const ProductManager = () => {
                     <input
                       type="number"
                       className="form-control"
-                      name="price"
-                      value={formData.price}
+                      name="startFromPrice"
+                      value={formData.startFromPrice}
                       onChange={handleInputChange}
                       required
                     />
@@ -510,6 +544,27 @@ const ProductManager = () => {
                           />
                           <label className="form-check-label" htmlFor={`orientation-${orientation}`}>
                             {orientation}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Categories</label>
+                    <div className="category-selection-grid">
+                      {availableCategories.map(category => (
+                        <div key={category} className="form-check">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            id={`category-${category}`}
+                            value={category}
+                            checked={formData.categories.includes(category)}
+                            onChange={handleCategoryChange}
+                          />
+                          <label className="form-check-label" htmlFor={`category-${category}`}>
+                            {category}
                           </label>
                         </div>
                       ))}

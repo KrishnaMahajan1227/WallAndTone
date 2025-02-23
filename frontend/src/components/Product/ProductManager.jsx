@@ -18,7 +18,8 @@ const ProductManager = () => {
     subFrameTypes: [],
     sizes: [],
     price: '',
-    colors: []
+    colors: [],
+    orientations: []
   });
   const [files, setFiles] = useState({
     mainImage: null,
@@ -41,6 +42,8 @@ const ProductManager = () => {
     'Silver', 'Peach', 'Coral', 'Lavender', 'Dark Green', 'Light Brown',
     'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
   ];
+
+  const availableOrientations = ['Portrait', 'Landscape', 'Square'];
 
   useEffect(() => {
     fetchFrameTypes();
@@ -141,11 +144,20 @@ const ProductManager = () => {
     }));
   };
 
+  const handleOrientationChange = (e) => {
+    const { value, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      orientations: checked
+        ? [...prev.orientations, value]
+        : prev.orientations.filter(orientation => orientation !== value)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
 
-    // Append basic product information
     Object.keys(formData).forEach(key => {
       if (Array.isArray(formData[key])) {
         formData[key].forEach(value => {
@@ -156,7 +168,6 @@ const ProductManager = () => {
       }
     });
 
-    // Append files
     if (files.mainImage?.[0]) {
       formDataToSend.append('mainImage', files.mainImage[0]);
     }
@@ -224,7 +235,8 @@ const ProductManager = () => {
       subFrameTypes: product.subFrameTypes.map(sft => sft._id),
       sizes: product.sizes.map(s => s._id),
       price: product.price,
-      colors: product.colors || []
+      colors: product.colors || [],
+      orientations: product.orientations || []
     });
     setModalVisible(true);
   };
@@ -249,7 +261,8 @@ const ProductManager = () => {
       subFrameTypes: [],
       sizes: [],
       price: '',
-      colors: []
+      colors: [],
+      orientations: []
     });
     setFiles({
       mainImage: null,
@@ -302,6 +315,7 @@ const ProductManager = () => {
               <th>Sub Frame Types</th>
               <th>Sizes</th>
               <th>Colors</th>
+              <th>Orientations</th>
               <th>Price</th>
               <th>Quantity</th>
               <th>Images</th>
@@ -340,6 +354,13 @@ const ProductManager = () => {
                   <ul className="list-unstyled mb-0">
                     {product.colors?.map((color, index) => (
                       <li key={index}>{color}</li>
+                    ))}
+                  </ul>
+                </td>
+                <td>
+                  <ul className="list-unstyled mb-0">
+                    {product.orientations?.map((orientation, index) => (
+                      <li key={index}>{orientation}</li>
                     ))}
                   </ul>
                 </td>
@@ -475,6 +496,27 @@ const ProductManager = () => {
                   </div>
 
                   <div className="mb-3">
+                    <label className="form-label">Orientations</label>
+                    <div className="orientation-selection">
+                      {availableOrientations.map(orientation => (
+                        <div key={orientation} className="form-check">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            id={`orientation-${orientation}`}
+                            value={orientation}
+                            checked={formData.orientations.includes(orientation)}
+                            onChange={handleOrientationChange}
+                          />
+                          <label className="form-check-label" htmlFor={`orientation-${orientation}`}>
+                            {orientation}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
                     <label className="form-label">Frame Types</label>
                     {frameTypes.map(ft => (
                       <div key={ft._id} className="form-check">
@@ -573,9 +615,7 @@ const ProductManager = () => {
         </div>
       )}
 
-      {(modalVisible) && (
-        <div className="modal-backdrop show"></div>
-      )}
+      {modalVisible && <div className="modal-backdrop show"></div>}
     </div>
   );
 };

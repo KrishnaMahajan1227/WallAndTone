@@ -71,7 +71,7 @@ const getSubFrameTypesByFrameType = async (req, res) => {
 // Product Controllers
 const addProduct = async (req, res) => {
   try {
-    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, colors } = req.body;
+    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, colors, orientations } = req.body;
     let mainImage = null;
     let thumbnails = [];
     let subframeImages = [];
@@ -92,6 +92,18 @@ const addProduct = async (req, res) => {
     const invalidColors = colors.filter(color => !validColors.includes(color));
     if (invalidColors.length > 0) {
       return res.status(400).json({ message: `Invalid colors: ${invalidColors.join(', ')}` });
+    }
+
+    // Validate orientations
+    const validOrientations = ['Portrait', 'Landscape', 'Square'];
+    
+    if (!orientations || !Array.isArray(orientations) || orientations.length === 0) {
+      return res.status(400).json({ message: 'At least one orientation must be selected' });
+    }
+
+    const invalidOrientations = orientations.filter(orientation => !validOrientations.includes(orientation));
+    if (invalidOrientations.length > 0) {
+      return res.status(400).json({ message: `Invalid orientations: ${invalidOrientations.join(', ')}` });
     }
 
     // Handle file uploads for main image and thumbnails
@@ -149,6 +161,7 @@ const addProduct = async (req, res) => {
       sizes,
       startFromPrice,
       colors,
+      orientations,
       mainImage,
       thumbnails,
       subFrameImages,
@@ -587,6 +600,7 @@ const processExcelFile = async (req, res) => {
       return res.status(400).json({ message: 'Excel file is empty or invalid' });
     }
 
+    // Define valid colors and orientations
     const validColors = [
       'Black', 'White', 'Gold', 'Gray', 'Pink', 'Green', 'Orange', 'Red', 'Blue',
       'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels',
@@ -595,10 +609,12 @@ const processExcelFile = async (req, res) => {
       'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
     ];
 
+    const validOrientations = ['Portrait', 'Landscape', 'Square'];
+
     // Process and upload images to Cloudinary
     const processedData = await Promise.all(sheetData.map(async (row) => {
       // Validate required fields first
-      if (!row['Product Name'] || !row['Description'] || !row['StartFromPrice'] || !row['MainImage'] || !row['Colors']) {
+      if (!row['Product Name'] || !row['Description'] || !row['StartFromPrice'] || !row['MainImage'] || !row['Colors'] || !row['Orientations']) {
         console.error(`Missing required fields for product: ${row['Product Name'] || 'Unknown Product'}`);
         return null;
       }
@@ -608,6 +624,14 @@ const processExcelFile = async (req, res) => {
       const invalidColors = colors.filter(color => !validColors.includes(color));
       if (invalidColors.length > 0) {
         console.error(`Invalid colors for product ${row['Product Name']}: ${invalidColors.join(', ')}`);
+        return null;
+      }
+
+      // Process orientations
+      const orientations = row['Orientations'].split(',').map(orientation => orientation.trim());
+      const invalidOrientations = orientations.filter(orientation => !validOrientations.includes(orientation));
+      if (invalidOrientations.length > 0) {
+        console.error(`Invalid orientations for product ${row['Product Name']}: ${invalidOrientations.join(', ')}`);
         return null;
       }
 
@@ -678,7 +702,8 @@ const processExcelFile = async (req, res) => {
         mainImage: mainImageUrl,
         thumbnails: thumbnailUrls.filter(Boolean),
         subframeImageMap: subframeImageMap.filter(Boolean),
-        colors: colors
+        colors: colors,
+        orientations: orientations
       };
     }));
 
@@ -746,6 +771,7 @@ const processExcelFile = async (req, res) => {
         subFrameTypes: data['SubFrameTypes'] ? data['SubFrameTypes'].split(',').map(sft => subFrameTypeMap[sft.trim()]).filter(Boolean) : [],
         sizes: data['Sizes'] ? data['Sizes'].split(',').map(size => sizeMap[size.trim()]).filter(Boolean) : [],
         colors: data.colors,
+        orientations: data.orientations,
         mainImage: data.mainImage,
         thumbnails: data.thumbnails,
         subFrameImages

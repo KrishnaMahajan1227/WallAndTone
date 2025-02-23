@@ -30,7 +30,10 @@ const productSchema = new mongoose.Schema(
         'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
       ]
     }],
-    
+     orientations: [{
+      type: String,
+      enum: ['Portrait', 'Landscape', 'Square']
+    }],
     subFrameImages: [
       {
         subFrameType: { type: mongoose.Schema.Types.ObjectId, ref: 'SubFrameType', required: true },

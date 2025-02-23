@@ -4,10 +4,43 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Offcanvas, Accordion, Button, Alert } from 'react-bootstrap';
 import heartIcon from '../../assets/icons/heart-icon.svg';
 import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
+import filtericon from '../../assets/icons/filter-icon.png';
 import { WishlistContext } from '../Wishlist/WishlistContext';
 
 import './ProductListing.css';
-import Footer from '../Footer/Footer';
+
+// Grouped Color Options – only group headings will be shown.
+const groupedColorOptions = {
+  "Black & White": ["Black", "White", "Gray / Grey", "Silver"],
+  "Blue Tones": ["Blue", "Navy Blue", "Dark Blue", "Teal", "Aqua"],
+  "Green Tones": ["Green", "Dark Green", "Light Green", "Neon Green"],
+  "Red & Warm Tones": ["Red", "Fiery Orange", "Soft Red", "Warm Browns", "Terracotta"],
+  "Earthy & Neutral Tones": ["Earth Tones", "Beige / Warm Beige", "Brown / Light Brown / Dark Brown", "Cream"],
+  "Pastel & Soft Tones": ["Pastel Pink", "Soft Pink", "Soft Orange", "Soft Gold", "Soft Yellow"],
+  "Yellow & Gold Tones": ["Yellow", "Mustard", "Golden Yellow", "Gold / Soft Gold"],
+  "Pink & Purple Tones": ["Pink", "Lavender", "Mauve", "Purple"],
+  "Orange & Coral Tones": ["Orange", "Peach", "Coral", "Soft Orange"],
+  "Mixed & Multi-Color Tones": ["Multi-color", "Neon Colors (Neon Blue, Neon Green, Neon Pink)", "Cool Tones", "Warm Tones"]
+};
+
+// Grouped Category Options (as before)
+const groupedCategoryOptions = {
+  "Abstract & Conceptual": ["Abstract Art", "Surrealism", "Expressionism", "Minimalist", "Fluid Art", "Optical Art"],
+  "Nature & Landscape": ["Nature Art", "Botanical", "Seascape", "Wildlife", "Scenic", "Marine Art"],
+  "Animals & Creatures": ["Animal Portraits", "Birds", "Wildlife", "Fantasy Creatures"],
+  "City & Architecture": ["Cityscape", "Urban Art", "Landmark", "Classical Architecture"],
+  "People & Portraits": ["Figurative", "Portraits", "Classical Art", "Realism", "Ukiyo-e"],
+  "Classic & Fine Art": ["Renaissance", "Baroque", "Impressionism", "Post-Impressionism", "Realism"],
+  "Fantasy & Sci-Fi": ["Space Art", "Cyberpunk", "Steampunk", "Futuristic", "Retro-Futurism"],
+  "Spiritual & Symbolic": ["Religious Art", "Mandalas", "Symbolism", "Calligraphy"],
+  "Photography & Digital Art": ["Fine Art Photography", "Black & White", "Conceptual Photography", "Digital Illustration"],
+  "Pop & Retro Culture": ["Pop Art", "Vintage", "Whimsical", "Caricature", "Cartoon"],
+  "Modern & Contemporary": ["Modern Art", "Geometric", "Contemporary", "Modernism"],
+  "Illustration & Typography": ["Hand-Drawn", "Calligraphy", "Text Art", "Line Art"],
+  "Still Life & Food": ["Food Art", "Gourmet", "Drinks", "Classic Still Life"],
+  "Traditional & Cultural Art": ["Asian Art", "Ukiyo-e", "Tribal", "Cultural Paintings"],
+  "Thematic & Seasonal": ["Love & Romance", "Seasonal Art", "Nautical", "Marine Art"]
+};
 
 const ProductListing = () => {
   const apiUrl =
@@ -26,55 +59,26 @@ const ProductListing = () => {
   const [authAction, setAuthAction] = useState(null);
   const [showFilterOffcanvas, setShowFilterOffcanvas] = useState(false);
 
-  // States for filter selections (used when offcanvas is open)
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  // Use grouped filters for Colors and Categories; Orientation remains ungrouped.
+  const [selectedColorGroups, setSelectedColorGroups] = useState([]);
+  const [selectedCategoryGroups, setSelectedCategoryGroups] = useState([]);
   const [selectedOrientations, setSelectedOrientations] = useState([]);
 
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Filter options
-  const colorOptions = [
-    'Black', 'White', 'Gold', 'Gray', 'Pink', 'Green', 'Orange', 'Red', 'Blue',
-    'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels', 'Earth Tones',
-    'Muted Tones', 'Cool Tones', 'Fiery Orange', 'Deep Blue', 'Silver', 'Peach',
-    'Coral', 'Lavender', 'Dark Green', 'Light Brown', 'Terracotta', 'Navy',
-    'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
-  ];
-
-  const categoryOptions = [
-    'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
-    'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
-    'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
-    'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
-    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
-    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
-    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
-    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
-    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
-    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
-    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet',
-    'Drinks', 'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
-    'Love & Romance', 'Seasonal Art', 'Nautical'
-  ];
-
+  // Orientation options (unmodified)
   const orientationOptions = ['Portrait', 'Landscape', 'Square'];
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Use backend filtering via query parameters from the URL.
         let url = `${apiUrl}/api/products`;
-        if (location.search) {
-          url += location.search;
-        }
+        if (location.search) url += location.search;
         const response = await fetch(url, { method: 'GET' });
         const data = await response.json();
-        if (!data || !Array.isArray(data)) {
-          throw new Error('Invalid data received');
-        }
+        if (!data || !Array.isArray(data)) throw new Error('Invalid data received');
         // Update wishlist status for each product.
         const updatedProducts = data.map(product => ({
           ...product,
@@ -96,9 +100,7 @@ const ProductListing = () => {
             headers: { Authorization: `Bearer ${token}` },
           });
           const wishlistData = await wishlistResponse.json();
-          if (!wishlistData || !Array.isArray(wishlistData.items)) {
-            throw new Error('Invalid wishlist data received');
-          }
+          if (!wishlistData || !Array.isArray(wishlistData.items)) throw new Error('Invalid wishlist data received');
           const wishlist = wishlistData.items || [];
           setWishlist(wishlist);
           setWishlistCount(wishlist.length);
@@ -123,17 +125,16 @@ const ProductListing = () => {
     setAuthAction(() => action);
     setShowAuthPopup(true);
   };
-
   const handleAuthPopupClose = () => {
     setShowAuthPopup(false);
     setAuthAction(null);
   };
-
   const handleAuthLogin = () => {
     setShowAuthPopup(false);
     navigate('/login');
   };
 
+  // Wishlist functions (unchanged)
   const handleAddToWishlist = async (product) => {
     if (!product || !product._id) return;
     if (!token) {
@@ -158,9 +159,7 @@ const ProductListing = () => {
         },
         body: JSON.stringify({ productId: product._id }),
       });
-      if (!response.ok) {
-        throw new Error('Failed to add product to wishlist');
-      }
+      if (!response.ok) throw new Error('Failed to add product to wishlist');
       const updatedProducts = products.map(p =>
         p._id === product._id ? { ...p, inWishlist: true } : p
       );
@@ -183,9 +182,7 @@ const ProductListing = () => {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!response.ok) {
-        throw new Error('Failed to remove product from wishlist');
-      }
+      if (!response.ok) throw new Error('Failed to remove product from wishlist');
     } catch (error) {
       console.error('Error removing product from wishlist:', error);
       setWishlist(wishlist);
@@ -202,7 +199,7 @@ const ProductListing = () => {
   const handleShowFilterOffcanvas = () => setShowFilterOffcanvas(true);
   const handleCloseFilterOffcanvas = () => setShowFilterOffcanvas(false);
 
-  // Generic checkbox change handler for the offcanvas filters
+  // Generic checkbox change for Orientation.
   const handleCheckboxChange = (setter, selected, value) => {
     if (selected.includes(value)) {
       setter(selected.filter(item => item !== value));
@@ -211,12 +208,35 @@ const ProductListing = () => {
     }
   };
 
-  // When "View Result" is clicked, build query string and update URL
+  // For Colors and Categories, we use group selection.
+  const toggleColorGroup = (group) => {
+    if (selectedColorGroups.includes(group)) {
+      setSelectedColorGroups(selectedColorGroups.filter(g => g !== group));
+    } else {
+      setSelectedColorGroups([...selectedColorGroups, group]);
+    }
+  };
+  const toggleCategoryGroup = (group) => {
+    if (selectedCategoryGroups.includes(group)) {
+      setSelectedCategoryGroups(selectedCategoryGroups.filter(g => g !== group));
+    } else {
+      setSelectedCategoryGroups([...selectedCategoryGroups, group]);
+    }
+  };
+
+  // When "View Result" is clicked, build the query string.
+  // For color groups and category groups, we flatten the underlying arrays.
   const handleViewResult = () => {
     const queryParams = new URLSearchParams();
-    if (selectedColors.length > 0) queryParams.set('colors', selectedColors.join(','));
-    if (selectedCategories.length > 0) queryParams.set('categories', selectedCategories.join(','));
+    if (selectedColorGroups.length > 0) {
+      const allColors = selectedColorGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
+      queryParams.set('colors', allColors.join(','));
+    }
     if (selectedOrientations.length > 0) queryParams.set('orientation', selectedOrientations.join(','));
+    if (selectedCategoryGroups.length > 0) {
+      const allCats = selectedCategoryGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
+      queryParams.set('categories', allCats.join(','));
+    }
     navigate({
       pathname: location.pathname,
       search: queryParams.toString(),
@@ -225,28 +245,33 @@ const ProductListing = () => {
   };
 
   const handleClearSelection = () => {
-    setSelectedColors([]);
-    setSelectedCategories([]);
+    setSelectedColorGroups([]);
+    setSelectedCategoryGroups([]);
     setSelectedOrientations([]);
   };
 
-  // Render the active filter summary from the URL's query string.
+  // Render active filter summary.
+  // For Colors and Categories, we use the group names from state.
+  // For Orientation, we use the query string.
   const renderFilterSummary = () => {
     const queryParams = new URLSearchParams(location.search);
-    const activeColors = queryParams.get('colors') ? queryParams.get('colors').split(',') : [];
-    const activeCategories = queryParams.get('categories') ? queryParams.get('categories').split(',') : [];
     const activeOrientations = queryParams.get('orientation') ? queryParams.get('orientation').split(',') : [];
+    const activeColorGroups = selectedColorGroups;
+    const activeCategoryGroups = selectedCategoryGroups;
     const filters = [];
-    activeColors.forEach(color => filters.push({ type: 'color', value: color }));
-    activeCategories.forEach(cat => filters.push({ type: 'category', value: cat }));
-    activeOrientations.forEach(ori => filters.push({ type: 'orientation', value: ori }));
+    activeColorGroups.forEach(group => filters.push({ type: 'Color', value: group }));
+    activeOrientations.forEach(ori => filters.push({ type: 'Orientation', value: ori }));
+    activeCategoryGroups.forEach(group => filters.push({ type: 'Category', value: group }));
     if (filters.length === 0) return null;
     return (
-      <div className="filter-summary d-flex flex-wrap align-items-center my-3 container">
+      <div className="filter-summary d-flex flex-wrap align-items-center my-3">
         {filters.map((filter, index) => (
-          <div key={index} className="filter-chip d-flex align-items-center">
+          <div key={index} className="filter-chip d-flex align-items-center me-2 mb-2">
             <span className="filter-chip-label">{filter.value}</span>
-            <button className="filter-chip-remove btn btn-link p-0 ms-1" onClick={() => removeFilterValue(filter.type, filter.value)}>
+            <button
+              className="filter-chip-remove btn btn-link p-0 ms-1"
+              onClick={() => removeFilterValue(filter.type, filter.value)}
+            >
               &times;
             </button>
           </div>
@@ -255,25 +280,32 @@ const ProductListing = () => {
     );
   };
 
-  // Remove a single filter value and update the URL accordingly.
+  // Remove a single filter value and update state/URL.
   const removeFilterValue = (filterType, value) => {
-    // Map filterType to the corresponding query parameter key.
-    let key = filterType;
-    if (filterType === 'color') key = 'colors';
-    if (filterType === 'category') key = 'categories';
-    // For orientation, the key remains 'orientation'.
-    const queryParams = new URLSearchParams(location.search);
-    let currentValues = queryParams.get(key) ? queryParams.get(key).split(',') : [];
-    currentValues = currentValues.filter(item => item !== value);
-    if (currentValues.length > 0) {
-      queryParams.set(key, currentValues.join(','));
-    } else {
-      queryParams.delete(key);
+    if (filterType === 'Color') {
+      const newGroups = selectedColorGroups.filter(item => item !== value);
+      setSelectedColorGroups(newGroups);
+      const allColors = newGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
+      const queryParams = new URLSearchParams(location.search);
+      if (allColors.length > 0) queryParams.set('colors', allColors.join(','));
+      else queryParams.delete('colors');
+      navigate({ pathname: location.pathname, search: queryParams.toString() });
+    } else if (filterType === 'Orientation') {
+      const newOris = selectedOrientations.filter(item => item !== value);
+      setSelectedOrientations(newOris);
+      const queryParams = new URLSearchParams(location.search);
+      if (newOris.length > 0) queryParams.set('orientation', newOris.join(','));
+      else queryParams.delete('orientation');
+      navigate({ pathname: location.pathname, search: queryParams.toString() });
+    } else if (filterType === 'Category') {
+      const newGroups = selectedCategoryGroups.filter(item => item !== value);
+      setSelectedCategoryGroups(newGroups);
+      const allCats = newGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
+      const queryParams = new URLSearchParams(location.search);
+      if (allCats.length > 0) queryParams.set('categories', allCats.join(','));
+      else queryParams.delete('categories');
+      navigate({ pathname: location.pathname, search: queryParams.toString() });
     }
-    navigate({
-      pathname: location.pathname,
-      search: queryParams.toString(),
-    });
   };
 
   if (loading)
@@ -301,10 +333,7 @@ const ProductListing = () => {
           className="wishlist-icon position-absolute"
           onClick={(e) => {
             e.stopPropagation();
-            if (
-              wishlist &&
-              wishlist.some(item => item.productId && item.productId._id === product._id)
-            ) {
+            if (wishlist && wishlist.some(item => item.productId && item.productId._id === product._id)) {
               handleRemoveFromWishlist(product);
             } else {
               handleAddToWishlist(product);
@@ -313,8 +342,7 @@ const ProductListing = () => {
         >
           <img
             src={
-              wishlist &&
-              wishlist.some(item => item.productId && item.productId._id === product._id)
+              wishlist && wishlist.some(item => item.productId && item.productId._id === product._id)
                 ? heartIconFilled
                 : heartIcon
             }
@@ -410,40 +438,42 @@ const ProductListing = () => {
               <Accordion.Header>Colors</Accordion.Header>
               <Accordion.Body>
                 <div className="filter-options-list">
-                  {colorOptions.map(color => (
-                    <div key={color} className="filter-option-item">
+                  {Object.keys(groupedColorOptions).map(group => (
+                    <div key={group} className="filter-option-item">
                       <input
                         type="checkbox"
-                        id={`color-${color}`}
-                        value={color}
-                        checked={selectedColors.includes(color)}
-                        onChange={() => handleCheckboxChange(setSelectedColors, selectedColors, color)}
+                        id={`color-group-${group}`}
+                        value={group}
+                        checked={selectedColorGroups.includes(group)}
+                        onChange={() => toggleColorGroup(group)}
                       />
-                      <label htmlFor={`color-${color}`}>{color}</label>
+                      <label htmlFor={`color-group-${group}`}>{group}</label>
                     </div>
                   ))}
                 </div>
               </Accordion.Body>
             </Accordion.Item>
+
             <Accordion.Item eventKey="1">
               <Accordion.Header>Categories</Accordion.Header>
               <Accordion.Body>
                 <div className="filter-options-list">
-                  {categoryOptions.map(cat => (
-                    <div key={cat} className="filter-option-item">
+                  {Object.keys(groupedCategoryOptions).map(group => (
+                    <div key={group} className="filter-option-item">
                       <input
                         type="checkbox"
-                        id={`category-${cat}`}
-                        value={cat}
-                        checked={selectedCategories.includes(cat)}
-                        onChange={() => handleCheckboxChange(setSelectedCategories, selectedCategories, cat)}
+                        id={`category-group-${group}`}
+                        value={group}
+                        checked={selectedCategoryGroups.includes(group)}
+                        onChange={() => toggleCategoryGroup(group)}
                       />
-                      <label htmlFor={`category-${cat}`}>{cat}</label>
+                      <label htmlFor={`category-group-${group}`}>{group}</label>
                     </div>
                   ))}
                 </div>
               </Accordion.Body>
             </Accordion.Item>
+
             <Accordion.Item eventKey="2">
               <Accordion.Header>Orientation</Accordion.Header>
               <Accordion.Body>
@@ -477,26 +507,21 @@ const ProductListing = () => {
 
       {/* Top Navigation Section */}
       <div className="shop-navigation">
-        <div className="nav-buttons">
-          <button className="shop-by-room">Shop by Room</button>
-          <span className="nav-link btn">Wall Colour</span>
-          <span className="nav-link btn">Categories</span>
-          <span className="nav-link btn">Number of Posters</span>
-        </div>
-        <hr className="divider" />
         <div className="category-buttons">
-          <button className="category-button active" onClick={handleShowFilterOffcanvas}>
-            Filters By
+          <button className="category-button active d-flex" onClick={handleShowFilterOffcanvas}>
+            <img src={filtericon} alt="Filter-Icon" />
+            <p>Filters By</p>
           </button>
           <button className="category-button active">Living Room</button>
           <button className="category-button">Bedroom</button>
           <button className="category-button">Kitchen</button>
           <button className="category-button">Balcony</button>
         </div>
+        {/* <hr className="divider" /> */}
       </div>
 
-{/* Active Filter Summary */}
-{renderFilterSummary()}
+ {/* Active Filter Summary */}
+ {renderFilterSummary()}
 
       {/* Products Grid */}
       {products && products.length > 0 ? (
@@ -504,8 +529,6 @@ const ProductListing = () => {
       ) : (
         <div className="text-center my-5">No products found.</div>
       )}
-
-      <Footer />
     </div>
   );
 };

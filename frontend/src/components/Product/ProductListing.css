@@ -153,7 +153,9 @@
   justify-content: space-evenly;
   font-size: 14px;
 }
-
+button.category-button.active.d-flex p {
+  margin: 0;
+}
 .shop-by-room {
   background-color: #6c4cff;
   color: white;
@@ -195,7 +197,9 @@
 }
 
 .category-button.active {
-  background-color: #e0d6d6;
+  background-color: #E2D9D5;
+  align-items: center;
+  gap: 10px;
 }
 
 /* Existing styles for ProductListing can remain unchanged */
@@ -205,9 +209,10 @@
   max-width: 25vw;
 }
 
-.filter-modal-backdrop {
-  backdrop-filter: blur(5px);
+.offcanvas-backdrop.show {
+  background-color:#000000 !important;
 }
+
 
 /* Parent class for filter modal content styling */
 .product-listing .filter-modal-content {
@@ -249,11 +254,6 @@
   z-index: 9999;
   /* Ensure it slides in smoothly */
   transition: transform 0.3s ease-in-out;
-}
-
-/* Override the offcanvas backdrop to add a blur effect */
-.offcanvas-backdrop.show {
-  backdrop-filter: blur(5px);
 }
 
 /* Offcanvas footer styling */

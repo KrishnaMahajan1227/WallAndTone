@@ -68,7 +68,8 @@ const getSubFrameTypesByFrameType = async (req, res) => {
   }
 };
 
-// Product Controllers
+// UPDATED: Product Controllers
+
 const addProduct = async (req, res) => {
   try {
     const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, colors, orientations, categories } = req.body;
@@ -107,19 +108,21 @@ const addProduct = async (req, res) => {
     }
 
     // Validate categories (new functionality)
-    const validCategories = [        'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
-    'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
-    'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
-    'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
-    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
-    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
-    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
-    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
-    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
-    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
-    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
-    'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
-    'Love & Romance', 'Seasonal Art', 'Nautical'];
+    const validCategories = [        
+      'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
+      'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
+      'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
+      'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
+      'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
+      'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
+      'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
+      'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
+      'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
+      'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
+      'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
+      'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
+      'Love & Romance', 'Seasonal Art', 'Nautical'
+    ];
     if (!categories || !Array.isArray(categories) || categories.length === 0) {
       return res.status(400).json({ message: 'At least one category must be selected' });
     }
@@ -198,29 +201,42 @@ const addProduct = async (req, res) => {
   }
 };
 
+// UPDATED: getAllProducts now supports filtering by colors, categories, and orientations
 const getAllProducts = async (req, res) => {
   try {
-    const searchQuery = req.query.search;
-    let products;
-    if (searchQuery) {
-      products = await Product.find({
-        $or: [
-          { productName: { $regex: searchQuery, $options: 'i' } },
-          { description: { $regex: searchQuery, $options: 'i' } },
-        ],
-      })
-        .populate('frameTypes', 'name')
-        .populate('subFrameTypes', 'name', null, { strictPopulate: false })
-        .populate('sizes', 'width height price', null, { strictPopulate: false })
-        .populate('thumbnails', 'filename', null, { strictPopulate: false });
-    } else {
-      products = await Product.find()
-        .populate('frameTypes', 'name')
-        .populate('subFrameTypes', 'name', null, { strictPopulate: false })
-        .populate('sizes', 'width height price', null, { strictPopulate: false })
-        .populate('thumbnails', 'filename', null, { strictPopulate: false });
+    const { search, colors, categories, orientation } = req.query;
+    const filterQuery = {};
+
+    // Handle search
+    if (search) {
+      filterQuery.$or = [
+        { productName: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
     }
+    // Handle filtering by colors
+    if (colors) {
+      const colorsArray = colors.split(',').map(c => c.trim());
+      filterQuery.colors = { $in: colorsArray };
+    }
+    // Handle filtering by categories
+    if (categories) {
+      const categoriesArray = categories.split(',').map(c => c.trim());
+      filterQuery.categories = { $in: categoriesArray };
+    }
+    // Handle filtering by orientations
+    if (orientation) {
+      const orientationArray = orientation.split(',').map(o => o.trim());
+      filterQuery.orientations = { $in: orientationArray };
+    }
+
+    const products = await Product.find(filterQuery)
+      .populate('frameTypes', 'name price')
+      .populate('subFrameTypes', 'name price', null, { strictPopulate: false })
+      .populate('sizes', 'width height price', null, { strictPopulate: false })
+      .populate('thumbnails', 'filename', null, { strictPopulate: false });
     
+    // Compute totalPrice for each product
     products.forEach(product => {
       const frameTypePrice = product.frameTypes.reduce((sum, frameType) => sum + frameType.price, 0);
       const subFrameTypePrice = product.subFrameTypes.reduce((sum, subFrameType) => sum + subFrameType.price, 0);
@@ -296,19 +312,21 @@ const updateProduct = async (req, res) => {
     }
 
     // Validate categories
-    const validCategories = [        'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
-    'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
-    'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
-    'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
-    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
-    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
-    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
-    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
-    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
-    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
-    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
-    'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
-    'Love & Romance', 'Seasonal Art', 'Nautical'];
+    const validCategories = [        
+      'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
+      'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
+      'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
+      'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
+      'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
+      'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
+      'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
+      'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
+      'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
+      'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
+      'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
+      'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
+      'Love & Romance', 'Seasonal Art', 'Nautical'
+    ];
     if (!categories || !Array.isArray(categories) || categories.length === 0) {
       return res.status(400).json({ message: 'At least one category must be selected' });
     }
@@ -340,7 +358,6 @@ const updateProduct = async (req, res) => {
     res.status(500).json({ message: 'Error updating product', error: err.message });
   }
 };
-
 
 const deleteProduct = async (req, res) => {
   try {
@@ -681,19 +698,21 @@ const processExcelFile = async (req, res) => {
     ];
 
     const validOrientations = ['Portrait', 'Landscape', 'Square'];
-    const validCategories = [        'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
-    'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
-    'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
-    'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
-    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
-    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
-    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
-    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
-    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
-    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
-    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
-    'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
-    'Love & Romance', 'Seasonal Art', 'Nautical'];
+    const validCategories = [        
+      'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
+      'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
+      'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
+      'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
+      'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
+      'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
+      'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
+      'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
+      'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
+      'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
+      'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
+      'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
+      'Love & Romance', 'Seasonal Art', 'Nautical'
+    ];
 
     // Process and upload images to Cloudinary
     const processedData = await Promise.all(sheetData.map(async (row) => {

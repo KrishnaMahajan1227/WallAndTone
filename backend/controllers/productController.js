@@ -260,6 +260,25 @@ const addProduct = async (req, res) => {
       return res.status(400).json({ message: 'Sizes must be an array with at least one valid ID.' });
     }
 
+    // Process Excel subframe image mappings
+    let subframeImageMap = [];
+    if (req.file) {
+      // This code has already read the file; now, in each row,
+      // we expect the "SubframeImageMap" field to contain mappings like:
+      // "10.jpg:Wooden:Wooden Black,8.jpg:Wooden:Wooden Black,9.jpg:Wooden:Wooden Light Brown,8.jpg:Wooden:Wooden Dark,11.jpg:Wooden:Wooden White"
+      const processRowMapping = (mappingStr) => {
+        const parts = mappingStr.split(':');
+        if (parts.length < 3) return null;
+        const [imagePath, frameType, subFrameType] = parts;
+        return {
+          imagePath: imagePath.trim(),
+          frameType: frameType.trim(),
+          subFrameType: subFrameType.trim()
+        };
+      };
+      // We'll process these mappings for each row later in Excel processing.
+    }
+
     // Create a new product
     const newProduct = new Product({
       productName,
@@ -274,7 +293,7 @@ const addProduct = async (req, res) => {
       categories,
       mainImage,
       thumbnails,
-      subFrameImages,
+      subFrameImages: subframeImages, // If uploaded separately from Excel
       medium: medium || [],
       rooms: rooms || []
     });
@@ -994,20 +1013,27 @@ const processExcelFile = async (req, res) => {
         }));
       }
 
-      // Process subframe images
+      // Process subframe images from the SubframeImageMap column
       let subframeImageMap = [];
       if (row['SubframeImageMap']) {
-        const mappings = row['SubframeImageMap'].split(',').map(mapping => {
-          const [imagePath, frameType, subFrameType] = mapping.split(':');
-          return { 
-            imagePath: imagePath.trim(), 
-            frameType: frameType.trim(), 
-            subFrameType: subFrameType.trim() 
-          };
-        });
+        const mappings = row['SubframeImageMap']
+          .split(',')
+          .map(mappingStr => {
+            const parts = mappingStr.split(':');
+            if (parts.length < 3) return null;
+            const [imagePath, frameType, subFrameType] = parts;
+            return {
+              imagePath: imagePath.trim(),
+              frameType: frameType.trim(),
+              subFrameType: subFrameType.trim()
+            };
+          })
+          .filter(Boolean);
         subframeImageMap = await Promise.all(mappings.map(async (mapping) => {
           try {
-            const publicId = path.basename(mapping.imagePath).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
+            const publicId = path.basename(mapping.imagePath)
+              .replace(/\.[^/.]+$/, "")
+              .replace(/[^a-zA-Z0-9]/g, "_");
             const imageUrl = await uploadLocalToCloudinary(mapping.imagePath, publicId);
             if (!imageUrl) {
               console.error(`Failed to upload subframe image for ${row['Product Name']}`);
@@ -1075,47 +1101,56 @@ const processExcelFile = async (req, res) => {
       sizeMap[key] = size._id;
     });
 
-// Process and create products
-const products = validProducts.map(data => {
-  let subFrameImages = [];
-  if (data.subframeImageMap && Array.isArray(data.subframeImageMap)) {
-    const grouped = {};
-    data.subframeImageMap.forEach(mapping => {
-      if (mapping && mapping.imageUrl) {
-        const ftId = frameTypeMap[mapping.frameType];
-        const sftId = subFrameTypeMap[mapping.subFrameType];
-        if (!ftId || !sftId) return;
-        const key = `${ftId}_${sftId}`;
-        if (!grouped[key]) {
-          grouped[key] = { frameType: ftId, subFrameType: sftId, imageUrls: [] };
-        }
-        grouped[key].imageUrls.push(mapping.imageUrl);
+    // Process and create products
+    const products = validProducts.map(data => {
+      let subFrameImages = [];
+      if (data.subframeImageMap && Array.isArray(data.subframeImageMap)) {
+        const grouped = {};
+        data.subframeImageMap.forEach(mapping => {
+          if (mapping && mapping.imageUrl) {
+            const ftId = frameTypeMap[mapping.frameType];
+            let sftId = subFrameTypeMap[mapping.subFrameType];
+            // If exact match not found, try partial (case-insensitive) matching.
+            if (!sftId) {
+              const matchKey = Object.keys(subFrameTypeMap).find(
+                key => key.toLowerCase().includes(mapping.subFrameType.toLowerCase())
+              );
+              if (matchKey) sftId = subFrameTypeMap[matchKey];
+            }
+            if (!ftId || !sftId) return;
+            const key = `${ftId}_${sftId}`;
+            if (!grouped[key]) {
+              grouped[key] = { frameType: ftId, subFrameType: sftId, imageUrls: [] };
+            }
+            grouped[key].imageUrls.push(mapping.imageUrl);
+          }
+        });
+        // For each group, ensure a required "imageUrl" field is added (using the first image)
+        subFrameImages = Object.values(grouped)
+          .filter(group => group.imageUrls && group.imageUrls.length > 0)
+          .map(group => ({
+            ...group,
+            imageUrl: group.imageUrls[0]
+          }));
       }
+      return {
+        productName: data['Product Name'],
+        description: data['Description'],
+        quantity: parseInt(data['Quantity'], 10) || 0,
+        startFromPrice: parseFloat(data['StartFromPrice']) || 0,
+        frameTypes: data['FrameTypes'] ? data['FrameTypes'].split(',').map(ft => frameTypeMap[ft.trim()]).filter(Boolean) : [],
+        subFrameTypes: data['SubFrameTypes'] ? data['SubFrameTypes'].split(',').map(sft => subFrameTypeMap[sft.trim()]).filter(Boolean) : [],
+        sizes: data['Sizes'] ? data['Sizes'].split(',').map(size => sizeMap[size.trim()]).filter(Boolean) : [],
+        colors: data.colors,
+        orientations: data.orientations,
+        categories: data.categories,
+        medium: data.medium,
+        rooms: data.rooms,
+        mainImage: data.mainImage,
+        thumbnails: data.thumbnails,
+        subFrameImages
+      };
     });
-    // Only keep groups with at least one image URL and add required imageUrl field.
-    subFrameImages = Object.values(grouped)
-      .filter(group => group.imageUrls && group.imageUrls.length > 0)
-      .map(group => ({ ...group, imageUrl: group.imageUrls[0] }));
-  }
-  return {
-    productName: data['Product Name'],
-    description: data['Description'],
-    quantity: parseInt(data['Quantity'], 10) || 0,
-    startFromPrice: parseFloat(data['StartFromPrice']) || 0,
-    frameTypes: data['FrameTypes'] ? data['FrameTypes'].split(',').map(ft => frameTypeMap[ft.trim()]).filter(Boolean) : [],
-    subFrameTypes: data['SubFrameTypes'] ? data['SubFrameTypes'].split(',').map(sft => subFrameTypeMap[sft.trim()]).filter(Boolean) : [],
-    sizes: data['Sizes'] ? data['Sizes'].split(',').map(size => sizeMap[size.trim()]).filter(Boolean) : [],
-    colors: data.colors,
-    orientations: data.orientations,
-    categories: data.categories,
-    medium: data.medium,
-    rooms: data.rooms,
-    mainImage: data.mainImage,
-    thumbnails: data.thumbnails,
-    subFrameImages
-  };
-});
-
 
     const savedProducts = await Product.insertMany(products);
     

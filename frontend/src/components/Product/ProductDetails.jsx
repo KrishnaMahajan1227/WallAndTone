@@ -248,35 +248,48 @@ const ProductDetails = () => {
     }
   };
 
-  // UPDATED: This function now fetches an array of sub-frame images
-  // and sets the thumbnails accordingly so that if multiple images exist
-  // for the same subframe type (e.g. "10.jpg:Wooden:Wooden Black" and "8.jpg:Wooden:Wooden Black"),
-  // both are displayed.
+  // UPDATED: This function now checks product data first and then calls the API.
+  // It combines all image URLs (removing duplicates) for the selected sub-frame type.
   const handleSubFrameTypeSelect = async (subFrameType) => {
     setSelectedSubFrameType(subFrameType);
     setSelectedSize(null);
     setLoadingSubFrame(true);
     try {
-      const response = await fetch(
-        `${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`
-      );
-      if (!response.ok) {
-        throw new Error(`Error fetching subframe image: ${response.status} ${response.statusText}`);
-      }
-      const data = await response.json();
-      
-      // Ensure we always get an array of images.
       let imagesArr = [];
-      if (data.images && Array.isArray(data.images)) {
-        imagesArr = data.images;
+      // First, check if product.subFrameImages exists and filter by matching subFrameType id.
+      if (product?.subFrameImages && product.subFrameImages.length > 0) {
+        const matchingGroups = product.subFrameImages.filter(
+          (group) =>
+            group.subFrameType &&
+            group.subFrameType.toString() === subFrameType._id.toString()
+        );
+        matchingGroups.forEach((group) => {
+          if (Array.isArray(group.imageUrls) && group.imageUrls.length > 0) {
+            imagesArr = imagesArr.concat(group.imageUrls);
+          } else if (group.imageUrl) {
+            imagesArr.push(group.imageUrl);
+          }
+        });
       }
-      if (data.imageUrl) {
-        imagesArr.push(data.imageUrl);
+      // If no images found from product data, fetch from API.
+      if (imagesArr.length === 0) {
+        const response = await fetch(
+          `${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`
+        );
+        if (!response.ok) {
+          throw new Error(`Error fetching subframe image: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (data.images && Array.isArray(data.images)) {
+          imagesArr = data.images;
+        }
+        if (data.imageUrl) {
+          imagesArr.push(data.imageUrl);
+        }
       }
-      // Remove duplicates if any.
+      // Remove duplicates.
       imagesArr = [...new Set(imagesArr)];
-      
-      // Append any constant images defined in the subFrameType.
+      // Append constant images defined in subFrameType if any.
       const constantSubFrameImages = subFrameType.images || [];
       const updatedThumbnails = [...imagesArr, ...constantSubFrameImages];
       
@@ -294,7 +307,6 @@ const ProductDetails = () => {
       setLoadingSubFrame(false);
     }
   };
-  
 
   const handleSizeSelect = (size) => {
     setSelectedSize(size);
@@ -596,15 +608,18 @@ const ProductDetails = () => {
       <div className="product-details">
         <div className="image-section">
           <div className="main-image-container">
-            <img src={`${activeImage}`} alt={product.productName} className="product-details-image" />
+            {activeImage ? (
+              <img src={activeImage} alt={product?.productName || "Product Image"} className="product-details-image" />
+            ) : (
+              <div className="image-placeholder">No image available</div>
+            )}
           </div>
-          {/* Thumbnails */}
-          {subFrameThumbnails.length > 0 && (
+          {subFrameThumbnails && subFrameThumbnails.length > 0 && (
             <div className="thumbnails">
               {subFrameThumbnails.map((thumbnail, index) => (
                 <img
                   key={index}
-                  src={`${thumbnail}`}
+                  src={thumbnail}
                   alt={`Thumbnail ${index + 1}`}
                   className={`thumbnail ${activeImage === thumbnail ? 'active' : ''}`}
                   onClick={() => setActiveImage(thumbnail)}
@@ -751,7 +766,7 @@ const ProductDetails = () => {
                     {review.images?.length > 0 && (
                       <div className="review-images">
                         {review.images.map((image, i) => (
-                          <img key={i} src={`${image}`} alt={`Review image ${i + 1}`} className="review-image" />
+                          <img key={i} src={image} alt={`Review image ${i + 1}`} className="review-image" />
                         ))}
                       </div>
                     )}

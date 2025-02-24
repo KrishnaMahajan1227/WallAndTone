@@ -16,10 +16,10 @@ const addFrameType = async (req, res) => {
   }
 };
 
-// Add a new sub frame type
+// Add a new sub frame type with support for multiple images
 const addSubFrameType = async (req, res) => {
   try {
-    const { name, frameType, description, price } = req.body;
+    const { name, frameType, description, price, images } = req.body;
     if (!name || !frameType || !description || !price) {
       return res.status(400).json({ message: 'Please provide name, frame type, description, and price for the sub frame type' });
     }
@@ -27,7 +27,13 @@ const addSubFrameType = async (req, res) => {
     if (!parentFrameType) {
       return res.status(404).json({ message: 'Frame type not found' });
     }
-    const newSubFrameType = new SubFrameType({ name, frameType, description, price });
+    const newSubFrameType = new SubFrameType({
+      name,
+      frameType,
+      description,
+      price,
+      images: images || []  // Accept an array of image URLs
+    });
     await newSubFrameType.save();
     res.status(201).json(newSubFrameType);
   } catch (err) {
@@ -62,7 +68,9 @@ const getAllSubFrameTypes = async (req, res) => {
 const getSubFrameTypesByFrameType = async (req, res) => {
   try {
     const { frameTypeId } = req.params;
-    const subFrameTypes = await SubFrameType.find({ frameType: frameTypeId }).populate('frameType', 'name').exec();
+    const subFrameTypes = await SubFrameType.find({ frameType: frameTypeId })
+      .populate('frameType', 'name')
+      .exec();
     if (!subFrameTypes) {
       return res.status(404).json({ message: 'No sub frame types found for this frame type' });
     }
@@ -80,7 +88,11 @@ const updateFrameType = async (req, res) => {
     if (!name || !description || !price) {
       return res.status(400).json({ message: 'Please provide name, description, and price for the frame type' });
     }
-    const updatedFrameType = await FrameType.findByIdAndUpdate(req.params.id, { name, description, price }, { new: true });
+    const updatedFrameType = await FrameType.findByIdAndUpdate(
+      req.params.id,
+      { name, description, price },
+      { new: true }
+    );
     if (!updatedFrameType) {
       return res.status(404).json({ message: 'Frame type not found' });
     }
@@ -91,14 +103,18 @@ const updateFrameType = async (req, res) => {
   }
 };
 
-// Update sub frame type
+// Update sub frame type (now supports updating images)
 const updateSubFrameType = async (req, res) => {
   try {
-    const { name, frameType, description, price } = req.body;
+    const { name, frameType, description, price, images } = req.body;
     if (!name || !frameType || !description || !price) {
       return res.status(400).json({ message: 'Please provide name, frame type, description, and price for the sub frame type' });
     }
-    const updatedSubFrameType = await SubFrameType.findByIdAndUpdate(req.params.id, { name, frameType, description, price }, { new: true });
+    const updatedSubFrameType = await SubFrameType.findByIdAndUpdate(
+      req.params.id,
+      { name, frameType, description, price, images: images || [] },
+      { new: true }
+    );
     if (!updatedSubFrameType) {
       return res.status(404).json({ message: 'Sub frame type not found' });
     }

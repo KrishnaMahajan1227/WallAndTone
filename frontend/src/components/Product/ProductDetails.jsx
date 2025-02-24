@@ -6,7 +6,11 @@ import axios from 'axios';
 import Footer from '../Footer/Footer';
 
 const ProductDetails = () => {
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : 'https://wallandtone.com');
 
   const { productId } = useParams();
   const navigate = useNavigate();
@@ -28,8 +32,8 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   const [subCartOpen, setSubCartOpen] = useState(false);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
   const [sizes, setSizes] = useState([]);
-  const [loadingSubFrame, setLoadingSubFrame] = useState(false); // ✅ Added this
-
+  const [loadingSubFrame, setLoadingSubFrame] = useState(false);
+  const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
 
   // Local storage state initialization
   const [selectedFrameType, setSelectedFrameType] = useState(() => {
@@ -54,12 +58,10 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   // Calculate item price
   const calculateItemPrice = (item) => {
     if (!item || !item.productId || !item.quantity) return 0;
-    
     const basePrice = parseFloat(item.productId.price) || 0;
     const frameTypePrice = parseFloat(item.frameType?.price) || 0;
     const subFrameTypePrice = parseFloat(item.subFrameType?.price) || 0;
     const sizePrice = parseFloat(item.size?.price) || 0;
-    
     return ((basePrice + frameTypePrice + subFrameTypePrice + sizePrice) * item.quantity).toFixed(2);
   };
 
@@ -68,32 +70,30 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     if (!Array.isArray(cart)) return 0;
     return cart.reduce((total, item) => total + parseFloat(calculateItemPrice(item)), 0).toFixed(2);
   };
-  
+
   useEffect(() => {
     const updateHistory = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/products/${productId}`);
         const productData = response.data;
-  
-        await axios.post(`${apiUrl}/api/history/add`, {
-          productId: productData._id,
-          productName: productData.productName,
-          productImage: productData.mainImage,
-        }, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        await axios.post(
+          `${apiUrl}/api/history/add`,
+          {
+            productId: productData._id,
+            productName: productData.productName,
+            productImage: productData.mainImage,
           },
-        });
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
       } catch (error) {
         console.error('Error updating history:', error);
       }
     };
-  
     if (token) {
       updateHistory();
     }
   }, [productId, token]);
-  
+
   // Fetch product data
   useEffect(() => {
     const fetchProduct = async () => {
@@ -101,11 +101,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         const response = await fetch(`${apiUrl}/api/products/${productId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch product');
-        }
-        
+        if (!response.ok) throw new Error('Failed to fetch product');
         const data = await response.json();
         setProduct(data);
         setActiveImage(data.mainImage);
@@ -116,7 +112,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [productId, token]);
 
@@ -126,21 +121,12 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       if (token) {
         try {
           const [wishlistRes, cartRes] = await Promise.all([
-            fetch(`${apiUrl}/api/wishlist`, {
-              headers: { Authorization: `Bearer ${token}` }
-            }),
-            fetch(`${apiUrl}/api/cart`, {
-              headers: { Authorization: `Bearer ${token}` }
-            })
+            fetch(`${apiUrl}/api/wishlist`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`${apiUrl}/api/cart`, { headers: { Authorization: `Bearer ${token}` } })
           ]);
-
-          if (!wishlistRes.ok || !cartRes.ok) {
-            throw new Error('Failed to fetch user data');
-          }
-
+          if (!wishlistRes.ok || !cartRes.ok) throw new Error('Failed to fetch user data');
           const wishlistData = await wishlistRes.json();
           const cartData = await cartRes.json();
-
           setWishlist(Array.isArray(wishlistData) ? wishlistData : []);
           setCart(Array.isArray(cartData) ? cartData : []);
         } catch (err) {
@@ -153,7 +139,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         setCart(guestCart);
       }
     };
-
     fetchUserData();
   }, [token]);
 
@@ -194,13 +179,11 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     } else {
       setSelectedFrameType(null);
     }
-
     if (product?.frameTypes?.length > 0 && product.frameTypes[0].subFrameTypes?.length > 0) {
       setSelectedSubFrameType(product.frameTypes[0].subFrameTypes[0]);
     } else {
       setSelectedSubFrameType(null);
     }
-
     if (product?.sizes?.length > 0) {
       setSelectedSize(product.sizes[0]);
     } else {
@@ -226,12 +209,10 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   const calculateTotalPrice = () => {
     if (!product) return 0;
-    
     let total = parseFloat(product.price) || 0;
     if (selectedFrameType?.price) total += parseFloat(selectedFrameType.price);
     if (selectedSubFrameType?.price) total += parseFloat(selectedSubFrameType.price);
     if (selectedSize?.price) total += parseFloat(selectedSize.price);
-    
     return (total * quantity).toFixed(2);
   };
 
@@ -257,7 +238,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     try {
       const response = await fetch(`${apiUrl}/api/frame-types/${frameType._id}`);
       if (!response.ok) throw new Error('Failed to fetch frame type details');
-      
       const data = await response.json();
       setSelectedFrameType(data);
       setSelectedSubFrameType(null);
@@ -268,30 +248,54 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }
   };
 
+  // UPDATED: This function now fetches an array of sub-frame images
+  // and sets the thumbnails accordingly so that if multiple images exist
+  // for the same subframe type (e.g. "10.jpg:Wooden:Wooden Black" and "8.jpg:Wooden:Wooden Black"),
+  // both are displayed.
   const handleSubFrameTypeSelect = async (subFrameType) => {
     setSelectedSubFrameType(subFrameType);
     setSelectedSize(null);
     setLoadingSubFrame(true);
-  
     try {
-      const response = await fetch(`${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`);
+      const response = await fetch(
+        `${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`
+      );
       if (!response.ok) {
         throw new Error(`Error fetching subframe image: ${response.status} ${response.statusText}`);
       }
       const data = await response.json();
+      
+      // Ensure we always get an array of images.
+      let imagesArr = [];
+      if (data.images && Array.isArray(data.images)) {
+        imagesArr = data.images;
+      }
       if (data.imageUrl) {
-        setActiveImage(data.imageUrl);
+        imagesArr.push(data.imageUrl);
+      }
+      // Remove duplicates if any.
+      imagesArr = [...new Set(imagesArr)];
+      
+      // Append any constant images defined in the subFrameType.
+      const constantSubFrameImages = subFrameType.images || [];
+      const updatedThumbnails = [...imagesArr, ...constantSubFrameImages];
+      
+      if (updatedThumbnails.length > 0) {
+        setActiveImage(updatedThumbnails[0]);
       } else {
         setActiveImage(product.mainImage);
       }
+      setSubFrameThumbnails(updatedThumbnails);
     } catch (err) {
       console.error(err);
       setActiveImage(product.mainImage);
+      setSubFrameThumbnails(subFrameType.images || []);
     } finally {
       setLoadingSubFrame(false);
     }
   };
   
+
   const handleSizeSelect = (size) => {
     setSelectedSize(size);
   };
@@ -302,7 +306,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       setAlertMessage('Please select all options before adding to cart');
       return;
     }
-
     const cartItem = {
       productId: product,
       quantity,
@@ -311,12 +314,11 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       size: selectedSize,
       frameTypeName: selectedFrameType.name,
       subFrameTypeName: selectedSubFrameType.name,
-      sizeName: `${selectedSize.width} x ${selectedSize.height}`,
+      sizeName: `${selectedSize.width} x ${selectedSize.height}`
     };
-
     if (token) {
       try {
-        const response = await fetch('${apiUrl}/api/cart/add', {
+        const response = await fetch(`${apiUrl}/api/cart/add`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -324,9 +326,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           },
           body: JSON.stringify(cartItem)
         });
-
         if (!response.ok) throw new Error('Failed to add to cart');
-
         setCart(prevCart => [...prevCart, cartItem]);
         setAlertMessage('Product added to cart!');
         setSubCartOpen(true);
@@ -347,15 +347,15 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       setAlertMessage('Please select all options before adding to wishlist');
       return;
     }
-
-    const inWishlist = Array.isArray(wishlist) && wishlist.some(
-      item => 
-        item.productId._id === product._id &&
-        item.frameType._id === selectedFrameType._id &&
-        item.subFrameType._id === selectedSubFrameType._id &&
-        item.size._id === selectedSize._id
-    );
-
+    const inWishlist =
+      Array.isArray(wishlist) &&
+      wishlist.some(
+        item =>
+          item.productId._id === product._id &&
+          item.frameType._id === selectedFrameType._id &&
+          item.subFrameType._id === selectedSubFrameType._id &&
+          item.size._id === selectedSize._id
+      );
     if (token) {
       try {
         const response = await fetch(
@@ -370,48 +370,49 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
               productId: product._id,
               frameType: selectedFrameType._id,
               subFrameType: selectedSubFrameType._id,
-              size: selectedSize._id,
+              size: selectedSize._id
             })
           }
         );
-
-        if (!response.ok) throw new Error('Failed to update wishlist');
-
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (!inWishlist && errorData.message === "Product already in wishlist.") {
+            setAlertMessage("Product is already in your wishlist!");
+            return;
+          }
+          throw new Error(errorData.message || 'Failed to update wishlist');
+        }
         setWishlist(prev =>
           inWishlist
-            ? prev.filter(item =>
-                item.productId._id !== product._id ||
-                item.frameType._id !== selectedFrameType._id ||
-                item.subFrameType._id !== selectedSubFrameType._id ||
-                item.size._id !== selectedSize._id
+            ? prev.filter(
+                item =>
+                  item.productId._id !== product._id ||
+                  item.frameType._id !== selectedFrameType._id ||
+                  item.subFrameType._id !== selectedSubFrameType._id ||
+                  item.size._id !== selectedSize._id
               )
-            : [...prev, {
-                productId: product,
-                frameType: selectedFrameType,
-                subFrameType: selectedSubFrameType,
-                size: selectedSize,
-              }]
+            : [
+                ...prev,
+                { productId: product, frameType: selectedFrameType, subFrameType: selectedSubFrameType, size: selectedSize }
+              ]
         );
-
         setAlertMessage(inWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
       } catch (err) {
-        setAlertMessage('Failed to update wishlist');
+        setAlertMessage(err.message || 'Failed to update wishlist');
       }
     } else {
       const updatedWishlist = inWishlist
-        ? guestWishlist.filter(item =>
-            item.productId._id !== product._id ||
-            item.frameType._id !== selectedFrameType._id ||
-            item.subFrameType._id !== selectedSubFrameType._id ||
-            item.size._id !== selectedSize._id
+        ? guestWishlist.filter(
+            item =>
+              item.productId._id !== product._id ||
+              item.frameType._id !== selectedFrameType._id ||
+              item.subFrameType._id !== selectedSubFrameType._id ||
+              item.size._id !== selectedSize._id
           )
-        : [...guestWishlist, {
-            productId: product,
-            frameType: selectedFrameType,
-            subFrameType: selectedSubFrameType,
-            size: selectedSize,
-          }];
-
+        : [
+            ...guestWishlist,
+            { productId: product, frameType: selectedFrameType, subFrameType: selectedSubFrameType, size: selectedSize }
+          ];
       setWishlist(updatedWishlist);
       localStorage.setItem('guestWishlist', JSON.stringify(updatedWishlist));
       setAlertMessage(inWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
@@ -420,7 +421,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   const handleUpdateQuantity = async (item, newQuantity) => {
     if (newQuantity < 1) return;
-
     if (token) {
       try {
         const response = await fetch(
@@ -435,13 +435,11 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
               quantity: newQuantity,
               frameType: item.frameType._id,
               subFrameType: item.subFrameType._id,
-              size: item.size._id,
+              size: item.size._id
             })
           }
         );
-
         if (!response.ok) throw new Error('Failed to update quantity');
-
         setCart(prevCart =>
           prevCart.map(cartItem =>
             cartItem.productId._id === item.productId._id
@@ -449,7 +447,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
               : cartItem
           )
         );
-
         setAlertMessage('Quantity updated successfully!');
       } catch (err) {
         setAlertMessage('Failed to update quantity');
@@ -476,15 +473,14 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
             headers: { Authorization: `Bearer ${token}` }
           }
         );
-
         if (!response.ok) throw new Error('Failed to remove item from cart');
-
         setCart(prevCart =>
-          prevCart.filter(cartItem =>
-            cartItem.productId._id !== item.productId._id ||
-            cartItem.frameType._id !== item.frameType._id ||
-            cartItem.subFrameType._id !== item.subFrameType._id ||
-            cartItem.size._id !== item.size._id
+          prevCart.filter(
+            cartItem =>
+              cartItem.productId._id !== item.productId._id ||
+              cartItem.frameType._id !== item.frameType._id ||
+              cartItem.subFrameType._id !== item.subFrameType._id ||
+              cartItem.size._id !== item.size._id
           )
         );
         setAlertMessage('Item removed from cart!');
@@ -492,11 +488,12 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         setAlertMessage('Failed to remove item from cart');
       }
     } else {
-      const updatedCart = cart.filter(cartItem =>
-        cartItem.productId._id !== item.productId._id ||
-        cartItem.frameType._id !== item.frameType._id ||
-        cartItem.subFrameType._id !== item.subFrameType._id ||
-        cartItem.size._id !== item.size._id
+      const updatedCart = cart.filter(
+        cartItem =>
+          cartItem.productId._id !== item.productId._id ||
+          cartItem.frameType._id !== item.frameType._id ||
+          cartItem.subFrameType._id !== item.subFrameType._id ||
+          cartItem.size._id !== item.size._id
       );
       setCart(updatedCart);
       localStorage.setItem('guestCart', JSON.stringify(updatedCart));
@@ -506,35 +503,26 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-
     if (newRating === 0 || !newReview.trim()) {
       setAlertMessage('Please provide both rating and review');
       return;
     }
-
     const formData = new FormData();
     formData.append('rating', newRating);
     formData.append('comment', newReview);
     reviewImages.forEach(image => formData.append('reviewImages', image));
-
     try {
-      const response = await fetch(
-        `${apiUrl}/api/products/${productId}/reviews`,
-        {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData
-        }
-      );
-
+      const response = await fetch(`${apiUrl}/api/products/${productId}/reviews`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
       if (!response.ok) throw new Error('Failed to submit review');
-
       const data = await response.json();
       setProduct(prev => ({
         ...prev,
         reviews: [...prev.reviews, data]
       }));
-
       setAlertMessage('Review submitted successfully!');
       setNewRating(0);
       setNewReview('');
@@ -548,7 +536,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     if (!Array.isArray(cart) || cart.length === 0) {
       return <p>Your cart is empty</p>;
     }
-
     return cart.map((item, index) => (
       <div key={index} className="cart-item">
         <img
@@ -569,25 +556,29 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
               -
             </button>
             <span>{item.quantity}</span>
-            <button
-              onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-            >
+            <button onClick={() => handleUpdateQuantity(item, item.quantity + 1)}>
               +
             </button>
           </div>
           <p>Price: ₹{calculateItemPrice(item)}</p>
         </div>
-        <button
-          className="remove-item"
-          onClick={() => handleRemoveFromCart(item)}
-        >
+        <button className="remove-item" onClick={() => handleRemoveFromCart(item)}>
           <X size={20} />
         </button>
       </div>
     ));
   };
 
-  if (loading) return <div className="text-center d-flex justify-content-center my-5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#2F231F" d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z"><animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></svg></div>;
+  if (loading)
+    return (
+      <div className="text-center d-flex justify-content-center my-5">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="#2F231F" d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
+            <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/>
+          </path>
+        </svg>
+      </div>
+    );
   if (error) return <div>{error}</div>;
   if (!product) return <div>Product not found</div>;
 
@@ -599,36 +590,31 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           <button className="close-alert">×</button>
         </div>
       )}
-
       <button className="back-button" onClick={() => navigate('/products')}>
         <ArrowLeft size={20} /> Back to Products
       </button>
-
       <div className="product-details">
         <div className="image-section">
           <div className="main-image-container">
-            <img
-              src={`${activeImage}`}
-              alt={product.productName}
-              className="product-details-image"
-            />
+            <img src={`${activeImage}`} alt={product.productName} className="product-details-image" />
           </div>
-          <div className="thumbnails">
-            {product.thumbnails?.map((thumbnail, index) => (
-              <img
-                key={index}
-                src={`${thumbnail}`}
-                alt={`${product.productName} thumbnail ${index + 1}`}
-                className={`thumbnail ${activeImage === thumbnail ? 'active' : ''}`}
-                onClick={() => handleThumbnailClick(thumbnail)}
-              />
-            ))}
-          </div>
+          {/* Thumbnails */}
+          {subFrameThumbnails.length > 0 && (
+            <div className="thumbnails">
+              {subFrameThumbnails.map((thumbnail, index) => (
+                <img
+                  key={index}
+                  src={`${thumbnail}`}
+                  alt={`Thumbnail ${index + 1}`}
+                  className={`thumbnail ${activeImage === thumbnail ? 'active' : ''}`}
+                  onClick={() => setActiveImage(thumbnail)}
+                />
+              ))}
+            </div>
+          )}
         </div>
-
         <div className="info-section">
           <h1 className="product-title">{product.productName}</h1>
-
           <div className="product-price-section">
             <div className="total-price">
               <span className="current-price">₹{calculateTotalPrice()}</span>
@@ -637,16 +623,13 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
               )}
             </div>
           </div>
-
           <div className="options-section">
             <div className="frame-type-section">
-              <div className="frame-type-buttons">
+              <div className="frame-type-buttons d-flex">
                 {product.frameTypes?.map(frameType => (
                   <button
                     key={frameType._id}
-                    className={`option-button ${
-                      selectedFrameType?._id === frameType._id ? 'active' : ''
-                    }`}
+                    className={`option-button ${selectedFrameType?._id === frameType._id ? 'active' : ''}`}
                     onClick={() => handleFrameTypeSelect(frameType)}
                   >
                     {frameType.name}
@@ -654,35 +637,38 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                 ))}
               </div>
             </div>
-
-{selectedFrameType && subFrameTypes.length > 0 && (
-  <div className="sub-frame-type-section">
-    <div className="sub-frame-type-buttons">
-      {subFrameTypes.map((subFrameType) => (
-        <button
-          key={subFrameType._id}
-          className={`option-button ${
-            selectedSubFrameType?._id === subFrameType._id ? 'active' : ''
-          }`}
-          onClick={() => handleSubFrameTypeSelect(subFrameType)}
-          disabled={loadingSubFrame}
-        >
-{loadingSubFrame && selectedSubFrameType?._id === subFrameType._id ? '' : subFrameType.name}
-        </button>
-      ))}
-    </div>
-  </div>
-)}
-
+            {selectedFrameType && subFrameTypes.length > 0 && (
+              <div className="sub-frame-type-section">
+                <div className="sub-frame-type-buttons d-flex gap-2">
+                  {subFrameTypes.map((subFrameType) => (
+                    <div
+                      key={subFrameType._id}
+                      className={`subframe-thumbnail ${selectedSubFrameType?._id === subFrameType._id ? 'active' : ''}`}
+                      onClick={() => handleSubFrameTypeSelect(subFrameType)}
+                      title={subFrameType.name}
+                    >
+                      <button
+                        key={subFrameType._id}
+                        className={`option-button ${selectedSubFrameType?._id === subFrameType._id ? 'active' : ''}`}
+                        onClick={() => handleSubFrameTypeSelect(subFrameType)}
+                        disabled={loadingSubFrame}
+                      >
+                        {loadingSubFrame && selectedSubFrameType?._id === subFrameType._id
+                          ? 'Loading...'
+                          : subFrameType.name}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {selectedSubFrameType && sizes.length > 0 && (
               <div className="size-section">
                 <div className="size-buttons">
                   {sizes.map(size => (
                     <button
                       key={size._id}
-                      className={`option-button ${
-                        selectedSize?._id === size._id ? 'active' : ''
-                      }`}
+                      className={`option-button ${selectedSize?._id === size._id ? 'active' : ''}`}
                       onClick={() => handleSizeSelect(size)}
                     >
                       {size.width} x {size.height}
@@ -692,38 +678,20 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
               </div>
             )}
           </div>
-
           <div className="product-description">
             <h5>Description</h5>
             <p>{product.description}</p>
           </div>
-
           <div className="quantity-section">
             <label htmlFor="quantity">Quantity:</label>
-            <input
-              id="quantity"
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={handleQuantityChange}
-              className="quantity-input"
-            />
+            <input id="quantity" type="number" min="1" value={quantity} onChange={handleQuantityChange} className="quantity-input" />
           </div>
-
           <div className="action-buttons">
-            <button
-              className="add-to-cart"
-              onClick={handleAddToCart}
-              disabled={!selectedFrameType || !selectedSubFrameType || !selectedSize}
-            >
+            <button className="add-to-cart" onClick={handleAddToCart} disabled={!selectedFrameType || !selectedSubFrameType || !selectedSize}>
               <ShoppingCart size={20} />
               Add to Cart
             </button>
-            <button
-              className="add-to-wishlist"
-              onClick={handleAddToWishlist}
-              disabled={!selectedFrameType || !selectedSubFrameType || !selectedSize}
-            >
+            <button className="add-to-wishlist" onClick={handleAddToWishlist} disabled={!selectedFrameType || !selectedSubFrameType || !selectedSize}>
               <Heart size={20} />
               {Array.isArray(wishlist) && wishlist.some(
                 item =>
@@ -736,7 +704,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                 : 'Add to Wishlist'}
             </button>
           </div>
-
           <div className="review-section">
             <h5>Write a Review</h5>
             <form onSubmit={handleReviewSubmit} className="review-form">
@@ -744,45 +711,22 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                 <label>Rate this product:</label>
                 <div className="rating-stars">
                   {[...Array(5)].map((_, index) => (
-                    <Star
-                      key={index}
-                      className={`star ${newRating > index ? 'active' : ''}`}
-                      onClick={() => handleRatingChange(index + 1)}
-                    />
+                    <Star key={index} className={`star ${newRating > index ? 'active' : ''}`} onClick={() => handleRatingChange(index + 1)} />
                   ))}
                 </div>
               </div>
-
               <div className="review-text-group">
                 <label>Your Review:</label>
-                <textarea
-                  rows={3}
-                  value={newReview}
-                  onChange={(e) => setNewReview(e.target.value)}
-                  placeholder="Share your experience with this product..."
-                />
+                <textarea rows={3} value={newReview} onChange={(e) => setNewReview(e.target.value)} placeholder="Share your experience with this product..." />
               </div>
-
               <div className="image-upload-group">
                 <label>Add Photos (optional):</label>
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleImageChange}
-                  accept="image/*"
-                  className="image-upload"
-                />
+                <input type="file" multiple onChange={handleImageChange} accept="image/*" className="image-upload" />
               </div>
-
-              <button
-                type="submit"
-                className="submit-review"
-                disabled={!newRating || !newReview.trim()}
-              >
+              <button type="submit" className="submit-review" disabled={!newRating || !newReview.trim()}>
                 Submit Review
               </button>
             </form>
-
             <div className="reviews-list">
               <h5>
                 Customer Reviews
@@ -792,15 +736,12 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                   </span>
                 )}
               </h5>
-              
               {product.reviews?.length > 0 ? (
                 product.reviews.map((review, index) => (
                   <div key={index} className="review-card">
                     <div className="review-header">
                       <strong className="review-author">
-                        {review.user
-                          ? `${review.user.firstName} ${review.user.lastName}`
-                          : 'Anonymous'}
+                        {review.user ? `${review.user.firstName} ${review.user.lastName}` : 'Anonymous'}
                       </strong>
                       <span className="review-rating">
                         {review.rating} <Star size={16} className="star-icon" />
@@ -810,12 +751,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                     {review.images?.length > 0 && (
                       <div className="review-images">
                         {review.images.map((image, i) => (
-                          <img
-                            key={i}
-                            src={`${image}`}
-                            alt={`Review image ${i + 1}`}
-                            className="review-image"
-                          />
+                          <img key={i} src={`${image}`} alt={`Review image ${i + 1}`} className="review-image" />
                         ))}
                       </div>
                     )}
@@ -828,43 +764,24 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           </div>
         </div>
       </div>
-
       {subCartOpen && (
         <div className="sub-cart-popup">
-          <div
-            className="sub-cart-overlay"
-            onClick={() => setSubCartOpen(false)}
-          />
+          <div className="sub-cart-overlay" onClick={() => setSubCartOpen(false)} />
           <div className={`sub-cart-body ${subCartOpen ? 'show' : ''}`}>
             <div className="sub-cart-header">
               <h2>Shopping Cart</h2>
-              <button
-                className="close-btn"
-                onClick={() => setSubCartOpen(false)}
-              >
+              <button className="close-btn" onClick={() => setSubCartOpen(false)}>
                 <X size={24} />
               </button>
             </div>
-            
-            <div className="cart-items">
-              {renderCartItems()}
-            </div>
-            
+            <div className="cart-items">{renderCartItems()}</div>
             <div className="cart-footer">
-              <p className="cart-total">
-                Total: ₹{calculateCartTotal()}
-              </p>
+              <p className="cart-total">Total: ₹{calculateCartTotal()}</p>
               <div className="cart-actions">
-                <button
-                  className="view-cart"
-                  onClick={() => navigate('/cart')}
-                >
+                <button className="view-cart" onClick={() => navigate('/cart')}>
                   View Cart
                 </button>
-                <button
-                  className="checkout"
-                  onClick={() => navigate('/checkout')}
-                >
+                <button className="checkout" onClick={() => navigate('/checkout')}>
                   Checkout
                 </button>
               </div>
@@ -872,7 +789,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           </div>
         </div>
       )}
-      
+      <Footer />
     </div>
   );
 };

@@ -9,7 +9,6 @@ const path = require('path');
 const Size = require('../models/size');
 const { uploadExcel, uploadImage, uploadLocalToCloudinary } = require('../middleware/upload.js');
 
-
 // Frame Type Controllers
 const addFrameType = async (req, res) => {
   try {
@@ -28,7 +27,7 @@ const addFrameType = async (req, res) => {
 
 const addSubFrameType = async (req, res) => {
   try {
-    const { name, frameType, description, price } = req.body;
+    const { name, frameType, description, price, images } = req.body;
     if (!name || !frameType || !description || !price) {
       return res.status(400).json({ message: 'Please provide name, frame type, description, and price for the sub frame type' });
     }
@@ -36,7 +35,13 @@ const addSubFrameType = async (req, res) => {
     if (!parentFrameType) {
       return res.status(404).json({ message: 'Frame type not found' });
     }
-    const newSubFrameType = new SubFrameType({ name, frameType, description, price });
+    const newSubFrameType = new SubFrameType({
+      name,
+      frameType,
+      description,
+      price,
+      images: images || [] // Accept multiple images as an array
+    });
     await newSubFrameType.save();
     res.status(201).json(newSubFrameType);
   } catch (err) {
@@ -68,8 +73,6 @@ const getSubFrameTypesByFrameType = async (req, res) => {
     res.status(500).json({ message: 'Error fetching sub frame types', error: err.message });
   }
 };
-
-// UPDATED: Product Controllers
 
 // addProduct
 const addProduct = async (req, res) => {
@@ -143,33 +146,32 @@ const addProduct = async (req, res) => {
     }
 
     // Allowed values for new fields
-const validMediums = [
-  "Acrylic Painting",
-  "Oil Painting",
-  "Watercolor Painting",
-  "Cubist Painting",
-  "Fresco",
-  "Ink Drawing / Illustration / Sketch",
-  "Charcoal Drawing",
-  "Chalk Drawing",
-  "Pencil Drawing / Sketch",
-  "Hand-Drawn Illustration",
-  "Digital Painting",
-  "Digital Illustration / Drawing",
-  "Digital Mixed Media",
-  "3D Digital Art / Illustration",
-  "Digital Photography",
-  "Digital Print",
-  "Photography / Photography Print",
-  "Woodblock Print / Woodcut Print",
-  "Printmaking",
-  "Printed Art",
-  "Mixed Media",
-  "Ink & Watercolor",
-  "Painting (Oil or Acrylic)",
-  "Sketch & Mixed Media"
-];
-
+    const validMediums = [
+      "Acrylic Painting",
+      "Oil Painting",
+      "Watercolor Painting",
+      "Cubist Painting",
+      "Fresco",
+      "Ink Drawing / Illustration / Sketch",
+      "Charcoal Drawing",
+      "Chalk Drawing",
+      "Pencil Drawing / Sketch",
+      "Hand-Drawn Illustration",
+      "Digital Painting",
+      "Digital Illustration / Drawing",
+      "Digital Mixed Media",
+      "3D Digital Art / Illustration",
+      "Digital Photography",
+      "Digital Print",
+      "Photography / Photography Print",
+      "Woodblock Print / Woodcut Print",
+      "Printmaking",
+      "Printed Art",
+      "Mixed Media",
+      "Ink & Watercolor",
+      "Painting (Oil or Acrylic)",
+      "Sketch & Mixed Media"
+    ];
 
     // Validate medium if provided
     if (medium) {
@@ -348,7 +350,6 @@ const getAllProducts = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch products', error: err.message });
   }
 };
-
 
 const getProductById = async (req, res) => {
   try {
@@ -635,70 +636,6 @@ const getSubFrameTypesByProduct = async (req, res) => {
   }
 };
 
-const addSubframeImage = async (req, res) => {
-  try {
-    const { productId } = req.params;
-    const { subFrameType, frameType, imageUrl } = req.body;
-
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    const newSubframeImage = {
-      subFrameType,
-      frameType,
-      imageUrl
-    };
-
-    product.subFrameImages.push(newSubframeImage);
-    await product.save();
-
-    res.status(201).json(newSubframeImage);
-  } catch (err) {
-    res.status(500).json({ 
-      message: 'Error adding subframe image', 
-      error: err.message 
-    });
-  }
-};
-
-const getSubframeImages = async (req, res) => {
-  try {
-    const { productId } = req.params;
-    
-    const product = await Product.findById(productId)
-      .populate('subFrameImages.subFrameType')
-      .populate('subFrameImages.frameType')
-      .select('subFrameImages');
-
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    const groupedImages = product.subFrameImages.reduce((acc, img) => {
-      const key = img.subFrameType._id.toString();
-      if (!acc[key]) {
-        acc[key] = [];
-      }
-      acc[key].push({
-        id: img._id,
-        subFrameType: img.subFrameType,
-        frameType: img.frameType,
-        imageUrl: img.imageUrl
-      });
-      return acc;
-    }, {});
-
-    res.status(200).json(groupedImages);
-  } catch (err) {
-    res.status(500).json({ 
-      message: 'Error fetching subframe images', 
-      error: err.message 
-    });
-  }
-};
-
 const getSubframeImageById = async (req, res) => {
   try {
     const { productId, subframeImageId } = req.params;
@@ -719,58 +656,6 @@ const getSubframeImageById = async (req, res) => {
     res.status(200).json(subframeImage);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching subframe image', error: err.message });
-  }
-};
-
-const updateSubframeImage = async (req, res) => {
-  try {
-    const { productId, subframeImageId } = req.params;
-    const { subFrameType, frameType, imageUrl } = req.body;
-
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    const subframeImageIndex = product.subFrameImages.findIndex(image => image._id.toString() === subframeImageId);
-    if (subframeImageIndex === -1) {
-      return res.status(404).json({ message: 'Subframe image not found' });
-    }
-
-    product.subFrameImages[subframeImageIndex] = {
-      subFrameType,
-      frameType,
-      imageUrl,
-    };
-
-    await product.save();
-
-    res.status(200).json(product.subFrameImages[subframeImageIndex]);
-  } catch (err) {
-    res.status(500).json({ message: 'Error updating subframe image', error: err.message });
-  }
-};
-
-const deleteSubframeImage = async (req, res) => {
-  try {
-    const { productId, subframeImageId } = req.params;
-
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    const subframeImageIndex = product.subFrameImages.findIndex(image => image._id.toString() === subframeImageId);
-    if (subframeImageIndex === -1) {
-      return res.status(404).json({ message: 'Subframe image not found' });
-    }
-
-    product.subFrameImages.splice(subframeImageIndex, 1);
-    await product.save();
-
-    res.status(200).json({ message: 'Subframe image deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Error deleting subframe image', error: err.message });
   }
 };
 
@@ -799,6 +684,7 @@ const getProductSubframeImages = async (req, res) => {
   }
 };
 
+// Returns all image URLs for subframe images matching the given subFrameTypeId.
 const getSubframeImage = async (req, res) => {
   try {
     const { productId, subFrameTypeId } = req.params;
@@ -806,16 +692,126 @@ const getSubframeImage = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    const subFrameImage = product.subFrameImages.find(img => 
+    const matchingImages = product.subFrameImages.filter(img => 
       img.subFrameType.toString() === subFrameTypeId
     );
-    if (!subFrameImage) {
+    if (matchingImages.length === 0) {
+      return res.status(404).json({ message: 'Subframe images not found' });
+    }
+    // Flatten all imageUrls arrays from matching entries.
+    const images = matchingImages.reduce((acc, img) => {
+      if (Array.isArray(img.imageUrls)) {
+        return acc.concat(img.imageUrls);
+      } else if (img.imageUrl) {
+        acc.push(img.imageUrl);
+      }
+      return acc;
+    }, []);
+    res.json({ images });
+  } catch (err) {
+    console.error('Error fetching subframe images:', err);
+    res.status(500).json({ message: 'Error fetching subframe images' });
+  }
+};
+
+// Updates a specific subframe image entry by its ID. Expects "imageUrls" in the body.
+const updateSubframeImage = async (req, res) => {
+  try {
+    const { productId, subframeImageId } = req.params;
+    const { subFrameType, frameType, imageUrls } = req.body;
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    const index = product.subFrameImages.findIndex(img => img._id.toString() === subframeImageId);
+    if (index === -1) {
       return res.status(404).json({ message: 'Subframe image not found' });
     }
-    res.json({ imageUrl: subFrameImage.imageUrl });
+    product.subFrameImages[index] = {
+      subFrameType,
+      frameType,
+      imageUrls: Array.isArray(imageUrls) ? imageUrls : [imageUrls]
+    };
+    await product.save();
+    res.status(200).json(product.subFrameImages[index]);
   } catch (err) {
-    console.error('Error fetching subframe image:', err);
-    res.status(500).json({ message: 'Error fetching subframe image' });
+    console.error('Error updating subframe image:', err.message);
+    res.status(500).json({ message: 'Error updating subframe image', error: err.message });
+  }
+};
+
+// Deletes a specific subframe image entry by its ID.
+const deleteSubframeImage = async (req, res) => {
+  try {
+    const { productId, subframeImageId } = req.params;
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    const index = product.subFrameImages.findIndex(img => img._id.toString() === subframeImageId);
+    if (index === -1) {
+      return res.status(404).json({ message: 'Subframe image not found' });
+    }
+    product.subFrameImages.splice(index, 1);
+    await product.save();
+    res.status(200).json({ message: 'Subframe image deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting subframe image:', err.message);
+    res.status(500).json({ message: 'Error deleting subframe image', error: err.message });
+  }
+};
+
+// Groups subframe images by their subFrameType for a given product.
+const getSubframeImages = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const product = await Product.findById(productId)
+      .populate('subFrameImages.subFrameType')
+      .populate('subFrameImages.frameType')
+      .select('subFrameImages');
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    const groupedImages = product.subFrameImages.reduce((acc, img) => {
+      const key = img.subFrameType._id.toString();
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      if (Array.isArray(img.imageUrls)) {
+        acc[key] = acc[key].concat(img.imageUrls);
+      } else if (img.imageUrl) {
+        acc[key].push(img.imageUrl);
+      }
+      return acc;
+    }, {});
+    res.status(200).json(groupedImages);
+  } catch (err) {
+    console.error('Error fetching subframe images:', err.message);
+    res.status(500).json({ message: 'Error fetching subframe images', error: err.message });
+  }
+};
+
+// Adds a new subframe image entry to a product. Expects "imageUrls" in the body.
+const addSubframeImage = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { subFrameType, frameType, imageUrls } = req.body;
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    const images = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+    const newSubframeImage = {
+      subFrameType,
+      frameType,
+      imageUrls: images
+    };
+    product.subFrameImages.push(newSubframeImage);
+    await product.save();
+    res.status(201).json(newSubframeImage);
+  } catch (err) {
+    console.error('Error adding subframe image:', err.message);
+    res.status(500).json({ message: 'Error adding subframe image', error: err.message });
   }
 };
 
@@ -1079,34 +1075,47 @@ const processExcelFile = async (req, res) => {
       sizeMap[key] = size._id;
     });
 
-    // Process and create products
-    const products = validProducts.map(data => {
-      const subFrameImages = (data.subframeImageMap || [])
-        .filter(mapping => mapping && mapping.imageUrl)
-        .map(mapping => ({
-          imageUrl: mapping.imageUrl,
-          frameType: frameTypeMap[mapping.frameType],
-          subFrameType: subFrameTypeMap[mapping.subFrameType.split(',')[0]]
-        }))
-        .filter(img => img.frameType && img.subFrameType);
-      return {
-        productName: data['Product Name'],
-        description: data['Description'],
-        quantity: parseInt(data['Quantity'], 10) || 0,
-        startFromPrice: parseFloat(data['StartFromPrice']) || 0,
-        frameTypes: data['FrameTypes'] ? data['FrameTypes'].split(',').map(ft => frameTypeMap[ft.trim()]).filter(Boolean) : [],
-        subFrameTypes: data['SubFrameTypes'] ? data['SubFrameTypes'].split(',').map(sft => subFrameTypeMap[sft.trim()]).filter(Boolean) : [],
-        sizes: data['Sizes'] ? data['Sizes'].split(',').map(size => sizeMap[size.trim()]).filter(Boolean) : [],
-        colors: data.colors,
-        orientations: data.orientations,
-        categories: data.categories,
-        medium: data.medium,
-        rooms: data.rooms,
-        mainImage: data.mainImage,
-        thumbnails: data.thumbnails,
-        subFrameImages
-      };
+// Process and create products
+const products = validProducts.map(data => {
+  let subFrameImages = [];
+  if (data.subframeImageMap && Array.isArray(data.subframeImageMap)) {
+    const grouped = {};
+    data.subframeImageMap.forEach(mapping => {
+      if (mapping && mapping.imageUrl) {
+        const ftId = frameTypeMap[mapping.frameType];
+        const sftId = subFrameTypeMap[mapping.subFrameType];
+        if (!ftId || !sftId) return;
+        const key = `${ftId}_${sftId}`;
+        if (!grouped[key]) {
+          grouped[key] = { frameType: ftId, subFrameType: sftId, imageUrls: [] };
+        }
+        grouped[key].imageUrls.push(mapping.imageUrl);
+      }
     });
+    // Only keep groups with at least one image URL and add required imageUrl field.
+    subFrameImages = Object.values(grouped)
+      .filter(group => group.imageUrls && group.imageUrls.length > 0)
+      .map(group => ({ ...group, imageUrl: group.imageUrls[0] }));
+  }
+  return {
+    productName: data['Product Name'],
+    description: data['Description'],
+    quantity: parseInt(data['Quantity'], 10) || 0,
+    startFromPrice: parseFloat(data['StartFromPrice']) || 0,
+    frameTypes: data['FrameTypes'] ? data['FrameTypes'].split(',').map(ft => frameTypeMap[ft.trim()]).filter(Boolean) : [],
+    subFrameTypes: data['SubFrameTypes'] ? data['SubFrameTypes'].split(',').map(sft => subFrameTypeMap[sft.trim()]).filter(Boolean) : [],
+    sizes: data['Sizes'] ? data['Sizes'].split(',').map(size => sizeMap[size.trim()]).filter(Boolean) : [],
+    colors: data.colors,
+    orientations: data.orientations,
+    categories: data.categories,
+    medium: data.medium,
+    rooms: data.rooms,
+    mainImage: data.mainImage,
+    thumbnails: data.thumbnails,
+    subFrameImages
+  };
+});
+
 
     const savedProducts = await Product.insertMany(products);
     
@@ -1147,5 +1156,5 @@ module.exports = {
   updateSubframeImage,
   deleteSubframeImage,
   getProductSubframeImages,
-  getSubframeImage
+  getSubframeImage,
 };

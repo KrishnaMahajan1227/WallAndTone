@@ -72,7 +72,7 @@
     max-width: 600px;
   }
   
-  .options-section {
+  .product-details-container .options-section {
     display: flex;
     flex-direction: column;
     gap: 0rem;

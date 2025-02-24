@@ -20,8 +20,9 @@ router.put('/frame-types/:id', updateFrameType); // Update a frame type
 router.delete('/frame-types/:id', deleteFrameType); // Delete a frame type
 router.get('/frame-types/:id', getFrameTypeById); // Get frame type by ID
 
-
 // Routes for Sub Frame Types
+// Note: The addSubFrameType and updateSubFrameType endpoints now support multiple images
+// via an "images" array in the request body.
 router.post('/sub-frame-types', addSubFrameType); // Add a new sub frame type
 router.get('/sub-frame-types', getAllSubFrameTypes); // Get all sub frame types
 router.get('/sub-frame-types/:frameTypeId', getSubFrameTypesByFrameType); // Get sub frame types by frame type

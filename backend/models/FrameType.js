@@ -10,14 +10,13 @@ const frameTypeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
-// Sub Frame Type Schema
 const subFrameTypeSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
     frameType: { type: mongoose.Schema.Types.ObjectId, ref: 'FrameType', required: true },
     description: { type: String },
     price: { type: Number, required: true },
+    images: { type: [String], default: [] }  // Updated: Allow multiple images.
   },
   { timestamps: true }
 );

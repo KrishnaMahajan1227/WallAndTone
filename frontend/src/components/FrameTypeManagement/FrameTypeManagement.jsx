@@ -3,7 +3,8 @@ import axios from 'axios';
 import './FrameTypeManagement.css';
 
 const FrameTypeManagement = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl = import.meta.env.VITE_API_URL || 
+    (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
 
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
@@ -13,6 +14,7 @@ const FrameTypeManagement = () => {
     frameType: '',
     description: '',
     price: 0,
+    images: []
   });
   const [loadingFrameTypes, setLoadingFrameTypes] = useState(true);
   const [loadingSubFrameTypes, setLoadingSubFrameTypes] = useState(true);
@@ -33,7 +35,7 @@ const FrameTypeManagement = () => {
     } catch (err) {
       console.error('Error fetching frame types:', err);
       setError('Error fetching frame types');
-      setFrameTypes([]); // Ensure frameTypes is always an array
+      setFrameTypes([]);
       setLoadingFrameTypes(false);
     }
   };
@@ -46,7 +48,7 @@ const FrameTypeManagement = () => {
     } catch (err) {
       console.error('Error fetching sub frame types:', err);
       setError('Error fetching sub frame types');
-      setSubFrameTypes([]); // Ensure subFrameTypes is always an array
+      setSubFrameTypes([]);
       setLoadingSubFrameTypes(false);
     }
   };
@@ -56,7 +58,6 @@ const FrameTypeManagement = () => {
       setError('Please provide name, description, and price for the frame type');
       return;
     }
-
     try {
       const response = await axios.post(`${apiUrl}/api/frame-types`, newFrameType);
       setFrameTypes(prev => [...prev, response.data]);
@@ -73,11 +74,10 @@ const FrameTypeManagement = () => {
       setError('Please provide name, frame type, description, and price for the sub frame type');
       return;
     }
-
     try {
       const response = await axios.post(`${apiUrl}/api/sub-frame-types`, newSubFrameType);
       setSubFrameTypes(prev => [...prev, response.data]);
-      setNewSubFrameType({ name: '', frameType: '', description: '', price: 0 });
+      setNewSubFrameType({ name: '', frameType: '', description: '', price: 0, images: [] });
       setError('');
     } catch (err) {
       console.error('Error adding sub frame type:', err);
@@ -100,7 +100,8 @@ const FrameTypeManagement = () => {
       name: subFrameType.name,
       frameType: subFrameType.frameType._id,
       description: subFrameType.description,
-      price: subFrameType.price
+      price: subFrameType.price,
+      images: subFrameType.images || []
     });
   };
 
@@ -109,7 +110,6 @@ const FrameTypeManagement = () => {
       setError('Please provide name, description, and price for the frame type');
       return;
     }
-
     try {
       const response = await axios.put(`${apiUrl}/api/frame-types/${editingFrameType._id}`, newFrameType);
       setFrameTypes(prev => prev.map(ft => ft._id === editingFrameType._id ? response.data : ft));
@@ -127,16 +127,35 @@ const FrameTypeManagement = () => {
       setError('Please provide name, frame type, description, and price for the sub frame type');
       return;
     }
-
     try {
       const response = await axios.put(`${apiUrl}/api/sub-frame-types/${editingSubFrameType._id}`, newSubFrameType);
       setSubFrameTypes(prev => prev.map(sft => sft._id === editingSubFrameType._id ? response.data : sft));
-      setNewSubFrameType({ name: '', frameType: '', description: '', price: 0 });
+      setNewSubFrameType({ name: '', frameType: '', description: '', price: 0, images: [] });
       setEditingSubFrameType(null);
       setError('');
     } catch (err) {
       console.error('Error updating sub frame type:', err);
       setError('Error updating sub frame type');
+    }
+  };
+
+  const handleDeleteFrameType = async (frameTypeId) => {
+    try {
+      await axios.delete(`${apiUrl}/api/frame-types/${frameTypeId}`);
+      setFrameTypes(prev => prev.filter(ft => ft._id !== frameTypeId));
+    } catch (err) {
+      console.error('Error deleting frame type:', err);
+      setError('Error deleting frame type');
+    }
+  };
+
+  const handleDeleteSubFrameType = async (subFrameTypeId) => {
+    try {
+      await axios.delete(`${apiUrl}/api/sub-frame-types/${subFrameTypeId}`);
+      setSubFrameTypes(prev => prev.filter(sft => sft._id !== subFrameTypeId));
+    } catch (err) {
+      console.error('Error deleting sub frame type:', err);
+      setError('Error deleting sub frame type');
     }
   };
 
@@ -153,7 +172,7 @@ const FrameTypeManagement = () => {
             <h5>Add Frame Type</h5>
           </div>
           <div className="card-body">
-            <div className="mb-3">
+            <div className="mb-3 form-group">
               <label htmlFor="frameTypeName" className="form-label">
                 Frame Type Name
               </label>
@@ -166,7 +185,7 @@ const FrameTypeManagement = () => {
                 onChange={(e) => setNewFrameType({ ...newFrameType, name: e.target.value })}
               />
             </div>
-            <div className="mb-3">
+            <div className="mb-3 form-group">
               <label htmlFor="frameTypeDescription" className="form-label">
                 Description
               </label>
@@ -178,7 +197,7 @@ const FrameTypeManagement = () => {
                 onChange={(e) => setNewFrameType({ ...newFrameType, description: e.target.value })}
               ></textarea>
             </div>
-            <div className="mb-3">
+            <div className="mb-3 form-group">
               <label htmlFor="frameTypePrice" className="form-label">
                 Price
               </label>
@@ -192,9 +211,14 @@ const FrameTypeManagement = () => {
               />
             </div>
             {editingFrameType ? (
-              <button className="btn btn-primary" onClick={handleUpdateFrameType}>
-                Update Frame Type
-              </button>
+              <>
+                <button className="btn btn-primary" onClick={handleUpdateFrameType}>
+                  Update Frame Type
+                </button>
+                <button className="btn btn-danger mt-2" onClick={() => handleDeleteFrameType(editingFrameType._id)}>
+                  Delete Frame Type
+                </button>
+              </>
             ) : (
               <button className="btn btn-primary" onClick={handleAddFrameType}>
                 Add Frame Type
@@ -209,7 +233,7 @@ const FrameTypeManagement = () => {
             <h5>Add Sub Frame Type</h5>
           </div>
           <div className="card-body">
-            <div className="mb-3">
+            <div className="mb-3 form-group">
               <label htmlFor="subFrameTypeName" className="form-label">
                 Sub Frame Type Name
               </label>
@@ -222,7 +246,7 @@ const FrameTypeManagement = () => {
                 onChange={(e) => setNewSubFrameType({ ...newSubFrameType, name: e.target.value })}
               />
             </div>
-            <div className="mb-3">
+            <div className="mb-3 form-group">
               <label htmlFor="frameTypeSelect" className="form-label">
                 Select Frame Type
               </label>
@@ -240,7 +264,7 @@ const FrameTypeManagement = () => {
                 ))}
               </select>
             </div>
-            <div className="mb-3">
+            <div className="mb-3 form-group">
               <label htmlFor="subFrameTypeDescription" className="form-label">
                 Description
               </label>
@@ -252,7 +276,7 @@ const FrameTypeManagement = () => {
                 onChange={(e) => setNewSubFrameType({ ...newSubFrameType, description: e.target.value })}
               ></textarea>
             </div>
-            <div className="mb-3">
+            <div className="mb-3 form-group">
               <label htmlFor="subFrameTypePrice" className="form-label">
                 Price
               </label>
@@ -265,10 +289,28 @@ const FrameTypeManagement = () => {
                 onChange={(e) => setNewSubFrameType({ ...newSubFrameType, price: parseFloat(e.target.value) })}
               />
             </div>
+            <div className="mb-3 form-group">
+              <label htmlFor="subFrameTypeImages" className="form-label">
+                Images (comma-separated URLs)
+              </label>
+              <input
+                type="text"
+                id="subFrameTypeImages"
+                className="form-control"
+                placeholder="Enter image URLs separated by commas"
+                value={newSubFrameType.images.join(', ')}
+                onChange={(e) => setNewSubFrameType({ ...newSubFrameType, images: e.target.value.split(',').map(url => url.trim()) })}
+              />
+            </div>
             {editingSubFrameType ? (
-              <button className="btn btn-secondary" onClick={handleUpdateSubFrameType}>
-                Update Sub Frame Type
-              </button>
+              <>
+                <button className="btn btn-secondary" onClick={handleUpdateSubFrameType}>
+                  Update Sub Frame Type
+                </button>
+                <button className="btn btn-danger mt-2" onClick={() => handleDeleteSubFrameType(editingSubFrameType._id)}>
+                  Delete Sub Frame Type
+                </button>
+              </>
             ) : (
               <button className="btn btn-secondary" onClick={handleAddSubFrameType}>
                 Add Sub Frame Type
@@ -277,7 +319,7 @@ const FrameTypeManagement = () => {
           </div>
         </div>
 
-        {/* Frame Types and Sub Frame Types */}
+        {/* Display Frame Types and Sub Frame Types */}
         <div className="row">
           <div className="col-md-6">
             <div className="card">
@@ -296,12 +338,14 @@ const FrameTypeManagement = () => {
                         <span>
                           {frameType.name} - ${frameType.price}
                         </span>
-                        <button
-                          className="btn btn-sm btn-primary"
-                          onClick={() => handleEditFrameType(frameType)}
-                        >
-                          Edit
-                        </button>
+                        <div className="d-flex gap-2">
+                          <button className="btn btn-sm btn-primary" onClick={() => handleEditFrameType(frameType)}>
+                            Edit
+                          </button>
+                          <button className="btn btn-sm btn-danger" onClick={() => handleDeleteFrameType(frameType._id)}>
+                            Delete
+                          </button>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -326,12 +370,14 @@ const FrameTypeManagement = () => {
                         <span>
                           {subFrameType.name} - ${subFrameType.price} - {subFrameType.frameType?.name || 'Frame Type Not Found'}
                         </span>
-                        <button
-                          className="btn btn-sm btn-secondary"
-                          onClick={() => handleEditSubFrameType(subFrameType)}
-                        >
-                          Edit
-                        </button>
+                        <div className="d-flex gap-2">
+                          <button className="btn btn-sm btn-secondary" onClick={() => handleEditSubFrameType(subFrameType)}>
+                            Edit
+                          </button>
+                          <button className="btn btn-sm btn-danger" onClick={() => handleDeleteSubFrameType(subFrameType._id)}>
+                            Delete
+                          </button>
+                        </div>
                       </li>
                     ))}
                   </ul>

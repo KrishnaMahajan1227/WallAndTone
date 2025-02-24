@@ -161,16 +161,20 @@ button.category-button.active.d-flex p {
 /* Category Buttons */
 .category-buttons {
   display: flex;
-  justify-content: space-around;
+  justify-content:space-between;
   gap: 15px;
 }
-
+button#sort-dropdown {
+  background-color: #E2D9D5;
+  border: none;
+  color: #2D2D2D;
+  gap: 4px;
+}
 .category-button {
-  background-color: #f4f4f4;
+  background-color: #E2D9D5;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
-  font-weight: bold;
   cursor: pointer;
 }
 

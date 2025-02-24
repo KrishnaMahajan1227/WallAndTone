@@ -134,15 +134,6 @@ const Navbar = () => {
         </Link>
       </li>
       <li className="nav-item">
-        <Link 
-          to="/contact" 
-          className="nav-link"
-          onClick={() => handleNavigation('contact', 'Contact')}
-        >
-          Contact
-        </Link>
-      </li>
-      <li className="nav-item">
   <Link 
     to="/AiCreation" 
     className="nav-link"

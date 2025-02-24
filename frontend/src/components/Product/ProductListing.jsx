@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Offcanvas, Accordion, Button, Alert } from 'react-bootstrap';
+import { Offcanvas, Accordion, Button, Alert, Dropdown } from 'react-bootstrap';
 import heartIcon from '../../assets/icons/heart-icon.svg';
 import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
 import filtericon from '../../assets/icons/filter-icon.png';
+import sorticon from '../../assets/icons/sort-icon.svg';
 import { WishlistContext } from '../Wishlist/WishlistContext';
 
 import './ProductListing.css';
@@ -135,6 +136,7 @@ const ProductListing = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [authAction, setAuthAction] = useState(null);
   const [showFilterOffcanvas, setShowFilterOffcanvas] = useState(false);
+  const [sortOption, setSortOption] = useState('');
 
   // Group selection states for filters.
   const [selectedColorGroups, setSelectedColorGroups] = useState([]);
@@ -147,29 +149,24 @@ const ProductListing = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Orientation options remain ungrouped.
   const orientationOptions = ['Portrait', 'Landscape', 'Square'];
 
-  // Sync query parameters with state for orientation, medium, and rooms.
+  // Sync query parameters for orientation, medium, and rooms.
   useEffect(() => {
     const qp = new URLSearchParams(location.search);
-    // Orientation: update state directly
     const orientationParam = qp.get('orientation') ? qp.get('orientation').split(',').map(s => s.trim()) : [];
     setSelectedOrientations(orientationParam);
 
-    // For Medium: Check if any group value appears in the 'medium' query parameter.
     const mediumParam = qp.get('medium') ? qp.get('medium').split(',').map(s => s.trim()) : [];
     const mediumGroups = [];
     Object.keys(groupedMediumOptions).forEach(group => {
       const groupValues = groupedMediumOptions[group];
-      // If all values of the group are included (or at least one, as per your requirement), mark the group as selected.
       if (groupValues.some(val => mediumParam.includes(val))) {
         mediumGroups.push(group);
       }
     });
     setSelectedMediumGroups(mediumGroups);
 
-    // For Rooms:
     const roomsParam = qp.get('rooms') ? qp.get('rooms').split(',').map(s => s.trim()) : [];
     const roomGroups = [];
     Object.keys(groupedRoomOptions).forEach(group => {
@@ -229,6 +226,21 @@ const ProductListing = () => {
   useEffect(() => {
     setWishlistCount(wishlist.length);
   }, [wishlist]);
+
+  // Single declaration of sortProducts function.
+  const sortProducts = (productsArray) => {
+    let sorted = [...productsArray];
+    if (sortOption === 'alphabetical') {
+      sorted.sort((a, b) => a.productName.localeCompare(b.productName));
+    } else if (sortOption === 'priceLowHigh') {
+      sorted.sort((a, b) => a.startFromPrice - b.startFromPrice);
+    } else if (sortOption === 'priceHighLow') {
+      sorted.sort((a, b) => b.startFromPrice - a.startFromPrice);
+    } else if (sortOption === 'newArrivals') {
+      sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+    return sorted;
+  };
 
   const handleAuthRequired = (action) => {
     setAuthAction(() => action);
@@ -379,9 +391,10 @@ const ProductListing = () => {
     setSelectedOrientations([]);
     setSelectedMediumGroups([]);
     setSelectedRoomGroups([]);
+    navigate({ pathname: location.pathname, search: '' });
   };
 
-  // Render active filter summary.
+  // Render active filter summary with a "Clear All" button.
   const renderFilterSummary = () => {
     const qp = new URLSearchParams(location.search);
     const activeOrientations = qp.get('orientation') ? qp.get('orientation').split(',') : [];
@@ -405,6 +418,9 @@ const ProductListing = () => {
             </button>
           </div>
         ))}
+        <button className="btn btn-outline-secondary btn-sm ms-2" onClick={handleClearSelection}>
+          Clear All
+        </button>
       </div>
     );
   };
@@ -506,8 +522,9 @@ const ProductListing = () => {
   );
 
   const renderProductRows = () => {
+    const sortedProducts = sortProducts(products);
     const rows = [];
-    let remainingProducts = [...products];
+    let remainingProducts = [...sortedProducts];
     while (remainingProducts.length >= 7) {
       const regularProducts = remainingProducts.slice(0, 6);
       const featuredProduct = remainingProducts[6];
@@ -690,22 +707,49 @@ const ProductListing = () => {
         </div>
       </Offcanvas>
 
-      {/* Active Filter Summary */}
-      {renderFilterSummary()}
-
       {/* Top Navigation Section */}
       <div className="shop-navigation">
-        <div className="category-buttons">
-          <button className="category-button active d-flex" onClick={handleShowFilterOffcanvas}>
-            <img src={filtericon} alt="Filter-Icon" />
-            <p>Filters By</p>
-          </button>
-          <button className="category-button active">Living Room</button>
-          <button className="category-button">Bedroom</button>
-          <button className="category-button">Kitchen</button>
-          <button className="category-button">Balcony</button>
-        </div>
-      </div>
+  <div className="category-buttons d-flex align-items-center gap-2">
+    <button className="category-button active d-flex" onClick={handleShowFilterOffcanvas}>
+      <img src={filtericon} alt="Filter-Icon" />
+      <p>Filters By</p>
+    </button>
+    <Dropdown>
+      <Dropdown.Toggle variant="secondary" id="sort-dropdown" className="product-sorting d-flex align-items-center">
+       <img src={sorticon} alt="sort-icon" /><p className="m-0"> Sort By: {" "}</p>
+        {sortOption === ""
+          ? "Select"
+          : sortOption === "alphabetical"
+          ? "Alphabetical A-Z"
+          : sortOption === "priceLowHigh"
+          ? "Price Low-high"
+          : sortOption === "priceHighLow"
+          ? "Price High-Low"
+          : sortOption === "newArrivals"
+          ? "New Arrivals"
+          : ""}
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.Item onClick={() => setSortOption("alphabetical")}>
+          Alphabetical A-Z
+        </Dropdown.Item>
+        <Dropdown.Item onClick={() => setSortOption("priceLowHigh")}>
+          Price Low-high
+        </Dropdown.Item>
+        <Dropdown.Item onClick={() => setSortOption("priceHighLow")}>
+          Price High-Low
+        </Dropdown.Item>
+        <Dropdown.Item onClick={() => setSortOption("newArrivals")}>
+          New Arrivals
+        </Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
+  </div>
+</div>
+
+  {/* Active Filter Summary */}
+  {renderFilterSummary()}
+
 
       {/* Products Grid */}
       {products && products.length > 0 ? (

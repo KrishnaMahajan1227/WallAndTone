@@ -10,9 +10,19 @@
 }
 
 .freepik-generator__header h2 {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 34px;
+  font-weight: 500;
+  color: #2D2D2D;
+  width: fit-content;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.freepik-generator__header p {
+  font-size: 16px;
+  line-height: 16px;
+  font-weight: 300;
+  margin: 15px 0;
 }
 
 .freepik-generator__previous {
@@ -103,10 +113,9 @@
 }
 
 .freepik-generator__form {
-  background: #fff;
+  background: transparent;
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .freepik-generator__prompt {
@@ -116,10 +125,14 @@
 .freepik-generator__prompt input {
   width: 100%;
   padding: 1rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid #D0D0D0;
   border-radius: 0.5rem;
   font-size: 1rem;
   transition: border-color 0.2s;
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 400;
+  font-style: normal !important;
 }
 
 .freepik-generator__prompt input:focus {
@@ -156,7 +169,7 @@
 }
 
 .freepik-generator__generate {
-  width: 100%;
+  width: fit-content;
   padding: 1rem;
   background: #5B2EFF;
   color: #fff;
@@ -164,8 +177,12 @@
   border-radius: 0.5rem;
   font-size: 1rem;
   font-weight: 500;
+  text-align: center;
   cursor: pointer;
   transition: background-color 0.2s;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
 }
 
 .freepik-generator__generate:hover {

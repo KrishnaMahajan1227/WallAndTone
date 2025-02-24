@@ -160,7 +160,8 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   return (
     <div className="freepik-generator">
       <div className="freepik-generator__header">
-        <h2>🎨 Generate AI Art with Freepik</h2>
+        <h2>AI Art generator by Wall & Tone</h2>
+        <p>Use the power of limitless imagination to curate your own unique art prints!</p>
       </div>
 
       <div className="freepik-generator__form">
@@ -367,7 +368,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           {error}
         </div>
       )}
-      
+      <Footer/>
     </div>
   );
 };

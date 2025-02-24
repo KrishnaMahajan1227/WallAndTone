@@ -98,11 +98,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     <nav className="secondary-navbar">
       <div className="container">
         <div className="breadcrumbs">
-          <div className="All-btn">
-            <Link to="/products" className="all-products-btn">
-              All
-            </Link>
-          </div>
           <div className="history-breadcrump">
             {navigationHistory.map((item, index) => (
               <React.Fragment key={item.path}>

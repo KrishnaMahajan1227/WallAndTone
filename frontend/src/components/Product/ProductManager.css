@@ -1,4 +1,4 @@
-.modal-overlay {
+.product-manager .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,7 +11,7 @@
   z-index: 1000;
 }
 
-.modal-content {
+.product-manager .modal-content {
   background: white;
   padding: 20px;
   border-radius: 8px;
@@ -21,57 +21,85 @@
   overflow-y: auto;
 }
 
-.form-group {
+.product-manager .form-group {
   margin-bottom: 1rem;
 }
 
-.form-group label {
+.product-manager .form-group label {
   display: block;
   margin-bottom: 0.5rem;
 }
 
-.checkbox-group {
+.product-manager .checkbox-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.checkbox-label {
+.product-manager .checkbox-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.file-input {
+.product-manager .file-input {
   margin-top: 0.5rem;
 }
 
-.preview-images {
+.product-manager .preview-images {
   display: flex;
   gap: 1rem;
   margin-top: 0.5rem;
 }
 
-.preview-image {
+.product-manager .preview-image {
   width: 100px;
   height: 100px;
   object-fit: cover;
   border-radius: 4px;
 }
 
-.button-group {
+.product-manager .button-group {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.error-message {
+.product-manager .error-message {
   color: #dc2626;
   margin-bottom: 1rem;
 }
 
-.success-message {
+.product-manager .success-message {
   color: #059669;
   margin-bottom: 1rem;
+}
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* For WebKit browsers */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* For Firefox */
+.table-responsive {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
 }

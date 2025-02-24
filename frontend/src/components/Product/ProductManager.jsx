@@ -4,7 +4,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductManager.css';
 
 const ProductManager = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl = import.meta.env.VITE_API_URL || 
+    (window.location.hostname === 'localhost' 
+      ? 'http://localhost:8080' 
+      : 'https://wallandtone.com');
   const [products, setProducts] = useState([]);
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
@@ -20,7 +23,9 @@ const ProductManager = () => {
     startFromPrice: '',
     colors: [],
     orientations: [],
-    categories: []
+    categories: [],
+    medium: '',
+    rooms: ''
   });
   const [files, setFiles] = useState({
     mainImage: null,
@@ -45,7 +50,8 @@ const ProductManager = () => {
   ];
 
   const availableOrientations = ['Portrait', 'Landscape', 'Square'];
-  const availableCategories = ['Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
+  const availableCategories = [
+    'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
     'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
     'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
     'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
@@ -57,7 +63,8 @@ const ProductManager = () => {
     'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
     'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
     'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
-    'Love & Romance', 'Seasonal Art', 'Nautical'];
+    'Love & Romance', 'Seasonal Art', 'Nautical'
+  ];
 
   useEffect(() => {
     fetchFrameTypes();
@@ -235,10 +242,8 @@ const ProductManager = () => {
       handleError('Please select an Excel file');
       return;
     }
-
     const formDataToSend = new FormData();
     formDataToSend.append('excelFile', excelFile);
-
     try {
       await axios.post(`${apiUrl}/api/products/excel`, formDataToSend);
       fetchProducts();
@@ -261,7 +266,10 @@ const ProductManager = () => {
       startFromPrice: product.startFromPrice,
       colors: product.colors || [],
       orientations: product.orientations || [],
-      categories: product.categories || []
+      categories: product.categories || [],
+      // New fields: join array values into comma-separated strings for display
+      medium: product.medium ? product.medium.join(',') : '',
+      rooms: product.rooms ? product.rooms.join(',') : ''
     });
     setModalVisible(true);
   };
@@ -288,7 +296,9 @@ const ProductManager = () => {
       startFromPrice: '',
       colors: [],
       orientations: [],
-      categories: []
+      categories: [],
+      medium: '',
+      rooms: ''
     });
     setFiles({
       mainImage: null,
@@ -343,6 +353,8 @@ const ProductManager = () => {
               <th>Colors</th>
               <th>Orientations</th>
               <th>Categories</th>
+              <th>Medium</th>
+              <th>Rooms</th>
               <th>Price</th>
               <th>Quantity</th>
               <th>Images</th>
@@ -370,10 +382,8 @@ const ProductManager = () => {
                 </td>
                 <td>
                   <ul className="list-unstyled mb-0">
-                    {product.sizes.map(size => (
-                      <li key={size._id}>
-                        {size.width}x{size.height}
-                      </li>
+                    {product.sizes.map(s => (
+                      <li key={s._id}>{s.width}x{s.height}</li>
                     ))}
                   </ul>
                 </td>
@@ -398,6 +408,8 @@ const ProductManager = () => {
                     ))}
                   </ul>
                 </td>
+                <td>{product.medium ? product.medium.join(', ') : ''}</td>
+                <td>{product.rooms ? product.rooms.join(', ') : ''}</td>
                 <td>${product.startFromPrice}</td>
                 <td>{product.quantity}</td>
                 <td>
@@ -450,9 +462,7 @@ const ProductManager = () => {
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">
-                  {formData._id ? 'Edit Product' : 'Add New Product'}
-                </h5>
+                <h5 className="modal-title">{formData._id ? 'Edit Product' : 'Add New Product'}</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -472,7 +482,6 @@ const ProductManager = () => {
                       required
                     />
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Description</label>
                     <textarea
@@ -483,7 +492,6 @@ const ProductManager = () => {
                       required
                     />
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Quantity</label>
                     <input
@@ -495,7 +503,6 @@ const ProductManager = () => {
                       required
                     />
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Price</label>
                     <input
@@ -507,7 +514,6 @@ const ProductManager = () => {
                       required
                     />
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Colors</label>
                     <div className="color-selection-grid">
@@ -528,7 +534,6 @@ const ProductManager = () => {
                       ))}
                     </div>
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Orientations</label>
                     <div className="orientation-selection">
@@ -549,7 +554,6 @@ const ProductManager = () => {
                       ))}
                     </div>
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Categories</label>
                     <div className="category-selection-grid">
@@ -570,7 +574,30 @@ const ProductManager = () => {
                       ))}
                     </div>
                   </div>
-
+                  {/* New Medium field */}
+                  <div className="mb-3">
+                    <label className="form-label">Medium</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="medium"
+                      value={formData.medium || ''}
+                      onChange={handleInputChange}
+                      placeholder="Comma-separated (e.g. Oil Painting, Watercolor Painting)"
+                    />
+                  </div>
+                  {/* New Rooms field */}
+                  <div className="mb-3">
+                    <label className="form-label">Rooms</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="rooms"
+                      value={formData.rooms || ''}
+                      onChange={handleInputChange}
+                      placeholder="Comma-separated (e.g. Living Room, Bedroom)"
+                    />
+                  </div>
                   <div className="mb-3">
                     <label className="form-label">Frame Types</label>
                     {frameTypes.map(ft => (
@@ -589,7 +616,6 @@ const ProductManager = () => {
                       </div>
                     ))}
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Sub Frame Types</label>
                     {subFrameTypes.map(sft => (
@@ -608,7 +634,6 @@ const ProductManager = () => {
                       </div>
                     ))}
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Sizes</label>
                     {sizes.map(size => (
@@ -627,7 +652,6 @@ const ProductManager = () => {
                       </div>
                     ))}
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Main Image</label>
                     <input
@@ -638,7 +662,6 @@ const ProductManager = () => {
                       accept="image/*"
                     />
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Thumbnails</label>
                     <input
@@ -650,13 +673,8 @@ const ProductManager = () => {
                       accept="image/*"
                     />
                   </div>
-
                   <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => setModalVisible(false)}
-                    >
+                    <button type="button" className="btn btn-secondary" onClick={() => setModalVisible(false)}>
                       Cancel
                     </button>
                     <button type="submit" className="btn btn-primary">
@@ -671,6 +689,7 @@ const ProductManager = () => {
       )}
 
       {modalVisible && <div className="modal-backdrop show"></div>}
+
     </div>
   );
 };

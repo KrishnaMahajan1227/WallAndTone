@@ -30,7 +30,7 @@ const productSchema = new mongoose.Schema(
         'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
       ]
     }],
-     orientations: [{
+    orientations: [{
       type: String,
       enum: ['Portrait', 'Landscape', 'Square']
     }],
@@ -38,18 +38,78 @@ const productSchema = new mongoose.Schema(
       type: String,
       enum: [
         'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
-    'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
-    'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
-    'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
-    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
-    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
-    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
-    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
-    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
-    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
-    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
-    'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
-    'Love & Romance', 'Seasonal Art', 'Nautical'
+        'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
+        'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
+        'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
+        'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
+        'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
+        'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
+        'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
+        'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
+        'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
+        'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
+        'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
+        'Love & Romance', 'Seasonal Art', 'Nautical'
+      ]
+    }],
+    // New field: Medium (an array of strings with defined enum)
+    medium: [{
+      type: String,
+      enum: [
+        "Acrylic Painting",
+        "Oil Painting",
+        "Watercolor Painting",
+        "Cubist Painting",
+        "Fresco",
+        "Ink Drawing / Illustration / Sketch",
+        "Charcoal Drawing",
+        "Chalk Drawing",
+        "Pencil Drawing / Sketch",
+        "Hand-Drawn Illustration",
+        "Digital Painting",
+        "Digital Illustration / Drawing",
+        "Digital Mixed Media",
+        "3D Digital Art / Illustration",
+        "Digital Photography",
+        "Digital Print",
+        "Photography / Photography Print",
+        "Woodblock Print / Woodcut Print",
+        "Printmaking",
+        "Printed Art",
+        "Mixed Media",
+        "Ink & Watercolor",
+        "Painting (Oil or Acrylic)",
+        "Sketch & Mixed Media"
+      ]
+    }],
+    // New field: Rooms (an array of strings with defined enum)
+    rooms: [{
+      type: String,
+      enum: [
+        "Living Room",
+        "Cozy Living Room",
+        "Luxury Living Room",
+        "Lounge",
+        "Bedroom",
+        "Contemporary Bedroom",
+        "Cozy Bedroom",
+        "Tranquil Bedroom",
+        "Nursery",
+        "Office / Workspace",
+        "Art Studio",
+        "Creative Studio",
+        "Library & Study Room",
+        "Music Room",
+        "Dining Room",
+        "Kitchen",
+        "Café & Coffee Shop",
+        "Bar & Lounge",
+        "Hotel & Lobby",
+        "Yoga & Meditation Room",
+        "Spa & Relaxation Space",
+        "Gym",
+        "Zen Garden",
+        "Outdoor & Nature-Inspired Spaces"
       ]
     }],
     subFrameImages: [

@@ -23,7 +23,7 @@ const groupedColorOptions = {
   "Mixed & Multi-Color Tones": ["Multi-color", "Neon Colors (Neon Blue, Neon Green, Neon Pink)", "Cool Tones", "Warm Tones"]
 };
 
-// Grouped Category Options (as before)
+// Grouped Category Options
 const groupedCategoryOptions = {
   "Abstract & Conceptual": ["Abstract Art", "Surrealism", "Expressionism", "Minimalist", "Fluid Art", "Optical Art"],
   "Nature & Landscape": ["Nature Art", "Botanical", "Seascape", "Wildlife", "Scenic", "Marine Art"],
@@ -40,6 +40,83 @@ const groupedCategoryOptions = {
   "Still Life & Food": ["Food Art", "Gourmet", "Drinks", "Classic Still Life"],
   "Traditional & Cultural Art": ["Asian Art", "Ukiyo-e", "Tribal", "Cultural Paintings"],
   "Thematic & Seasonal": ["Love & Romance", "Seasonal Art", "Nautical", "Marine Art"]
+};
+
+// Grouped Medium Options
+const groupedMediumOptions = {
+  "Paintings": [
+    "Acrylic Painting",
+    "Oil Painting",
+    "Watercolor Painting",
+    "Cubist Painting",
+    "Fresco"
+  ],
+  "Drawings & Illustrations": [
+    "Ink Drawing / Illustration / Sketch",
+    "Charcoal Drawing",
+    "Chalk Drawing",
+    "Pencil Drawing / Sketch",
+    "Hand-Drawn Illustration"
+  ],
+  "Digital & Mixed Media": [
+    "Digital Painting",
+    "Digital Illustration / Drawing",
+    "Digital Mixed Media",
+    "3D Digital Art / Illustration",
+    "Digital Photography",
+    "Digital Print"
+  ],
+  "Prints & Photography": [
+    "Canvas Print",
+    "Photography / Photography Print",
+    "Woodblock Print / Woodcut Print",
+    "Printmaking",
+    "Printed Art"
+  ],
+  "Mixed & Experimental Media": [
+    "Mixed Media",
+    "Ink & Watercolor",
+    "Painting (Oil or Acrylic)",
+    "Sketch & Mixed Media"
+  ]
+};
+
+// Grouped Room Options
+const groupedRoomOptions = {
+  "Living Spaces": [
+    "Living Room",
+    "Cozy Living Room",
+    "Luxury Living Room",
+    "Lounge"
+  ],
+  "Bedrooms & Personal Spaces": [
+    "Bedroom",
+    "Contemporary Bedroom",
+    "Cozy Bedroom",
+    "Tranquil Bedroom",
+    "Nursery"
+  ],
+  "Work & Creative Spaces": [
+    "Office / Workspace",
+    "Art Studio",
+    "Creative Studio",
+    "Library & Study Room",
+    "Music Room"
+  ],
+  "Dining & Hospitality Spaces": [
+    "Dining Room",
+    "Kitchen",
+    "Café & Coffee Shop",
+    "Bar & Lounge",
+    "Hotel & Lobby"
+  ],
+  "Wellness & Leisure Spaces": [
+    "Yoga & Meditation Room",
+    "Spa & Relaxation Space",
+    "Gym",
+    "Zen Garden",
+    "Outdoor & Nature-Inspired Spaces"
+  ]
 };
 
 const ProductListing = () => {
@@ -59,17 +136,50 @@ const ProductListing = () => {
   const [authAction, setAuthAction] = useState(null);
   const [showFilterOffcanvas, setShowFilterOffcanvas] = useState(false);
 
-  // Use grouped filters for Colors and Categories; Orientation remains ungrouped.
+  // Group selection states for filters.
   const [selectedColorGroups, setSelectedColorGroups] = useState([]);
   const [selectedCategoryGroups, setSelectedCategoryGroups] = useState([]);
   const [selectedOrientations, setSelectedOrientations] = useState([]);
+  const [selectedMediumGroups, setSelectedMediumGroups] = useState([]);
+  const [selectedRoomGroups, setSelectedRoomGroups] = useState([]);
 
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Orientation options (unmodified)
+  // Orientation options remain ungrouped.
   const orientationOptions = ['Portrait', 'Landscape', 'Square'];
+
+  // Sync query parameters with state for orientation, medium, and rooms.
+  useEffect(() => {
+    const qp = new URLSearchParams(location.search);
+    // Orientation: update state directly
+    const orientationParam = qp.get('orientation') ? qp.get('orientation').split(',').map(s => s.trim()) : [];
+    setSelectedOrientations(orientationParam);
+
+    // For Medium: Check if any group value appears in the 'medium' query parameter.
+    const mediumParam = qp.get('medium') ? qp.get('medium').split(',').map(s => s.trim()) : [];
+    const mediumGroups = [];
+    Object.keys(groupedMediumOptions).forEach(group => {
+      const groupValues = groupedMediumOptions[group];
+      // If all values of the group are included (or at least one, as per your requirement), mark the group as selected.
+      if (groupValues.some(val => mediumParam.includes(val))) {
+        mediumGroups.push(group);
+      }
+    });
+    setSelectedMediumGroups(mediumGroups);
+
+    // For Rooms:
+    const roomsParam = qp.get('rooms') ? qp.get('rooms').split(',').map(s => s.trim()) : [];
+    const roomGroups = [];
+    Object.keys(groupedRoomOptions).forEach(group => {
+      const groupValues = groupedRoomOptions[group];
+      if (groupValues.some(val => roomsParam.includes(val))) {
+        roomGroups.push(group);
+      }
+    });
+    setSelectedRoomGroups(roomGroups);
+  }, [location.search]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -79,7 +189,6 @@ const ProductListing = () => {
         const response = await fetch(url, { method: 'GET' });
         const data = await response.json();
         if (!data || !Array.isArray(data)) throw new Error('Invalid data received');
-        // Update wishlist status for each product.
         const updatedProducts = data.map(product => ({
           ...product,
           inWishlist: wishlist.some(item => item.productId && item.productId._id === product._id)
@@ -134,7 +243,6 @@ const ProductListing = () => {
     navigate('/login');
   };
 
-  // Wishlist functions (unchanged)
   const handleAddToWishlist = async (product) => {
     if (!product || !product._id) return;
     if (!token) {
@@ -195,7 +303,7 @@ const ProductListing = () => {
     navigate(`/product/${productId}`);
   };
 
-  // Offcanvas handlers for the filter panel
+  // Offcanvas handlers
   const handleShowFilterOffcanvas = () => setShowFilterOffcanvas(true);
   const handleCloseFilterOffcanvas = () => setShowFilterOffcanvas(false);
 
@@ -208,7 +316,7 @@ const ProductListing = () => {
     }
   };
 
-  // For Colors and Categories, we use group selection.
+  // Group toggles for Colors, Categories, Medium, and Rooms.
   const toggleColorGroup = (group) => {
     if (selectedColorGroups.includes(group)) {
       setSelectedColorGroups(selectedColorGroups.filter(g => g !== group));
@@ -223,9 +331,22 @@ const ProductListing = () => {
       setSelectedCategoryGroups([...selectedCategoryGroups, group]);
     }
   };
+  const toggleMediumGroup = (group) => {
+    if (selectedMediumGroups.includes(group)) {
+      setSelectedMediumGroups(selectedMediumGroups.filter(g => g !== group));
+    } else {
+      setSelectedMediumGroups([...selectedMediumGroups, group]);
+    }
+  };
+  const toggleRoomGroup = (group) => {
+    if (selectedRoomGroups.includes(group)) {
+      setSelectedRoomGroups(selectedRoomGroups.filter(g => g !== group));
+    } else {
+      setSelectedRoomGroups([...selectedRoomGroups, group]);
+    }
+  };
 
-  // When "View Result" is clicked, build the query string.
-  // For color groups and category groups, we flatten the underlying arrays.
+  // When "View Result" is clicked, build query string from group selections.
   const handleViewResult = () => {
     const queryParams = new URLSearchParams();
     if (selectedColorGroups.length > 0) {
@@ -236,6 +357,14 @@ const ProductListing = () => {
     if (selectedCategoryGroups.length > 0) {
       const allCats = selectedCategoryGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
       queryParams.set('categories', allCats.join(','));
+    }
+    if (selectedMediumGroups.length > 0) {
+      const allMediums = selectedMediumGroups.reduce((acc, group) => acc.concat(groupedMediumOptions[group]), []);
+      queryParams.set('medium', allMediums.join(','));
+    }
+    if (selectedRoomGroups.length > 0) {
+      const allRooms = selectedRoomGroups.reduce((acc, group) => acc.concat(groupedRoomOptions[group]), []);
+      queryParams.set('rooms', allRooms.join(','));
     }
     navigate({
       pathname: location.pathname,
@@ -248,20 +377,20 @@ const ProductListing = () => {
     setSelectedColorGroups([]);
     setSelectedCategoryGroups([]);
     setSelectedOrientations([]);
+    setSelectedMediumGroups([]);
+    setSelectedRoomGroups([]);
   };
 
   // Render active filter summary.
-  // For Colors and Categories, we use the group names from state.
-  // For Orientation, we use the query string.
   const renderFilterSummary = () => {
-    const queryParams = new URLSearchParams(location.search);
-    const activeOrientations = queryParams.get('orientation') ? queryParams.get('orientation').split(',') : [];
-    const activeColorGroups = selectedColorGroups;
-    const activeCategoryGroups = selectedCategoryGroups;
+    const qp = new URLSearchParams(location.search);
+    const activeOrientations = qp.get('orientation') ? qp.get('orientation').split(',') : [];
     const filters = [];
-    activeColorGroups.forEach(group => filters.push({ type: 'Color', value: group }));
+    selectedColorGroups.forEach(group => filters.push({ type: 'Color', value: group }));
     activeOrientations.forEach(ori => filters.push({ type: 'Orientation', value: ori }));
-    activeCategoryGroups.forEach(group => filters.push({ type: 'Category', value: group }));
+    selectedCategoryGroups.forEach(group => filters.push({ type: 'Category', value: group }));
+    selectedMediumGroups.forEach(group => filters.push({ type: 'Medium', value: group }));
+    selectedRoomGroups.forEach(group => filters.push({ type: 'Room', value: group }));
     if (filters.length === 0) return null;
     return (
       <div className="filter-summary d-flex flex-wrap align-items-center my-3">
@@ -280,31 +409,46 @@ const ProductListing = () => {
     );
   };
 
-  // Remove a single filter value and update state/URL.
   const removeFilterValue = (filterType, value) => {
     if (filterType === 'Color') {
       const newGroups = selectedColorGroups.filter(item => item !== value);
       setSelectedColorGroups(newGroups);
       const allColors = newGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
-      const queryParams = new URLSearchParams(location.search);
-      if (allColors.length > 0) queryParams.set('colors', allColors.join(','));
-      else queryParams.delete('colors');
-      navigate({ pathname: location.pathname, search: queryParams.toString() });
+      const qp = new URLSearchParams(location.search);
+      if (allColors.length > 0) qp.set('colors', allColors.join(','));
+      else qp.delete('colors');
+      navigate({ pathname: location.pathname, search: qp.toString() });
     } else if (filterType === 'Orientation') {
       const newOris = selectedOrientations.filter(item => item !== value);
       setSelectedOrientations(newOris);
-      const queryParams = new URLSearchParams(location.search);
-      if (newOris.length > 0) queryParams.set('orientation', newOris.join(','));
-      else queryParams.delete('orientation');
-      navigate({ pathname: location.pathname, search: queryParams.toString() });
+      const qp = new URLSearchParams(location.search);
+      if (newOris.length > 0) qp.set('orientation', newOris.join(','));
+      else qp.delete('orientation');
+      navigate({ pathname: location.pathname, search: qp.toString() });
     } else if (filterType === 'Category') {
       const newGroups = selectedCategoryGroups.filter(item => item !== value);
       setSelectedCategoryGroups(newGroups);
       const allCats = newGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
-      const queryParams = new URLSearchParams(location.search);
-      if (allCats.length > 0) queryParams.set('categories', allCats.join(','));
-      else queryParams.delete('categories');
-      navigate({ pathname: location.pathname, search: queryParams.toString() });
+      const qp = new URLSearchParams(location.search);
+      if (allCats.length > 0) qp.set('categories', allCats.join(','));
+      else qp.delete('categories');
+      navigate({ pathname: location.pathname, search: qp.toString() });
+    } else if (filterType === 'Medium') {
+      const newGroups = selectedMediumGroups.filter(item => item !== value);
+      setSelectedMediumGroups(newGroups);
+      const allMediums = newGroups.reduce((acc, group) => acc.concat(groupedMediumOptions[group]), []);
+      const qp = new URLSearchParams(location.search);
+      if (allMediums.length > 0) qp.set('medium', allMediums.join(','));
+      else qp.delete('medium');
+      navigate({ pathname: location.pathname, search: qp.toString() });
+    } else if (filterType === 'Room') {
+      const newGroups = selectedRoomGroups.filter(item => item !== value);
+      setSelectedRoomGroups(newGroups);
+      const allRooms = newGroups.reduce((acc, group) => acc.concat(groupedRoomOptions[group]), []);
+      const qp = new URLSearchParams(location.search);
+      if (allRooms.length > 0) qp.set('rooms', allRooms.join(','));
+      else qp.delete('rooms');
+      navigate({ pathname: location.pathname, search: qp.toString() });
     }
   };
 
@@ -312,7 +456,10 @@ const ProductListing = () => {
     return (
       <div className="text-center d-flex justify-content-center my-5">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path fill="#2F231F" d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
+          <path
+            fill="#2F231F"
+            d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z"
+          >
             <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12" />
           </path>
         </svg>
@@ -420,8 +567,6 @@ const ProductListing = () => {
 
   return (
     <div className="product-listing container">
-      {/* Authentication Popup remains unchanged */}
-
       {/* Filter Offcanvas */}
       <Offcanvas
         show={showFilterOffcanvas}
@@ -493,6 +638,46 @@ const ProductListing = () => {
                 </div>
               </Accordion.Body>
             </Accordion.Item>
+
+            <Accordion.Item eventKey="3">
+              <Accordion.Header>Medium</Accordion.Header>
+              <Accordion.Body>
+                <div className="filter-options-list">
+                  {Object.keys(groupedMediumOptions).map(group => (
+                    <div key={group} className="filter-option-item">
+                      <input
+                        type="checkbox"
+                        id={`medium-group-${group}`}
+                        value={group}
+                        checked={selectedMediumGroups.includes(group)}
+                        onChange={() => toggleMediumGroup(group)}
+                      />
+                      <label htmlFor={`medium-group-${group}`}>{group}</label>
+                    </div>
+                  ))}
+                </div>
+              </Accordion.Body>
+            </Accordion.Item>
+
+            <Accordion.Item eventKey="4">
+              <Accordion.Header>Rooms</Accordion.Header>
+              <Accordion.Body>
+                <div className="filter-options-list">
+                  {Object.keys(groupedRoomOptions).map(group => (
+                    <div key={group} className="filter-option-item">
+                      <input
+                        type="checkbox"
+                        id={`room-group-${group}`}
+                        value={group}
+                        checked={selectedRoomGroups.includes(group)}
+                        onChange={() => toggleRoomGroup(group)}
+                      />
+                      <label htmlFor={`room-group-${group}`}>{group}</label>
+                    </div>
+                  ))}
+                </div>
+              </Accordion.Body>
+            </Accordion.Item>
           </Accordion>
         </Offcanvas.Body>
         <div className="offcanvas-footer px-3 py-2">
@@ -504,6 +689,9 @@ const ProductListing = () => {
           </Button>
         </div>
       </Offcanvas>
+
+      {/* Active Filter Summary */}
+      {renderFilterSummary()}
 
       {/* Top Navigation Section */}
       <div className="shop-navigation">
@@ -517,11 +705,7 @@ const ProductListing = () => {
           <button className="category-button">Kitchen</button>
           <button className="category-button">Balcony</button>
         </div>
-        {/* <hr className="divider" /> */}
       </div>
-
- {/* Active Filter Summary */}
- {renderFilterSummary()}
 
       {/* Products Grid */}
       {products && products.length > 0 ? (

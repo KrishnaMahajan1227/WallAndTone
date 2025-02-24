@@ -9,6 +9,7 @@ const path = require('path');
 const Size = require('../models/size');
 const { uploadExcel, uploadImage, uploadLocalToCloudinary } = require('../middleware/upload.js');
 
+
 // Frame Type Controllers
 const addFrameType = async (req, res) => {
   try {
@@ -70,9 +71,23 @@ const getSubFrameTypesByFrameType = async (req, res) => {
 
 // UPDATED: Product Controllers
 
+// addProduct
 const addProduct = async (req, res) => {
   try {
-    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, colors, orientations, categories } = req.body;
+    const {
+      productName,
+      description,
+      quantity,
+      frameTypes,
+      subFrameTypes,
+      sizes,
+      startFromPrice,
+      colors,
+      orientations,
+      categories,
+      medium,
+      rooms
+    } = req.body;
     let mainImage = null;
     let thumbnails = [];
     let subframeImages = [];
@@ -85,11 +100,9 @@ const addProduct = async (req, res) => {
       'Silver', 'Peach', 'Coral', 'Lavender', 'Dark Green', 'Light Brown',
       'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
     ];
-
     if (!colors || !Array.isArray(colors) || colors.length === 0) {
       return res.status(400).json({ message: 'At least one color must be selected' });
     }
-
     const invalidColors = colors.filter(color => !validColors.includes(color));
     if (invalidColors.length > 0) {
       return res.status(400).json({ message: `Invalid colors: ${invalidColors.join(', ')}` });
@@ -97,17 +110,15 @@ const addProduct = async (req, res) => {
 
     // Validate orientations
     const validOrientations = ['Portrait', 'Landscape', 'Square'];
-    
     if (!orientations || !Array.isArray(orientations) || orientations.length === 0) {
       return res.status(400).json({ message: 'At least one orientation must be selected' });
     }
-
     const invalidOrientations = orientations.filter(orientation => !validOrientations.includes(orientation));
     if (invalidOrientations.length > 0) {
       return res.status(400).json({ message: `Invalid orientations: ${invalidOrientations.join(', ')}` });
     }
 
-    // Validate categories (new functionality)
+    // Validate categories
     const validCategories = [        
       'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
       'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
@@ -131,27 +142,100 @@ const addProduct = async (req, res) => {
       return res.status(400).json({ message: `Invalid categories: ${invalidCategories.join(', ')}` });
     }
 
+    // Allowed values for new fields
+const validMediums = [
+  "Acrylic Painting",
+  "Oil Painting",
+  "Watercolor Painting",
+  "Cubist Painting",
+  "Fresco",
+  "Ink Drawing / Illustration / Sketch",
+  "Charcoal Drawing",
+  "Chalk Drawing",
+  "Pencil Drawing / Sketch",
+  "Hand-Drawn Illustration",
+  "Digital Painting",
+  "Digital Illustration / Drawing",
+  "Digital Mixed Media",
+  "3D Digital Art / Illustration",
+  "Digital Photography",
+  "Digital Print",
+  "Photography / Photography Print",
+  "Woodblock Print / Woodcut Print",
+  "Printmaking",
+  "Printed Art",
+  "Mixed Media",
+  "Ink & Watercolor",
+  "Painting (Oil or Acrylic)",
+  "Sketch & Mixed Media"
+];
+
+
+    // Validate medium if provided
+    if (medium) {
+      if (!Array.isArray(medium) || medium.length === 0) {
+        return res.status(400).json({ message: 'If provided, at least one medium must be selected.' });
+      }
+      const invalidMediums = medium.filter(m => !validMediums.includes(m));
+      if (invalidMediums.length > 0) {
+        return res.status(400).json({ message: `Invalid mediums: ${invalidMediums.join(', ')}` });
+      }
+    }
+
+    const validRooms = [
+      "Living Room",
+      "Cozy Living Room",
+      "Luxury Living Room",
+      "Lounge",
+      "Bedroom",
+      "Contemporary Bedroom",
+      "Cozy Bedroom",
+      "Tranquil Bedroom",
+      "Nursery",
+      "Office / Workspace",
+      "Art Studio",
+      "Creative Studio",
+      "Library & Study Room",
+      "Music Room",
+      "Dining Room",
+      "Kitchen",
+      "Café & Coffee Shop",
+      "Bar & Lounge",
+      "Hotel & Lobby",
+      "Yoga & Meditation Room",
+      "Spa & Relaxation Space",
+      "Gym",
+      "Zen Garden",
+      "Outdoor & Nature-Inspired Spaces"
+    ];
+    // Validate rooms if provided
+    if (rooms) {
+      if (!Array.isArray(rooms) || rooms.length === 0) {
+        return res.status(400).json({ message: 'If provided, at least one room must be selected.' });
+      }
+      const invalidRooms = rooms.filter(r => !validRooms.includes(r));
+      if (invalidRooms.length > 0) {
+        return res.status(400).json({ message: `Invalid rooms: ${invalidRooms.join(', ')}` });
+      }
+    }
+
     // Handle file uploads for main image and thumbnails
     if (req.files.mainImage) {
       mainImage = await uploadImage(req.files.mainImage[0]);
     }
-
     if (req.files.thumbnails) {
       thumbnails = await Promise.all(req.files.thumbnails.map(file => uploadImage(file)));
     }
-
     if (req.files.subframeImages) {
       subframeImages = await Promise.all(req.files.subframeImages.map(file => uploadImage(file)));
     }
 
-    // Validate sub frame types to make sure they are valid ObjectId references
+    // Validate sub frame types
     if (subFrameTypes && Array.isArray(subFrameTypes) && subFrameTypes.length > 0) {
       const validSubFrameTypes = await SubFrameType.find({
         '_id': { $in: subFrameTypes }
       }).select('_id');
-
       const validSubFrameTypeIds = validSubFrameTypes.map(subFrameType => subFrameType._id.toString());
-
       const invalidSubFrameTypes = subFrameTypes.filter(subFrameTypeId => !validSubFrameTypeIds.includes(subFrameTypeId));
       if (invalidSubFrameTypes.length > 0) {
         return res.status(400).json({ message: `Invalid sub frame type IDs: ${invalidSubFrameTypes.join(', ')}` });
@@ -160,14 +244,12 @@ const addProduct = async (req, res) => {
       return res.status(400).json({ message: 'Sub frame types must be an array with at least one valid ID.' });
     }
 
-    // Validate sizes to make sure they are valid ObjectId references
+    // Validate sizes
     if (sizes && Array.isArray(sizes) && sizes.length > 0) {
       const validSizes = await Size.find({
         '_id': { $in: sizes }
       }).select('_id');
-
       const validSizeIds = validSizes.map(size => size._id.toString());
-
       const invalidSizes = sizes.filter(sizeId => !validSizeIds.includes(sizeId));
       if (invalidSizes.length > 0) {
         return res.status(400).json({ message: `Invalid size IDs: ${invalidSizes.join(', ')}` });
@@ -191,6 +273,8 @@ const addProduct = async (req, res) => {
       mainImage,
       thumbnails,
       subFrameImages,
+      medium: medium || [],
+      rooms: rooms || []
     });
 
     await newProduct.save();
@@ -201,10 +285,9 @@ const addProduct = async (req, res) => {
   }
 };
 
-// UPDATED: getAllProducts now supports filtering by colors, categories, and orientations
 const getAllProducts = async (req, res) => {
   try {
-    const { search, colors, categories, orientation } = req.query;
+    const { search, colors, categories, orientation, medium, rooms } = req.query;
     const filterQuery = {};
 
     // Handle search
@@ -214,20 +297,35 @@ const getAllProducts = async (req, res) => {
         { description: { $regex: search, $options: 'i' } }
       ];
     }
+
     // Handle filtering by colors
     if (colors) {
       const colorsArray = colors.split(',').map(c => c.trim());
       filterQuery.colors = { $in: colorsArray };
     }
+
     // Handle filtering by categories
     if (categories) {
       const categoriesArray = categories.split(',').map(c => c.trim());
       filterQuery.categories = { $in: categoriesArray };
     }
+
     // Handle filtering by orientations
     if (orientation) {
       const orientationArray = orientation.split(',').map(o => o.trim());
       filterQuery.orientations = { $in: orientationArray };
+    }
+
+    // Handle filtering by medium
+    if (medium) {
+      const mediumArray = medium.split(',').map(m => m.trim());
+      filterQuery.medium = { $in: mediumArray };
+    }
+
+    // Handle filtering by rooms
+    if (rooms) {
+      const roomsArray = rooms.split(',').map(r => r.trim());
+      filterQuery.rooms = { $in: roomsArray };
     }
 
     const products = await Product.find(filterQuery)
@@ -250,6 +348,7 @@ const getAllProducts = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch products', error: err.message });
   }
 };
+
 
 const getProductById = async (req, res) => {
   try {
@@ -279,9 +378,23 @@ const getProductById = async (req, res) => {
   }
 };
 
+// updateProduct
 const updateProduct = async (req, res) => {
   try {
-    const { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, colors, orientations, categories } = req.body;
+    const {
+      productName,
+      description,
+      quantity,
+      frameTypes,
+      subFrameTypes,
+      sizes,
+      startFromPrice,
+      colors,
+      orientations,
+      categories,
+      medium,
+      rooms
+    } = req.body;
     let mainImage = null;
     let thumbnails = [];
 
@@ -335,6 +448,28 @@ const updateProduct = async (req, res) => {
       return res.status(400).json({ message: `Invalid categories: ${invalidCategories.join(', ')}` });
     }
 
+    // Validate medium if provided
+    if (medium) {
+      if (!Array.isArray(medium) || medium.length === 0) {
+        return res.status(400).json({ message: 'If provided, at least one medium must be selected.' });
+      }
+      const invalidMediums = medium.filter(m => !validMediums.includes(m));
+      if (invalidMediums.length > 0) {
+        return res.status(400).json({ message: `Invalid mediums: ${invalidMediums.join(', ')}` });
+      }
+    }
+
+    // Validate rooms if provided
+    if (rooms) {
+      if (!Array.isArray(rooms) || rooms.length === 0) {
+        return res.status(400).json({ message: 'If provided, at least one room must be selected.' });
+      }
+      const invalidRooms = rooms.filter(r => !validRooms.includes(r));
+      if (invalidRooms.length > 0) {
+        return res.status(400).json({ message: `Invalid rooms: ${invalidRooms.join(', ')}` });
+      }
+    }
+
     // Handle file uploads if provided
     if (req.files.mainImage) {
       mainImage = await uploadImage(req.files.mainImage[0]);
@@ -345,7 +480,22 @@ const updateProduct = async (req, res) => {
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { productName, description, quantity, frameTypes, subFrameTypes, sizes, startFromPrice, mainImage, thumbnails, colors, orientations, categories },
+      { 
+        productName, 
+        description, 
+        quantity, 
+        frameTypes, 
+        subFrameTypes, 
+        sizes, 
+        startFromPrice, 
+        mainImage, 
+        thumbnails, 
+        colors, 
+        orientations, 
+        categories,
+        medium: medium || [],
+        rooms: rooms || []
+      },
       { new: true }
     );
 
@@ -669,26 +819,23 @@ const getSubframeImage = async (req, res) => {
   }
 };
 
+// processExcelFile
 const processExcelFile = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
-
     const filePath = req.file.path;
     const workbook = xlsx.readFile(filePath);
-    
     if (!workbook.SheetNames.length) {
       return res.status(400).json({ message: 'Excel file is empty or invalid' });
     }
-
     const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-
     if (!sheetData.length) {
       return res.status(400).json({ message: 'Excel file is empty or invalid' });
     }
 
-    // Define valid colors, orientations and categories
+    // Define valid arrays for colors, orientations, categories, medium, and rooms
     const validColors = [
       'Black', 'White', 'Gold', 'Gray', 'Pink', 'Green', 'Orange', 'Red', 'Blue',
       'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels',
@@ -696,7 +843,6 @@ const processExcelFile = async (req, res) => {
       'Silver', 'Peach', 'Coral', 'Lavender', 'Dark Green', 'Light Brown',
       'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
     ];
-
     const validOrientations = ['Portrait', 'Landscape', 'Square'];
     const validCategories = [        
       'Abstract', 'Surrealism', 'Expressionism', 'Minimalist', 'Fluid Art',
@@ -713,10 +859,63 @@ const processExcelFile = async (req, res) => {
       'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
       'Love & Romance', 'Seasonal Art', 'Nautical'
     ];
+    // For medium, we re-declare the allowed array:
+    const validMediumArray = [
+      "Acrylic Painting",
+      "Oil Painting",
+      "Watercolor Painting",
+      "Cubist Painting",
+      "Fresco",
+      "Ink Drawing / Illustration / Sketch",
+      "Charcoal Drawing",
+      "Chalk Drawing",
+      "Pencil Drawing / Sketch",
+      "Hand-Drawn Illustration",
+      "Digital Painting",
+      "Digital Illustration / Drawing",
+      "Digital Mixed Media",
+      "3D Digital Art / Illustration",
+      "Digital Photography",
+      "Digital Print",
+      "Photography / Photography Print",
+      "Woodblock Print / Woodcut Print",
+      "Printmaking",
+      "Printed Art",
+      "Mixed Media",
+      "Ink & Watercolor",
+      "Painting (Oil or Acrylic)",
+      "Sketch & Mixed Media"
+    ];
+    // For rooms:
+    const validRoomsArray = [
+      "Living Room",
+      "Cozy Living Room",
+      "Luxury Living Room",
+      "Lounge",
+      "Bedroom",
+      "Contemporary Bedroom",
+      "Cozy Bedroom",
+      "Tranquil Bedroom",
+      "Nursery",
+      "Office / Workspace",
+      "Art Studio",
+      "Creative Studio",
+      "Library & Study Room",
+      "Music Room",
+      "Dining Room",
+      "Kitchen",
+      "Café & Coffee Shop",
+      "Bar & Lounge",
+      "Hotel & Lobby",
+      "Yoga & Meditation Room",
+      "Spa & Relaxation Space",
+      "Gym",
+      "Zen Garden",
+      "Outdoor & Nature-Inspired Spaces"
+    ];
 
-    // Process and upload images to Cloudinary
     const processedData = await Promise.all(sheetData.map(async (row) => {
-      // Validate required fields first
+      // Validate required fields
       if (!row['Product Name'] || !row['Description'] || !row['StartFromPrice'] || !row['MainImage'] || !row['Colors'] || !row['Orientations'] || !row['Categories']) {
         console.error(`Missing required fields for product: ${row['Product Name'] || 'Unknown Product'}`);
         return null;
@@ -738,12 +937,34 @@ const processExcelFile = async (req, res) => {
         return null;
       }
 
-      // Process categories (new functionality)
+      // Process categories
       const categories = row['Categories'].split(',').map(category => category.trim());
       const invalidCategories = categories.filter(category => !validCategories.includes(category));
       if (invalidCategories.length > 0) {
         console.error(`Invalid categories for product ${row['Product Name']}: ${invalidCategories.join(', ')}`);
         return null;
+      }
+
+      // Process medium (if provided)
+      let mediumArr = [];
+      if (row['Medium']) {
+        mediumArr = row['Medium'].split(',').map(m => m.trim());
+        const invalidMediums = mediumArr.filter(m => !validMediumArray.includes(m));
+        if (invalidMediums.length > 0) {
+          console.error(`Invalid mediums for product ${row['Product Name']}: ${invalidMediums.join(', ')}`);
+          return null;
+        }
+      }
+
+      // Process rooms (if provided)
+      let roomsArr = [];
+      if (row['Rooms']) {
+        roomsArr = row['Rooms'].split(',').map(r => r.trim());
+        const invalidRooms = roomsArr.filter(r => !validRoomsArray.includes(r));
+        if (invalidRooms.length > 0) {
+          console.error(`Invalid rooms for product ${row['Product Name']}: ${invalidRooms.join(', ')}`);
+          return null;
+        }
       }
 
       // Upload main image
@@ -788,7 +1009,6 @@ const processExcelFile = async (req, res) => {
             subFrameType: subFrameType.trim() 
           };
         });
-
         subframeImageMap = await Promise.all(mappings.map(async (mapping) => {
           try {
             const publicId = path.basename(mapping.imagePath).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
@@ -797,10 +1017,7 @@ const processExcelFile = async (req, res) => {
               console.error(`Failed to upload subframe image for ${row['Product Name']}`);
               return null;
             }
-            return {
-              ...mapping,
-              imageUrl
-            };
+            return { ...mapping, imageUrl };
           } catch (error) {
             console.error(`Error uploading subframe image for ${row['Product Name']}:`, error);
             return null;
@@ -815,17 +1032,16 @@ const processExcelFile = async (req, res) => {
         subframeImageMap: subframeImageMap.filter(Boolean),
         colors: colors,
         orientations: orientations,
-        categories: categories
+        categories: categories,
+        medium: mediumArr,
+        rooms: roomsArr
       };
     }));
 
     // Clean up the temporary Excel file
     fs.unlinkSync(filePath);
-
-    // Filter out failed products
     const validProducts = processedData.filter(Boolean);
     const failedProducts = processedData.filter(data => !data);
-
     if (validProducts.length === 0) {
       return res.status(400).json({ 
         message: 'No valid products to process',
@@ -873,7 +1089,6 @@ const processExcelFile = async (req, res) => {
           subFrameType: subFrameTypeMap[mapping.subFrameType.split(',')[0]]
         }))
         .filter(img => img.frameType && img.subFrameType);
-
       return {
         productName: data['Product Name'],
         description: data['Description'],
@@ -885,13 +1100,14 @@ const processExcelFile = async (req, res) => {
         colors: data.colors,
         orientations: data.orientations,
         categories: data.categories,
+        medium: data.medium,
+        rooms: data.rooms,
         mainImage: data.mainImage,
         thumbnails: data.thumbnails,
         subFrameImages
       };
     });
 
-    // Save products to database
     const savedProducts = await Product.insertMany(products);
     
     res.status(200).json({ 
@@ -900,7 +1116,6 @@ const processExcelFile = async (req, res) => {
       failedCount: failedProducts.length,
       products: savedProducts
     });
-
   } catch (err) {
     console.error('Error processing Excel file:', err);
     res.status(500).json({ 

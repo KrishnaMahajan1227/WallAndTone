@@ -140,12 +140,6 @@
     height: 228px;
 }
 
-/* Top Navigation Styles */
-.shop-navigation {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
 .nav-buttons {
   display: flex;
   gap: 10px;
@@ -155,22 +149,6 @@
 }
 button.category-button.active.d-flex p {
   margin: 0;
-}
-.shop-by-room {
-  background-color: #6c4cff;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 5px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.nav-link {
-  font-size: 16px;
-  font-weight: 500;
-  color: black;
-  max-width: fit-content;
 }
 
 .divider {

@@ -58,6 +58,9 @@ const CameraComponent = () => {
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
+  const constraints = { video: true };
+
+
   // ------------------- FETCH DATA -------------------
   useEffect(() => {
     const fetchData = async () => {
@@ -105,17 +108,21 @@ const CameraComponent = () => {
     setError(null);
     try {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      const constraints = { video: { facingMode: isMobile ? { ideal: 'environment' } : 'user' } };
+      // Try without constraints first; if that works, then add facingMode
+      const constraints = { video: isMobile ? { facingMode: { ideal: 'environment' } } : { video: true } };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log("Camera stream acquired:", stream);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
       }
       setCameraActive(true);
     } catch (err) {
+      console.error("Error starting camera:", err);
       setError(err.message || 'Unable to access the camera.');
     }
   };
+  
 
   const capturePhoto = () => {
     if (canvasRef.current && videoRef.current) {
@@ -545,7 +552,7 @@ const CameraComponent = () => {
               {products.map((product) => (
                 <div
                   key={product._id}
-                  className="col-6 col-md-6 product-card-wrapper"
+                  className="col-md-12 product-card-wrapper"
                   onClick={() => handleProductSelect(product)}
                 >
                   <div className="product-card">

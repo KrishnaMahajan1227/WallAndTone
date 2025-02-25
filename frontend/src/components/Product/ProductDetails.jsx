@@ -607,13 +607,20 @@ const ProductDetails = () => {
       </button>
       <div className="product-details">
         <div className="image-section">
-          <div className="main-image-container">
-            {activeImage ? (
-              <img src={activeImage} alt={product?.productName || "Product Image"} className="product-details-image" />
-            ) : (
-              <div className="image-placeholder">No image available</div>
-            )}
-          </div>
+        <div className="main-image-container">
+  {activeImage ? (
+    <div className={`image-wrapper ${activeImage.includes("Front") ? "shadow" : ""}`}>
+      <img
+        src={activeImage}
+        alt={product?.productName || "Product Image"}
+        className="product-details-image"
+      />
+    </div>
+  ) : (
+    <div className="image-placeholder">No image available</div>
+  )}
+</div>
+
           {subFrameThumbnails && subFrameThumbnails.length > 0 && (
             <div className="thumbnails">
               {subFrameThumbnails.map((thumbnail, index) => (

@@ -24,11 +24,11 @@
     max-width: 500px;
   }
   
-  .main-image-container {
-    width: 100%;
+  .product-details-container .main-image-container {
+    width: 400px;
     height: 400px;
-    border-radius: 10px;
-    background: transparent;
+    border-radius: 4px;
+    background-color: #e7e7e7;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -37,29 +37,30 @@
     overflow: visible;       /* allow shadows to be visible */
   }
   
-  .product-details-image {
-    max-width: 600px;
-    height: 100%;
+  .product-details-container .product-details-image {
+    max-width: 400px;
+    height: fit-content;
     transition: transform 0.3s ease-in-out;
-    background-color: #e7e7e7;
     position: relative;
     z-index: 1;
     margin: 0;
     width: 100%;
-    border-radius: 8px;
+    border-radius: 4px;
+    object-fit: contain;
 }
   
-.product-details-image[src*="Front"] {
-  object-fit: contain;
+.product-details-container .product-details-image[src*="Front"] {
+  max-width: 300px;
+  height: 300px;
   z-index: 2;
+  background: transparent;
   position: relative;
-  padding: 2rem 0;
-  box-shadow: -4px 5px 9px 0px rgba(0, 0, 0, 0.52);
-  max-width: 100%;
+  border-radius: 0;
+  box-shadow: 12px 12px 8px -7px rgba(107,81,73,0.57);
 }
   
   /* Use a pseudo-element to render the box shadow on "Front" images */
-  .product-details-image[src*="Front"]::before {
+  .product-details-container .product-details-image[src*="Front"]::before {
     content: "";
     position: absolute;
     top: 0;
@@ -67,16 +68,16 @@
     right: 0;
     bottom: 0;
     border-radius: inherit;
-    box-shadow: -4px 5px 9px 0px rgba(0, 0, 0, 0.52);
-    z-index: 9999;
+    box-shadow: 12px 12px 8px -7px rgba(107,81,73,0.57);
+    z-index: 2;
   }
   
   /* For all other images, show the entire image without cropping */
-  .product-details-image:not([src*="Front"]) {
+  .product-details-container .product-details-image:not([src*="Front"]) {
     object-fit: contain;
   }
 
-  .thumbnails {
+  .product-details-container .thumbnails {
     display: flex;
     gap: 10px;
     margin-top: 25px;
@@ -86,7 +87,7 @@
     width: 100px;
     height: 100px;
     cursor: pointer;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 5px;
     transition: transform 0.3s ease-in-out, border 0.3s ease-in-out;
     border: 2px solid transparent;

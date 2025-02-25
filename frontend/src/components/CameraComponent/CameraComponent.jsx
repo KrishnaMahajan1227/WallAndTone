@@ -19,7 +19,7 @@ const CameraComponent = () => {
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [productPositions, setProductPositions] = useState([]);
-  // Each product's preview dimensions (object with width & height)
+  // Each product’s preview dimension (width & height) stored by index
   const [productDimensions, setProductDimensions] = useState([]);
 
   const [cart, setCart] = useState([]);
@@ -27,12 +27,12 @@ const CameraComponent = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [cartMessage, setCartMessage] = useState(null);
 
-  // For the active product (whose options are being edited)
+  // Active product details & options
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productDetails, setProductDetails] = useState({});
   const [activeImage, setActiveImage] = useState(null);
 
-  // Option data for the active product
+  // Option data
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
   const [sizes, setSizes] = useState([]);
@@ -42,24 +42,21 @@ const CameraComponent = () => {
 
   // Wall preview background and camera capture
   const [wallImage, setWallImage] = useState(null);
-  // capturedImage holds the photo taken from camera until user confirms it
+  // capturedImage holds the photo taken from camera temporarily
   const [capturedImage, setCapturedImage] = useState(null);
   const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
 
-  // Camera active flag – true when live video is shown
+  // Flag to indicate live camera is active
   const [cameraActive, setCameraActive] = useState(false);
 
-  // Refs for camera and file input
+  // Refs for camera & file input
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
 
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
-
-  const constraints = { video: true };
-
 
   // ------------------- FETCH DATA -------------------
   useEffect(() => {
@@ -108,8 +105,7 @@ const CameraComponent = () => {
     setError(null);
     try {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      // Try without constraints first; if that works, then add facingMode
-      const constraints = { video: isMobile ? { facingMode: { ideal: 'environment' } } : { video: true } };
+      const constraints = { video: { facingMode: isMobile ? { ideal: 'environment' } : 'user' } };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       console.log("Camera stream acquired:", stream);
       if (videoRef.current) {
@@ -122,16 +118,25 @@ const CameraComponent = () => {
       setError(err.message || 'Unable to access the camera.');
     }
   };
-  
 
+  // Wait for video to be ready before capturing
   const capturePhoto = () => {
-    if (canvasRef.current && videoRef.current) {
-      const context = canvasRef.current.getContext('2d');
-      canvasRef.current.width = videoRef.current.videoWidth;
-      canvasRef.current.height = videoRef.current.videoHeight;
-      context.drawImage(videoRef.current, 0, 0);
-      setCapturedImage(canvasRef.current.toDataURL('image/png'));
-      setCameraActive(false);
+    if (videoRef.current && canvasRef.current) {
+      if (videoRef.current.videoWidth > 0 && videoRef.current.videoHeight > 0) {
+        const context = canvasRef.current.getContext('2d');
+        canvasRef.current.width = videoRef.current.videoWidth;
+        canvasRef.current.height = videoRef.current.videoHeight;
+        context.drawImage(videoRef.current, 0, 0);
+        const dataUrl = canvasRef.current.toDataURL('image/png');
+        console.log("Captured photo:", dataUrl);
+        if (dataUrl === "data:,") {
+          console.error("Captured image is empty");
+        }
+        setCapturedImage(dataUrl);
+        setCameraActive(false);
+      } else {
+        console.error("Video dimensions not available yet");
+      }
     }
   };
 
@@ -172,7 +177,7 @@ const CameraComponent = () => {
     if (selectedProducts.some(p => p._id === product._id)) return;
     setSelectedProducts(prev => [...prev, product]);
     setProductPositions(prev => [...prev, { x: 200, y: 200 }]);
-    // Default dimension for better visibility
+    // Default preview dimension (300x300)
     setProductDimensions(prev => [...prev, { width: 300, height: 300 }]);
     setSelectedProduct(product);
     setProductDetails({});
@@ -322,7 +327,7 @@ const CameraComponent = () => {
     setProductPositions(updatedPositions);
   };
 
-  // ------------------- CART & WISHLIST -------------------
+  // ------------------- CART & WISHLIST HANDLERS -------------------
   const handleAddToCart = async () => {
     if (!selectedProduct || !selectedFrameType || !selectedSubFrameType || !selectedSize) {
       setCartMessage('Please select all options before adding to cart');
@@ -502,12 +507,7 @@ const CameraComponent = () => {
           <p>Type: {item.subFrameTypeName}</p>
           <p>Size: {item.sizeName}</p>
           <div className="quantity-controls">
-            <button
-              onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-              disabled={item.quantity <= 1}
-            >
-              -
-            </button>
+            <button onClick={() => handleUpdateQuantity(item, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
             <span className="mx-2">{item.quantity}</span>
             <button onClick={() => handleUpdateQuantity(item, item.quantity + 1)}>+</button>
           </div>
@@ -532,9 +532,7 @@ const CameraComponent = () => {
         </Modal.Header>
         <Modal.Body>{cartMessage}</Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={handleAuthPopupClose}>
-            Close
-          </Button>
+          <Button variant="primary" onClick={handleAuthPopupClose}>Close</Button>
         </Modal.Footer>
       </Modal>
 
@@ -605,7 +603,13 @@ const CameraComponent = () => {
             {wallImage ? (
               <img src={wallImage} alt="Wall Preview" className="preview-image" />
             ) : cameraActive ? (
-              <video ref={videoRef} className="preview-video" autoPlay playsInline />
+              <video
+                ref={videoRef}
+                className="preview-video"
+                autoPlay
+                playsInline
+                onCanPlay={() => console.log("Video can play", videoRef.current.videoWidth, videoRef.current.videoHeight)}
+              />
             ) : capturedImage ? (
               <img src={capturedImage} alt="Captured" className="preview-image" />
             ) : (
@@ -629,7 +633,7 @@ const CameraComponent = () => {
             )}
 
             {/* CONTROL BAR */}
-            {(!wallImage && !capturedImage) && cameraActive && (
+            {(!wallImage && !capturedImage && cameraActive) && (
               <div className="preview-controls top">
                 <Button onClick={capturePhoto} variant="secondary">
                   Capture Photo
@@ -642,7 +646,6 @@ const CameraComponent = () => {
             {capturedImage && !wallImage && (
               <div className="preview-controls bottom">
                 <Button variant="primary" onClick={() => {
-                  // Confirm captured image as wall image
                   setWallImage(capturedImage);
                   setCapturedImage(null);
                 }}>
@@ -769,9 +772,7 @@ const CameraComponent = () => {
                   </select>
                 </div>
                 <div className="col-12">
-                  <Button variant="primary" onClick={handleAddToCart}>
-                    Add to Cart
-                  </Button>
+                  <Button variant="primary" onClick={handleAddToCart}>Add to Cart</Button>
                 </div>
               </div>
             </div>

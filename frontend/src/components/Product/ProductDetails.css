@@ -27,22 +27,55 @@
   .main-image-container {
     width: 100%;
     height: 400px;
-    overflow: hidden;
     border-radius: 10px;
-    box-shadow: 0;
-    padding:0px;
     background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;              /* no extra spacing so image fills container */
+    box-sizing: border-box;
+    overflow: visible;       /* allow shadows to be visible */
+  }
+  
+  .product-details-image {
+    max-width: 600px;
+    height: 100%;
+    transition: transform 0.3s ease-in-out;
+    background-color: #e7e7e7;
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    width: 100%;
+    border-radius: 8px;
 }
   
-.product-details-image {
-  width: 100%;
-  height: 100%;
+.product-details-image[src*="Front"] {
   object-fit: contain;
-  transition: transform 0.3s ease-in-out;
-  background-color: #e6e0dd;
-  padding: 1rem;
+  z-index: 2;
+  position: relative;
+  padding: 2rem 0;
+  box-shadow: -4px 5px 9px 0px rgba(0, 0, 0, 0.52);
+  max-width: 100%;
 }
   
+  /* Use a pseudo-element to render the box shadow on "Front" images */
+  .product-details-image[src*="Front"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    box-shadow: -4px 5px 9px 0px rgba(0, 0, 0, 0.52);
+    z-index: 9999;
+  }
+  
+  /* For all other images, show the entire image without cropping */
+  .product-details-image:not([src*="Front"]) {
+    object-fit: contain;
+  }
+
   .thumbnails {
     display: flex;
     gap: 10px;

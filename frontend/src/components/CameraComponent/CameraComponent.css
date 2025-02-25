@@ -1,151 +1,177 @@
-
-/* PARENT WRAPPER */
+/* Parent Wrapper */
 .camera-component {
   background-color: #f8f9fa;
   min-height: 100vh;
 }
 
-/* ROW LAYOUT: ZERO GUTTER */
+/* Use grid to display 2 products per row on desktop */
 .camera-component .products-scrollable .row.g-3.mx-0 {
   display: grid;
-  grid-template-columns: auto auto;
-  margin-right: 0;
-  margin-left: 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin: 0;
 }
 
-/* LEFT PANEL (PRODUCTS) */
-.camera-component .camera-left-panel {
+/* LEFT PANEL */
+.camera-left-panel {
   background-color: #2F231F;
   min-height: 100vh;
   overflow-y: auto;
-  position: relative;
   padding: 0;
+  position: relative;
 }
 
-/* LOGO AT TOP-LEFT */
-.camera-component .logo-container {
+/* Logo */
+.logo-container {
   padding: 10px 15px;
   background-color: #2F231F;
   border-bottom: 1px solid #444;
 }
-.camera-component .logo-img {
+.logo-img {
   width: 120px;
-  height: auto;
-  display: block;
 }
 
-/* SCROLLABLE PRODUCTS */
-.camera-component .products-scrollable {
+/* Products Scrollable */
+.products-scrollable {
   padding: 15px;
   max-height: 100vh;
-  overflow-x: scroll;
+  overflow-y: auto;
 }
-.camera-component .products-title {
+.products-title {
   color: #fff;
   margin-bottom: 10px;
   font-size: 1.2rem;
 }
 
-/* PRODUCT CARD */
-.camera-component .product-card-wrapper {
+/* PRODUCT CARD – keep your current styling */
+.product-card-wrapper {
   cursor: pointer;
-  padding: 0 5px;
 }
-.camera-component .product-card {
+.product-card {
   background-color: #3b2a25;
   border-radius: 4px;
   overflow: hidden;
-  border: none;
-  width: 100%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   height: 100%;
 }
-.camera-component .product-image-wrapper {
+.product-image-wrapper {
   position: relative;
   width: 100%;
   height: 150px;
   overflow: hidden;
 }
-.camera-component .product-card-img {
+.product-card-img {
   width: 100%;
   height: 150px;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
-.camera-component .product-card:hover .product-card-img {
+.product-card:hover .product-card-img {
   transform: scale(1.05);
 }
-.camera-component .product-card-body {
+.product-card-body {
   padding: 10px;
+  text-align: center;
 }
-.camera-component .product-title {
+.product-title {
   font-size: 16px;
   font-weight: 500;
-  margin-bottom: 0;
   color: #FFFFFF;
 }
-.camera-component .product-desc {
+.product-desc {
   color: #e7e7e7;
   font-size: 14px;
-  margin: 0;
   margin-top: 5px;
 }
 
-/* WISHLIST ICON */
-.camera-component .wishlist-icon {
+/* Wishlist Icon */
+.wishlist-icon {
   position: absolute;
   top: 5px;
   right: 5px;
 }
-.camera-component .wishlist-icon img {
+.wishlist-icon img {
   width: 30px;
   height: 30px;
 }
 
-/* RIGHT PANEL (PREVIEW) */
-.camera-component .camera-right-panel {
+/* RIGHT PANEL: PREVIEW */
+.camera-right-panel {
   background-color: #f8f9fa;
   position: relative;
   min-height: 100vh;
   overflow: hidden;
 }
-
-/* PREVIEW CONTAINER */
-.camera-component .preview-container {
+.preview-container {
+  position: relative;
   width: 100%;
   height: 85vh;
-  position: relative;
+  margin: 15px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  margin: 15px;
   background-color: #e9ecef;
   overflow: hidden;
 }
-.camera-component .preview-image {
+.preview-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
 }
-.camera-component .preview-overlay {
+.preview-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Overlay when no wall image */
+.preview-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0,0,0,0.6);
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.camera-component .preview-overlay-content button {
+.preview-overlay-content button {
   margin: 5px;
 }
 
-/* DRAGGABLE SELECTED PRODUCT */
-.camera-component .selected-product {
+/* Control Bar: always in one line */
+.preview-controls {
+  position: absolute;
+  top: 0; /* if wallImage is not set or camera active, show at top */
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0,0,0,0.4);
+  z-index: 2;
+}
+.camera-right-panel .wall-image-set .preview-controls {
+  top: auto;
+  bottom: 0; /* when wallImage exists, show controls at bottom */
+}
+
+/* Retake Wall Button */
+.retake-wall-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+}
+
+/* Draggable Product Preview */
+.selected-product {
   position: absolute;
   transform: translate(-50%, -50%);
   cursor: move;
+  touch-action: none;
 }
-.camera-component .product-on-wall {
+.product-on-wall {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -153,41 +179,46 @@
   user-select: none;
   transition: transform 0.2s ease;
 }
-.camera-component .selected-product:hover .product-on-wall {
+.selected-product:hover .product-on-wall {
   transform: scale(1.02);
 }
-
-/* REMOVE FROM PREVIEW BUTTON */
-.camera-component .remove-from-preview {
+.remove-from-preview {
   position: absolute;
   top: 5px;
   right: 5px;
-  background-color: rgba(255, 0, 0, 0.6);
+  background-color: rgba(255,0,0,0.6);
   border: none;
   border-radius: 50%;
   padding: 4px 7px;
   cursor: pointer;
   display: none;
 }
-.camera-component .remove-from-preview span {
+.remove-from-preview span {
   color: #fff;
   font-weight: bold;
   font-size: 14px;
 }
 
-/* PRODUCT DETAILS */
-.camera-component .product-details {
+/* Product Details / Options */
+.product-details {
   background-color: #fff;
   border-radius: 8px;
   margin: 15px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
-.camera-component .product-details h4 {
+.product-details h4 {
   margin-bottom: 15px;
 }
+.product-details label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.form-select {
+  margin-bottom: 10px;
+}
 
-/* CART POPUP */
-.camera-component .sub-cart-popup {
+/* Cart Popup */
+.sub-cart-popup {
   position: fixed;
   top: 15%;
   left: 50%;
@@ -197,46 +228,35 @@
   max-width: 500px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
-.camera-component .sub-cart-overlay {
+.sub-cart-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0,0,0,0.5);
   z-index: 998;
 }
-.camera-component .sub-cart-body {
+.sub-cart-body {
   padding: 20px;
 }
-.camera-component .sub-cart-header {
+.sub-cart-header {
   border-bottom: 1px solid #ddd;
   padding-bottom: 10px;
 }
-.camera-component .cart-items {
-  max-height: 300px;
-  overflow-y: auto;
+.cart-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
 }
-.camera-component .cart-footer {
-  margin-top: 10px;
-  text-align: right;
-}
-.camera-component .cart-total {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-.camera-component .cart-actions button {
-  margin-left: 10px;
-}
-
-/* CART ITEM */
-.camera-component .cart-item-image {
+.cart-item-image {
   width: 60px;
   height: 60px;
   object-fit: cover;
   border-radius: 8px;
+  margin-right: 10px;
 }
-.camera-component .remove-item {
-  background-color: rgba(255, 0, 0, 0.6);
+.remove-item {
+  background-color: rgba(255,0,0,0.6);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -246,21 +266,39 @@
   align-items: center;
   justify-content: center;
 }
+.cart-total {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 
-/* RESPONSIVE */
+/* Controls Bar at Bottom */
+.controls {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+.controls button {
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .camera-component .camera-left-panel {
+  .camera-left-panel {
     height: auto;
     position: static;
   }
-  .camera-component .products-scrollable {
+  .products-scrollable {
     overflow-y: visible;
   }
-  .camera-component .preview-container {
+  .preview-container {
     height: 60vh;
     margin: 10px;
   }
-  .camera-component .product-details {
+  .product-details {
     margin: 10px;
   }
 }

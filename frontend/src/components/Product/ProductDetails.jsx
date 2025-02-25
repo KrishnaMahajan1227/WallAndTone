@@ -256,7 +256,7 @@ const ProductDetails = () => {
     setLoadingSubFrame(true);
     try {
       let imagesArr = [];
-      // First, check if product.subFrameImages exists and filter by matching subFrameType id.
+      // Check if product.subFrameImages exists in product data
       if (product?.subFrameImages && product.subFrameImages.length > 0) {
         const matchingGroups = product.subFrameImages.filter(
           (group) =>
@@ -271,7 +271,7 @@ const ProductDetails = () => {
           }
         });
       }
-      // If no images found from product data, fetch from API.
+      // If no images found in product data, fetch from API
       if (imagesArr.length === 0) {
         const response = await fetch(
           `${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`
@@ -287,9 +287,9 @@ const ProductDetails = () => {
           imagesArr.push(data.imageUrl);
         }
       }
-      // Remove duplicates.
+      // Remove duplicates
       imagesArr = [...new Set(imagesArr)];
-      // Append constant images defined in subFrameType if any.
+      // Append constant images from subFrameType if any
       const constantSubFrameImages = subFrameType.images || [];
       const updatedThumbnails = [...imagesArr, ...constantSubFrameImages];
       

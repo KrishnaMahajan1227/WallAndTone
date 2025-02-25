@@ -1,225 +1,186 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { UserContext } from '../../contexts/UserContext';
-import axios from 'axios';
-import Footer from '../Footer/Footer';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./UserProfile.css";
 
 const UserProfile = () => {
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
-
-  const { user, logout } = useContext(UserContext);
+  const apiUrl = import.meta.env.VITE_API_URL || "https://wallandtone.com";
   const [profile, setProfile] = useState({
-    firstName: '',
-    email: '',
-    phone: '',
-    role: '',
+    name: "",
+    email: "",
+    phone: "",
+    shippingAddress: "",
+    billingAddress: "",
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [sameAddress, setSameAddress] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [images, setImages] = useState([]);
+  const navigate = useNavigate();
 
-  // Fetch user profile on component mount, only if user exists
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          throw new Error('User not authenticated');
-        }
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("User not authenticated");
 
-        const response = await axios.get(`${apiUrl}/api/user/profile`, {
+        const response = await axios.get(`${apiUrl}/api/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
+        console.log("Fetched user profile:", response.data);
         setProfile(response.data);
-      } catch (err) {
-        setError(err.response?.data?.message || err.message);
+        if (response.data.shippingAddress === response.data.billingAddress) {
+          setSameAddress(true);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
       }
     };
+    fetchUserProfile();
+  }, []);
 
-    if (user) {
-      fetchUserProfile();
-    }
-  }, [user]);
-
-  // Handle form input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfile((prevProfile) => ({
-      ...prevProfile,
-      [name]: value,
-    }));
+    setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  // Handle profile update
-  const handleUpdate = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('User not authenticated');
-      }
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("User not authenticated");
 
-      const response = await axios.put(
-        `${apiUrl}/api/user/profile`,
-        { ...profile },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      setSuccess('Profile updated successfully!');
+      await axios.put(`${apiUrl}/api/profile`, profile, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("Profile updated successfully");
       setIsEditing(false);
-    } catch (err) {
-      setError(err.response?.data?.message || err.message);
+    } catch (error) {
+      console.error("Error updating profile:", error);
     }
   };
 
-  if (!user) {
-    return <p>You are not logged in. Please log in to view your profile.</p>;
+  useEffect(() => {
+    const fetchGeneratedImages = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("User not authenticated");
+
+        const response = await axios.get(`${apiUrl}/api/generated-images`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setImages(response.data.images);
+      } catch (error) {
+        console.error("Error fetching generated images:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGeneratedImages();
+  }, []);
+
+  const handleImageClick = (imageId) => {
+    navigate(`/customize/${imageId}`);
+  };
+
+  if (loading) {
+    return <div className="container mt-5 text-center">Loading profile...</div>;
   }
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Your Profile</h1>
-      {error && <p style={styles.error}>{error}</p>}
-      {success && <p style={styles.success}>{success}</p>}
-
-      {!isEditing ? (
-        <div style={styles.profileInfo}>
-          <p><strong>Name:</strong> {user.firstName}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Phone:</strong> {user.phone}</p>
-          <button style={styles.editButton} onClick={() => setIsEditing(true)}>Edit Profile</button>
+    <div className="container mt-5">
+      <ul className="nav nav-tabs mb-3">
+        <li className="nav-item">
+          <a className="nav-link active">Profile</a>
+        </li>
+        <li className="nav-item">
+          <a className="nav-link">Order History</a>
+        </li>
+        <li className="nav-item">
+          <a className="nav-link">My Room</a>
+        </li>
+        <li className="nav-item">
+          <a className="nav-link">Addresses</a>
+        </li>
+        <li className="nav-item">
+          <a className="nav-link">Wish List</a>
+        </li>
+      </ul>
+      <div className="profile-card p-4 bg-light border rounded">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h4 className="fw-bold">My Profile</h4>
+          <button className="btn btn-link text-primary fw-bold" onClick={() => setIsEditing(!isEditing)}>Edit</button>
         </div>
-      ) : (
-        <form onSubmit={handleUpdate} style={styles.form}>
-          <div style={styles.formGroup}>
-            <label>Name:</label>
-            <input
-              type="text"
-              name="firstName"
-              value={profile.firstName}
-              onChange={handleChange}
-              required
-              style={styles.input}
-            />
+        <form onSubmit={handleSave}>
+          <div className="row g-3">
+            <div className="col-md-4">
+              <label className="form-label">Name</label>
+              <input type="text" name="name" value={profile.firstName} onChange={handleChange} className="form-control" disabled={!isEditing} />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Email</label>
+              <input type="email" name="email" value={profile.email} onChange={handleChange} className="form-control" disabled={!isEditing} />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Phone</label>
+              <input type="text" name="phone" value={profile.phone} onChange={handleChange} className="form-control" disabled={!isEditing} />
+            </div>
           </div>
-          <div style={styles.formGroup}>
-            <label>Email:</label>
-            <input
-              type="email"
-              name="email"
-              value={profile.email}
-              onChange={handleChange}
-              required
-              style={styles.input}
-            />
+          <div className="mt-3">
+            <label className="form-label">Shipping Address</label>
+            <input type="text" name="shippingAddress" value={profile.shippingAddress} onChange={handleChange} className="form-control" disabled={!isEditing} />
           </div>
-          <div style={styles.formGroup}>
-            <label>Phone:</label>
-            <input
-              type="text"
-              name="phone"
-              value={profile.phone}
-              onChange={handleChange}
-              required
-              style={styles.input}
-            />
+          <div className="mt-3">
+            <label className="form-label">Billing Address</label>
+            <input type="text" name="billingAddress" value={profile.billingAddress} onChange={handleChange} className="form-control" disabled={!isEditing || sameAddress} />
+            <div className="form-check mt-2">
+              <input type="checkbox" className="form-check-input" checked={sameAddress} onChange={() => setSameAddress(!sameAddress)} />
+              <label className="form-check-label">Same as Shipping Address</label>
+            </div>
           </div>
-          <button type="submit" style={styles.updateButton}>Save Changes</button>
-          <button type="button" style={styles.cancelButton} onClick={() => setIsEditing(false)}>Cancel</button>
+          {isEditing && (
+            <div className="d-flex justify-content-end mt-4">
+              <button type="button" className="btn btn-outline-secondary me-2" onClick={() => setIsEditing(false)}>Cancel</button>
+              <button type="submit" className="btn btn-primary">Save</button>
+            </div>
+          )}
         </form>
-      )}
+      </div>
 
-      <button style={styles.logoutButton} onClick={logout}>Logout</button>
-      
+      <div className="container mt-5">
+      <h4 className="fw-bold mb-4">My Generated Images</h4>
+      <div className="row g-3">
+        {images.length > 0 ? (
+          images.map((image) => (
+            <div key={image._id} className="col-md-4">
+              <div className="card shadow-sm">
+                <img
+                  src={image.url}
+                  alt="Generated artwork"
+                  className="card-img-top img-fluid"
+                  onClick={() => handleImageClick(image._id)}
+                  style={{ cursor: "pointer" }}
+                />
+                <div className="card-body text-center">
+                  <button className="btn btn-primary" onClick={() => handleImageClick(image._id)}>
+                    View Product
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-center">No generated images found.</p>
+        )}
+      </div>
+    </div>
+
     </div>
   );
-};
-
-const styles = {
-  container: {
-    maxWidth: '500px',
-    margin: '0 auto',
-    padding: '20px',
-    background: '#f9f9f9',
-    borderRadius: '10px',
-    boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
-  },
-  title: {
-    fontSize: '24px',
-    marginBottom: '20px',
-    textAlign: 'center',
-  },
-  error: {
-    color: 'red',
-    marginBottom: '20px',
-  },
-  success: {
-    color: 'green',
-    marginBottom: '20px',
-  },
-  profileInfo: {
-    textAlign: 'left',
-    marginBottom: '20px',
-  },
-  editButton: {
-    display: 'block',
-    width: '100%',
-    padding: '10px',
-    fontSize: '16px',
-    background: '#007bff',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  formGroup: {
-    marginBottom: '15px',
-  },
-  input: {
-    width: '100%',
-    padding: '8px',
-    fontSize: '16px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-  },
-  updateButton: {
-    padding: '10px',
-    fontSize: '16px',
-    background: '#28a745',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
-  cancelButton: {
-    padding: '10px',
-    fontSize: '16px',
-    background: '#dc3545',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    marginTop: '10px',
-  },
-  logoutButton: {
-    display: 'block',
-    width: '100%',
-    padding: '10px',
-    fontSize: '16px',
-    background: '#007bff',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    marginTop: '20px',
-  },
 };
 
 export default UserProfile;

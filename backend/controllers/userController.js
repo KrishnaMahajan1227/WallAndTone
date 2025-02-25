@@ -146,40 +146,49 @@ const deleteUser = async (req, res) => {
     }
   };
   
-// Get user profile (without password)
-const getUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id); // Get user using decoded token
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+  const getUserProfile = async (req, res) => {
+    try {
+      const user = await User.findById(req.user._id).select('+password'); // Include password in the query
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.status(200).json({
+        firstName: user.firstName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        password: "",  // 🚨 Do NOT return actual password (security reasons)
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
     }
-
-    res.status(200).json({
-      firstName: user.firstName,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-
+  };
+  
 // Update user profile
 const updateUserProfile = async (req, res) => {
-  const { firstName, email, phone } = req.body;
+  const { firstName, email, phone, oldPassword, newPassword } = req.body;
 
   try {
-    const user = await User.findById(req.user._id); // Get user using decoded token
+    const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update the fields
+    // Update user details
     user.firstName = firstName || user.firstName;
     user.email = email || user.email;
     user.phone = phone || user.phone;
+
+    // If user wants to update password
+    if (oldPassword && newPassword) {
+      const isMatch = await user.matchPassword(oldPassword);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Old password is incorrect' });
+      }
+      user.password = newPassword; // Password will be auto-hashed due to pre-save hook
+    }
 
     await user.save();
     res.status(200).json({

@@ -1,154 +1,104 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Alert, Modal, Button } from 'react-bootstrap';
-import axios from 'axios';
+import { Modal, Button } from 'react-bootstrap';
 import { DraggableCore } from 'react-draggable';
 import heartIcon from '../../assets/icons/heart-icon.svg';
 import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
 import whiteLogo from '../../assets/logo/wall-n-tone-white.png';
 import './CameraComponent.css';
-import WoodenDarkBrown from '../../assets/FrameBlank/Dark.png';
-import Footer from '../Footer/Footer';
-
 
 const CameraComponent = () => {
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : 'https://wallandtone.com');
 
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
-
-  const [capturedImage, setCapturedImage] = useState(null);
+  // Global states
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [productPositions, setProductPositions] = useState([]);
-  const [isDragging, setIsDragging] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState([]); // Array of products added for preview
+  const [productPositions, setProductPositions] = useState([]); // Same order as selectedProducts
+  // Each product’s preview dimension (object with width & height), same order as selectedProducts
+  const [productDimensions, setProductDimensions] = useState([]);
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
-  const [authAction, setAuthAction] = useState(null);
   const [cartMessage, setCartMessage] = useState(null);
-  const [wishlistAlert, setWishlistAlert] = useState(false);
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const token = localStorage.getItem('token');
-  const navigate = useNavigate();
-  const fileInputRef = useRef(null);
+
+  // For the active (currently selected) product (whose options are being edited)
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productDetails, setProductDetails] = useState({});
+  const [activeImage, setActiveImage] = useState(null);
+
+  // Options (global for the active product)
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [selectedFrameType, setSelectedFrameType] = useState(null);
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
+
+  // Wall preview image (background)
   const [wallImage, setWallImage] = useState(null);
-  const [productDetails, setProductDetails] = useState({});
-  const [activeImage, setActiveImage] = useState(null);
+  // Subframe thumbnails (if any)
+  const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
+  const [loadingSubFrame, setLoadingSubFrame] = useState(false);
 
-  // Fetch wishlist products, cart, and wishlist data
+  // Refs for camera & file input
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const token = localStorage.getItem('token');
+  const navigate = useNavigate();
+
+  // ------------------- FETCH DATA -------------------
   useEffect(() => {
-    const fetchWishlistProducts = async () => {
+    const fetchData = async () => {
       if (!token) return;
-
       try {
-        const wishlistResponse = await fetch(`${apiUrl}/api/wishlist`, {
+        // Fetch wishlist
+        const wishlistRes = await fetch(`${apiUrl}/api/wishlist`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         });
-
-        if (!wishlistResponse.ok) {
-          throw new Error('Failed to fetch wishlist products');
-        }
-
-        const wishlistData = await wishlistResponse.json();
-
-        const wishlistProductIds = wishlistData.items.filter((item) => item.productId !== null).map((item) => item.productId._id);
-        console.log('wishlistProductIds:', wishlistProductIds);
-
-        const productsResponse = await fetch(`${apiUrl}/api/products`, {
+        if (!wishlistRes.ok) throw new Error('Failed to fetch wishlist');
+        // Fetch all products
+        const productsRes = await fetch(`${apiUrl}/api/products`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          params: { ids: wishlistProductIds.join(',') },
+          headers: { 'Content-Type': 'application/json' }
         });
-
-        if (!productsResponse.ok) {
-          throw new Error('Failed to fetch products');
-        }
-
-        const productsData = await productsResponse.json();
+        if (!productsRes.ok) throw new Error('Failed to fetch products');
+        const productsData = await productsRes.json();
         setProducts(productsData);
-      } catch (error) {
-        setError(error.message);
-      }
-    };
 
-    const fetchCartAndWishlist = async () => {
-      if (!token) return;
-
-      try {
-        const cartResponse = await fetch(`${apiUrl}/api/cart`, {
+        // Fetch cart
+        const cartRes = await fetch(`${apiUrl}/api/cart`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         });
-        const wishlistResponse = await fetch(`${apiUrl}/api/wishlist`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!cartResponse.ok || !wishlistResponse.ok) {
-          throw new Error('Failed to fetch cart and wishlist data');
-        }
-
-        const cartData = await cartResponse.json();
-        const wishlistData = await wishlistResponse.json();
-
-        console.log('wishlistData:', wishlistData);
-
-        const wishlist = wishlistData.items.filter((item) => item.productId !== null);
+        if (!cartRes.ok) throw new Error('Failed to fetch cart');
+        const cartData = await cartRes.json();
         setCart(cartData);
-        setWishlist(wishlist);
-      } catch (error) {
-        setError(error.message);
+
+        const wishlistData = await wishlistRes.json();
+        const wishlistItems = wishlistData.items.filter(item => item.productId !== null);
+        setWishlist(wishlistItems);
+      } catch (err) {
+        setError(err.message);
       }
     };
+    fetchData();
+  }, [token, apiUrl]);
 
-    fetchWishlistProducts();
-    fetchCartAndWishlist();
-  }, [token]);
-
-  // Handle authentication popup
-  const handleAuthRequired = (action) => {
-    setAuthAction(() => action);
-    setShowAuthPopup(true);
-  };
-
-  const handleAuthPopupClose = () => {
-    setShowAuthPopup(false);
-    setAuthAction(null);
-  };
-
-  const handleAuthLogin = () => {
-    setShowAuthPopup(false);
-    navigate('/login');
-  };
-
-  const executeAuthAction = () => {
-    if (authAction) {
-      authAction();
-      setAuthAction(null);
-    }
-  };
-
-  // Start camera
+  // ------------------- CAMERA FUNCTIONS -------------------
   const startCamera = async () => {
     setError(null);
     try {
@@ -162,176 +112,17 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }
   };
 
-  // Capture photo
   const capturePhoto = () => {
     if (canvasRef.current && videoRef.current) {
       const context = canvasRef.current.getContext('2d');
       canvasRef.current.width = videoRef.current.videoWidth;
       canvasRef.current.height = videoRef.current.videoHeight;
       context.drawImage(videoRef.current, 0, 0);
-      setCapturedImage(canvasRef.current.toDataURL('image/png'));
+      setWallImage(canvasRef.current.toDataURL('image/png'));
     }
   };
 
-// Handle product selection
-const handleProductSelect = (product) => {
-  if (!wallImage) {
-    setShowAuthPopup(true);
-    setAuthAction(null);
-    setCartMessage("Please select your wall first or upload wall image");
-    return;
-  }
-
-  if (selectedProducts.some((item) => item._id === product._id)) return;
-  setSelectedProducts((prevSelected) => [...prevSelected, product]);
-  setProductPositions((prevPositions) => [
-    ...prevPositions,
-    { x: 100, y: 100 },
-  ]);
-  setSelectedProduct(product);
-  setProductDetails({});
-  setSelectedFrameType(null);
-  setSelectedSubFrameType(null);
-  setSelectedSize(null);
-  fetchProductData(product._id);
-
-  // Display product main image in preview
-  const productIndex = selectedProducts.indexOf(product);
-  const productImage = document.querySelectorAll('.selected-product img.product-on-wall')[productIndex];
-  if (productImage) {
-    productImage.src = `/${product.mainImage}`;
-  }
-};
-
-
-  // Handle product click
-  const handleProductClick = (product) => {
-    setSelectedProduct(product);
-    fetchProductData(product._id);
-  };
-
-  // Fetch product data
-  const fetchProductData = async (productId) => {
-    try {
-      const response = await fetch(`${apiUrl}/api/products/${productId}`);
-      if (!response.ok) {
-        throw new Error(`Error fetching product data: ${response.status} ${response.statusText}`);
-      }
-      const data = await response.json();
-      setProductDetails(data);
-      fetchFrameTypes(data._id);
-      fetchSubFrameTypes(data._id);
-      fetchSizes(data._id);
-    } catch (error) {
-      console.error('Error fetching product data:', error);
-    }
-  };
-
-// Handle size selection
-const handleSizeSelect = (size) => {
-  setSelectedSize(size);
-  setProductDetails((prevDetails) => ({ ...prevDetails, size }));
-
-  // Update product image size for the selected product
-  const productIndex = selectedProducts.indexOf(selectedProduct);
-  const productImage = document.querySelectorAll('.selected-product img.product-on-wall')[productIndex];
-  if (productImage) {
-    const aspectRatio = productImage.naturalWidth / productImage.naturalHeight;
-    const isPortrait = size.height > size.width; // Check if the selected size is portrait or landscape
-    const width = isPortrait ? size.width *5 : size.height *5; // Increase the width by 500%
-    const height = isPortrait ? size.height *5 : size.width *5; // Increase the height by 500%
-    const scaleFactor = width / productImage.naturalWidth;
-    const newWidth = productImage.naturalWidth * scaleFactor;
-    const newHeight = productImage.naturalHeight * scaleFactor;
-    if (size.width === size.height) {
-      productImage.style.width = `${newWidth}px`;
-      productImage.style.height = `${newWidth}px`;
-    } else if (size.width > size.height) {
-      productImage.style.width = `${newWidth}px`;
-      productImage.style.height = `${newHeight}px`;
-    } else {
-      productImage.style.width = `${newHeight}px`;
-      productImage.style.height = `${newWidth}px`;
-    }
-    productImage.style.border = 'none'; // Remove border color
-  }
-};
-
-  // Handle product removal
-  const handleProductRemove = (product) => {
-    setSelectedProducts((prevSelected) =>
-      prevSelected.filter((item) => item._id !== product._id)
-    );
-    setProductPositions((prevPositions) =>
-      prevPositions.filter((_, index) => selectedProducts[index]._id !== product._id)
-    );
-    setProductDetails({});
-    setSelectedProduct(null);
-  };
-
-  // Handle drag start and stop
-  const handleDragStart = () => setIsDragging(true);
-  const handleDragStop = (e, data, index) => {
-    setIsDragging(false);
-    const updatedPositions = [...productPositions];
-    updatedPositions[index] = { x: data.x, y: data.y };
-    setProductPositions(updatedPositions);
-  };
-
-  // Add to wishlist
-  const handleAddToWishlist = async (product) => {
-    if (!product || !product._id) return;
-
-    if (!token) {
-      handleAuthRequired(() => handleAddToWishlist(product));
-      return;
-    }
-
-    const productInWishlist = wishlist.some(
-      (item) => item.productId && item.productId._id === product._id
-    );
-
-    if (productInWishlist) {
-      setWishlistAlert(true);
-      setTimeout(() => setWishlistAlert(false), 3000);
-      return;
-    }
-
-    try {
-      await fetch(`${apiUrl}/api/wishlist/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ productId: product._id }),
-      });
-
-      setWishlist((prevWishlist) => [...prevWishlist, { productId: product }]);
-    } catch (error) {
-      console.error('Error adding product to wishlist:', error);
-    }
-  };
-
-  // Remove from wishlist
-  const handleRemoveFromWishlist = async (wishlistItem) => {
-    try {
-      await fetch(`${apiUrl}/api/wishlist/remove/${wishlistItem.productId._id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setWishlist((prevWishlist) =>
-        prevWishlist.filter((item) => item._id !== wishlistItem._id)
-      );
-    } catch (error) {
-      console.error('Error removing product from wishlist:', error);
-    }
-  };
-
-  // Handle wall photo upload
+  // ------------------- WALL PHOTO UPLOAD & RETAKE -------------------
   const handleUploadWallPhoto = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -343,236 +134,394 @@ const handleSizeSelect = (size) => {
     }
   };
 
-  // Fetch frame types
+  // Allow retake: simply clear the wallImage state
+  const handleRetakeWall = () => {
+    setWallImage(null);
+  };
+
+  // ------------------- AUTH -------------------
+  const handleAuthRequired = () => setShowAuthPopup(true);
+  const handleAuthPopupClose = () => setShowAuthPopup(false);
+  const handleAuthLogin = () => {
+    setShowAuthPopup(false);
+    navigate('/login');
+  };
+
+  // ------------------- PRODUCT PREVIEW & SELECTION -------------------
+  const handleProductSelect = (product) => {
+    if (!wallImage) {
+      setShowAuthPopup(true);
+      setCartMessage('Please select your wall first or upload a wall photo');
+      return;
+    }
+    // Avoid duplicates
+    if (selectedProducts.some(p => p._id === product._id)) return;
+
+    // Add product to the preview list
+    setSelectedProducts(prev => [...prev, product]);
+    setProductPositions(prev => [...prev, { x: 200, y: 200 }]);
+    // Set a default preview dimension (e.g., 300x300)
+    setProductDimensions(prev => [...prev, { width: 300, height: 300 }]);
+
+    setSelectedProduct(product);
+    setProductDetails({});
+    setSelectedFrameType(null);
+    setSelectedSubFrameType(null);
+    setSelectedSize(null);
+    fetchProductData(product._id);
+  };
+
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    fetchProductData(product._id);
+  };
+
+  const fetchProductData = async (productId) => {
+    try {
+      const res = await fetch(`${apiUrl}/api/products/${productId}`);
+      if (!res.ok) throw new Error(`Error fetching product data: ${res.status}`);
+      const data = await res.json();
+      setProductDetails(data);
+      // Auto-select options if available
+      fetchFrameTypes(data._id);
+      fetchSubFrameTypes(data._id);
+      fetchSizes(data._id);
+      setActiveImage(data.mainImage);
+    } catch (err) {
+      console.error('Error fetching product data:', err);
+    }
+  };
+
+  // ------------------- FRAME, SUBFRAME & SIZE HANDLERS -------------------
   const fetchFrameTypes = async (productId) => {
     try {
-      const response = await fetch(`${apiUrl}/api/products/${productId}/frame-types`);
-      if (!response.ok) {
-        if (response.status === 404) {
-          console.error('Frame types not found for product ID:', productId);
-        } else {
-          throw new Error(`Error fetching frame types: ${response.status} ${response.statusText}`);
-        }
-      }
-      const data = await response.json();
+      const res = await fetch(`${apiUrl}/api/products/${productId}/frame-types`);
+      if (!res.ok) throw new Error(`Error fetching frame types: ${res.status}`);
+      const data = await res.json();
       setFrameTypes(data);
-    } catch (error) {
-      console.error('Error fetching frame types:', error);
+      if (data.length > 0 && !selectedFrameType) {
+        setSelectedFrameType(data[0]);
+        localStorage.setItem('frameType', JSON.stringify(data[0]));
+        fetchSubFrameTypesByFrameType(data[0]._id);
+      }
+    } catch (err) {
+      console.error('Error fetching frame types:', err);
     }
   };
 
-  // Fetch sub frame types
   const fetchSubFrameTypes = async (productId) => {
     try {
-      const response = await fetch(`${apiUrl}/api/products/${productId}/sub-frame-types`);
-      if (!response.ok) {
-        if (response.status === 404) {
-          console.error('Sub frame types not found for product ID:', productId);
-        } else {
-          throw new Error(`Error fetching sub frame types: ${response.status} ${response.statusText}`);
-        }
-      }
-      const data = await response.json();
+      const res = await fetch(`${apiUrl}/api/products/${productId}/sub-frame-types`);
+      if (!res.ok) throw new Error(`Error fetching sub frame types: ${res.status}`);
+      const data = await res.json();
       setSubFrameTypes(data);
-    } catch (error) {
-      console.error('Error fetching sub frame types:', error);
+      if (data.length > 0 && !selectedSubFrameType) {
+        setSelectedSubFrameType(data[0]);
+        localStorage.setItem('subFrameType', JSON.stringify(data[0]));
+      }
+    } catch (err) {
+      console.error('Error fetching sub frame types:', err);
     }
   };
 
-  // Fetch sizes
   const fetchSizes = async (productId) => {
     try {
-      const response = await fetch(`${apiUrl}/api/products/${productId}/sizes`);
-      const data = await response.json();
-      console.log('Sizes:', data);
+      const res = await fetch(`${apiUrl}/api/products/${productId}/sizes`);
+      const data = await res.json();
       setSizes(data);
-    } catch (error) {
-      console.error('Error fetching sizes:', error);
+      // Do not auto-update dimensions here so that user can change per product
+    } catch (err) {
+      console.error('Error fetching sizes:', err);
+    }
+  };
+
+  const handleFrameTypeSelect = (frameType) => {
+    setSelectedFrameType(frameType);
+    setProductDetails(prev => ({ ...prev, frameType }));
+    localStorage.setItem('frameType', JSON.stringify(frameType));
+    fetchSubFrameTypesByFrameType(frameType._id);
+    // Optionally update the active product in selectedProducts
+  };
+
+  const fetchSubFrameTypesByFrameType = async (frameTypeId) => {
+    try {
+      const res = await fetch(`${apiUrl}/api/sub-frame-types/${frameTypeId}`);
+      if (!res.ok) throw new Error(`Error fetching sub frame types: ${res.status}`);
+      const data = await res.json();
+      setSubFrameTypes(data);
+      setSelectedSubFrameType(data.length > 0 ? data[0] : null);
+      if (data.length > 0) localStorage.setItem('subFrameType', JSON.stringify(data[0]));
+    } catch (err) {
+      console.error('Error fetching sub frame types:', err);
     }
   };
 
   const handleSubFrameTypeSelect = async (subFrameType) => {
-    console.log("🟢 Selected Subframe Type:", subFrameType);
-  
     setSelectedSubFrameType(subFrameType);
-  
-    // Ensure image URL is correctly formatted
-    const formattedImageUrl = subFrameType.imageUrl?.startsWith("http")
-      ? subFrameType.imageUrl
-      : `/uploads/${subFrameType.imageUrl}`;
-  
-    // Update product details in state
-    setProductDetails((prevDetails) => ({
-      ...prevDetails,
-      subFrameType: { ...subFrameType, imageUrl: formattedImageUrl },
-    }));
-  
-    // Store in local storage
-    localStorage.setItem("subFrameType", JSON.stringify({ ...subFrameType, imageUrl: formattedImageUrl }));
-  
+    setProductDetails(prev => ({ ...prev, subFrameType }));
+    localStorage.setItem('subFrameType', JSON.stringify(subFrameType));
+    setLoadingSubFrame(true);
     try {
-      console.log(`📤 Fetching image from API: ${apiUrl}/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`);
-      
-      const response = await fetch(
-        `${apiUrl}/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`
+      const res = await fetch(`${apiUrl}/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`);
+      if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+      const data = await res.json();
+      let imageUrl = '';
+      if (data.images && Array.isArray(data.images)) {
+        const frontImage = data.images.find(img => img.toLowerCase().includes('front'));
+        imageUrl = frontImage || data.images[0];
+      } else if (data.imageUrl) {
+        imageUrl = data.imageUrl.toLowerCase().includes('front') ? data.imageUrl : data.imageUrl;
+      }
+      if (!imageUrl) imageUrl = selectedProduct.mainImage;
+      setActiveImage(imageUrl);
+      // Update the selected product's mainImage in the preview list
+      setSelectedProducts(prev =>
+        prev.map(p => (p._id === selectedProduct._id ? { ...p, mainImage: imageUrl } : p))
       );
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      console.log("✅ API Response:", data);
-  
-      if (data.imageUrl) {
-        // Ensure correct URL formatting for fetched image
-        const finalImageUrl = data.imageUrl.startsWith("http")
-          ? data.imageUrl
-          : `${data.imageUrl}`;
-  
-        console.log("🖼 Updating product image to:", finalImageUrl);
-  
-        // ✅ FIX: Update active image state
-        setActiveImage(finalImageUrl);
-  
-        const productIndex = selectedProducts.indexOf(selectedProduct);
-        const productImages = document.querySelectorAll(".selected-product img.product-on-wall");
-  
-        if (productImages[productIndex]) {
-          productImages[productIndex].src = finalImageUrl;
-        } else {
-          console.warn("⚠ No matching image element found in DOM.");
-        }
-      }
+      const constantSubFrameImages = subFrameType.images || [];
+      const updatedThumbnails = [imageUrl, ...constantSubFrameImages];
+      setSubFrameThumbnails([...new Set(updatedThumbnails)]);
     } catch (err) {
-      console.error("❌ Error fetching subframe image:", err);
+      console.error('Error fetching subframe image:', err);
+      setActiveImage(selectedProduct.mainImage);
+      setSubFrameThumbnails(subFrameType.images || []);
+    } finally {
+      setLoadingSubFrame(false);
     }
   };
-  
-  
-  
 
+  const handleSizeSelect = (size) => {
+    setSelectedSize(size);
+    setProductDetails(prev => ({ ...prev, size }));
+    // Update only the currently selected product's dimensions
+    const productIndex = selectedProducts.findIndex(p => p._id === selectedProduct._id);
+    if (productIndex === -1) return;
+    const factor = 5; // scale factor; adjust as desired
+    const newWidth = size.width * factor;
+    const newHeight = size.height * factor;
+    setProductDimensions(prev => {
+      const updated = [...prev];
+      updated[productIndex] = { width: newWidth, height: newHeight };
+      return updated;
+    });
+  };
 
-  // Handle add to cart
+  // ------------------- DRAG & DROP -------------------
+  const handleDragStop = (e, data, index) => {
+    const updatedPositions = [...productPositions];
+    updatedPositions[index] = { x: data.x, y: data.y };
+    setProductPositions(updatedPositions);
+  };
+
+  // ------------------- CART & WISHLIST HANDLERS -------------------
   const handleAddToCart = async () => {
-    if (!selectedProduct || !selectedFrameType || !selectedSubFrameType || !selectedSize) return;
-
+    if (!selectedProduct || !selectedFrameType || !selectedSubFrameType || !selectedSize) {
+      setCartMessage('Please select all options before adding to cart');
+      return;
+    }
+    const cartProduct = {
+      productId: selectedProduct._id,
+      frameTypeId: selectedFrameType._id,
+      subFrameTypeId: selectedSubFrameType._id,
+      sizeId: selectedSize._id,
+      quantity: 1
+    };
     try {
-      const cartProduct = {
-        productId: selectedProduct._id,
-        frameTypeId: selectedFrameType._id,
-        subFrameTypeId: selectedSubFrameType._id,
-        sizeId: selectedSize._id,
-        quantity: 1,
-      };
-
-      console.log('Request body:', cartProduct);
-
-      const response = await fetch(`${apiUrl}/api/cart/add`, {
+      const res = await fetch(`${apiUrl}/api/cart/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(cartProduct),
+        body: JSON.stringify(cartProduct)
       });
-
-      if (!response.ok) {
-        throw new Error(`Error adding product to cart: ${response.status} ${response.statusText}`);
-      }
-
-      const cartData = await response.json();
-      console.log('Cart data:', cartData);
+      if (!res.ok) throw new Error(`Error adding product to cart: ${res.status}`);
+      const cartData = await res.json();
       setCart(cartData);
       setCartMessage('Product added to cart successfully!');
       setTimeout(() => setCartMessage(null), 3000);
-    } catch (error) {
-      console.error('Error adding product to cart:', error);
+    } catch (err) {
+      console.error('Error adding product to cart:', err);
+      setCartMessage('Failed to add product to cart');
     }
   };
 
-// Handle frame type selection
-const handleFrameTypeSelect = (frameType) => {
-  setSelectedFrameType(frameType);
-  setProductDetails((prevDetails) => ({ ...prevDetails, frameType }));
-  localStorage.setItem('frameType', JSON.stringify(frameType));
-  fetchSubFrameTypesByFrameType(frameType._id);
-
-  // Update product image background color based on selected frame type
-  const productIndex = selectedProducts.indexOf(selectedProduct);
-  const productImage = document.querySelectorAll('.selected-product img.product-on-wall')[productIndex];
-  if (productImage) {
-    const frameTypeToBackgroundColor = {
-      
-    };
-    
-    productImage.style.padding = '10px';
-    productImage.style.backgroundImage = `${frameTypeToBackgroundColor[frameType.name]}`;
-    productImage.style.backgroundClip = 'padding-box';
-    productImage.style.backgroundOrigin = 'border-box';
-    productImage.style.backgroundSize = '100% 100%';
-    productImage.style.backgroundRepeat = 'no-repeat';
-    productImage.style.backgroundPosition = 'center';
-    productImage.style.border = ''; // Remove border color
-  }
-  const productPrice = productDetails.price + frameType.price;
-  setProductDetails((prevDetails) => ({ ...prevDetails, price: productPrice }));
-};
-
-  // Fetch sub frame types by frame type
-  const fetchSubFrameTypesByFrameType = async (frameTypeId) => {
+  const handleAddToWishlist = async (product) => {
+    if (!product || !product._id) return;
+    if (!token) {
+      handleAuthRequired();
+      return;
+    }
+    const productInWishlist = wishlist.some(
+      item => item.productId && item.productId._id === product._id
+    );
+    if (productInWishlist) return;
     try {
-      const response = await fetch(`${apiUrl}/api/sub-frame-types/${frameTypeId}`);
-      if (!response.ok) {
-        throw new Error(`Error fetching sub frame types: ${response.status} ${response.statusText}`);
-      }
-      const data = await response.json();
-      setSubFrameTypes(data);
-      setSelectedSubFrameType(null);
+      await fetch(`${apiUrl}/api/wishlist/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ productId: product._id })
+      });
+      setWishlist(prev => [...prev, { productId: product }]);
     } catch (error) {
-      console.error('Error fetching sub frame types:', error);
+      console.error('Error adding product to wishlist:', error);
+    }
+  };
+
+  const handleRemoveFromWishlist = async (wishlistItem) => {
+    try {
+      await fetch(`${apiUrl}/api/wishlist/remove/${wishlistItem.productId._id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setWishlist(prev => prev.filter(item => item._id !== wishlistItem._id));
+    } catch (error) {
+      console.error('Error removing product from wishlist:', error);
     }
   };
 
   const calculateItemPrice = (item) => {
     if (!item || !item.productId || !item.quantity) return 0;
-    
     const basePrice = parseFloat(item.productId.price) || 0;
-    const frameTypePrice = parseFloat(item.frameType?.price) || 0;
-    const subFrameTypePrice = parseFloat(item.subFrameType?.price) || 0;
+    const framePrice = parseFloat(item.frameType?.price) || 0;
+    const subFramePrice = parseFloat(item.subFrameType?.price) || 0;
     const sizePrice = parseFloat(item.size?.price) || 0;
-    
-    return ((basePrice + frameTypePrice + subFrameTypePrice + sizePrice) * item.quantity).toFixed(2);
+    return ((basePrice + framePrice + subFramePrice + sizePrice) * item.quantity).toFixed(2);
   };
-  
+
   const calculateTotalPrice = () => {
-    let totalPrice = 0;
-    selectedProducts.forEach((product, index) => {
+    let total = 0;
+    selectedProducts.forEach(product => {
       const item = {
         productId: product,
         frameType: selectedFrameType,
         subFrameType: selectedSubFrameType,
         size: selectedSize,
-        quantity: 1,
+        quantity: 1
       };
-      const price = calculateItemPrice(item);
-      totalPrice += parseFloat(price);
+      total += parseFloat(calculateItemPrice(item));
     });
-    return totalPrice.toFixed(2);
+    return total.toFixed(2);
   };
 
+  const handleUpdateQuantity = async (item, newQty) => {
+    if (newQty < 1) return;
+    if (token) {
+      try {
+        const res = await fetch(`${apiUrl}/api/cart/update/${item.productId._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            quantity: newQty,
+            frameType: item.frameType._id,
+            subFrameType: item.subFrameType._id,
+            size: item.size._id
+          })
+        });
+        if (!res.ok) throw new Error('Failed to update quantity');
+        setCart(prev =>
+          prev.map(ci => (ci.productId._id === item.productId._id ? { ...ci, quantity: newQty } : ci))
+        );
+      } catch (err) {
+        console.error('Failed to update quantity:', err);
+      }
+    } else {
+      const updatedCart = cart.map(ci =>
+        ci.productId._id === item.productId._id ? { ...ci, quantity: newQty } : ci
+      );
+      setCart(updatedCart);
+      localStorage.setItem('guestCart', JSON.stringify(updatedCart));
+    }
+  };
+
+  const handleRemoveFromCart = async (item) => {
+    if (token) {
+      try {
+        const res = await fetch(
+          `${apiUrl}/api/cart/remove/${item.productId._id}/${item.frameType._id}/${item.subFrameType._id}/${item.size._id}`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+        if (!res.ok) throw new Error('Failed to remove item from cart');
+        setCart(prev =>
+          prev.filter(
+            ci =>
+              ci.productId._id !== item.productId._id ||
+              ci.frameType._id !== item.frameType._id ||
+              ci.subFrameType._id !== item.subFrameType._id ||
+              ci.size._id !== item.size._id
+          )
+        );
+      } catch (err) {
+        console.error('Failed to remove item from cart:', err);
+      }
+    } else {
+      const updatedCart = cart.filter(
+        ci =>
+          ci.productId._id !== item.productId._id ||
+          ci.frameType._id !== item.frameType._id ||
+          ci.subFrameType._id !== item.subFrameType._id ||
+          ci.size._id !== item.size._id
+      );
+      setCart(updatedCart);
+      localStorage.setItem('guestCart', JSON.stringify(updatedCart));
+    }
+  };
+
+  const renderCartItems = () => {
+    if (!Array.isArray(cart) || cart.length === 0) {
+      return <p>Your cart is empty</p>;
+    }
+    return cart.map((item, idx) => (
+      <div key={idx} className="cart-item d-flex mb-3 align-items-center">
+        <img
+          src={item.productId.mainImage}
+          alt={item.productId.productName}
+          className="cart-item-image me-2"
+        />
+        <div className="cart-item-details flex-grow-1">
+          <h5>{item.productId.productName}</h5>
+          <p>Frame: {item.frameTypeName}</p>
+          <p>Type: {item.subFrameTypeName}</p>
+          <p>Size: {item.sizeName}</p>
+          <div className="quantity-controls">
+            <button
+              onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
+              disabled={item.quantity <= 1}
+            >
+              -
+            </button>
+            <span className="mx-2">{item.quantity}</span>
+            <button onClick={() => handleUpdateQuantity(item, item.quantity + 1)}>+</button>
+          </div>
+          <p className="mt-2">Price: ₹{calculateItemPrice(item)}</p>
+        </div>
+        <button className="remove-item ms-2" onClick={() => handleRemoveFromCart(item)}>
+          <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '18px' }}>X</span>
+        </button>
+      </div>
+    ));
+  };
+
+  // ------------------- RENDER -------------------
   if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
-    <div className="camera-component container d-flex">
-      {/* Popup */}
+    <div className="camera-component container-fluid px-0">
+      {/* AUTH POPUP */}
       <Modal show={showAuthPopup} onHide={handleAuthPopupClose} centered>
         <Modal.Header closeButton>
           <Modal.Title>Wall Selection Required</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          {cartMessage}
-        </Modal.Body>
+        <Modal.Body>{cartMessage}</Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={handleAuthPopupClose}>
             Close
@@ -580,76 +529,82 @@ const handleFrameTypeSelect = (frameType) => {
         </Modal.Footer>
       </Modal>
 
-      {/* Left Side: Select a Frame to Preview */}
-      <div className="frame-preview-section" style={{ position: 'fixed', top: 0, left: 0, width: '30%', height: '100vh', overflowY: 'auto', padding: 20 }}>
-        <div className="logo-container">
-          <Link to="/" className="navbar-brand d-flex align-items-center">
-            <img src={whiteLogo} alt="Logo" className="logo" />
-          </Link>
-        </div>
-        <div className="products-container" style={{ padding: 20, overflowY: 'auto' }}>
-          <h4 className="text-center">Select a Frame to Preview</h4>
-          <div className="row g-3">
-            {products.map((product) => (
-              <div key={product._id} className="col-6 mb-4" onClick={() => handleProductSelect(product)}>
-                <div className="card product-card h-100" style={{ boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', borderRadius: '8px' }}>
-                  <div className="product-image-wrapper position-relative">
-                    <img
-                      src={`${product.mainImage}`}
-                      className="card-img-top product-image"
-                      alt={product.productName}
-                      style={{ objectFit: 'cover', height: '150px', width: '100%' }}
-                    />
-                    <div
-                      className="wishlist-icon position-absolute"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const productId = product._id;
-                        const productInWishlist = wishlist.find((item) => item.productId && item.productId._id === productId);
-                        if (productInWishlist) {
-                          handleRemoveFromWishlist(productInWishlist);
-                        } else {
-                          handleAddToWishlist(product);
-                        }
-                      }}
-                    >
+      <div className="row g-0">
+        {/* LEFT PANEL: PRODUCT LIST */}
+        <div className="col-12 col-md-3 camera-left-panel">
+          <div className="logo-container">
+            <Link to="/" className="d-flex align-items-center">
+              <img src={whiteLogo} alt="Logo" className="logo-img" />
+            </Link>
+          </div>
+          <div className="products-scrollable">
+            <h4 className="products-title">Select Product</h4>
+            <div className="row g-3 mx-0">
+              {products.map((product) => (
+                <div
+                  key={product._id}
+                  className="col-12 col-md-12 product-card-wrapper"
+                  onClick={() => handleProductSelect(product)}
+                >
+                  <div className="product-card">
+                    <div className="product-image-wrapper position-relative">
                       <img
-                        src={wishlist && wishlist.length > 0 && wishlist.some((item) => item.productId && item.productId._id === product._id) ? heartIconFilled : heartIcon}
-                        alt="Heart Icon"
+                        src={product.mainImage}
+                        className="product-card-img"
+                        alt={product.productName}
                       />
+                      <div
+                        className="wishlist-icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const inWishlist = wishlist.find(
+                            (item) => item.productId && item.productId._id === product._id
+                          );
+                          if (inWishlist) {
+                            handleRemoveFromWishlist(inWishlist);
+                          } else {
+                            handleAddToWishlist(product);
+                          }
+                        }}
+                      >
+                        <img
+                          src={
+                            wishlist.some(
+                              (item) => item.productId && item.productId._id === product._id
+                            )
+                              ? heartIconFilled
+                              : heartIcon
+                          }
+                          alt="Heart Icon"
+                        />
+                      </div>
+                    </div>
+                    <div className="product-card-body">
+                      <h5 className="product-title">{product.productName}</h5>
+                      <p className="product-desc">{product.description.slice(0, 60)}...</p>
                     </div>
                   </div>
-                  <div className="card-body text-center d-flex flex-column justify-content-between">
-                    <h5 className="card-title product-title">{product.productName}</h5>
-                    <p className="card-text text-muted">{product.description.slice(0, 100)}...</p>
-                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Right Side: Camera Preview */}
-      <div className="camera-preview-section" style={{ width: '70%', marginLeft: '30%' }}>
-        <div className="preview-container text-center">
-          <div className="preview-frame" style={{ position: 'relative' }}>
+        {/* RIGHT PANEL: PREVIEW AREA */}
+        <div className="col-12 col-md-9 camera-right-panel">
+          <div className="preview-container">
             {wallImage ? (
               <img src={wallImage} alt="Wall Preview" className="preview-image" />
             ) : (
-              <div className="overlay" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.5, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <div style={{ textAlign: 'center' }}>
+              <div className="preview-overlay">
+                <div className="preview-overlay-content text-center">
                   <Button onClick={startCamera} variant="primary" className="mb-2">
                     Start Camera
                   </Button>
                   <Button onClick={capturePhoto} variant="secondary" className="mb-2">
                     Capture Photo
                   </Button>
-                  <Button
-                    variant="success"
-                    className="mb-2"
-                    onClick={() => fileInputRef.current.click()}
-                  >
+                  <Button variant="success" className="mb-2" onClick={() => fileInputRef.current.click()}>
                     Upload Wall Photo
                   </Button>
                   <input
@@ -662,10 +617,19 @@ const handleFrameTypeSelect = (frameType) => {
                 </div>
               </div>
             )}
+            {/* If wall image exists, show a "Retake Wall" button */}
+            {wallImage && (
+              <div className="retake-wall-btn">
+                <Button variant="warning" onClick={handleRetakeWall}>
+                  Retake Wall Photo
+                </Button>
+              </div>
+            )}
+
+            {/* DRAGGABLE PRODUCTS */}
             {selectedProducts.map((product, index) => (
               <DraggableCore
                 key={product._id}
-                onStart={handleDragStart}
                 onStop={(e, data) => handleDragStop(e, data, index)}
                 onDrag={(e, data) => {
                   const updatedPositions = [...productPositions];
@@ -676,139 +640,150 @@ const handleFrameTypeSelect = (frameType) => {
                 <div
                   className="selected-product"
                   style={{
-                    left: productPositions[index]?.x,
-                    top: productPositions[index]?.y,
+                    left: productPositions[index]?.x || 100,
+                    top: productPositions[index]?.y || 100,
+                    width: productDimensions[index]?.width || 300,
+                    height: productDimensions[index]?.height || 300
                   }}
-                  onMouseEnter={(e) => e.currentTarget.querySelector('.remove-from-preview').style.display = 'block'}
-                  onMouseLeave={(e) => e.currentTarget.querySelector('.remove-from-preview').style.display = 'none'}
+                  onMouseEnter={(e) => {
+                    const btn = e.currentTarget.querySelector('.remove-from-preview');
+                    if (btn) btn.style.display = 'block';
+                  }}
+                  onMouseLeave={(e) => {
+                    const btn = e.currentTarget.querySelector('.remove-from-preview');
+                    if (btn) btn.style.display = 'none';
+                  }}
                   onClick={() => handleProductClick(product)}
                 >
                   <img
-                    src={`${product.mainImage}`}
+                    src={product.mainImage}
                     alt={product.productName}
                     className="product-on-wall"
+                    onContextMenu={(e) => e.preventDefault()}
+                    draggable="false"
                   />
                   <div
                     className="remove-from-preview"
-                    onClick={() => handleProductRemove(product)}
-                    style={{
-                      position: 'absolute',
-                      top: '10px',
-                      right: '10px',
-                      backgroundColor: 'rgba(255, 0, 0, 0.6)',
-                      border: 'none',
-                      borderRadius: '50%',
-                      padding: '5px',
-                      cursor: 'pointer',
-                      display: 'none',
-                      opacity: '0.8',
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedProducts(prev => prev.filter(p => p._id !== product._id));
+                      setProductPositions(prev => prev.filter((_, i) => i !== index));
+                      setProductDimensions(prev => prev.filter((_, i) => i !== index));
                     }}
                   >
-                    <span
-                      style={{
-                        color: '#fff',
-                        fontWeight: 'bold',
-                        fontSize: '18px',
-                      }}
-                    >
-                      X
-                    </span>
+                    <span>X</span>
                   </div>
                 </div>
               </DraggableCore>
             ))}
           </div>
-        </div>
-        {selectedProduct && (
-          <div className="product-details">
-            <h4 className="text-center">Product Details</h4>
-            <div className="row g-3">
-              <div className="col-6">
-                <label>Frame Type:</label>
-                <select
-                  className="form-select"
-                  value={productDetails.frameType?._id}
-                  onChange={(e) => handleFrameTypeSelect(frameTypes.find((frameType) => frameType._id === e.target.value))}
-                >
-                  <option value="">Select Frame Type</option>
-                  {frameTypes && frameTypes.length > 0 ? (
-                    frameTypes.map((frameType) => (
-                      <option key={frameType._id} value={frameType._id}>
-                        {frameType.name}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="">No frame types available</option>
-                  )}
-                </select>
-              </div>
-              <div className="col-6">
-  <label>Sub Frame Type:</label>
-  <select
-    className="form-select"
-    value={productDetails.subFrameType?._id}
-    onChange={(e) => handleSubFrameTypeSelect(subFrameTypes.find((subFrameType) => subFrameType._id === e.target.value))}
-  >
-    <option value="">Select Sub Frame Type</option>
-    {subFrameTypes && subFrameTypes.length > 0 ? (
-      subFrameTypes.map((subFrameType) => (
-        <option key={subFrameType._id} value={subFrameType._id}>
-          {subFrameType.name}
-        </option>
-      ))
-    ) : (
-      <option value="">No sub frame types available</option>
-    )}
-  </select>
-  {productDetails.subFrameType && (
-    <img
-    src={`/uploads/${productDetails.subFrameType.imageUrl}`}
-      alt={productDetails.subFrameType.name}
-      style={{ width: '100%', height: '100px', objectFit: 'cover' }}
-    />
-  )}
-</div>
-              <div className="col-6">
-                <label>Size:</label>
-                <select
-                  className="form-select"
-                  value={productDetails.size?._id}
-                  onChange={(e) => handleSizeSelect(sizes.find((size) => size._id === e.target.value))}
-                >
-                  <option value="">Select Size</option>
-                  {sizes && sizes.length > 0 ? (
-                    sizes.map((size) => (
-                      <option key={size._id} value={size._id}>
-                        {size.width} x {size.height}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="">No sizes available</option>
-                  )}
-                </select>
-              </div>
-              <div className="col-6">
-                <Button onClick={handleAddToCart} variant="primary">
-                  Add to Cart
-                </Button>
+
+          {/* PRODUCT DETAILS / OPTIONS */}
+          {selectedProduct && (
+            <div className="product-details p-3">
+              <h4 className="mb-3">Product Details</h4>
+              <div className="row gx-2 gy-3">
+                <div className="col-12 col-sm-4">
+                  <label className="form-label fw-bold">Frame Type:</label>
+                  <select
+                    className="form-select"
+                    value={productDetails.frameType?._id || ''}
+                    onChange={(e) =>
+                      handleFrameTypeSelect(frameTypes.find(ft => ft._id === e.target.value))
+                    }
+                  >
+                    <option value="">Select Frame Type</option>
+                    {frameTypes.map(ft => (
+                      <option key={ft._id} value={ft._id}>{ft.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-12 col-sm-4">
+                  <label className="form-label fw-bold">Sub Frame Type:</label>
+                  <select
+                    className="form-select"
+                    value={productDetails.subFrameType?._id || ''}
+                    onChange={(e) =>
+                      handleSubFrameTypeSelect(subFrameTypes.find(sft => sft._id === e.target.value))
+                    }
+                  >
+                    <option value="">Select Sub Frame Type</option>
+                    {subFrameTypes.map(sft => (
+                      <option key={sft._id} value={sft._id}>{sft.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-12 col-sm-4">
+                  <label className="form-label fw-bold">Size:</label>
+                  <select
+                    className="form-select"
+                    value={productDetails.size?._id || ''}
+                    onChange={(e) =>
+                      handleSizeSelect(sizes.find(sz => sz._id === e.target.value))
+                    }
+                  >
+                    <option value="">Select Size</option>
+                    {sizes.map(sz => (
+                      <option key={sz._id} value={sz._id}>{sz.width} x {sz.height}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-12">
+                  <Button variant="primary" onClick={handleAddToCart}>
+                    Add to Cart
+                  </Button>
+                </div>
               </div>
             </div>
+          )}
+
+          {/* SUB-CART POPUP */}
+          {cart && cart.length > 0 && (
+            <div className="sub-cart-popup">
+              <div className="sub-cart-overlay" onClick={() => setCartMessage(null)} />
+              <div className="sub-cart-body">
+                <div className="sub-cart-header d-flex justify-content-between align-items-center">
+                  <h2>Shopping Cart</h2>
+                  <Button variant="secondary" onClick={() => setCartMessage(null)}>X</Button>
+                </div>
+                <div className="cart-items mt-3">{renderCartItems()}</div>
+                <div className="cart-footer mt-3">
+                  <p className="cart-total">Total: ₹{calculateTotalPrice()}</p>
+                  <div className="cart-actions">
+                    <Button variant="primary" onClick={() => navigate('/cart')}>View Cart</Button>
+                    <Button variant="success" onClick={() => navigate('/checkout')}>Checkout</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* WALL SELECTION & TOTAL PRICE */}
+          <div className="controls d-flex flex-wrap align-items-center gap-3 p-3">
+            <div>
+              <Button
+                onClick={() => setWallImage('/assets/placeholder-wall.jpg')}
+                variant="outline-primary"
+              >
+                Wall 1
+              </Button>
+              <Button
+                onClick={() => setWallImage('/assets/placeholder-wall1.jpg')}
+                variant="outline-primary"
+                className="ms-2"
+              >
+                Wall 2
+              </Button>
+            </div>
+            <div className="ms-auto text-end">
+              <h5 className="mb-0">Total Price: ₹{calculateTotalPrice()}</h5>
+            </div>
           </div>
-        )}
-        <div className="controls mt-3 d-flex">
-          <Button onClick={() => setWallImage('/assets/placeholder-wall.jpg')} variant="primary">
-            Wall 1
-          </Button>
-          <Button onClick={() => setWallImage('/assets/placeholder-wall1.jpg')} variant="primary">
-            Wall 2
-          </Button>
-        </div>
-        <div className="total-price-section">
-          <h4 className="text-center">Total Price</h4>
-          <p className="text-center">Rs. {calculateTotalPrice()}</p>
         </div>
       </div>
-      
+
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
+      <video ref={videoRef} style={{ display: 'none' }} />
     </div>
   );
 };

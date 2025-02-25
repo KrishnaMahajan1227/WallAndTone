@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
@@ -25,17 +26,23 @@ import FreepikCustomization from './components/FreepikCustomization/FreepikCusto
 import AboutUs from './components/AboutUs/AboutUs';
 import BusinessSection from './components/BusinessSection/BusinessSection';
 import Footer from './components/Footer/Footer';
+import { useLocation } from "react-router-dom";
 
 
 
 function App() {
+  const location = useLocation(); // ✅ Now it's inside a Router
+  const [isLivePreview, setIsLivePreview] = useState(false);
+
+  useEffect(() => {
+    setIsLivePreview(location.pathname === "/livePreview");
+  }, [location.pathname]);
   return (
     <UserProvider>
       <WishlistProvider>
-      <Router>
         <div className="Main-app">
           {location.pathname !== '/livePreview' && <Navbar />}
-          <div className="Main-content container-fluid">
+          <div className={`Main-content container-fluid ${isLivePreview ? "livePreview-active" : ""}`}>
           <div className="container">
           {location.pathname !== '/livePreview' && <SecondaryNavbar className="secondary-navbar-container"/>}
             <Routes>
@@ -67,7 +74,6 @@ function App() {
           <Footer/>
           </div>
         </div>
-      </Router>
       </WishlistProvider>
     </UserProvider>
   );

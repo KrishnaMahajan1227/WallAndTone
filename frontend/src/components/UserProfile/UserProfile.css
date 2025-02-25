@@ -1,46 +1,126 @@
 .user-profile {
-    max-width: 600px;
-    margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f4f4f4;
+}
+
+.user-profile__container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.user-profile__title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.user-profile__error {
+  color: #d9534f;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.user-profile__success {
+  color: #28a745;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.user-profile__info {
+  text-align: left;
+}
+
+.user-profile__edit-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.user-profile__edit-button:hover {
+  background: #0056b3;
+}
+
+.user-profile__form {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-profile__form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.user-profile__input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.user-profile__update-button {
+  padding: 10px;
+  font-size: 16px;
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.user-profile__update-button:hover {
+  background: #218838;
+}
+
+.user-profile__cancel-button {
+  padding: 10px;
+  font-size: 16px;
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.user-profile__logout-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  background: #ff4747;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background 0.3s ease-in-out;
+}
+
+.user-profile__logout-button:hover {
+  background: #d32f2f;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .user-profile__container {
     padding: 20px;
-    background: #fff;
-    border-radius: 8px;
+    max-width: 90%;
   }
-  
-  .user-profile h2 {
-    margin-bottom: 20px;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  .form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .btn {
-    padding: 10px 20px;
-    border: none;
-    background-color: #007bff;
-    color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .btn:hover {
-    background-color: #0056b3;
-  }
-  
-  .message {
-    margin-bottom: 15px;
-    color: green;
-  }
-  
+}

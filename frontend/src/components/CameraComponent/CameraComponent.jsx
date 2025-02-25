@@ -17,16 +17,17 @@ const CameraComponent = () => {
   // Global states
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]); // List of products added for preview
-  const [productPositions, setProductPositions] = useState([]); // Position of each preview product
-  const [productDimensions, setProductDimensions] = useState([]); // Each product’s own dimension (width & height)
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [productPositions, setProductPositions] = useState([]);
+  // Each product's preview dimensions (object with width & height)
+  const [productDimensions, setProductDimensions] = useState([]);
 
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [cartMessage, setCartMessage] = useState(null);
 
-  // For the active (currently selected) product
+  // For the active product (whose options are being edited)
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productDetails, setProductDetails] = useState({});
   const [activeImage, setActiveImage] = useState(null);
@@ -39,12 +40,14 @@ const CameraComponent = () => {
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
-  // Wall preview background and related images
+  // Wall preview background and camera capture
   const [wallImage, setWallImage] = useState(null);
+  // capturedImage holds the photo taken from camera until user confirms it
+  const [capturedImage, setCapturedImage] = useState(null);
   const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
 
-  // Camera active flag: when camera is started, show video feed if no wall image exists.
+  // Camera active flag – true when live video is shown
   const [cameraActive, setCameraActive] = useState(false);
 
   // Refs for camera and file input
@@ -60,7 +63,6 @@ const CameraComponent = () => {
     const fetchData = async () => {
       if (!token) return;
       try {
-        // Fetch wishlist
         const wishlistRes = await fetch(`${apiUrl}/api/wishlist`, {
           method: 'GET',
           headers: {
@@ -69,7 +71,6 @@ const CameraComponent = () => {
           }
         });
         if (!wishlistRes.ok) throw new Error('Failed to fetch wishlist');
-        // Fetch all products
         const productsRes = await fetch(`${apiUrl}/api/products`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
@@ -78,7 +79,6 @@ const CameraComponent = () => {
         const productsData = await productsRes.json();
         setProducts(productsData);
 
-        // Fetch cart
         const cartRes = await fetch(`${apiUrl}/api/cart`, {
           method: 'GET',
           headers: {
@@ -104,11 +104,8 @@ const CameraComponent = () => {
   const startCamera = async () => {
     setError(null);
     try {
-      // Determine device type to set facing mode
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      const constraints = {
-        video: { facingMode: isMobile ? { ideal: 'environment' } : 'user' }
-      };
+      const constraints = { video: { facingMode: isMobile ? { ideal: 'environment' } : 'user' } };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -126,8 +123,8 @@ const CameraComponent = () => {
       canvasRef.current.width = videoRef.current.videoWidth;
       canvasRef.current.height = videoRef.current.videoHeight;
       context.drawImage(videoRef.current, 0, 0);
-      setWallImage(canvasRef.current.toDataURL('image/png'));
-      setCameraActive(false); // Hide camera feed after capture
+      setCapturedImage(canvasRef.current.toDataURL('image/png'));
+      setCameraActive(false);
     }
   };
 
@@ -139,13 +136,15 @@ const CameraComponent = () => {
       reader.onloadend = () => {
         setWallImage(reader.result);
         setCameraActive(false);
+        setCapturedImage(null);
       };
       reader.readAsDataURL(file);
     }
   };
   const handleRetakeWall = () => {
     setWallImage(null);
-    setCameraActive(false);
+    setCapturedImage(null);
+    setCameraActive(true);
   };
 
   // ------------------- AUTH HANDLERS -------------------
@@ -158,16 +157,15 @@ const CameraComponent = () => {
 
   // ------------------- PRODUCT PREVIEW & SELECTION -------------------
   const handleProductSelect = (product) => {
-    if (!wallImage && !cameraActive) {
+    if (!wallImage && !capturedImage && !cameraActive) {
       setShowAuthPopup(true);
       setCartMessage('Please select your wall first or upload/capture a wall photo');
       return;
     }
-    // Avoid duplicates
     if (selectedProducts.some(p => p._id === product._id)) return;
     setSelectedProducts(prev => [...prev, product]);
     setProductPositions(prev => [...prev, { x: 200, y: 200 }]);
-    // Set a default preview dimension for this product (e.g., 300x300)
+    // Default dimension for better visibility
     setProductDimensions(prev => [...prev, { width: 300, height: 300 }]);
     setSelectedProduct(product);
     setProductDetails({});
@@ -188,7 +186,6 @@ const CameraComponent = () => {
       if (!res.ok) throw new Error(`Error fetching product data: ${res.status}`);
       const data = await res.json();
       setProductDetails(data);
-      // Auto-select options if available
       fetchFrameTypes(data._id);
       fetchSubFrameTypes(data._id);
       fetchSizes(data._id);
@@ -235,6 +232,9 @@ const CameraComponent = () => {
       const res = await fetch(`${apiUrl}/api/products/${productId}/sizes`);
       const data = await res.json();
       setSizes(data);
+      if (data.length > 0 && !selectedSize) {
+        setSelectedSize(data[0]);
+      }
     } catch (err) {
       console.error('Error fetching sizes:', err);
     }
@@ -298,7 +298,7 @@ const CameraComponent = () => {
     setProductDetails(prev => ({ ...prev, size }));
     const productIndex = selectedProducts.findIndex(p => p._id === selectedProduct._id);
     if (productIndex === -1) return;
-    const factor = 5; // Adjust scale factor as desired
+    const factor = 5;
     const newWidth = size.width * factor;
     const newHeight = size.height * factor;
     setProductDimensions(prev => {
@@ -545,7 +545,7 @@ const CameraComponent = () => {
               {products.map((product) => (
                 <div
                   key={product._id}
-                  className="col-12 col-md-12 product-card-wrapper"
+                  className="col-6 col-md-6 product-card-wrapper"
                   onClick={() => handleProductSelect(product)}
                 >
                   <div className="product-card">
@@ -599,14 +599,13 @@ const CameraComponent = () => {
               <img src={wallImage} alt="Wall Preview" className="preview-image" />
             ) : cameraActive ? (
               <video ref={videoRef} className="preview-video" autoPlay playsInline />
+            ) : capturedImage ? (
+              <img src={capturedImage} alt="Captured" className="preview-image" />
             ) : (
               <div className="preview-overlay">
                 <div className="preview-overlay-content text-center">
                   <Button onClick={startCamera} variant="primary" className="mb-2">
                     Start Camera
-                  </Button>
-                  <Button onClick={capturePhoto} variant="secondary" className="mb-2">
-                    Capture Photo
                   </Button>
                   <Button variant="success" className="mb-2" onClick={() => fileInputRef.current.click()}>
                     Upload Wall Photo
@@ -621,27 +620,44 @@ const CameraComponent = () => {
                 </div>
               </div>
             )}
-            {/* Control Bar: if wallImage exists, show at bottom; else at top */}
-            <div className={`preview-controls ${wallImage ? 'bottom' : 'top'}`}>
-              <Button onClick={startCamera} variant="primary">
-                Start Camera
-              </Button>
-              <Button onClick={capturePhoto} variant="secondary">
-                Capture Photo
-              </Button>
-              <Button variant="success" onClick={() => fileInputRef.current.click()}>
-                Upload Wall Photo
-              </Button>
-            </div>
-            {wallImage && (
-              <div className="retake-wall-btn">
+
+            {/* CONTROL BAR */}
+            {(!wallImage && !capturedImage) && cameraActive && (
+              <div className="preview-controls top">
+                <Button onClick={capturePhoto} variant="secondary">
+                  Capture Photo
+                </Button>
+                <Button variant="success" onClick={() => fileInputRef.current.click()}>
+                  Upload Wall Photo
+                </Button>
+              </div>
+            )}
+            {capturedImage && !wallImage && (
+              <div className="preview-controls bottom">
+                <Button variant="primary" onClick={() => {
+                  // Confirm captured image as wall image
+                  setWallImage(capturedImage);
+                  setCapturedImage(null);
+                }}>
+                  Done
+                </Button>
                 <Button variant="warning" onClick={handleRetakeWall}>
-                  Retake Wall Photo
+                  Retake
+                </Button>
+              </div>
+            )}
+            {wallImage && (
+              <div className="preview-controls bottom">
+                <Button onClick={() => setWallImage('/assets/placeholder-wall.jpg')} variant="outline-primary">
+                  Wall 1
+                </Button>
+                <Button onClick={() => setWallImage('/assets/placeholder-wall1.jpg')} variant="outline-primary" className="ms-2">
+                  Wall 2
                 </Button>
               </div>
             )}
 
-            {/* DRAGGABLE PRODUCTS */}
+            {/* DRAGGABLE PRODUCT PREVIEWS */}
             {selectedProducts.map((product, index) => (
               <DraggableCore
                 key={product._id}

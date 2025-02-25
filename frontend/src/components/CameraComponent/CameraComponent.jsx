@@ -19,7 +19,7 @@ const CameraComponent = () => {
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [productPositions, setProductPositions] = useState([]);
-  // Each product’s preview dimension (width & height) stored by index
+  // Each product’s preview dimension stored at the same index as selectedProducts
   const [productDimensions, setProductDimensions] = useState([]);
 
   const [cart, setCart] = useState([]);
@@ -40,17 +40,18 @@ const CameraComponent = () => {
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
-  // Wall preview background and camera capture
+  // Wall image background and camera capture
   const [wallImage, setWallImage] = useState(null);
-  // capturedImage holds the photo taken from camera temporarily
+  // Captured image holds the photo taken from the camera temporarily
   const [capturedImage, setCapturedImage] = useState(null);
   const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
 
-  // Flag to indicate live camera is active
+  // Camera active flag and video readiness
   const [cameraActive, setCameraActive] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
 
-  // Refs for camera & file input
+  // Refs for camera and file input
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -103,6 +104,7 @@ const CameraComponent = () => {
   // ------------------- CAMERA FUNCTIONS -------------------
   const startCamera = async () => {
     setError(null);
+    setVideoReady(false);
     try {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
       const constraints = { video: { facingMode: isMobile ? { ideal: 'environment' } : 'user' } };
@@ -119,24 +121,28 @@ const CameraComponent = () => {
     }
   };
 
-  // Wait for video to be ready before capturing
+  // Capture photo only when video dimensions are ready and then stop the camera
   const capturePhoto = () => {
-    if (videoRef.current && canvasRef.current) {
-      if (videoRef.current.videoWidth > 0 && videoRef.current.videoHeight > 0) {
-        const context = canvasRef.current.getContext('2d');
-        canvasRef.current.width = videoRef.current.videoWidth;
-        canvasRef.current.height = videoRef.current.videoHeight;
-        context.drawImage(videoRef.current, 0, 0);
-        const dataUrl = canvasRef.current.toDataURL('image/png');
-        console.log("Captured photo:", dataUrl);
-        if (dataUrl === "data:,") {
-          console.error("Captured image is empty");
-        }
-        setCapturedImage(dataUrl);
-        setCameraActive(false);
+    if (videoRef.current && canvasRef.current && videoReady) {
+      const context = canvasRef.current.getContext('2d');
+      canvasRef.current.width = videoRef.current.videoWidth;
+      canvasRef.current.height = videoRef.current.videoHeight;
+      context.drawImage(videoRef.current, 0, 0);
+      const dataUrl = canvasRef.current.toDataURL('image/png');
+      if (dataUrl === "data:,") {
+        console.error("Captured image is empty");
       } else {
-        console.error("Video dimensions not available yet");
+        setCapturedImage(dataUrl);
       }
+      // Stop the camera stream
+      const stream = videoRef.current.srcObject;
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
+      setCameraActive(false);
+    } else {
+      console.error("Video dimensions not available yet");
     }
   };
 
@@ -177,7 +183,6 @@ const CameraComponent = () => {
     if (selectedProducts.some(p => p._id === product._id)) return;
     setSelectedProducts(prev => [...prev, product]);
     setProductPositions(prev => [...prev, { x: 200, y: 200 }]);
-    // Default preview dimension (300x300)
     setProductDimensions(prev => [...prev, { width: 300, height: 300 }]);
     setSelectedProduct(product);
     setProductDetails({});
@@ -550,7 +555,7 @@ const CameraComponent = () => {
               {products.map((product) => (
                 <div
                   key={product._id}
-                  className="col-md-12 product-card-wrapper"
+                  className="col-6 col-md-6 product-card-wrapper"
                   onClick={() => handleProductSelect(product)}
                 >
                   <div className="product-card">
@@ -608,7 +613,10 @@ const CameraComponent = () => {
                 className="preview-video"
                 autoPlay
                 playsInline
-                onCanPlay={() => console.log("Video can play", videoRef.current.videoWidth, videoRef.current.videoHeight)}
+                onCanPlay={() => {
+                  setVideoReady(true);
+                  console.log("Video ready:", videoRef.current.videoWidth, videoRef.current.videoHeight);
+                }}
               />
             ) : capturedImage ? (
               <img src={capturedImage} alt="Captured" className="preview-image" />
@@ -633,7 +641,7 @@ const CameraComponent = () => {
             )}
 
             {/* CONTROL BAR */}
-            {(!wallImage && !capturedImage && cameraActive) && (
+            {(!wallImage && !capturedImage && cameraActive && videoReady) && (
               <div className="preview-controls top">
                 <Button onClick={capturePhoto} variant="secondary">
                   Capture Photo
@@ -791,12 +799,8 @@ const CameraComponent = () => {
                 <div className="cart-footer mt-3">
                   <p className="cart-total">Total: ₹{calculateTotalPrice()}</p>
                   <div className="cart-actions">
-                    <Button variant="primary" onClick={() => navigate('/cart')}>
-                      View Cart
-                    </Button>
-                    <Button variant="success" onClick={() => navigate('/checkout')}>
-                      Checkout
-                    </Button>
+                    <Button variant="primary" onClick={() => navigate('/cart')}>View Cart</Button>
+                    <Button variant="success" onClick={() => navigate('/checkout')}>Checkout</Button>
                   </div>
                 </div>
               </div>

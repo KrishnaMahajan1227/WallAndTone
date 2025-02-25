@@ -614,7 +614,9 @@ const ProductDetails = () => {
         src={activeImage}
         alt={product?.productName || "Product Image"}
         className="product-details-image"
-      />
+         onContextMenu={(e) => e.preventDefault()}
+         draggable="false"
+         onDragStart={(e) => e.preventDefault()}      />
     </div>
   ) : (
     <div className="image-placeholder">No image available</div>

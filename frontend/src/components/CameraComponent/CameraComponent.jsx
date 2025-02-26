@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Webcam from 'react-webcam';
 import { Link, useNavigate } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
 import { DraggableCore } from 'react-draggable';
@@ -40,19 +41,17 @@ const CameraComponent = () => {
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
-  // Wall background & camera capture
+  // Wall image background & camera capture
   const [wallImage, setWallImage] = useState(null);
-  // Temporarily holds the captured photo (before confirmation)
+  // capturedImage holds the screenshot from the webcam (before confirmation)
   const [capturedImage, setCapturedImage] = useState(null);
   const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
 
-  // Camera state: live video feed active, and video readiness flag
-  const [cameraActive, setCameraActive] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
+  // For the camera, we use react-webcam
+  const [showWebcam, setShowWebcam] = useState(false);
 
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const webcamRef = useRef(null);
   const fileInputRef = useRef(null);
 
   const token = localStorage.getItem('token');
@@ -100,47 +99,23 @@ const CameraComponent = () => {
     fetchData();
   }, [token, apiUrl]);
 
-  // ------------------- CAMERA FUNCTIONS -------------------
-  const startCamera = async () => {
+  // ------------------- CAMERA FUNCTIONS (using react-webcam) -------------------
+  // Start camera by showing the Webcam component
+  const startCamera = () => {
     setError(null);
-    setVideoReady(false);
-    try {
-      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      const constraints = { video: { facingMode: isMobile ? { ideal: 'environment' } : 'user' } };
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      console.log("Camera stream acquired:", stream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-      }
-      setCameraActive(true);
-    } catch (err) {
-      console.error("Error starting camera:", err);
-      setError(err.message || 'Unable to access the camera.');
-    }
+    setShowWebcam(true);
   };
 
+  // Capture photo from the live webcam feed
   const capturePhoto = () => {
-    if (videoRef.current && canvasRef.current && videoReady) {
-      const context = canvasRef.current.getContext('2d');
-      canvasRef.current.width = videoRef.current.videoWidth;
-      canvasRef.current.height = videoRef.current.videoHeight;
-      context.drawImage(videoRef.current, 0, 0);
-      const dataUrl = canvasRef.current.toDataURL('image/png');
-      if (dataUrl === "data:,") {
-        console.error("Captured image is empty");
+    if (webcamRef.current) {
+      const screenshot = webcamRef.current.getScreenshot();
+      if (screenshot) {
+        setCapturedImage(screenshot);
       } else {
-        setCapturedImage(dataUrl);
+        console.error("Captured screenshot is empty");
       }
-      // Stop the camera stream
-      const stream = videoRef.current.srcObject;
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        videoRef.current.srcObject = null;
-      }
-      setCameraActive(false);
-    } else {
-      console.error("Video dimensions not available yet");
+      setShowWebcam(false);
     }
   };
 
@@ -151,7 +126,7 @@ const CameraComponent = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setWallImage(reader.result);
-        setCameraActive(false);
+        setShowWebcam(false);
         setCapturedImage(null);
       };
       reader.readAsDataURL(file);
@@ -161,7 +136,7 @@ const CameraComponent = () => {
   const handleRetakeWall = () => {
     setWallImage(null);
     setCapturedImage(null);
-    setCameraActive(true);
+    setShowWebcam(true);
   };
 
   // ------------------- AUTH HANDLERS -------------------
@@ -174,7 +149,7 @@ const CameraComponent = () => {
 
   // ------------------- PRODUCT PREVIEW & SELECTION -------------------
   const handleProductSelect = (product) => {
-    if (!wallImage && !capturedImage && !cameraActive) {
+    if (!wallImage && !capturedImage && !showWebcam) {
       setShowAuthPopup(true);
       setCartMessage('Please select your wall first or upload/capture a wall photo');
       return;
@@ -606,16 +581,13 @@ const CameraComponent = () => {
           <div className="preview-container">
             {wallImage ? (
               <img src={wallImage} alt="Wall Preview" className="preview-image" />
-            ) : cameraActive ? (
-              <video
-                ref={videoRef}
+            ) : showWebcam ? (
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/png"
+                videoConstraints={{ facingMode: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? { ideal: 'environment' } : 'user' }}
                 className="preview-video"
-                autoPlay
-                playsInline
-                onCanPlay={() => {
-                  setVideoReady(true);
-                  console.log("Video ready:", videoRef.current.videoWidth, videoRef.current.videoHeight);
-                }}
               />
             ) : capturedImage ? (
               <img src={capturedImage} alt="Captured" className="preview-image" />
@@ -640,7 +612,7 @@ const CameraComponent = () => {
             )}
 
             {/* CONTROL BAR */}
-            {(!wallImage && !capturedImage && cameraActive && videoReady) && (
+            {showWebcam && (
               <div className="preview-controls top">
                 <Button onClick={capturePhoto} variant="secondary">
                   Capture Photo
@@ -652,10 +624,7 @@ const CameraComponent = () => {
             )}
             {capturedImage && !wallImage && (
               <div className="preview-controls bottom">
-                <Button variant="primary" onClick={() => {
-                  setWallImage(capturedImage);
-                  setCapturedImage(null);
-                }}>
+                <Button variant="primary" onClick={() => { setWallImage(capturedImage); setCapturedImage(null); }}>
                   Done
                 </Button>
                 <Button variant="warning" onClick={handleRetakeWall}>
@@ -826,7 +795,7 @@ const CameraComponent = () => {
         </div>
       </div>
 
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
+      <canvas style={{ display: 'none' }} />
     </div>
   );
 };

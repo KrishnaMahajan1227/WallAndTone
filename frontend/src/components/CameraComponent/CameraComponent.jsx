@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Webcam from 'react-webcam';
 import { Link, useNavigate } from 'react-router-dom';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Toast, ToastContainer } from 'react-bootstrap';
 import { DraggableCore } from 'react-draggable';
 import heartIcon from '../../assets/icons/heart-icon.svg';
 import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
@@ -18,10 +18,10 @@ const CameraComponent = () => {
   // Global states
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
-  // Each product here includes an "options" object for its selections
+  // Each product stored here will include an "options" property for its selections
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [productPositions, setProductPositions] = useState([]);
-  // Each product’s preview dimensions stored at same index as selectedProducts
+  // Each product’s preview dimensions stored at the same index as selectedProducts
   const [productDimensions, setProductDimensions] = useState([]);
 
   const [cart, setCart] = useState([]);
@@ -29,12 +29,12 @@ const CameraComponent = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [cartMessage, setCartMessage] = useState(null);
 
-  // Active product details for the currently active product details panel
+  // Active product details for the currently active details panel
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productDetails, setProductDetails] = useState({});
   const [activeImage, setActiveImage] = useState(null);
 
-  // Option data for the active product details panel
+  // Option data for the active details panel
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
   const [sizes, setSizes] = useState([]);
@@ -51,6 +51,9 @@ const CameraComponent = () => {
 
   // For the camera, we use react-webcam
   const [showWebcam, setShowWebcam] = useState(false);
+
+  // For mobile: toggle product list overlay
+  const [showProductList, setShowProductList] = useState(false);
 
   const webcamRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -155,7 +158,7 @@ const CameraComponent = () => {
     }
     // Only add if product is not already in preview
     if (selectedProducts.some(p => p && p._id === product._id)) return;
-    // When adding, attach an empty "options" object to store the user's selections for that product
+    // Add product along with an empty "options" object
     setSelectedProducts(prev => [...prev, { ...product, options: {} }]);
     setProductPositions(prev => [...prev, { x: 200, y: 200 }]);
     setProductDimensions(prev => [...prev, { width: 300, height: 300 }]);
@@ -165,6 +168,8 @@ const CameraComponent = () => {
     setSelectedSubFrameType(null);
     setSelectedSize(null);
     fetchProductData(product._id);
+    setCartMessage(`${product.productName} added for preview`);
+    setTimeout(() => setCartMessage(null), 3000);
   };
 
   const handleProductClick = (product) => {
@@ -327,7 +332,6 @@ const CameraComponent = () => {
   };
 
   // ------------------- CART & WISHLIST HANDLERS -------------------
-  // Updated add-to-cart: iterate over all previewed products using their stored options.
   const handleAddToCart = async () => {
     const itemsToAdd = selectedProducts
       .filter(prod => prod !== null)
@@ -402,6 +406,8 @@ const CameraComponent = () => {
         body: JSON.stringify({ productId: product._id })
       });
       setWishlist(prev => [...prev, { productId: product }]);
+      setCartMessage(`${product.productName} added to wishlist`);
+      setTimeout(() => setCartMessage(null), 3000);
     } catch (error) {
       console.error('Error adding product to wishlist:', error);
     }
@@ -414,6 +420,8 @@ const CameraComponent = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setWishlist(prev => prev.filter(item => item._id !== wishlistItem._id));
+      setCartMessage('Product removed from wishlist');
+      setTimeout(() => setCartMessage(null), 3000);
     } catch (error) {
       console.error('Error removing product from wishlist:', error);
     }
@@ -550,20 +558,68 @@ const CameraComponent = () => {
 
   return (
     <div className="camera-component container-fluid px-0">
-      {/* AUTH POPUP */}
-      <Modal show={showAuthPopup} onHide={handleAuthPopupClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Wall Selection Required</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{cartMessage}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleAuthPopupClose}>Close</Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Toast Notification */}
+      <ToastContainer position="top-end" className="p-3">
+        <Toast onClose={() => setCartMessage(null)} show={!!cartMessage} delay={3000} autohide>
+          <Toast.Body>{cartMessage}</Toast.Body>
+        </Toast>
+      </ToastContainer>
+
+      {/* Header: always visible */}
+      <header className="camera-header d-flex justify-content-between align-items-center">
+        <Link to="/" className="d-flex align-items-center">
+          <img src={whiteLogo} alt="Logo" className="logo-img" />
+        </Link>
+        <button
+          className="hamburger-menu d-md-none btn btn-outline-light"
+          onClick={() => setShowProductList(!showProductList)}
+        >
+          Products ☰
+        </button>
+      </header>
+
+      {/* Mobile Product List Overlay */}
+      {showProductList && (
+        <div className="mobile-product-list-overlay d-md-none show">
+          <div className="mobile-product-list-header d-flex justify-content-between align-items-center p-2">
+            <h5 className="mb-0 text-white">Products</h5>
+            <button className="btn btn-outline-light" onClick={() => setShowProductList(false)}>
+              ✕
+            </button>
+          </div>
+          <div className="products-scrollable">
+            <div className="row g-3 mx-0">
+              {products.map((product) => (
+                <div
+                  key={product._id}
+                  className="col-12 product-card-wrapper"
+                  onClick={() => {
+                    handleProductSelect(product);
+                    setShowProductList(false);
+                  }}
+                >
+                  <div className="product-card">
+                    <div className="product-image-wrapper position-relative">
+                      <img
+                        src={product.mainImage}
+                        className="product-card-img"
+                        alt={product.productName}
+                      />
+                    </div>
+                    <div className="product-card-body">
+                      <h5 className="product-title">{product.productName}</h5>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="row g-0">
-        {/* LEFT PANEL: PRODUCT LIST */}
-        <div className="col-12 col-md-3 camera-left-panel">
+        {/* LEFT PANEL for desktop */}
+        <div className="d-none d-md-block col-md-3 camera-left-panel">
           <div className="logo-container">
             <Link to="/" className="d-flex align-items-center">
               <img src={whiteLogo} alt="Logo" className="logo-img" />
@@ -575,7 +631,7 @@ const CameraComponent = () => {
               {products.map((product) => (
                 <div
                   key={product._id}
-                  className="col-12 col-md-12 product-card-wrapper"
+                  className="col-12 product-card-wrapper"
                   onClick={() => handleProductSelect(product)}
                 >
                   <div className="product-card">
@@ -663,7 +719,7 @@ const CameraComponent = () => {
 
             {/* CONTROL BAR */}
             {showWebcam && (
-              <div className="preview-controls top">
+              <div className="preview-controls top show">
                 <Button onClick={capturePhoto} variant="secondary">
                   Capture Photo
                 </Button>
@@ -673,7 +729,7 @@ const CameraComponent = () => {
               </div>
             )}
             {capturedImage && !wallImage && (
-              <div className="preview-controls bottom">
+              <div className="preview-controls bottom show">
                 <Button variant="primary" onClick={() => { setWallImage(capturedImage); setCapturedImage(null); }}>
                   Done
                 </Button>
@@ -683,7 +739,7 @@ const CameraComponent = () => {
               </div>
             )}
             {wallImage && (
-              <div className="preview-controls bottom">
+              <div className="preview-controls bottom show">
                 <Button variant="warning" onClick={handleRetakeWall}>
                   Retake Wall Photo
                 </Button>
@@ -715,7 +771,6 @@ const CameraComponent = () => {
                     width: productDimensions[index]?.width || 300,
                     height: productDimensions[index]?.height || 300
                   }}
-                  // For mobile, always show the remove button (via a CSS class override)
                   onClick={() => handleProductClick(product)}
                 >
                   <img
@@ -732,6 +787,8 @@ const CameraComponent = () => {
                       setSelectedProducts(prev => prev.filter(p => p && p._id !== product._id));
                       setProductPositions(prev => prev.filter((_, i) => i !== index));
                       setProductDimensions(prev => prev.filter((_, i) => i !== index));
+                      setCartMessage(`${product.productName} removed from preview`);
+                      setTimeout(() => setCartMessage(null), 3000);
                     }}
                   >
                     <span>X</span>

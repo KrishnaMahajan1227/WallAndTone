@@ -2,9 +2,75 @@
 .camera-component {
   background-color: #f8f9fa;
   min-height: 100vh;
+  animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* Grid for product list: two columns on desktop */
+/* Header with logo and hamburger (mobile only) */
+.camera-component .camera-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2F231F;
+  padding: 10px 15px;
+  animation: slideDown 0.5s ease-out;
+}
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+.camera-component .camera-header .logo-img {
+  width: 120px;
+}
+.camera-component .hamburger-menu {
+  font-size: 18px;
+  border: none;
+  background: none;
+  background-color: transparent;
+  max-width: fit-content;
+  color: #e7e7e7;
+}
+.camera-component .hamburger-menu:hover {
+background-color: transparent;
+color: #e7e7e7;
+}
+.camera-component .mobile-product-list-header button.btn.btn-outline-light {
+  max-width: fit-content;
+  outline: none;
+  border: none;
+}
+
+/* Mobile Product List Overlay */
+.camera-component .mobile-product-list-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  background-color: #2F231F;
+  z-index: 1050;
+  overflow-y: auto;
+  padding-bottom: 20px;
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.camera-component .mobile-product-list-overlay.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+.camera-component .mobile-product-list-header {
+  background-color: #2F231F;
+  padding: 10px 15px;
+  border-bottom: 1px solid #444;
+}
+
+/* Grid for product list: two columns on desktop and mobile overlay */
 .camera-component .products-scrollable .row.g-3.mx-0 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -12,7 +78,7 @@
   margin: 0;
 }
 
-/* LEFT PANEL */
+/* LEFT PANEL (Desktop) */
 .camera-component .camera-left-panel {
   background-color: #2F231F;
   min-height: 100vh;
@@ -53,12 +119,12 @@
 .camera-component .product-image-wrapper {
   position: relative;
   width: 100%;
-  height: 150px;
+  height: 120px;
   overflow: hidden;
 }
 .camera-component .product-card-img {
   width: 100%;
-  height: 150px;
+  height: 120px;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
@@ -66,16 +132,16 @@
   transform: scale(1.05);
 }
 .camera-component .product-card-body {
-  padding: 10px;
+  padding: 8px;
   text-align: center;
 }
 .camera-component .product-desc {
   color: #e7e7e7;
-  font-size: 14px;
+  font-size: 12px;
   margin-top: 5px;
 }
 
-/* RIGHT PANEL */
+/* RIGHT PANEL: PREVIEW */
 .camera-component .camera-right-panel {
   background-color: #f8f9fa;
   position: relative;
@@ -91,6 +157,7 @@
   border-radius: 4px;
   background-color: #e9ecef;
   overflow: hidden;
+  animation: fadeIn 0.5s ease-out;
 }
 .camera-component .preview-image,
 .camera-component .preview-video {
@@ -109,6 +176,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  animation: fadeIn 0.3s ease-out;
 }
 .camera-component .preview-overlay-content button {
   margin: 5px;
@@ -125,12 +193,19 @@
   padding: 10px;
   background: rgba(0,0,0,0.4);
   z-index: 2;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 .camera-component .preview-controls.top {
   top: 0;
 }
 .camera-component .preview-controls.bottom {
   bottom: 0;
+}
+.camera-component .preview-controls.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Draggable Product Preview */
@@ -139,6 +214,7 @@
   transform: translate(-50%, -50%);
   cursor: move;
   touch-action: none;
+  animation: fadeIn 0.3s ease-out;
 }
 .camera-component .product-on-wall {
   width: 100%;
@@ -151,28 +227,28 @@
 .camera-component .selected-product:hover .product-on-wall {
   transform: scale(1.02);
 }
-
-/* Remove from Preview Button */
-/* Desktop: show on hover; Mobile: always visible */
 .camera-component .remove-from-preview {
   position: absolute;
   top: 5px;
   right: 5px;
-  background-color: rgba(255,0,0,0.6);
+  background-color: rgba(255, 0, 0, 0.6);
   border: none;
   border-radius: 50%;
   padding: 4px 7px;
   cursor: pointer;
   display: none;
 }
+
 .camera-component .selected-product:hover .remove-from-preview {
   display: block;
 }
-/* Mobile override: always display remove button */
 @media (max-width: 768px) {
   .camera-component .remove-from-preview {
     display: block !important;
   }
+  .camera-component .camera-header .logo-img {
+    width: 80px;
+}
 }
 
 /* PRODUCT DETAILS */
@@ -195,23 +271,29 @@
   align-items: center;
   gap: 10px;
   padding: 10px;
+  transition: background-color 0.3s ease;
 }
 .camera-component .controls button {
   padding: 10px 20px;
   border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+/* Toast Notification */
+.camera-component .toast-container {
+  z-index: 1100;
+}
+.camera-component .toast {
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .camera-component .camera-left-panel {
-    height: auto;
-    position: static;
-  }
-  .camera-component .products-scrollable {
-    overflow-y: visible;
+    display: none;
   }
   .camera-component .preview-container {
-    height: 60vh;
+    height: 50vh;
     margin: 10px 0;
   }
   .camera-component .product-details {
@@ -224,9 +306,15 @@
     justify-content: center;
   }
   .camera-component .product-card-img {
-    height: 120px;
+    height: 100px;
   }
   .camera-component .logo-img {
     width: 100px;
   }
+  .camera-component .preview-controls.bottom button.btn {
+    font-size: 10px;
+    padding: 7px 15px;
+    max-width: fit-content;
+    border-radius: 4px;
+}
 }

@@ -18,6 +18,7 @@ const CameraComponent = () => {
   // Global states
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
+  // Each product stored here will include an "options" property for its selections
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [productPositions, setProductPositions] = useState([]);
   // Each product’s preview dimension stored at the same index as selectedProducts
@@ -28,12 +29,12 @@ const CameraComponent = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [cartMessage, setCartMessage] = useState(null);
 
-  // Active product details & options
+  // Active product details & options (for the currently active details panel)
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productDetails, setProductDetails] = useState({});
   const [activeImage, setActiveImage] = useState(null);
 
-  // Option data
+  // Option data (for the active details panel)
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
   const [sizes, setSizes] = useState([]);
@@ -41,9 +42,9 @@ const CameraComponent = () => {
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
-  // Wall image background & camera capture
+  // Wall background & camera capture
   const [wallImage, setWallImage] = useState(null);
-  // capturedImage holds the screenshot from the webcam (before confirmation)
+  // Captured image holds the screenshot from the webcam (before confirmation)
   const [capturedImage, setCapturedImage] = useState(null);
   const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
@@ -100,13 +101,11 @@ const CameraComponent = () => {
   }, [token, apiUrl]);
 
   // ------------------- CAMERA FUNCTIONS (using react-webcam) -------------------
-  // Start camera by showing the Webcam component
   const startCamera = () => {
     setError(null);
     setShowWebcam(true);
   };
 
-  // Capture photo from the live webcam feed
   const capturePhoto = () => {
     if (webcamRef.current) {
       const screenshot = webcamRef.current.getScreenshot();
@@ -154,8 +153,10 @@ const CameraComponent = () => {
       setCartMessage('Please select your wall first or upload/capture a wall photo');
       return;
     }
-    if (selectedProducts.some(p => p._id === product._id)) return;
-    setSelectedProducts(prev => [...prev, product]);
+    // Only add if product is not already in preview
+    if (selectedProducts.some(p => p && p._id === product._id)) return;
+    // Add product along with an empty "options" object
+    setSelectedProducts(prev => [...prev, { ...product, options: {} }]);
     setProductPositions(prev => [...prev, { x: 200, y: 200 }]);
     setProductDimensions(prev => [...prev, { width: 300, height: 300 }]);
     setSelectedProduct(product);
@@ -186,6 +187,16 @@ const CameraComponent = () => {
     }
   };
 
+  // Helper to update options on the currently active product in selectedProducts
+  const updateSelectedProductOptions = (newOptions) => {
+    if (!selectedProduct) return;
+    setSelectedProducts(prev =>
+      prev.map(p =>
+        p && p._id === selectedProduct._id ? { ...p, options: { ...p.options, ...newOptions } } : p
+      )
+    );
+  };
+
   // ------------------- FRAME, SUBFRAME & SIZE HANDLERS -------------------
   const fetchFrameTypes = async (productId) => {
     try {
@@ -196,6 +207,7 @@ const CameraComponent = () => {
       if (data.length > 0 && !selectedFrameType) {
         setSelectedFrameType(data[0]);
         localStorage.setItem('frameType', JSON.stringify(data[0]));
+        updateSelectedProductOptions({ frameType: data[0]._id });
         fetchSubFrameTypesByFrameType(data[0]._id);
       }
     } catch (err) {
@@ -212,6 +224,7 @@ const CameraComponent = () => {
       if (data.length > 0 && !selectedSubFrameType) {
         setSelectedSubFrameType(data[0]);
         localStorage.setItem('subFrameType', JSON.stringify(data[0]));
+        updateSelectedProductOptions({ subFrameType: data[0]._id });
       }
     } catch (err) {
       console.error('Error fetching sub frame types:', err);
@@ -225,6 +238,7 @@ const CameraComponent = () => {
       setSizes(data);
       if (data.length > 0 && !selectedSize) {
         setSelectedSize(data[0]);
+        updateSelectedProductOptions({ size: data[0]._id });
       }
     } catch (err) {
       console.error('Error fetching sizes:', err);
@@ -235,6 +249,7 @@ const CameraComponent = () => {
     setSelectedFrameType(frameType);
     setProductDetails(prev => ({ ...prev, frameType }));
     localStorage.setItem('frameType', JSON.stringify(frameType));
+    updateSelectedProductOptions({ frameType: frameType._id });
     fetchSubFrameTypesByFrameType(frameType._id);
   };
 
@@ -245,7 +260,10 @@ const CameraComponent = () => {
       const data = await res.json();
       setSubFrameTypes(data);
       setSelectedSubFrameType(data.length > 0 ? data[0] : null);
-      if (data.length > 0) localStorage.setItem('subFrameType', JSON.stringify(data[0]));
+      if (data.length > 0) {
+        localStorage.setItem('subFrameType', JSON.stringify(data[0]));
+        updateSelectedProductOptions({ subFrameType: data[0]._id });
+      }
     } catch (err) {
       console.error('Error fetching sub frame types:', err);
     }
@@ -255,6 +273,7 @@ const CameraComponent = () => {
     setSelectedSubFrameType(subFrameType);
     setProductDetails(prev => ({ ...prev, subFrameType }));
     localStorage.setItem('subFrameType', JSON.stringify(subFrameType));
+    updateSelectedProductOptions({ subFrameType: subFrameType._id });
     setLoadingSubFrame(true);
     try {
       const res = await fetch(`${apiUrl}/api/products/${selectedProduct._id}/subframe-image/${subFrameType._id}`);
@@ -270,7 +289,7 @@ const CameraComponent = () => {
       if (!imageUrl) imageUrl = selectedProduct.mainImage;
       setActiveImage(imageUrl);
       setSelectedProducts(prev =>
-        prev.map(p => (p._id === selectedProduct._id ? { ...p, mainImage: imageUrl } : p))
+        prev.map(p => (p && p._id === selectedProduct._id ? { ...p, mainImage: imageUrl } : p))
       );
       const constantSubFrameImages = subFrameType.images || [];
       const updatedThumbnails = [imageUrl, ...constantSubFrameImages];
@@ -287,7 +306,8 @@ const CameraComponent = () => {
   const handleSizeSelect = (size) => {
     setSelectedSize(size);
     setProductDetails(prev => ({ ...prev, size }));
-    const productIndex = selectedProducts.findIndex(p => p._id === selectedProduct._id);
+    updateSelectedProductOptions({ size: size._id });
+    const productIndex = selectedProducts.findIndex(p => p && p._id === selectedProduct._id);
     if (productIndex === -1) return;
     const factor = 5;
     const newWidth = size.width * factor;
@@ -307,35 +327,58 @@ const CameraComponent = () => {
   };
 
   // ------------------- CART & WISHLIST HANDLERS -------------------
+  // For add-to-cart, iterate over all previewed products and use their stored options.
   const handleAddToCart = async () => {
-    if (!selectedProduct || !selectedFrameType || !selectedSubFrameType || !selectedSize) {
-      setCartMessage('Please select all options before adding to cart');
+    const itemsToAdd = selectedProducts
+      .filter(prod => prod !== null)
+      .map(prod => {
+        const opts = prod.options || {};
+        if (!opts.frameType || !opts.subFrameType || !opts.size) {
+          console.error(`Missing options for product ${prod.productName}`);
+          return null;
+        }
+        return {
+          productId: prod._id,
+          frameType: opts.frameType,
+          subFrameType: opts.subFrameType,
+          size: opts.size,
+          quantity: 1
+        };
+      })
+      .filter(item => item !== null);
+
+    if (itemsToAdd.length === 0) {
+      setCartMessage("Please select options for at least one product");
       return;
     }
-    const cartProduct = {
-      productId: selectedProduct._id,
-      frameTypeId: selectedFrameType._id,
-      subFrameTypeId: selectedSubFrameType._id,
-      sizeId: selectedSize._id,
-      quantity: 1
-    };
+
     try {
-      const res = await fetch(`${apiUrl}/api/cart/add`, {
-        method: 'POST',
+      await Promise.all(
+        itemsToAdd.map(item =>
+          fetch(`${apiUrl}/api/cart/add`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(item)
+          })
+        )
+      );
+      const cartRes = await fetch(`${apiUrl}/api/cart`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(cartProduct)
+        }
       });
-      if (!res.ok) throw new Error(`Error adding product to cart: ${res.status}`);
-      const cartData = await res.json();
+      const cartData = await cartRes.json();
       setCart(cartData);
-      setCartMessage('Product added to cart successfully!');
+      setCartMessage('Products added to cart successfully!');
       setTimeout(() => setCartMessage(null), 3000);
     } catch (err) {
-      console.error('Error adding product to cart:', err);
-      setCartMessage('Failed to add product to cart');
+      console.error('Error adding products to cart:', err);
+      setCartMessage('Failed to add products to cart');
     }
   };
 
@@ -387,16 +430,19 @@ const CameraComponent = () => {
 
   const calculateTotalPrice = () => {
     let total = 0;
-    selectedProducts.forEach(product => {
-      const item = {
-        productId: product,
-        frameType: selectedFrameType,
-        subFrameType: selectedSubFrameType,
-        size: selectedSize,
-        quantity: 1
-      };
-      total += parseFloat(calculateItemPrice(item));
-    });
+    selectedProducts
+      .filter(p => p !== null)
+      .forEach(product => {
+        const opts = product.options || {};
+        const item = {
+          productId: product,
+          frameType: opts.frameType ? { _id: opts.frameType } : {},
+          subFrameType: opts.subFrameType ? { _id: opts.subFrameType } : {},
+          size: opts.size ? { _id: opts.size } : {},
+          quantity: 1
+        };
+        total += parseFloat(calculateItemPrice(item));
+      });
     return total.toFixed(2);
   };
 
@@ -586,7 +632,11 @@ const CameraComponent = () => {
                 audio={false}
                 ref={webcamRef}
                 screenshotFormat="image/png"
-                videoConstraints={{ facingMode: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? { ideal: 'environment' } : 'user' }}
+                videoConstraints={{
+                  facingMode: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+                    ? { ideal: 'environment' }
+                    : 'user'
+                }}
                 className="preview-video"
               />
             ) : capturedImage ? (
@@ -647,7 +697,7 @@ const CameraComponent = () => {
             )}
 
             {/* DRAGGABLE PRODUCT PREVIEWS */}
-            {selectedProducts.map((product, index) => (
+            {selectedProducts.filter(p => p !== null).map((product, index) => (
               <DraggableCore
                 key={product._id}
                 onStop={(e, data) => handleDragStop(e, data, index)}
@@ -770,8 +820,12 @@ const CameraComponent = () => {
                 <div className="cart-footer mt-3">
                   <p className="cart-total">Total: ₹{calculateTotalPrice()}</p>
                   <div className="cart-actions">
-                    <Button variant="primary" onClick={() => navigate('/cart')}>View Cart</Button>
-                    <Button variant="success" onClick={() => navigate('/checkout')}>Checkout</Button>
+                    <Button variant="primary" onClick={() => navigate('/cart')}>
+                      View Cart
+                    </Button>
+                    <Button variant="success" onClick={() => navigate('/checkout')}>
+                      Checkout
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -794,8 +848,6 @@ const CameraComponent = () => {
           </div>
         </div>
       </div>
-
-      <canvas style={{ display: 'none' }} />
     </div>
   );
 };

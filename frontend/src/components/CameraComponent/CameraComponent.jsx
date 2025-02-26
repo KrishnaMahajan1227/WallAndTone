@@ -159,6 +159,7 @@ const CameraComponent = () => {
       reader.readAsDataURL(file);
     }
   };
+
   const handleRetakeWall = () => {
     setWallImage(null);
     setCapturedImage(null);
@@ -669,7 +670,7 @@ const CameraComponent = () => {
                 <Button onClick={() => setWallImage('/assets/placeholder-wall.jpg')} variant="outline-primary">
                   Wall 1
                 </Button>
-                <Button onClick={() => setWallImage('/assets/placeholder-wall1.jpg')} variant="outline-primary">
+                <Button onClick={() => setWallImage('/assets/placeholder-wall1.jpg')} variant="outline-primary" className="ms-2">
                   Wall 2
                 </Button>
               </div>
@@ -799,8 +800,12 @@ const CameraComponent = () => {
                 <div className="cart-footer mt-3">
                   <p className="cart-total">Total: ₹{calculateTotalPrice()}</p>
                   <div className="cart-actions">
-                    <Button variant="primary" onClick={() => navigate('/cart')}>View Cart</Button>
-                    <Button variant="success" onClick={() => navigate('/checkout')}>Checkout</Button>
+                    <Button variant="primary" onClick={() => navigate('/cart')}>
+                      View Cart
+                    </Button>
+                    <Button variant="success" onClick={() => navigate('/checkout')}>
+                      Checkout
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -825,7 +830,6 @@ const CameraComponent = () => {
       </div>
 
       <canvas ref={canvasRef} style={{ display: 'none' }} />
-      <video ref={videoRef} style={{ display: 'none' }} />
     </div>
   );
 };

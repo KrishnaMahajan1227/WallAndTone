@@ -18,10 +18,10 @@ const CameraComponent = () => {
   // Global states
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
-  // Each product stored here will include an "options" property for its selections
+  // Each product here includes an "options" object for its selections
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [productPositions, setProductPositions] = useState([]);
-  // Each product’s preview dimension stored at the same index as selectedProducts
+  // Each product’s preview dimensions stored at same index as selectedProducts
   const [productDimensions, setProductDimensions] = useState([]);
 
   const [cart, setCart] = useState([]);
@@ -29,12 +29,12 @@ const CameraComponent = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [cartMessage, setCartMessage] = useState(null);
 
-  // Active product details & options (for the currently active details panel)
+  // Active product details for the currently active product details panel
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productDetails, setProductDetails] = useState({});
   const [activeImage, setActiveImage] = useState(null);
 
-  // Option data (for the active details panel)
+  // Option data for the active product details panel
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
   const [sizes, setSizes] = useState([]);
@@ -42,9 +42,9 @@ const CameraComponent = () => {
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
-  // Wall background & camera capture
+  // Wall image & camera capture
   const [wallImage, setWallImage] = useState(null);
-  // Captured image holds the screenshot from the webcam (before confirmation)
+  // capturedImage holds the screenshot from the webcam (before confirmation)
   const [capturedImage, setCapturedImage] = useState(null);
   const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
@@ -100,7 +100,7 @@ const CameraComponent = () => {
     fetchData();
   }, [token, apiUrl]);
 
-  // ------------------- CAMERA FUNCTIONS (using react-webcam) -------------------
+  // ------------------- CAMERA FUNCTIONS (react-webcam) -------------------
   const startCamera = () => {
     setError(null);
     setShowWebcam(true);
@@ -155,7 +155,7 @@ const CameraComponent = () => {
     }
     // Only add if product is not already in preview
     if (selectedProducts.some(p => p && p._id === product._id)) return;
-    // Add product along with an empty "options" object
+    // When adding, attach an empty "options" object to store the user's selections for that product
     setSelectedProducts(prev => [...prev, { ...product, options: {} }]);
     setProductPositions(prev => [...prev, { x: 200, y: 200 }]);
     setProductDimensions(prev => [...prev, { width: 300, height: 300 }]);
@@ -327,7 +327,7 @@ const CameraComponent = () => {
   };
 
   // ------------------- CART & WISHLIST HANDLERS -------------------
-  // For add-to-cart, iterate over all previewed products and use their stored options.
+  // Updated add-to-cart: iterate over all previewed products using their stored options.
   const handleAddToCart = async () => {
     const itemsToAdd = selectedProducts
       .filter(prod => prod !== null)
@@ -715,14 +715,7 @@ const CameraComponent = () => {
                     width: productDimensions[index]?.width || 300,
                     height: productDimensions[index]?.height || 300
                   }}
-                  onMouseEnter={(e) => {
-                    const btn = e.currentTarget.querySelector('.remove-from-preview');
-                    if (btn) btn.style.display = 'block';
-                  }}
-                  onMouseLeave={(e) => {
-                    const btn = e.currentTarget.querySelector('.remove-from-preview');
-                    if (btn) btn.style.display = 'none';
-                  }}
+                  // For mobile, always show the remove button (via a CSS class override)
                   onClick={() => handleProductClick(product)}
                 >
                   <img
@@ -736,7 +729,7 @@ const CameraComponent = () => {
                     className="remove-from-preview"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelectedProducts(prev => prev.filter(p => p._id !== product._id));
+                      setSelectedProducts(prev => prev.filter(p => p && p._id !== product._id));
                       setProductPositions(prev => prev.filter((_, i) => i !== index));
                       setProductDimensions(prev => prev.filter((_, i) => i !== index));
                     }}

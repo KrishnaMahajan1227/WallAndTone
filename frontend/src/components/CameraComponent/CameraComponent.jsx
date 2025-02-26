@@ -669,7 +669,7 @@ const CameraComponent = () => {
                 <Button onClick={() => setWallImage('/assets/placeholder-wall.jpg')} variant="outline-primary">
                   Wall 1
                 </Button>
-                <Button onClick={() => setWallImage('/assets/placeholder-wall1.jpg')} variant="outline-primary" className="ms-2">
+                <Button onClick={() => setWallImage('/assets/placeholder-wall1.jpg')} variant="outline-primary">
                   Wall 2
                 </Button>
               </div>

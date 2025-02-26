@@ -517,34 +517,49 @@ const ProductDetails = () => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    if (newRating === 0 || !newReview.trim()) {
-      setAlertMessage('Please provide both rating and review');
+  
+    if (!newRating || !newReview.trim()) {
+      setAlertMessage("Rating and comment are required.");
       return;
     }
+  
     const formData = new FormData();
-    formData.append('rating', newRating);
-    formData.append('comment', newReview);
-    reviewImages.forEach(image => formData.append('reviewImages', image));
+    formData.append("rating", newRating);
+    formData.append("comment", newReview);
+  
+    // Append images if they exist
+    if (reviewImages.length > 0) {
+      reviewImages.forEach(image => {
+        formData.append("reviewImages", image);
+      });
+    }
+  
     try {
       const response = await fetch(`${apiUrl}/api/products/${productId}/reviews`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }, 
         body: formData
       });
-      if (!response.ok) throw new Error('Failed to submit review');
+  
       const data = await response.json();
-      setProduct(prev => ({
+      if (!response.ok) throw new Error(data.message || "Failed to submit review");
+  
+      // Update state with the new review
+      setProduct((prev) => ({
         ...prev,
-        reviews: [...prev.reviews, data]
+        reviews: [...prev.reviews, data],
       }));
-      setAlertMessage('Review submitted successfully!');
+  
+      setAlertMessage("Review submitted successfully!");
       setNewRating(0);
-      setNewReview('');
+      setNewReview("");
       setReviewImages([]);
     } catch (err) {
-      setAlertMessage('Failed to submit review');
+      console.error("Review Submission Error:", err);
+      setAlertMessage(err.message || "Failed to submit review");
     }
   };
+  
 
   const renderCartItems = () => {
     if (!Array.isArray(cart) || cart.length === 0) {
@@ -783,39 +798,47 @@ const ProductDetails = () => {
               </button>
             </form>
             <div className="reviews-list">
-              <h5>
-                Customer Reviews
-                {averageRating > 0 && (
-                  <span className="average-rating">
-                    {averageRating} <Star size={16} className="star-icon" />
-                  </span>
-                )}
-              </h5>
-              {product.reviews?.length > 0 ? (
-                product.reviews.map((review, index) => (
-                  <div key={index} className="review-card">
-                    <div className="review-header">
-                      <strong className="review-author">
-                        {review.user ? `${review.user.firstName} ${review.user.lastName}` : 'Anonymous'}
-                      </strong>
-                      <span className="review-rating">
-                        {review.rating} <Star size={16} className="star-icon" />
-                      </span>
-                    </div>
-                    <p className="review-comment">{review.comment}</p>
-                    {review.images?.length > 0 && (
-                      <div className="review-images">
-                        {review.images.map((image, i) => (
-                          <img key={i} src={image} alt={`Review image ${i + 1}`} className="review-image" />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p className="no-reviews">No reviews yet. Be the first to review!</p>
-              )}
-            </div>
+  <h5>
+    Customer Reviews
+    {averageRating > 0 && (
+      <span className="average-rating">
+        {averageRating} <Star size={16} className="star-icon" />
+      </span>
+    )}
+  </h5>
+
+  {Array.isArray(product.reviews) && product.reviews.length > 0 ? (
+  product.reviews
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .map((review, index) => (
+      <div key={index} className="review-card">
+        <div className="review-header">
+          <strong className="review-author">
+            {review.user && review.user.firstName ? `${review.user.firstName}` : "Anonymous"}
+          </strong>
+          <span className="review-rating">
+            {review.rating} <Star size={16} className="star-icon" />
+          </span>
+        </div>
+        <p className="review-comment">{review.comment}</p>
+        {Array.isArray(review.images) && review.images.length > 0 && (
+          <div className="review-images">
+            {review.images.map((image, i) => (
+              <img key={i} src={image} alt={`Review image ${i + 1}`} className="review-image" />
+            ))}
+          </div>
+        )}
+      </div>
+    ))
+) : (
+  <p className="no-reviews">No reviews yet. Be the first to review!</p>
+)}
+
+</div>
+
+
+
+
           </div>
     </div>
   );

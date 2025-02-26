@@ -6,8 +6,9 @@ const reviewSchema = new mongoose.Schema({
   rating: { type: Number, required: true, min: 1, max: 5 },
   comment: { type: String, required: true },
   images: { type: [String], default: [] },
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now, index: true }
 });
+
 
 // Product Schema
 const productSchema = new mongoose.Schema(

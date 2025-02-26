@@ -195,8 +195,16 @@ cloudinary.uploader.upload('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAA
   throw error;
 });
 
+const uploadReviewImage = multer({
+  storage: storageCloudinary,  // Ensuring images are stored in Cloudinary
+  fileFilter: fileFilterImages,
+  limits: { fileSize: 50 * 1024 * 1024 }
+});
+
+
 module.exports = { 
   uploadExcel, 
   uploadImage,
-  uploadLocalToCloudinary
+  uploadLocalToCloudinary,
+  uploadReviewImage
 };

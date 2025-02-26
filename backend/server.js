@@ -17,7 +17,7 @@ const searchRoutes = require('./routes/searchRoutes');
 const historyRoutes = require('./routes/historyRoutes');
 const multer = require('multer'); 
 const upload = require('./middleware/upload'); 
-const { uploadExcel, uploadImage } = require('./middleware/upload');
+const { uploadExcel, uploadImage, uploadReviewImage } = require('./middleware/upload');
 
 require('dotenv').config();
 

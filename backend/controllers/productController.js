@@ -390,6 +390,10 @@ const getProductById = async (req, res) => {
         model: 'Size',
         select: 'width height price',
       })
+      .populate({
+        path: "reviews.user",
+        select: "firstName", // Fetch only necessary fields
+      })
       .populate('thumbnails', 'filename', null, { strictPopulate: false });
 
     if (!product) {
@@ -549,39 +553,55 @@ const deleteProduct = async (req, res) => {
 };
 
 const addReview = async (req, res) => {
-  const { rating, comment } = req.body;
-  const reviewImages = req.files ? req.files.map(file => file.path.replace(/\\/g, '/')) : [];
-
-  if (!rating || !comment) {
-    return res.status(400).json({ message: 'Rating and comment are required.' });
-  }
-
-  if (isNaN(rating) || rating < 1 || rating > 5) {
-    return res.status(400).json({ message: 'Rating must be between 1 and 5.' });
-  }
-
   try {
-    const product = await Product.findById(req.params.productId);
-
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found.' });
+    const { rating, comment } = req.body;
+    if (!rating || !comment) {
+      return res.status(400).json({ message: "Rating and comment are required." });
     }
 
+    if (isNaN(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Rating must be between 1 and 5." });
+    }
+
+    // Process uploaded images (Optional)
+    let reviewImages = [];
+    if (req.files && req.files.length > 0) {
+      reviewImages = req.files.map(file => file.path.replace(/\\/g, '/'));
+    }
+
+    // Find the product
+    const product = await Product.findById(req.params.productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    // Ensure user is authenticated
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Unauthorized: User not found." });
+    }
+
+    // Create new review
     const newReview = {
-      user: req.user.id,
+      user: req.user.id, // Store user ID
       rating,
       comment,
       images: reviewImages,
+      createdAt: new Date(),
     };
 
     product.reviews.push(newReview);
+    product.updateAverageRating();
     await product.save();
 
-    res.status(200).json(newReview);
+    res.status(201).json(newReview);
   } catch (err) {
-    res.status(500).json({ message: 'Error submitting review', error: err.message });
+    console.error("Error submitting review:", err);
+    res.status(500).json({ message: "Error submitting review", error: err.message });
   }
 };
+
+
+
 
 const deleteReview = async (req, res) => {
   try {

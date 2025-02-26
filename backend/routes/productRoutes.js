@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { uploadExcel, uploadImage } = require('../middleware/upload');
+const { uploadExcel, uploadImage, uploadReviewImage } = require('../middleware/upload');
 const {
   addProduct,
   getAllProducts,
@@ -21,6 +21,7 @@ const {
   getProductSubframeImages,
   getSubframeImage
 } = require('../controllers/productController');
+const { protectAdmin, protectUser } = require('../middleware/authMiddleware');
 
 // Excel Import Route - Updated to handle single file
 router.post('/excel', uploadExcel.single('excelFile'), processExcelFile);
@@ -60,8 +61,10 @@ router.put('/:productId/subframe-images/:subframeImageId', updateSubframeImage);
 router.delete('/:productId/subframe-images/:subframeImageId', deleteSubframeImage);
 router.get('/:productId/subframe-image/:subFrameTypeId', getSubframeImage);
 
-// Review Routes
-router.post('/:productId/reviews', addReview);
-router.delete('/:productId/reviews/:reviewId', deleteReview);
+// Add a review (with optional images)
+router.post("/:productId/reviews", protectUser, uploadReviewImage.array("reviewImages", 5), addReview);
+
+// Delete a review (Only review owner can delete)
+router.delete("/:productId/reviews/:reviewId", protectUser, deleteReview);
 
 module.exports = router;

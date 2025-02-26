@@ -40,18 +40,17 @@ const CameraComponent = () => {
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
-  // Wall image background and camera capture
+  // Wall background & camera capture
   const [wallImage, setWallImage] = useState(null);
-  // Captured image holds the photo taken from the camera temporarily
+  // Temporarily holds the captured photo (before confirmation)
   const [capturedImage, setCapturedImage] = useState(null);
   const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
 
-  // Camera active flag and video readiness
+  // Camera state: live video feed active, and video readiness flag
   const [cameraActive, setCameraActive] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
 
-  // Refs for camera and file input
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -121,7 +120,6 @@ const CameraComponent = () => {
     }
   };
 
-  // Capture photo only when video dimensions are ready and then stop the camera
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current && videoReady) {
       const context = canvasRef.current.getContext('2d');
@@ -667,6 +665,9 @@ const CameraComponent = () => {
             )}
             {wallImage && (
               <div className="preview-controls bottom">
+                <Button variant="warning" onClick={handleRetakeWall}>
+                  Retake Wall Photo
+                </Button>
                 <Button onClick={() => setWallImage('/assets/placeholder-wall.jpg')} variant="outline-primary">
                   Wall 1
                 </Button>
@@ -800,12 +801,8 @@ const CameraComponent = () => {
                 <div className="cart-footer mt-3">
                   <p className="cart-total">Total: ₹{calculateTotalPrice()}</p>
                   <div className="cart-actions">
-                    <Button variant="primary" onClick={() => navigate('/cart')}>
-                      View Cart
-                    </Button>
-                    <Button variant="success" onClick={() => navigate('/checkout')}>
-                      Checkout
-                    </Button>
+                    <Button variant="primary" onClick={() => navigate('/cart')}>View Cart</Button>
+                    <Button variant="success" onClick={() => navigate('/checkout')}>Checkout</Button>
                   </div>
                 </div>
               </div>

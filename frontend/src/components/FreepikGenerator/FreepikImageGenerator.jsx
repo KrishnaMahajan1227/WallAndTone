@@ -256,11 +256,11 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           <div className="freepik-generator__previous-header">
             <h3>Recent Generations</h3>
             <button 
-              className="freepik-generator__view-more"
-              onClick={() => navigate('/creations')}
-            >
-              View All <ChevronRight size={16} />
-            </button>
+  className="freepik-generator__view-more"
+  onClick={() => navigate("/profile", { state: { tab: "myRoom" } })}
+>
+  View All <ChevronRight size={16} />
+</button>
           </div>
           <div className="freepik-generator__previous-grid">
             {userGeneratedImages.slice(0, 4).map((img, index) => (

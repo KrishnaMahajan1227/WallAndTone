@@ -555,7 +555,7 @@ const CameraComponent = () => {
               {products.map((product) => (
                 <div
                   key={product._id}
-                  className="col-6 col-md-6 product-card-wrapper"
+                  className="col-12 col-md-12 product-card-wrapper"
                   onClick={() => handleProductSelect(product)}
                 >
                   <div className="product-card">

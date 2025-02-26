@@ -372,7 +372,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 500px) {
   .freepik-generator__previous-grid {
     grid-template-columns: 1fr;
   }
@@ -386,4 +386,25 @@
   .freepik-generator-modal-body .col-3 {
     flex: 0 0 100%;
   }
+  .freepik-generator__styling-row {
+    grid-template-columns: auto auto;
+}
+  .freepik-generator__styling select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background: #fff;
+    font-size: 12px;
+    transition: border-color 0.2s;
+}
+.freepik-generator__generate {
+  padding: 8px 20px;
+}
+.freepik-generator__form {
+  background: transparent;
+  border-radius: 1rem;
+  padding: 0rem;
+  padding-bottom: 1rem;
+}
 }

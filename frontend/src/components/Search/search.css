@@ -86,3 +86,20 @@
   .image-content{
     margin:30px 0
   }
+
+  @media(max-width:500px){
+    .search-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      border-radius: 5px;
+      width: 100%;
+      position: relative;
+      margin-top: 20px;
+  }
+  .image-content {
+    margin-top: 0;
+}
+
+  }

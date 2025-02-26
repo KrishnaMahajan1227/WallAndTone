@@ -93,3 +93,24 @@
     background-color: #F7F7F7; /* Set the color of the scrollbar track */
     border-radius: 10px; /* Add a border radius to the scrollbar track */
   }
+  @media(max-width:480px){
+    .recently-added-products-container .card {
+      border: none !important;
+      max-width: 100%;
+      height: 400px;
+      background: transparent;
+      box-shadow: none;
+    }
+    .recently-added-products-container .recently-added-product-card {
+      width: 100%;
+      text-align: center;
+      position: relative;
+      margin: 20px auto;
+    }
+      
+    .recently-added-products-container .card-img-top {
+      border-radius: 4px;
+      height: 220px;
+      object-fit: contain;
+    }
+  }

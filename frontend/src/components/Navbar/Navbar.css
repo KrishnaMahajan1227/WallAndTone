@@ -144,8 +144,10 @@
 .main-navbar .user-info .user-name {
   color: #fff;
   margin: 0;
+  font-size: 18px;
   cursor: pointer;
   transition: color 0.3s ease;
+  text-transform: capitalize;
 }
 
 .main-navbar .user-info .user-name:hover {
@@ -285,5 +287,18 @@
 .main-navbar .navbar-toggler-icon {
   width: 31px;
   height: 3px;
+}
+.main-navbar .user-info-container {
+  width: 100%;
+  padding: 20px;
+  background-color: #2F231F;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0;
+}
+.mobile-secondary-nav .nav-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start;
+  align-items: center;
 }
 }

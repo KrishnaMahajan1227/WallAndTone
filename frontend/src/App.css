@@ -55,7 +55,7 @@
 
 /* Responsive Styles */
 @media (max-width: 991px) {
-  .Main-content.container {
+  .Main-content.container-fluid {
     margin-left: 0;
     width: 100%;
     padding: 80px 15px 20px; /* Added top padding for fixed logo */
@@ -68,4 +68,9 @@
   .secondary-navbar-container {
     margin-top: 0;
   }
+  .Main-content.container-fluid .container {
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+}
 }

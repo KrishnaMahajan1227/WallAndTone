@@ -114,7 +114,7 @@
   color: white;
   border: none;
   padding: 12px 32px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 16px;
   font-weight: 400;
   cursor: pointer;
@@ -261,7 +261,7 @@
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
-    border-radius: 12px;
+    border-radius: 4px;
     overflow: hidden;
   }
   
@@ -419,14 +419,14 @@ section.aboutus-production .aboutus-impact-content p {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 950px) {
   .aboutus-collection-grid,
   .aboutus-production-grid {
     grid-template-columns: 1fr;
   }
   
   .aboutus-collections-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto auto;
     gap: 24px;
   }
   
@@ -446,12 +446,70 @@ section.aboutus-production .aboutus-impact-content p {
   .aboutus-container {
     padding: 0 16px;
   }
+  .abt-sec1-content {
+    display: flex;
+    gap: 30px;
+    flex-direction: column;
+}
+.aboutus-container h2, .aboutus-production .aboutus-production-content h2 {
+  font-size: 28px;
+  line-height: 45px;
+  color: #2D2D2D;
+  font-weight: 500;
+  margin: 0;
+}
+.aboutus-hero-subtext, .aboutus-collection-text p, .aboutus-production-content .description p, .aboutus-production ul.mt-2 li {
+  font-size: 18px;
+  line-height: 30px;
+  font-weight: 300;
+  color: #2D2D2D;
+  max-width: 100%;
+  margin: 15px 0;
+}
+.img-sec {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.aboutus-primary-button {
+  background-color: #5B2EFF;
+  color: white;
+  border: none;
+  padding: 6px 22px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.img-sec img {
+  object-fit: contain;
+  height: 100%;
+  max-width: 100%;
+}
+.aboutus-collection-section {
+  padding: 30px 0;
+}
+.aboutus-collection-image {
+  order: 2;
+}
+.aboutus-collection-text {
+  order: 1;
+}
+.aboutus-container .aboutus-impact-content  h2 {
+  font-size: 30px;
+  line-height: 48px;
+  color: #FFFFFF;
+  font-weight: 500;
+  margin: 0;
 }
 
-@media (max-width: 480px) {
+}
+
+@media (max-width: 500px) {
   .aboutus-hero,
   .aboutus-production {
-    padding: 60px 0;
+    padding: 30px 0;
   }
   
   .aboutus-hero h1,
@@ -463,4 +521,35 @@ section.aboutus-production .aboutus-impact-content p {
     padding: 8px 16px;
     font-size: 14px;
   }
+  .aboutus-impact-content {
+    position: unset;
+    top: 25%;
+    left: 50%;
+    transform: unset;
+    z-index: 2;
+    width: 100%;
+    padding: 20px;
+    color: white;
+    text-shadow: none;
+}
+.aboutus-container .aboutus-impact-content  h2 {
+  font-size: 28px;
+  line-height: 48px;
+  color: #2D2D2D;
+  font-weight: 500;
+  margin: 0;
+  width: 100%;
+}
+.aboutus-impact-section p {
+  font-size: 18px;
+  color: #2D2D2D;
+  margin: 20px 0;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: 300;
+}
+.aboutus-impact-section {
+  padding-bottom: 50px;
+}
 }

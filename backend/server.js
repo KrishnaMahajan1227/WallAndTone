@@ -9,6 +9,7 @@ const cartRoutes = require('./routes/cart');
 const wishlistRoutes = require('./routes/wishlist');
 const { protectAdmin, protectUser } = require('./middleware/authMiddleware');
 const couponAdminRouter = require("./routes/couponAdmin");
+const couponUserRouter = require("./routes/couponUser"); // ✅ NEW USER COUPON ROUTE
 const freepikRoutes = require("./routes/freepikRoutes");
 const categoryRoutes = require("./routes/FrameTypeRoutes")
 const sizeAdminRouter = require("./routes/sizeRoutes");
@@ -69,6 +70,8 @@ app.use('/api/freepik', freepikRoutes);
 app.use('/api', categoryRoutes);
 
 app.use("/api/admin/coupons", couponAdminRouter);
+app.use('/api/users/coupons', couponUserRouter);  // ✅ Correct User Coupon Route
+
 app.use("/api/admin/sizes", sizeAdminRouter);
 
 

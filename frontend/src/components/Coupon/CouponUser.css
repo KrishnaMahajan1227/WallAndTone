@@ -1,0 +1,50 @@
+.coupon-container {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .coupon-input {
+    width: 80%;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .apply-coupon-btn {
+    background: #28a745;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .apply-coupon-btn:hover {
+    background: #218838;
+  }
+  
+  .coupon-message {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 5px;
+  }
+  
+  .success-msg {
+    color: #155724;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+  }
+  
+  .error-msg {
+    color: #721c24;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+  }
+  
+  .discount-info {
+    font-weight: bold;
+    margin-top: 10px;
+    color: #007bff;
+  }
+  

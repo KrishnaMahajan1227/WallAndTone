@@ -36,48 +36,64 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   const fetchUserGeneratedImages = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/users/generated-images`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      const sortedImages = response.data.images.sort((a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt)
+  
+      // Sort images by creation date (latest first)
+      const sortedImages = response.data.images.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
+  
       setUserGeneratedImages(sortedImages);
     } catch (err) {
-      console.error('Error fetching user images:', err);
+      console.error("Error fetching user images:", err);
     }
   };
-
+  
   const handleGenerateImage = async () => {
     if (!token) {
-      setError('Authorization token is missing');
+      setError("Authorization token is missing");
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
     try {
       const response = await axios.post(
         `${apiUrl}/api/freepik/generate-image`,
-        { prompt, styling },
+        { prompt, styling, num_images: 3 }, // Request 3 images at once
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-
+  
       if (response.data.images && response.data.images.length > 0) {
         setGeneratedImages(response.data.images);
         setShowModal(true);
-        document.body.classList.add('no-scroll');
+        document.body.classList.add("no-scroll");
+  
+        // Automatically save generated images
+        for (const image of response.data.images) {
+          await axios.post(
+            `${apiUrl}/api/users/generated-images`,
+            { image, prompt },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+        }
+  
+        // Fetch updated list of user-generated images
+        fetchUserGeneratedImages();
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to generate images');
+      setError(err.response?.data?.message || "Failed to generate images");
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleStylingChange = (event) => {
     setStyling({ ...styling, [event.target.name]: event.target.value });
@@ -103,18 +119,27 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   const handleCustomize = async (image) => {
     try {
       setCustomizing(true);
-      const existingImage = userGeneratedImages.find(img => img.imageUrl === image);
       
+      // Check if the image already exists in user-generated images
+      let existingImage = userGeneratedImages.find(img => img.imageUrl === image);
+  
       if (!existingImage) {
-        const base64Data = image.split(',')[1];
-        const chunkSize = 5000000000;
+        console.log("Image not found in saved images. Saving it before customization...");
+  
+        // Convert image to base64 (assuming it's already in base64 format)
+        const base64Data = image.split(",")[1];
+        const chunkSize = 5 * 1024 * 1024; // 5MB chunk size
         const chunks = [];
         
+        // Split image into chunks
         for (let i = 0; i < base64Data.length; i += chunkSize) {
           chunks.push(base64Data.slice(i, i + chunkSize));
         }
-
+  
+        // Upload each chunk sequentially
         for (let i = 0; i < chunks.length; i++) {
+          console.log(`Uploading chunk ${i + 1} of ${chunks.length}`);
+  
           const response = await axios.post(
             `${apiUrl}/api/users/generated-images/chunk`,
             {
@@ -128,19 +153,20 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
               headers: { Authorization: `Bearer ${token}` }
             }
           );
-
+  
+          // If last chunk is uploaded, store the final image URL
           if (response.data.image && i === chunks.length - 1) {
-            await fetchUserGeneratedImages();
-            navigate('/customize', { 
-              state: { 
-                image: response.data.image.imageUrl,
-                prompt,
-                isCustom: true
-              }
-            });
+            existingImage = response.data.image;
+            console.log("Image saved successfully:", existingImage.imageUrl);
           }
         }
-      } else {
+  
+        // Refresh user's generated images after saving
+        await fetchUserGeneratedImages();
+      }
+  
+      // Ensure we have a valid image before navigating
+      if (existingImage) {
         navigate('/customize', { 
           state: { 
             image: existingImage.imageUrl,
@@ -148,14 +174,18 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
             isCustom: true
           }
         });
+      } else {
+        throw new Error("Image saving failed, unable to proceed with customization.");
       }
+      
     } catch (error) {
-      console.error('Error handling customization:', error);
-      setError('Failed to process image for customization');
+      console.error("Error handling customization:", error);
+      setError("Failed to process image for customization.");
     } finally {
       setCustomizing(false);
     }
   };
+  
 
   return (
     <div className="freepik-generator">

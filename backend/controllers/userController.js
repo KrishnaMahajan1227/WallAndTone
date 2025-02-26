@@ -57,7 +57,7 @@ const loginUser = async (req, res) => {
     }
 
     // Generate JWT token if passwords match
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
     res.status(200).json({
       message: 'Login successful',
@@ -391,7 +391,7 @@ const deleteGeneratedImage = async (req, res) => {
   }
 };
   
-  const deleteAllGeneratedImages = async () => {
+const deleteAllGeneratedImages = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("User not authenticated");
@@ -404,7 +404,7 @@ const deleteGeneratedImage = async (req, res) => {
     } catch (error) {
       console.error("Error deleting all images:", error);
     }
-  };
+};
   
 
 // Export the functions

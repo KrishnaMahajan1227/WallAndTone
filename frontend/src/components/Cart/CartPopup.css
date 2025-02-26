@@ -241,6 +241,7 @@
   background: #4517FF;
 }
 
+
 @media (max-width: 640px) {
   .cart-popup {
     max-width: 100%;

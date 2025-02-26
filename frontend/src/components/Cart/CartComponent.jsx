@@ -5,6 +5,7 @@ import heartIcon from "../../assets/icons/heart-icon.svg";
 import heartIconFilled from "../../assets/icons/heart-icon-filled.svg";
 import { v4 as uuidv4 } from "uuid";
 import Footer from "../Footer/Footer";
+import CouponUser from "../Coupon/CouponUser";
 
 const CartComponent = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -101,42 +102,56 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   const handleUpdateQuantity = async (e, item, newQuantity) => {
     e.preventDefault();
-
+  
     if (newQuantity < 1) return;
-
+  
     if (token) {
       try {
-        const response = await fetch(
-          `http://localhost:8080api/cart/update/${item._id}`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              quantity: newQuantity,
-              frameType: item.frameType._id,
-              subFrameType: item.subFrameType._id,
-              size: item.size._id,
-            }),
-          }
-        );
-
+        // ✅ Update UI instantly before API call
+        setCart((prevCart) => {
+          const updatedItems = prevCart.items.map((cartItem) =>
+            cartItem._id === item._id ? { ...cartItem, quantity: newQuantity } : cartItem
+          );
+          return { ...prevCart, items: updatedItems };
+        });
+  
+        // ✅ Send API request to update in backend
+        const response = await fetch(`${apiUrl}/api/cart/update/${item._id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            quantity: newQuantity,
+            frameType: item.frameType._id,
+            subFrameType: item.subFrameType._id,
+            size: item.size._id,
+          }),
+        });
+  
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to update quantity.");
+          throw new Error("Failed to update quantity.");
         }
-
-        await fetchCartAndWishlist(); // Refresh cart to get the merged items
+  
+        // ✅ Backend updated successfully, but we already updated UI instantly
         setAlertMessage("Quantity updated successfully!");
       } catch (err) {
         console.error(err);
         setAlertMessage("Failed to update quantity. Please try again.");
+        
+        // ❌ Rollback UI change if API request fails
+        setCart((prevCart) => {
+          const rollbackItems = prevCart.items.map((cartItem) =>
+            cartItem._id === item._id ? { ...cartItem, quantity: item.quantity } : cartItem
+          );
+          return { ...prevCart, items: rollbackItems };
+        });
       }
     }
   };
-
+  
+  
   const handleAddToWishlist = async (e, product) => {
     e.preventDefault();
     if (!product) return;
@@ -236,24 +251,28 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     const framePrice = item.frameType?.price || 0;
     const subFramePrice = item.subFrameType?.price || 0;
     const sizePrice = item.size?.price || 0;
-    const basePrice = item.isCustom ? 0 : (item.productId?.price || 0);
-    
+    const basePrice = item.isCustom ? 0 : (item.productId?.price || 0); 
+  
     return (framePrice + subFramePrice + sizePrice + basePrice) * item.quantity;
   };
-
-  const originalPrice = cart.items.reduce(
-    (acc, item) => acc + calculateItemPrice(item),
-    0
-  );
-
-  const discountAmount = couponApplied
-    ? (originalPrice * couponDiscount) / 100
-    : 0;
-
-  const totalPrice = couponApplied
-    ? originalPrice + 300 + 50 - discountAmount
-    : originalPrice + 300 + 50;
-
+  
+  // Calculate subtotal (before tax, shipping, and discount)
+  const subtotal = cart.items.reduce((acc, item) => acc + calculateItemPrice(item), 0);
+  
+  // Define shipping and tax
+  const shippingCost = 300; // Flat rate shipping
+  const taxAmount = 50; // Fixed tax
+  
+  // Pre-discount total (subtotal + shipping + tax)
+  const preDiscountTotal = subtotal + shippingCost + taxAmount;
+  
+  // Calculate discount on the total price
+  const discountAmount = couponApplied ? (preDiscountTotal * couponDiscount) / 100 : 0;
+  
+  // Final total after applying the discount
+  const finalTotal = preDiscountTotal - discountAmount;
+  
+  
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -376,35 +395,38 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           </div>
 
           <div className="cart-summary">
-            <h2>Order Summary</h2>
-            <div className="summary-details">
-              <p>Subtotal: {originalPrice} Rs.</p>
-              <p>Shipping Cost: 300 Rs.</p>
-              <p>Tax: 50 Rs.</p>
-              {couponApplied && (
-                <>
-                  <p>Discount: {couponDiscount}%</p>
-                  <p>Discount Amount: - {discountAmount} Rs.</p>
-                </>
-              )}
-              <h3>Total: {totalPrice} Rs.</h3>
-            </div>
-            
-            <div className="cart-actions">
-              <button
-                className="checkout-btn"
-                onClick={() => navigate("/checkout")}
-              >
-                Proceed to Checkout
-              </button>
-              <button
-                className="continue-shopping-btn"
-                onClick={() => navigate("/products")}
-              >
-                Continue Shopping
-              </button>
-            </div>
-          </div>
+  <h2>Order Summary</h2>
+  <div className="summary-details">
+    <p>Subtotal: {subtotal.toFixed(2)} Rs.</p>
+    <p>Shipping Cost: {shippingCost} Rs.</p>
+    <p>Tax: {taxAmount} Rs.</p>
+
+    {/* Coupon Section */}
+    <CouponUser onApplyCoupon={handleApplyCoupon} />
+
+    {couponApplied && (
+      <>
+        <p>Discount: {couponDiscount}%</p>
+        <p>Discount Amount: - {discountAmount.toFixed(2)} Rs.</p>
+        <h3>New Total Price (After Discount): <span style={{ color: 'green' }}>{finalTotal.toFixed(2)} Rs.</span></h3>
+      </>
+    )}
+
+    {/* Show original total if no coupon is applied */}
+    {!couponApplied && <h3>Total: {preDiscountTotal.toFixed(2)} Rs.</h3>}
+  </div>
+
+  <div className="cart-actions">
+    <button className="checkout-btn" onClick={() => navigate("/checkout")}>
+      Proceed to Checkout
+    </button>
+    <button className="continue-shopping-btn" onClick={() => navigate("/products")}>
+      Continue Shopping
+    </button>
+  </div>
+</div>
+
+
         </div>
       )}
       

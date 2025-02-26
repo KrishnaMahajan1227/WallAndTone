@@ -1196,10 +1196,3 @@ module.exports = {
   getProductSubframeImages,
   getSubframeImage,
 };
-
-
-
-
-
-
-

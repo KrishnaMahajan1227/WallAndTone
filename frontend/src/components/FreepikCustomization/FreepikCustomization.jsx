@@ -238,6 +238,69 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }
   };
 
+  const handleRemoveItem = async (index) => {
+    try {
+      if (token) {
+        // Remove item from backend cart
+        await axios.delete(`${apiUrl}/api/cart/remove/${cart.items[index]._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        // Update frontend cart
+        const updatedCart = [...cart.items];
+        updatedCart.splice(index, 1);
+        setCart({ ...cart, items: updatedCart });
+  
+        setAlertMessage("Item removed successfully!");
+      } else {
+        // Guest Cart (Local Storage)
+        const updatedGuestCart = [...guestCart];
+        updatedGuestCart.splice(index, 1);
+        setCart({ items: updatedGuestCart, totalPrice: calculateTotalPrice() });
+        localStorage.setItem("guestCart", JSON.stringify(updatedGuestCart));
+  
+        setAlertMessage("Item removed successfully!");
+      }
+    } catch (error) {
+      console.error("Error removing item:", error);
+      setAlertMessage("Failed to remove item.");
+    }
+  };
+
+  const handleUpdateQuantity = async (index, newQuantity) => {
+    if (newQuantity < 1) return; // Prevents quantity going below 1
+  
+    try {
+      if (token) {
+        const response = await axios.put(
+          `${apiUrl}/api/cart/update`, // Corrected API endpoint
+          {
+            itemId: cart.items[index]._id, // Ensure ID is passed correctly
+            quantity: newQuantity,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+  
+        if (response.data.cart) {
+          setCart(response.data.cart); // Update frontend cart
+        }
+      } else {
+        // Update guest cart (Local Storage)
+        const updatedGuestCart = [...guestCart];
+        updatedGuestCart[index].quantity = newQuantity;
+        setCart({ items: updatedGuestCart, totalPrice: calculateTotalPrice() });
+        localStorage.setItem("guestCart", JSON.stringify(updatedGuestCart));
+      }
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      setAlertMessage("Failed to update quantity.");
+    }
+  };
+  
+  
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!generatedImage) return <div>No image selected for customization</div>;
@@ -287,8 +350,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         </div>
 
         <div className="info-section">
-          <h1 className="product-title">Customize Your Artwork</h1>
-
+        <h3 className="product-title">{prompt ? prompt : "Customize Your Artwork"}</h3>
           <div className="options-section">
             <div className="frame-type-section">
               <div className="frame-type-buttons">
@@ -384,56 +446,100 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       </div>
 
       {subCartOpen && (
-        <div className="sub-cart-popup">
-          <div className="sub-cart-overlay" onClick={() => setSubCartOpen(false)} />
-          <div className={`sub-cart-body ${subCartOpen ? 'show' : ''}`}>
-            <div className="sub-cart-header">
-              <h2>Shopping Cart</h2>
-              <button className="close-btn" onClick={() => setSubCartOpen(false)}>
-                <X size={24} />
+  <div className="sub-cart-popup">
+    <div className="sub-cart-overlay" onClick={() => setSubCartOpen(false)} />
+
+    <div className={`sub-cart-body ${subCartOpen ? "show" : ""}`}>
+      <div className="sub-cart-header">
+        <h2>Shopping Cart</h2>
+        <button className="close-btn" onClick={() => setSubCartOpen(false)}>
+          <X size={24} />
+        </button>
+      </div>
+
+      {cart.items?.length === 0 ? (
+        <div className="empty-cart-message">
+          <p>Your cart is empty.</p>
+          <button className="continue-shopping" onClick={() => setSubCartOpen(false)}>
+            Continue Shopping
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="cart-items">
+            {cart.items?.map((item, index) => (
+              <div key={index} className="cart-item">
+                <img
+                  src={item.image || item.productId?.mainImage}
+                  alt="Product"
+                  className="cart-item-image"
+                />
+                <div className="cart-item-details">
+                  <h3>{item.isCustom ? "Customized Artwork" : item.productId?.productName}</h3>
+                  <p><strong>Frame:</strong> {item.frameType?.name || "N/A"}</p>
+                  <p><strong>Type:</strong> {item.subFrameType?.name || "N/A"}</p>
+                  <p><strong>Size:</strong> {item.size?.width} x {item.size?.height}</p>
+
+                  {/* Quantity Controls */}
+                  <div className="quantity-controls">
+                    <button
+                      className="quantity-btn"
+                      onClick={() => handleUpdateQuantity(index, item.quantity - 1)}
+                      disabled={item.quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) => handleUpdateQuantity(index, parseInt(e.target.value))}
+                      className="quantity-input"
+                      min="1"
+                    />
+                    <button
+                      className="quantity-btn"
+                      onClick={() => handleUpdateQuantity(index, item.quantity + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <p><strong>Price:</strong> ₹{(
+                    item.quantity *
+                    (parseFloat(item.frameType?.price || 0) +
+                      parseFloat(item.subFrameType?.price || 0) +
+                      parseFloat(item.size?.price || 0))
+                  ).toFixed(2)}</p>
+
+                  <button className="remove-item" onClick={() => handleRemoveItem(index)}>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="cart-footer">
+            <p className="cart-total">
+              <strong>Total:</strong> ₹{cart.totalPrice?.toFixed(2) || "0.00"}
+            </p>
+
+            <div className="cart-actions">
+              <button className="view-cart" onClick={() => navigate("/cart")}>
+                View Cart
+              </button>
+              <button className="checkout" onClick={() => navigate("/checkout")}>
+                Checkout
               </button>
             </div>
-            
-            <div className="cart-items">
-              {cart.items?.map((item, index) => (
-                <div key={index} className="cart-item">
-                  <img
-                    src={item.image || item.productId?.mainImage}
-                    alt="Product"
-                    className="cart-item-image"
-                  />
-                  <div className="cart-item-details">
-                    <h3>{item.isCustom ? 'Customized Artwork' : item.productId?.productName}</h3>
-                    <p>Frame: {item.frameType?.name}</p>
-                    <p>Type: {item.subFrameType?.name}</p>
-                    <p>Size: {item.size?.width} x {item.size?.height}</p>
-                    <p>Quantity: {item.quantity}</p>
-                    <p>Price: ₹{(item.quantity * (
-                      parseFloat(item.frameType?.price || 0) +
-                      parseFloat(item.subFrameType?.price || 0) +
-                      parseFloat(item.size?.price || 0)
-                    )).toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="cart-footer">
-              <p className="cart-total">
-                Total: ₹{cart.totalPrice?.toFixed(2) || '0.00'}
-              </p>
-              <div className="cart-actions">
-                <button className="view-cart" onClick={() => navigate('/cart')}>
-                  View Cart
-                </button>
-                <button className="checkout" onClick={() => navigate('/checkout')}>
-                  Checkout
-                </button>
-              </div>
-            </div>
           </div>
-        </div>
+        </>
       )}
+    </div>
+  </div>
+)}
+
+
       
     </div>
   );

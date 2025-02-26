@@ -368,6 +368,45 @@ const getGeneratedImages = async (req, res) => {
   }
 };
 
+// Delete a single generated image
+const deleteGeneratedImage = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { imageId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Filter out the image to be deleted
+    user.generatedImages = user.generatedImages.filter(img => img._id.toString() !== imageId);
+
+    await user.save();
+
+    res.status(200).json({ message: "Image deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting generated image:", error);
+    res.status(500).json({ message: "Error deleting image", error: error.message });
+  }
+};
+  
+  const deleteAllGeneratedImages = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("User not authenticated");
+  
+      await axios.delete(`${apiUrl}/api/users/generated-images`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      setUserGeneratedImages([]);
+    } catch (error) {
+      console.error("Error deleting all images:", error);
+    }
+  };
+  
+
 // Export the functions
 module.exports = {
   signupUser ,
@@ -379,5 +418,7 @@ module.exports = {
   updateUserProfile,
   addGeneratedImage,
   getGeneratedImages,
-  addImageChunk
+  addImageChunk,
+  deleteGeneratedImage,
+  deleteAllGeneratedImages,
 };

@@ -8,7 +8,9 @@ const { signupUser ,
      updateUserProfile,  
      addGeneratedImage, 
      getGeneratedImages,
-     addImageChunk } = require('../controllers/userController');
+     addImageChunk,
+     deleteGeneratedImage,
+     deleteAllGeneratedImages, } = require('../controllers/userController');
 const router = express.Router();
 const { protectAdmin, protectUser  } = require('../middleware/authMiddleware');
 
@@ -31,5 +33,7 @@ router.put('/profile', protectUser , updateUserProfile);  // Update profile deta
 router.post('/users/generated-images', protectUser, addGeneratedImage);
 router.post('/users/generated-images/chunk', protectUser, addImageChunk);
 router.get('/users/generated-images', protectUser, getGeneratedImages);
+router.delete("/users/generated-images/:imageId", protectUser, deleteGeneratedImage);
+router.delete("/users/generated-images", protectUser, deleteAllGeneratedImages);
 
 module.exports = router;

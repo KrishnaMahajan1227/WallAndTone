@@ -1,8 +1,11 @@
 .product-details-container {
     padding: 30px;
     font-family: "Lexend Deca", serif;
+    min-height: 100vh;
+    background-color: transparent;
+    padding: 0;
   }
-  
+
   .back-button {
     font-size: 16px;
     padding: 10px;
@@ -17,7 +20,8 @@
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-  }
+    justify-content: center;
+}
   
   .image-section {
     flex: 1;
@@ -35,6 +39,7 @@
     padding: 0;              /* no extra spacing so image fills container */
     box-sizing: border-box;
     overflow: visible;       /* allow shadows to be visible */
+    margin: 0;
   }
   
   .product-details-container .product-details-image {
@@ -112,16 +117,16 @@
     gap: 0rem;
 }
 
-  .product-title {
-    font-size: 28px;
-    font-weight: bold;
-    color: #333;
-  }
+.product-title {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0;
+  color: #2D2D2D;
+}
   
-  .product-price-section {
-    margin-top: 15px;
-  }
-  
+.product-price-section .total-price {
+  margin: 15px 0;
+}
   .product-price {
     font-size: 22px;
     color: #e60000;
@@ -168,8 +173,11 @@
   }
   
   .action-buttons {
-    margin-top: 20px;
-  }
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    margin: 20px 0;
+}
   
   .add-to-cart,
   .add-to-wishlist {
@@ -214,7 +222,7 @@
   .review-card {
     background-color: #f8f9fa;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
   }
@@ -250,7 +258,7 @@
     height: 100px;
     margin-right: 10px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 4px;
   }
   
   .no-reviews {
@@ -267,7 +275,7 @@
   .review-form {
     background-color: #fff;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
@@ -294,7 +302,7 @@
   
   .review-text-group textarea {
     width: 100%;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 1px solid #ddd;
     padding: 10px;
     font-size: 14px;
@@ -311,7 +319,7 @@
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
     cursor: pointer;
   }
   
@@ -520,7 +528,7 @@
     padding: 6px;
     margin: 5px 0;
     font-size: 14px;
-    border-radius: 8px;
+    border-radius: 4px;
     background-color: #007bff;
     color: white;
     border: none;

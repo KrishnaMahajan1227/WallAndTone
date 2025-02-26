@@ -15,7 +15,7 @@
 }
 
 .top-reviewed-products-container .card-img-top {
-  border-radius: 8px;
+  border-radius: 4px;
     height: 280px;
     object-fit: cover;
 }

@@ -1,10 +1,5 @@
 /* Frame customization styles */
-.product-details-container {
-    min-height: 100vh;
-    background-color: #f9fafb;
-    padding: 2rem;
-  }
-  
+
   .alert {
     position: fixed;
     top: 1rem;
@@ -63,14 +58,6 @@
     color: #1f2937;
   }
   
-  .product-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
   .image-section {
     position: relative;
   }
@@ -112,18 +99,6 @@
     transform: translate(-50%, -50%);
   }
   
-  .info-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-  
-  .product-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 2rem;
-  }
   
   .options-section {
     display: flex;
@@ -193,10 +168,6 @@
     font-weight: 600;
   }
   
-  .action-buttons {
-    display: flex;
-    gap: 1rem;
-  }
   
   .add-to-cart,
   .add-to-wishlist {

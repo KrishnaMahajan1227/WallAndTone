@@ -23,7 +23,7 @@
   }
   
   .recently-added-products-container .card-img-top {
-    border-radius: 8px;
+    border-radius: 4px;
     height: 320px;
     object-fit: cover;
   }

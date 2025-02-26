@@ -25,7 +25,7 @@
   background: #f9f9f9;
   border: 1px solid #ddd;
   padding: 15px;
-  border-radius: 8px;
+  border-radius: 4px;
   margin-bottom: 20px;
 }
 
@@ -33,7 +33,7 @@
   width: 120px;
   height: 120px;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .cart-container .item-details {
@@ -84,7 +84,7 @@
   background: #fff;
   border: 1px solid #ddd;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .cart-container .coupon-input {
@@ -124,7 +124,7 @@
   width: 35px;
   height: 35px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 4px 5px;
   background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(138, 138, 138, 0.6643907563025211) 0%);
 }
@@ -200,7 +200,7 @@
 .educational-image {
   width: 100%;
   height: auto;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .educational-text {

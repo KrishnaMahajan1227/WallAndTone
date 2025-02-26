@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, ShoppingCart, Heart, X } from 'lucide-react';
+import heartIcon from '../../assets/icons/heart-icon.svg';
+import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
+
 import './ProductDetails.css';
 import axios from 'axios';
-import Footer from '../Footer/Footer';
 
 const ProductDetails = () => {
   const apiUrl =
@@ -580,16 +582,18 @@ const ProductDetails = () => {
       </div>
     ));
   };
+  
 
   if (loading)
     return (
-      <div className="text-center d-flex justify-content-center my-5">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path fill="#2F231F" d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
-            <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/>
-          </path>
-        </svg>
-      </div>
+      <div className="LoadingIcon text-center d-flex justify-content-center my-5">
+  <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24">
+    <path fill="#2F231F" d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
+      <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/>
+    </path>
+  </svg>
+</div>
+
     );
   if (error) return <div>{error}</div>;
   if (!product) return <div>Product not found</div>;
@@ -728,7 +732,34 @@ const ProductDetails = () => {
                 : 'Add to Wishlist'}
             </button>
           </div>
-          <div className="review-section">
+        </div>
+      </div>
+      {subCartOpen && (
+        <div className="sub-cart-popup">
+          <div className="sub-cart-overlay" onClick={() => setSubCartOpen(false)} />
+          <div className={`sub-cart-body ${subCartOpen ? 'show' : ''}`}>
+            <div className="sub-cart-header">
+              <h2>Shopping Cart</h2>
+              <button className="close-btn" onClick={() => setSubCartOpen(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            <div className="cart-items">{renderCartItems()}</div>
+            <div className="cart-footer">
+              <p className="cart-total">Total: ₹{calculateCartTotal()}</p>
+              <div className="cart-actions">
+                <button className="view-cart" onClick={() => navigate('/cart')}>
+                  View Cart
+                </button>
+                <button className="checkout" onClick={() => navigate('/checkout')}>
+                  Checkout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+        <div className="review-section">
             <h5>Write a Review</h5>
             <form onSubmit={handleReviewSubmit} className="review-form">
               <div className="rating-group">
@@ -786,34 +817,6 @@ const ProductDetails = () => {
               )}
             </div>
           </div>
-        </div>
-      </div>
-      {subCartOpen && (
-        <div className="sub-cart-popup">
-          <div className="sub-cart-overlay" onClick={() => setSubCartOpen(false)} />
-          <div className={`sub-cart-body ${subCartOpen ? 'show' : ''}`}>
-            <div className="sub-cart-header">
-              <h2>Shopping Cart</h2>
-              <button className="close-btn" onClick={() => setSubCartOpen(false)}>
-                <X size={24} />
-              </button>
-            </div>
-            <div className="cart-items">{renderCartItems()}</div>
-            <div className="cart-footer">
-              <p className="cart-total">Total: ₹{calculateCartTotal()}</p>
-              <div className="cart-actions">
-                <button className="view-cart" onClick={() => navigate('/cart')}>
-                  View Cart
-                </button>
-                <button className="checkout" onClick={() => navigate('/checkout')}>
-                  Checkout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      <Footer />
     </div>
   );
 };

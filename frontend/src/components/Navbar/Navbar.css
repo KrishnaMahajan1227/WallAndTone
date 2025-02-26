@@ -131,7 +131,7 @@
   text-decoration: none;
   color: #FFFFFF;
   padding: 10px 35px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .main-navbar .user-info {
@@ -157,7 +157,7 @@
   text-decoration: none;
   color: #FFFFFF;
   padding: 10px 35px;
-  border-radius: 8px;
+  border-radius: 4px;
   width: fit-content;
 }
 

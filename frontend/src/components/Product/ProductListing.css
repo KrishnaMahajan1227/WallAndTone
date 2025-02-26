@@ -30,7 +30,7 @@
   flex-direction: column;
   height: 100%;
   box-shadow: none !important;
-  border-radius: 8px;
+  border-radius: 4px;
   background: transparent;
   border: none !important;
   transition: transform 0.3s ease;
@@ -43,7 +43,7 @@
 .product-listing .product-image-wrapper {
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .product-listing .product-image {
@@ -103,7 +103,7 @@
   width: 40px;
   height: 40px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 6px 4px;
   background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(138,138,138,0.6643907563025211) 0%);
   transition: transform 0.2s ease;
@@ -268,7 +268,7 @@ button#sort-dropdown {
 .filter-chip.d-flex.align-items-center {
   background-color: #d4c7c799;
   padding: 2px 9px;
-  border-radius: 8px;
+  border-radius: 4px;
   text-align: center;
   max-width: fit-content;
   gap: 1px;
@@ -279,15 +279,25 @@ button.filter-chip-remove.btn.btn-link.p-0.ms-1 {
   text-decoration: none;
   color: #2F231F;
   flex: 0;
+  font-size: 14px;
+}
+.filter-chip.d-flex.align-items-center span.filter-chip-label {
+  font-size: 14px;
 }
 span.filter-chip-label {
   flex: 2;
 }
-.filter-summary.d-flex.flex-wrap.align-items-center.my-3.container {
-  gap: 10px;
+.filter-summary.d-flex.flex-wrap.align-items-center.my-3 {
+  row-gap: 10px;
 }
 button.category-button {
   font-size: 14px;
+}
+
+button.btn.btn-outline-secondary.btn-sm.ms-2 {
+  display: flex;
+  max-width: fit-content;
+  align-items: center;
 }
 
 /* Responsive Design */

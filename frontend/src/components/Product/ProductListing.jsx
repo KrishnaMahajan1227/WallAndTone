@@ -408,7 +408,7 @@ const ProductListing = () => {
     return (
       <div className="filter-summary d-flex flex-wrap align-items-center my-3">
         {filters.map((filter, index) => (
-          <div key={index} className="filter-chip d-flex align-items-center me-2 mb-2">
+          <div key={index} className="filter-chip d-flex align-items-center me-2">
             <span className="filter-chip-label">{filter.value}</span>
             <button
               className="filter-chip-remove btn btn-link p-0 ms-1"
@@ -470,7 +470,7 @@ const ProductListing = () => {
 
   if (loading)
     return (
-      <div className="text-center d-flex justify-content-center my-5">
+      <div className="text-center d-flex justify-content-center my-5 ">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path
             fill="#2F231F"

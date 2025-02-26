@@ -1,15 +1,19 @@
-// HistoryDropdown.js
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import './HistoryDropdown.css';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import "./HistoryDropdown.css";
 
 const HistoryDropdown = ({ onSelect }) => {
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : "https://wallandtone.com");
+
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -20,9 +24,13 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
             Authorization: `Bearer ${token}`,
           },
         });
-        const historyData = response.data;
-        const last5Products = historyData.slice(-5);
-        setHistory(last5Products);
+
+        const historyData = response.data || [];
+        const validHistory = historyData
+          .filter((item) => item.productId && item.productId._id) // ✅ Filter out invalid entries
+          .slice(-5); // ✅ Get the last 5 items
+
+        setHistory(validHistory);
       } catch (error) {
         setError(error);
       } finally {
@@ -51,7 +59,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     );
   }
 
-  if (!history || history.length === 0) {
+  if (!history.length) {
     return (
       <div className="history-dropdown empty">
         <p>No recent history</p>
@@ -64,20 +72,20 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       <h6 className="history-title">Recently Viewed</h6>
       {history.map((item) => (
         <Link
-  key={item._id}
-  to={`/product/${item.productId._id}`}
-  className="history-item"
-  onClick={() => onSelect(item)}
->
-  <img
-    src={`${item.productId.mainImage}`}
-    alt={item.productId.productName}
-    className="history-image"
-  />
-  <div className="history-details">
-    <span className="history-name">{item.productId.productName}</span>
-  </div>
-</Link>
+          key={item.productId._id}
+          to={`/product/${item.productId._id}`}
+          className="history-item"
+          onClick={() => onSelect(item)}
+        >
+          <img
+            src={item.productId.mainImage || "/default-image.jpg"} // ✅ Fallback image
+            alt={item.productId.productName || "No Name"} // ✅ Fallback name
+            className="history-image"
+          />
+          <div className="history-details">
+            <span className="history-name">{item.productId.productName || "Unknown Product"}</span>
+          </div>
+        </Link>
       ))}
     </div>
   );

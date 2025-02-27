@@ -8,7 +8,7 @@
     padding: 10px;
     margin-right: 10px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+  border-radius: 4px;
   }
   
   .apply-coupon-btn {
@@ -17,7 +17,7 @@
     padding: 10px;
     border: none;
     cursor: pointer;
-    border-radius: 5px;
+  border-radius: 4px;
   }
   
   .apply-coupon-btn:hover {
@@ -27,7 +27,7 @@
   .coupon-message {
     margin-top: 10px;
     padding: 8px;
-    border-radius: 5px;
+  border-radius: 4px;
   }
   
   .success-msg {

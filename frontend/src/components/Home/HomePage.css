@@ -35,7 +35,7 @@
 .homepage-modal-content {
   background: white;
   padding: 2rem;
-  border-radius: 16px;
+border-radius: 4px;
   position: relative;
   width: 90%;
   max-width: 400px;
@@ -144,7 +144,7 @@
 .homepage-btn-secondary {
   width: 100%;
   padding: 0.875rem;
-  border-radius: 12px;
+border-radius: 4px;
   border: none;
   cursor: pointer;
   font-weight: 600;

@@ -181,7 +181,7 @@
   width: 100%;
   height: 888px;
   object-fit: cover;
-  border-radius: 12px;
+border-radius: 4px;
   transition: transform 0.5s ease;
 }
 
@@ -278,7 +278,7 @@
   .aboutus-impact-image {
     width: 100%;
     max-width: 100%;
-    border-radius: 12px;
+  border-radius: 4px;
     margin: 0 auto;
     transition: transform 0.5s ease;
     display: block;

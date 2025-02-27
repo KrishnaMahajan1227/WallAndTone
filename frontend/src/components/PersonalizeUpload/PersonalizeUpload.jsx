@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Cropper from "react-easy-crop";
 import { Upload, X } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./PersonalizeUpload.css"; // Custom CSS file
+import "./PersonalizeUpload.css";
 
 const apiUrl =
   import.meta.env.VITE_API_URL ||
@@ -17,18 +18,14 @@ const PersonalizeUpload = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [imageQuality, setImageQuality] = useState(null);
   const [supportedSizes, setSupportedSizes] = useState([]);
-  const [orientation, setOrientation] = useState("portrait"); // Default portrait
+  const [orientation, setOrientation] = useState(null); // Selected Orientation
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   const token = localStorage.getItem("token");
-
-  // **🔹 Available Sizes Based on Quality**
-  const qualitySizes = {
-    Low: [],
-    Medium: ["13×18", "21×30", "30×40"],
-    Good: ["13×18", "21×30", "30×40", "40×50", "50×50", "50×70", "70×100"],
-  };
 
   // **🔹 Check Image Quality & Set Sizes**
   const checkImageQuality = (file) => {
@@ -63,7 +60,43 @@ const PersonalizeUpload = () => {
     checkImageQuality(file);
   };
 
-  // **🔹 Upload Image & Send Data to Customization**
+  // **🔹 When Crop is Done**
+  const onCropComplete = useCallback((_, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  // **🔹 Convert Cropped Image to File**
+  const getCroppedImg = async (imageSrc, pixelCrop) => {
+    const image = new Image();
+    image.src = imageSrc;
+    return new Promise((resolve) => {
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = pixelCrop.width;
+        canvas.height = pixelCrop.height;
+
+        ctx.drawImage(
+          image,
+          pixelCrop.x,
+          pixelCrop.y,
+          pixelCrop.width,
+          pixelCrop.height,
+          0,
+          0,
+          pixelCrop.width,
+          pixelCrop.height
+        );
+
+        canvas.toBlob((blob) => {
+          resolve(new File([blob], "cropped-image.jpg", { type: "image/jpeg" }));
+        }, "image/jpeg");
+      };
+    });
+  };
+
+  // **🔹 Upload Cropped Image**
   const uploadToCloudinary = async () => {
     if (!selectedImage) {
       setError("Please select an image first.");
@@ -76,11 +109,12 @@ const PersonalizeUpload = () => {
     }
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("image", selectedImage);
 
     try {
-      // ✅ Upload image to Cloudinary via Backend API
+      const croppedFile = await getCroppedImg(previewUrl, croppedAreaPixels);
+      const formData = new FormData();
+      formData.append("image", croppedFile);
+
       const response = await axios.post(`${apiUrl}/api/users/personalized-images`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -90,7 +124,6 @@ const PersonalizeUpload = () => {
 
       const imageUrl = response.data.image.imageUrl;
 
-      // ✅ Redirect user to customization with orientation info
       navigate("/PersonalizeCustomization", {
         state: { image: imageUrl, isCustom: true, orientation },
       });
@@ -110,25 +143,21 @@ const PersonalizeUpload = () => {
           Transform your favorite photos into a <strong>WORK OF ART!</strong>
         </p>
 
-        {/* 🔹 Image Upload Box */}
         <div className="personalize-upload-box">
           <label className="personalize-upload-label">
             <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
             <div className="personalize-upload-content">
               {previewUrl ? (
                 <div className="personalize-preview-container">
-                  <img src={previewUrl} alt="Selected" className="personalize-preview-image" />
-                  {imageQuality && (
-                    <div className={`image-quality-overlay ${imageQuality.toLowerCase()}`}>
-                      <p>Quality: {imageQuality}</p>
-                      <p>Available Sizes:</p>
-                      <ul>
-                        {supportedSizes.map((size, index) => (
-                          <li key={index}>{size}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  <Cropper
+                    image={previewUrl}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={orientation === "portrait" ? 3 / 4 : 16 / 9}
+                    onCropChange={setCrop}
+                    onZoomChange={setZoom}
+                    onCropComplete={onCropComplete}
+                  />
                 </div>
               ) : (
                 <div className="personalize-upload-placeholder">
@@ -141,7 +170,6 @@ const PersonalizeUpload = () => {
           </label>
         </div>
 
-        {/* 🔹 Orientation Selection */}
         {previewUrl && (
           <div className="orientation-selection">
             <label
@@ -161,7 +189,6 @@ const PersonalizeUpload = () => {
 
         {error && <p className="personalize-error-text">{error}</p>}
 
-        {/* 🔹 Upload Button */}
         <button className="btn btn-primary personalize-upload-btn" onClick={uploadToCloudinary} disabled={!selectedImage || uploading || imageQuality === "Low"}>
           {uploading ? "Uploading..." : "Confirm & Customize"}
         </button>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./CartComponent.css";
 import heartIcon from "../../assets/icons/heart-icon.svg";
 import heartIconFilled from "../../assets/icons/heart-icon-filled.svg";
+import deleteicon from "../../assets/icons/delete-icon.svg";
 import { v4 as uuidv4 } from "uuid";
 import Footer from "../Footer/Footer";
 import CouponUser from "../Coupon/CouponUser";
@@ -351,7 +352,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                       className="remove-btn"
                       onClick={() => handleRemoveItem(item)}
                     >
-                      Remove from Cart
+                      <img src={deleteicon} alt="Remove-From-Cart" />
                     </button>
 
                     {!item.isCustom && item.productId && (

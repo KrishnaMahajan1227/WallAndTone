@@ -86,12 +86,12 @@
   
   .recently-added-products-container::-webkit-scrollbar-thumb {
     background-color: #2F231F; /* Set the color of the scrollbar thumb */
-    border-radius: 10px; /* Add a border radius to the scrollbar thumb */
+  border-radius: 4px; /* Add a border radius to the scrollbar thumb */
   }
   
   .recently-added-products-container::-webkit-scrollbar-track {
     background-color: #F7F7F7; /* Set the color of the scrollbar track */
-    border-radius: 10px; /* Add a border radius to the scrollbar track */
+  border-radius: 4px; /* Add a border radius to the scrollbar track */
   }
   @media(max-width:480px){
     .recently-added-products-container .card {

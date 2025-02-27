@@ -219,7 +219,7 @@
 .freepik-generator-modal-content {
   background-color: #2D2D2D;
   padding: 20px;
-  border-radius: 10px;
+border-radius: 4px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   max-width: 90%;
   width: 100%;
@@ -284,7 +284,7 @@
 
 .freepik-generator-modal-body .card {
   cursor: pointer;
-  border-radius: 10px;
+border-radius: 4px;
   overflow: hidden;
   transition: transform 0.2s;
   background: #fff;

@@ -93,7 +93,7 @@
     height: 100px;
     cursor: pointer;
     object-fit: contain;
-    border-radius: 5px;
+  border-radius: 4px;
     transition: transform 0.3s ease-in-out, border 0.3s ease-in-out;
     border: 2px solid transparent;
     margin-left: 0;
@@ -191,13 +191,13 @@
   .add-to-cart {
     background-color: #ff9900;
     color: white;
-    border-radius: 5px;
+  border-radius: 4px;
   }
   
   .add-to-wishlist {
     background-color: transparent;
     border: 1px solid #ff9900;
-    border-radius: 5px;
+  border-radius: 4px;
   }
   .product-details .review-section {
     border-top: 1px solid #ddd;
@@ -346,7 +346,7 @@
   .product-details-container .size-buttons .option-button{
     padding: 10px;
     border: 1px solid #654839;
-    border-radius: 5px;
+  border-radius: 4px;
     cursor: pointer;
     background-color: #fff;
     color: #654839;

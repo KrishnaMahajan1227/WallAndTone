@@ -18,7 +18,7 @@
     justify-content: center;
     align-items: center;
     padding: 10px;
-    border-radius: 5px;
+  border-radius: 4px;
     width: 100%;
     position: relative;
   }
@@ -28,7 +28,7 @@
     padding: 10px;
     font-size: 16px;
     border: none;
-    border-radius: 5px;
+  border-radius: 4px;
   }
   
   .search-button {
@@ -36,7 +36,7 @@
     padding: 10px;
     font-size: 16px;
     border: none;
-    border-radius: 5px;
+  border-radius: 4px;
     color: #000000;
     cursor: pointer;
   }
@@ -52,7 +52,7 @@
     width: 100%;
     background-color: #fff;
     border: none;
-    border-radius: 5px;
+  border-radius: 4px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 10px;
     max-height: 400px;
@@ -93,7 +93,7 @@
       justify-content: center;
       align-items: center;
       padding: 10px;
-      border-radius: 5px;
+    border-radius: 4px;
       width: 100%;
       position: relative;
       margin-top: 20px;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import "./FAQ.css"; // Import the CSS file
+import "./Faq.css"; // Import the CSS file
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);

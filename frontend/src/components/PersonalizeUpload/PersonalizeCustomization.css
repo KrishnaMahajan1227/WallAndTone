@@ -12,7 +12,7 @@
     top: 1rem;
     right: 1rem;
     padding: 1rem;
-    border-radius: 0.5rem;
+    border-radius: 4px;
     z-index: 40;
     animation: slideIn 0.3s ease-out;
   }
@@ -138,7 +138,7 @@
   
   .personalize-customization .option-button {
     padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
+    border-radius: 4px;
     font-size: 0.875rem;
     transition: all 0.2s;
     border: 1px solid #e5e7eb;
@@ -175,14 +175,14 @@
     width: 80px;
     padding: 0.5rem;
     border: 1px solid #e5e7eb;
-    border-radius: 0.375rem;
+    border-radius: 4px;
   }
   
   .personalize-customization .price-section {
     margin: 2rem 0;
     padding: 1rem;
     background-color: #f9fafb;
-    border-radius: 0.5rem;
+    border-radius: 4px;
   }
   
   .personalize-customization .price-section h3 {
@@ -204,9 +204,10 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
+    border-radius: 4px;
     font-weight: 500;
     transition: all 0.2s;
+    max-width: fit-content;
   }
   
   .personalize-customization .add-to-cart {
@@ -270,4 +271,33 @@
     display: flex;
     justify-content: space-between;
   }
-  
+  @media(max-width:930px){
+    .personalize-customization .customization-details {
+        display: flex;
+        gap: 1rem;
+        flex-direction: column;
+    }
+    .personalize-customization {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem 0;
+        max-width: 100%;
+        margin: auto;
+    }
+    .personalize-customization .back-button {
+        margin: 0;
+    }
+    .personalize-customization .option-button {
+        padding: 8px 10px;
+        border-radius: 4px;
+        font-size: 10px;
+        transition: all 0.2s;
+        border: 1px solid #e5e7eb;
+        max-width: 100%;
+    }
+    .personalize-customization .frame-type-buttons, .personalize-customization .sub-frame-type-buttons, .personalize-customization .size-buttons {
+        display: grid;
+        grid-template-columns: auto auto auto auto;
+        gap: 6px;
+    }
+  }

@@ -2,108 +2,79 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './Login.css';
-import Footer from '../Footer/Footer';
 
 const Login = () => {
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+  const { setUser } = useContext(UserContext);
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { setUser } = useContext(UserContext);
 
-  // Check if user is already logged in
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (user) {
       const parsedUser = JSON.parse(user);
-      if (parsedUser.role === 'superadmin') {
-        navigate('/dashboard');
-      } else {
-        navigate('/');
-      }
+      navigate(parsedUser.role === 'superadmin' ? '/dashboard' : '/');
     }
   }, [navigate]);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setGeneralError('');
+    setIsLoading(true);
+
     try {
-      const response = await axios.post(`${apiUrl}/api/login`, {
-        email,
-        password,
-      });
-  
-      // Handle successful login
+      const response = await axios.post(`${apiUrl}/api/login`, { email, password });
+
       if (response.status === 200) {
-        // Log the response data for debugging
-        console.log(response.data); 
-  
-        // Save the user and token to localStorage
         const { token, user } = response.data;
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
-  
-        // Update the context (optional)
         setUser(user);
-  
-        // Redirect based on user role
-        if (user.role === 'superadmin') {
-          navigate('/dashboard');
-        } else {
-          navigate('/');
-        }
+        navigate(user.role === 'superadmin' ? '/dashboard' : '/');
       }
     } catch (error) {
-      if (error.response) {
-        console.error('Login failed:', error.response.data.message || 'Unknown error');
-        setGeneralError(error.response.data.message || 'Unknown error');
-      } else {
-        console.error('Login error:', error.message);
-        setGeneralError('An error occurred. Please try again.');
-      }
+      setGeneralError(error.response?.data?.message || 'An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  
 
   return (
-    <div className="login-background">
-      <div className="login-overlay">
-        <div className="card login-card shadow-lg p-4">
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="password" className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            {generalError && <div className="alert alert-danger">{generalError}</div>}
-            <button type="submit" className="btn btn-primary w-100" disabled={isLoading}>
-              {isLoading ? 'Logging in...' : 'Login'}
-            </button>
-          </form>
-          <div className="text-center mt-2">
-            <Link to="/signup">Don't have an account? Sign up</Link>
+    <div className="login-container">
+      <div className="login-left">
+        <form className="login-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input type="email" className="form-control" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
-        </div>
+          <hr className="seperating-line" />
+
+          <div className="form-group">
+            <input type="password" className="form-control" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          </div>
+          <hr className="seperating-line" />
+
+          {generalError && <div className="error-message">{generalError}</div>}
+
+          <button type="submit" className="btn login-btn" disabled={isLoading}>
+            {isLoading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
+
+        <p className="redirect-link">
+          Don't have an account? <Link to="/signup">Sign up</Link>
+        </p>
+      </div>
+
+      <div className="login-right">
+        <h3>Discover the Art of Framing</h3>
+        <p>Enhance your walls with high-quality frames, tailored to your style. Wall & Tone offers a unique selection to transform your space.</p>
+        <button className="btn explore-btn" onClick={() => navigate('/')}>Explore Now</button>
       </div>
     </div>
   );

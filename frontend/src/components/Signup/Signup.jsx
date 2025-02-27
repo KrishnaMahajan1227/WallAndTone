@@ -1,26 +1,25 @@
 import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './Signup.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Footer from '../Footer/Footer';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './Signup.css';
 
 const Signup = () => {
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     firstName: '',
     email: '',
     phone: '',
     password: '',
-    role: 'user',  // Default role is 'user'
+    role: 'user',  
   });
+
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
-  const navigate = useNavigate();
 
   // Handle form field changes
   const handleChange = (e) => {
@@ -46,8 +45,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate form
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -56,115 +53,61 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
     try {
       const response = await axios.post(`${apiUrl}/api/signup`, formData);
-
       if (response.status === 201) {
         setSuccessMessage(response.data.message);
-        setIsLoading(false);
-
-        // Redirect after 2 seconds
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
+        setTimeout(() => navigate('/login'), 2000);
       }
     } catch (error) {
-      setIsLoading(false);
       console.error("Signup Error:", error);
-      if (error.response) {
-        setGeneralError(error.response.data.message);
-      } else {
-        setGeneralError('Something went wrong. Please try again.');
-      }
+      setGeneralError(error.response?.data?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="signup-container">
-      <div className="signup-form">
-        <h2>Create an Account</h2>
-        <form onSubmit={handleSubmit}>
-          <div className={`form-group ${errors.firstName ? 'error' : ''}`}>
-            <input
-              type="text"
-              className="form-control"
-              id="firstName"
-              name="firstName"
-              placeholder="First Name"
-              value={formData.firstName}
-              onChange={handleChange}
-            />
-            {errors.firstName && <div className="alert alert-danger">{errors.firstName}</div>}
+      <div className="signup-left">
+        <form className="signup-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input type="text" name="firstName" className="form-control" placeholder="Enter your name" value={formData.firstName} onChange={handleChange} />
+            {errors.firstName && <small className="error-text">{errors.firstName}</small>}
           </div>
+          <hr className="seperating-line"/>
 
-          <div className={`form-group ${errors.email ? 'error' : ''}`}>
-            <input
-              type="email"
-              className="form-control"
-              id="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            {errors.email && <div className="alert alert-danger">{errors.email}</div>}
+          <div className="form-group">
+            <input type="email" name="email" className="form-control" placeholder="Enter your email" value={formData.email} onChange={handleChange} />
+            {errors.email && <small className="error-text">{errors.email}</small>}
           </div>
+          <hr className="seperating-line"/>
 
-          <div className={`form-group ${errors.phone ? 'error' : ''}`}>
-            <input
-              type="text"
-              className="form-control"
-              id="phone"
-              name="phone"
-              placeholder="Phone"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-            {errors.phone && <div className="alert alert-danger">{errors.phone}</div>}
+          <div className="form-group">
+            <input type="text" name="phone" className="form-control" placeholder="Enter your phone" value={formData.phone} onChange={handleChange} />
+            {errors.phone && <small className="error-text">{errors.phone}</small>}
           </div>
+          <hr className="seperating-line"/>
 
-          <div className={`form-group ${errors.password ? 'error' : ''}`}>
-            <input
-              type="password"
-              className="form-control"
-              id="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            {errors.password && <div className="alert alert-danger">{errors.password}</div>}
+          <div className="form-group">
+            <input type="password" name="password" className="form-control" placeholder="Enter your password" value={formData.password} onChange={handleChange} />
+            {errors.password && <small className="error-text">{errors.password}</small>}
           </div>
+          <hr className="seperating-line"/>
 
-          {/* Role selection (Optional for admins or specific roles) */}
-          <div className={`form-group ${errors.role ? 'error' : ''}`}>
-            <select
-              className="form-control"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-              <option value="superadmin">Super Admin</option>
-            </select>
-            {errors.role && <div className="alert alert-danger">{errors.role}</div>}
-          </div>
+          {generalError && <div className="error-message">{generalError}</div>}
+          {successMessage && <div className="success-message">{successMessage}</div>}
 
-          {/* Display error or success messages */}
-          {generalError && <div className="alert alert-danger">{generalError}</div>}
-          {successMessage && <div className="alert alert-success">{successMessage}</div>}
-
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Creating account...' : 'Sign Up'}
+          <button type="submit" className="btn signup-btn" disabled={isLoading}>
+            {isLoading ? 'Signing Up...' : 'Sign Up'}
           </button>
         </form>
 
-        <p className="redirect-link">
-          Already have an account? <Link to="/login">Log in here</Link>
-        </p>
+        <p className="redirect-link">Already have an account ? <Link to="/login">Login</Link></p>
+      </div>
+
+      <div className="signup-right">
+        <h3>Find the Perfect Frame for Your Space</h3>
+        <p>Transform any wall with art that speaks to your style. From homes to businesses, Wall & Tone offers frames designed to inspire and elevate every space.</p>
+        <button className="btn explore-btn" onClick={() => navigate('/')}>Explore Now</button>
       </div>
     </div>
   );

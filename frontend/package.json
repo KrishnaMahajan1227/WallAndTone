@@ -19,6 +19,7 @@
     "bootstrap": "^5.3.3",
     "browser-image-compression": "^2.0.2",
     "cors": "^2.8.5",
+    "framer-motion": "^12.4.7",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.474.0",

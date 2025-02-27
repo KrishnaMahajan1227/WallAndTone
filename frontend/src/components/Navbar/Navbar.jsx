@@ -300,7 +300,7 @@ const Navbar = () => {
                   </button>
                 </div>
               ) : (
-                <div className="login-container">
+                <div className="login-container-nav">
                   <Link 
                     to="/login" 
                     className="btn-login"

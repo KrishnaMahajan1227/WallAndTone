@@ -76,7 +76,8 @@
     overflow: hidden;
   }
   
-  .personalize-customization .frame-background {
+/* ✅ Default Frame Background Styling */
+.personalize-customization .frame-background {
     position: absolute;
     top: 0;
     left: 0;
@@ -85,7 +86,14 @@
     z-index: 1;
     object-fit: contain;
     pointer-events: none;
-  }
+}
+
+/* ✅ Apply Rotation Only When Landscape is Selected */
+.personalize-customization .landscape-mode .frame-background {
+    transform: rotate(90deg);
+}
+
+
   
   .personalize-customization .generated-artwork {
     position: relative;

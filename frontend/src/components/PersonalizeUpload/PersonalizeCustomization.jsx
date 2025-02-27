@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, ShoppingCart, Heart } from "lucide-react";
+import { ArrowLeft, ShoppingCart } from "lucide-react";
 import axios from "axios";
 import { frameBackgrounds } from "../constants/frameImages";
 import "./PersonalizeCustomization.css"; // Keeps UI Consistency
@@ -12,7 +12,6 @@ const PersonalizeCustomization = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const personalizedImage = location.state?.image;
-  const isCustom = location.state?.isCustom;
   const selectedOrientation = location.state?.orientation || "portrait"; // Default: Portrait
   const token = localStorage.getItem("token");
 
@@ -23,8 +22,6 @@ const PersonalizeCustomization = () => {
   const [sizes, setSizes] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [alertMessage, setAlertMessage] = useState("");
-  const [activeImage, setActiveImage] = useState(null);
-  const [subCartOpen, setSubCartOpen] = useState(false);
   const [cart, setCart] = useState({ items: [], totalPrice: 0 });
 
   const [selectedFrameType, setSelectedFrameType] = useState(null);
@@ -41,7 +38,6 @@ const PersonalizeCustomization = () => {
         }
       } catch (err) {
         setError("Failed to fetch frame types");
-        console.error(err);
       }
     };
     fetchFrameTypes();
@@ -58,7 +54,6 @@ const PersonalizeCustomization = () => {
           }
         } catch (err) {
           setError("Failed to fetch sub-frame types");
-          console.error(err);
         }
       }
     };
@@ -75,7 +70,6 @@ const PersonalizeCustomization = () => {
         }
       } catch (err) {
         setError("Failed to fetch sizes");
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -87,21 +81,6 @@ const PersonalizeCustomization = () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) return 0;
     let total = parseFloat(selectedFrameType.price) + parseFloat(selectedSubFrameType.price) + parseFloat(selectedSize.price);
     return (total * quantity).toFixed(2);
-  };
-
-  const handleFrameTypeSelect = (frameType) => {
-    setSelectedFrameType(frameType);
-    setSelectedSubFrameType(null);
-    setActiveImage(personalizedImage);
-  };
-
-  const handleSubFrameTypeSelect = (subFrameType) => {
-    setSelectedSubFrameType(subFrameType);
-    setActiveImage(personalizedImage);
-  };
-
-  const handleSizeSelect = (size) => {
-    setSelectedSize(size);
   };
 
   const handleAddToCart = async () => {
@@ -118,17 +97,15 @@ const PersonalizeCustomization = () => {
         size: selectedSize._id,
         isCustom: true,
         image: personalizedImage,
-        orientation: selectedOrientation // Pass orientation to backend
+        orientation: selectedOrientation // ✅ Send orientation to backend
       };
 
       if (token) {
         const response = await axios.post(`${apiUrl}/api/cart/add`, cartItem, { headers: { Authorization: `Bearer ${token}` } });
         setCart(response.data.cart);
         setAlertMessage("Added to cart successfully!");
-        setSubCartOpen(true);
       }
     } catch (err) {
-      console.error("Add to cart error:", err);
       setAlertMessage("Failed to add to cart");
     }
   };
@@ -145,44 +122,43 @@ const PersonalizeCustomization = () => {
 
       <div className="customization-details">
         <div className="image-section">
-          <div className={`main-image-container ${selectedOrientation}`}>
+          <div className={`main-image-container ${selectedOrientation === "landscape" ? "landscape-mode" : ""}`}>
             {selectedSubFrameType && (
               <img src={frameBackgrounds[selectedSubFrameType.name]} alt="Frame background" className="frame-background" />
             )}
-            <img src={activeImage || personalizedImage} alt="Uploaded Artwork" className="generated-artwork" />
+            <img src={personalizedImage} alt="Uploaded Artwork" className="generated-artwork" />
           </div>
         </div>
 
         <div className="info-section">
           <h3 className="product-title">Customize Your Artwork</h3>
           <div className="options-section">
+            <h4>Select Frame Type</h4>
             <div className="frame-type-buttons">
               {frameTypes.map(frameType => (
-                <button key={frameType._id} className={`option-button ${selectedFrameType?._id === frameType._id ? "active" : ""}`} onClick={() => handleFrameTypeSelect(frameType)}>
+                <button key={frameType._id} className={`option-button ${selectedFrameType?._id === frameType._id ? "active" : ""}`} onClick={() => setSelectedFrameType(frameType)}>
                   {frameType.name}
                 </button>
               ))}
             </div>
 
-            {selectedFrameType && subFrameTypes.length > 0 && (
-              <div className="sub-frame-type-buttons">
-                {subFrameTypes.map(subFrameType => (
-                  <button key={subFrameType._id} className={`option-button ${selectedSubFrameType?._id === subFrameType._id ? "active" : ""}`} onClick={() => handleSubFrameTypeSelect(subFrameType)}>
-                    {subFrameType.name}
-                  </button>
-                ))}
-              </div>
-            )}
+            <h4>Select Sub-Frame</h4>
+            <div className="sub-frame-type-buttons">
+              {subFrameTypes.map(subFrameType => (
+                <button key={subFrameType._id} className={`option-button ${selectedSubFrameType?._id === subFrameType._id ? "active" : ""}`} onClick={() => setSelectedSubFrameType(subFrameType)}>
+                  {subFrameType.name}
+                </button>
+              ))}
+            </div>
 
-            {selectedSubFrameType && sizes.length > 0 && (
-              <div className="size-buttons">
-                {sizes.map(size => (
-                  <button key={size._id} className={`option-button ${selectedSize?._id === size._id ? "active" : ""}`} onClick={() => handleSizeSelect(size)}>
-                    {size.width} x {size.height}
-                  </button>
-                ))}
-              </div>
-            )}
+            <h4>Select Size</h4>
+            <div className="size-buttons">
+              {sizes.map(size => (
+                <button key={size._id} className={`option-button ${selectedSize?._id === size._id ? "active" : ""}`} onClick={() => setSelectedSize(size)}>
+                  {size.width} x {size.height}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="price-section">

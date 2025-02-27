@@ -1,5 +1,7 @@
 import React from 'react';
 import { Instagram } from 'lucide-react';
+import { NavLink } from "react-router-dom";
+
 import './Footer.css';
 
 const Footer = () => {
@@ -14,8 +16,8 @@ const Footer = () => {
             <li><a href="/shipping">Shipping & Delivery</a></li>
             <li><a href="/returns">Returns & Exchange</a></li>
             <li><a href="/about">About Us</a></li>
-            <li><a href="/faq">FAQ</a></li>
-          </ul>
+            <li><NavLink to="/FAQ">FAQ</NavLink></li>
+            </ul>
         </div>
 
         <div className="footer-section">

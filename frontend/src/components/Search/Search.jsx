@@ -5,8 +5,9 @@ import axios from 'axios';
 import SearchSuggestions from './SearchSuggestions';
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
 import './search.css';
-import searchImage from '../../assets/searchPage/searchPagebusinesec.png';
-import Footer from '../Footer/Footer';
+import searchperfectartyourspace from '../../assets/searchPage/search-perfect-art-your-space.png';
+import ForBusinessesBulkOrdersB2B from '../../assets/searchPage/For-Businesses-Bulk-Orders-B2B.png';
+import ForHomePersonalSpacesB2C from '../../assets/searchPage/For-Home-Personal-Spaces-B2C.png';
 
 const Search = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -84,30 +85,42 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         </div>
       )}
 
+<section class="search-perfect-art-your-space">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10 col-12">
+                    <div class="content">
+                        <h2>Find the Perfect Art for Your Space</h2>
+                        <p>
+                            Picking the right artwork is like choosing the perfect playlist—it should match your vibe! 
+                            Whether you're looking for bold statement pieces or subtle elegance, we've got a curated 
+                            collection that fits every mood, style, and space.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 <div className="image-content">
 <ImageContentComponent
-  image={searchImage}
-  heading="Why its important to have the perfect fit for your business"
-        description="Every business tells a story, and the right wall art can help you narrate it perfectly. Whether its a cozy cafe, a sleek office, or a vibrant retail space, we provide frames and designs that align with your unique style. Our Curated collections ensure you get art that resonates with your brand and captivates your audience."
+  image={ForHomePersonalSpacesB2C}
+  heading="For Home & Personal Spaces (B2C)"
+        description="Your walls deserve personality! Whether it’s your cozy living room, a sleek workspace, or a dreamy bedroom, we make finding the right art effortless. Browse, pick, and get it delivered—hassle-free. Need help? Our art experts are just a message away!"
+        ctaText="Explore our Collection"
+        ctaLink="#"
+        reverse='yes'
+        />
+
+      <ImageContentComponent
+  image={ForBusinessesBulkOrdersB2B}
+  heading="For Businesses & Bulk Orders (B2B)"
+        description="Interior Designers, Architects, builders, hotels, offices, retail spaces and more—we help businesses create unforgettable atmospheres with curated art collections. 
+Need custom sizes, bulk orders, or exclusive designs? We’ve got you covered. We get you the best prices and make your space stand out!"
         ctaText="Discover More"
         ctaLink="#"
         />
 
-      <ImageContentComponent
-  image={searchImage}
-  heading="Wall Art for Offices: Boost Productivity & Style."
-        description="Office spaces deserve more than blank walls. Discover how the right wall art can enhance creativity, productivity, and employee morale. From motivational quotes to modern abstract pieces, we offer frames tailored to your office’s aesthetic and culture."
-        ctaText="Discover More"
-        ctaLink="#"
-        reverse={true}
-        />
-            <ImageContentComponent
-  image={searchImage}
-  heading="Wall art buying guide for Interior Designers and Architects"
-        description="Interior Designers and Architects  know the power of details. The right wall art can be the finishing touch that transforms a space. Discover how we help professionals like you find custom frames and prints that fit perfectly into any design project."
-        ctaText="Discover More"
-        ctaLink="#"
-      />
 </div>
 
 

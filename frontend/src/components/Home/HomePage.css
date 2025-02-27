@@ -295,6 +295,26 @@ border-radius: 4px;
   line-height: 40px !important;
 }
 
+@media (max-width: 1024px) {
+  /* Adjusting for Tablets */
+  .home-create-your-Wall-art .overlay-content {
+    right: 5%;
+    max-width: 400px;
+  }
+
+  .home-create-your-Wall-art .overlay-content h2 {
+    font-size: 28px !important;
+    line-height: 36px !important;
+  }
+
+  .home-create-your-Wall-art .image-frame {
+    top: 25px;
+    left: 5%;
+    width: 180px;
+    height: 180px;
+  }
+}
+
 @media(max-width:950px){
   .homepage-products-section .nav-tabs .nav-link {
     font-size: 16px;
@@ -304,6 +324,41 @@ border-radius: 4px;
 .homepage-products-section .nav-tabs .nav-item {
   width: fit-content;
   margin: 10px;
+}
+.home-create-your-Wall-art {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.home-create-your-Wall-art .background-image {
+  height: auto;
+  border-radius: 4px;
+}
+
+.home-create-your-Wall-art .image-frame {
+display: none;
+}
+
+.home-create-your-Wall-art .overlay-content {
+  position: relative;
+  top: 0;
+  right: 0;
+  transform: none;
+  text-align: center;
+  max-width: 100%;
+  padding: 0 20px;
+}
+
+.home-create-your-Wall-art .overlay-content h2 {
+  color: #2D2D2D;
+  margin-top: 20px;
+}
+
+.home-create-your-Wall-art .overlay-content .btn-primary {
+  font-size: 16px;
+  padding: 10px 20px;
 }
 }
 

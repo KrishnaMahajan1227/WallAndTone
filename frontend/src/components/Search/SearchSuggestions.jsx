@@ -1,4 +1,3 @@
-// SearchSuggestions.js
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './SearchSuggestions.css';
@@ -17,9 +16,9 @@ const SearchSuggestions = ({ suggestions, onSelect }) => {
         >
           <div className="suggestion-content">
             <img 
-              src={`${product.mainImage}`} 
+              src={product.mainImage} 
               alt={product.productName} 
-              className=" suggestion-image"
+              className="suggestion-image"
             />
             <div className="suggestion-details">
               <span className="suggestion-name">{product.productName}</span>

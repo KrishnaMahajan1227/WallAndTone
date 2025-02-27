@@ -29,6 +29,7 @@ import Footer from './components/Footer/Footer';
 import { useLocation } from "react-router-dom";
 import PersonalizeUpload from './components/PersonalizeUpload/PersonalizeUpload';
 import PersonalizeCustomization from './components/PersonalizeUpload/PersonalizeCustomization';
+import FAQ from './components/Faq/Faq';
 
 
 
@@ -65,8 +66,7 @@ function App() {
               <Route path="/forbusiness" element={<BusinessSection/>} />
               <Route path="/Personalize" element={<PersonalizeUpload/>} />
               <Route path="/PersonalizeCustomization" element={<PersonalizeCustomization/>} />
-
-              
+              <Route path="/FAQ" element={<FAQ/>} />
 
               
               {/* Admin Routes */}

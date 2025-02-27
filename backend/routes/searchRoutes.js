@@ -13,10 +13,15 @@ router.get('/suggestions', async (req, res) => {
     const products = await Product.find({
       $or: [
         { productName: { $regex: query, $options: 'i' } },
-        { description: { $regex: query, $options: 'i' } }
+        { description: { $regex: query, $options: 'i' } },
+        { categories: { $regex: query, $options: 'i' } },
+        { medium: { $regex: query, $options: 'i' } },
+        { rooms: { $regex: query, $options: 'i' } },
+        { colors: { $regex: query, $options: 'i' } },
+        { orientations: { $regex: query, $options: 'i' } },
       ]
     })
-    .select('_id productName price mainImage')
+    .select('_id productName startFromPrice mainImage')
     .limit(10);
 
     res.json(products);
@@ -26,7 +31,7 @@ router.get('/suggestions', async (req, res) => {
   }
 });
 
-// Full search endpoint
+// Full search endpoint - Search across all product attributes
 router.get('/', async (req, res) => {
   try {
     const query = req.query.q;
@@ -37,7 +42,14 @@ router.get('/', async (req, res) => {
     const products = await Product.find({
       $or: [
         { productName: { $regex: query, $options: 'i' } },
-        { description: { $regex: query, $options: 'i' } }
+        { description: { $regex: query, $options: 'i' } },
+        { categories: { $regex: query, $options: 'i' } },
+        { medium: { $regex: query, $options: 'i' } },
+        { rooms: { $regex: query, $options: 'i' } },
+        { colors: { $regex: query, $options: 'i' } },
+        { orientations: { $regex: query, $options: 'i' } },
+        { frameTypes: { $regex: query, $options: 'i' } },
+        { subFrameTypes: { $regex: query, $options: 'i' } }
       ]
     })
     .populate('frameTypes', 'name')

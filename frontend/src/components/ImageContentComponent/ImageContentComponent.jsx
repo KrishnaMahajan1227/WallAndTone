@@ -45,12 +45,12 @@ const ImageContentComponent = ({
             </div>
           </div>
         ) : (
-          <div className="col-md-6">
+          <div className="col-md-6 sec-image">
             <img src={image} alt={heading} className="image" />
           </div>
         )}
         {reverse ? (
-          <div className="col-md-6">
+          <div className="col-md-6 sec-image">
             <img src={image} alt={heading} className="image" />
           </div>
         ) : (

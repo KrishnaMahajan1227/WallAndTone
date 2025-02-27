@@ -361,6 +361,12 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
 }
 
 @media (max-width: 576px) {
+  button#sort-dropdown {
+    font-size: 12px;
+}
+  button.category-button {
+    font-size: 12px;
+}
   .product-listing .regular-products {
     grid-template-columns: 1fr;
   }

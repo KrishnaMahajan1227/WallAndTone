@@ -55,11 +55,11 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     responsive: [
       {
         breakpoint: 1024,
-        settings: { slidesToShow: 2 },
+        settings: { slidesToShow: 3 },
       },
       {
         breakpoint: 768,
-        settings: { slidesToShow: 1 },
+        settings: { slidesToShow: 2 },
       },
     ],
   };

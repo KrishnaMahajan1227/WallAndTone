@@ -78,7 +78,9 @@
   .main-footer .social-link:hover {
     color: #5B2EFF;
   }
-  
+  .pintrest-logo{
+    background-color: #FFFFFF;
+  }
   /* Responsive Styles */
   @media (max-width: 991px) {
     .main-footer .footer-container {

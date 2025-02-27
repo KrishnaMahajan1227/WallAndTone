@@ -9,8 +9,11 @@ import CameraComponent from "../CameraComponent/CameraComponent";
 import TopReviewedProducts from "../TopReviewedProducts/TopReviewedProducts";
 import RecentlyAddedProducts from "../RecentlyAddedProducts/RecentlyAddedProducts";
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
-import searchImage from '../../assets/searchPage/searchPagebusinesec.png';
-import Footer from "../Footer/Footer";
+import LivePreviewHome from '../../assets/Home/Live-Preview-Home.png';
+import AiCreationHome from '../../assets/Home/Ai-Creation-Home.png';
+import CreateYourWallArt from '../../assets/Home/create-your-Wall-art-home.png';
+import createyouwallartframehome from '../../assets/Home/create-you-wall-art-frame-home.png';
+
 
 const HomePage = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -181,24 +184,51 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         </div>
       </section>
 
-      <div className="homepage-live-preview">
+      <section className="homepage-Art-Corner">
         <ImageContentComponent
-          image={searchImage}
+          image={AiCreationHome}
+          heading="Art for Every Corner"
+          description="No more boring walls! Whether it’s your living room, office, café, hotel, or even that awkward empty hallway, the right wall art and frames can instantly transform any space. 
+Go bold with pop art, keep it classy with monochromes, or add a touch of nostalgia with vintage prints — whatever your vibe, we’ve got a piece for it. 
+From sleek modern frames to timeless classics, let’s turn your walls into conversation starters!
+"
+          ctaText="Explore Collection"
+          ctaLink="/products"
+        />
+      </section>
+
+      <section class="home-create-your-Wall-art">
+        <img src={CreateYourWallArt} alt="Create-Your-Wall-Art" class="background-image" />
+        <div class="image-frame">
+            <img src={createyouwallartframehome} alt="create-your-wall-art-frame-home" />
+        </div>
+        <div class="overlay-content">
+            <h2>Turn Your Favorite Moments into Wall Art</h2>
+            <button class="btn btn-primary">Create Your Wall Art</button>
+        </div>
+    </section>
+
+      <section className="homepage-live-preview">
+        <ImageContentComponent
+          image={LivePreviewHome}
           heading="See the Perfect Fit Before You Commit"
           description="No more guessing if that piece of art will look good in your room. Upload a photo of your wall, select your favorite frame, and see how the art transforms your space. It's the simplest way to ensure your new piece fits perfectly in your home, office, or business."
           ctaText="Preview Your Art"
           ctaLink="/livePreview"
+          reverse="yes"
         />
-      </div>
-
-      <section className="homepage-about-section py-5">
-        <div className="container text-center">
-          <h2 className="section-title">About Us</h2>
-          <p className="section-description">
-            We are dedicated to bringing you the best products with exceptional service. Our mission is to make your shopping experience seamless and enjoyable.
-          </p>
-        </div>
       </section>
+
+      <section className="homepage-Ai-creation">
+        <ImageContentComponent
+          image={AiCreationHome}
+          heading="AI-Powered Art Creation"
+          description="Discover the art of personalization with our AI-powered design tool. Whether you're looking for the perfect frame or canvas, our intelligent system helps you craft a masterpiece that complements your style and space effortlessly. Choose from a variety of sizes, materials, and finishes to bring your vision to life—all in just a few clicks!"
+          ctaText="Create with AI"
+          ctaLink="/AiCreation"
+        />
+      </section>
+
     </div>
   );
 };

@@ -1,0 +1,265 @@
+/* 🔹 Personalize Customization - Ensures identical UI as FreepikCustomization */
+.personalize-customization {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: auto;
+  }
+  
+  .personalize-customization .alert {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    z-index: 40;
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  .personalize-customization .alert-success {
+    background-color: #d1fae5;
+    border: 1px solid #34d399;
+    color: #065f46;
+  }
+  
+  .personalize-customization .alert-danger {
+    background-color: #fee2e2;
+    border: 1px solid #f87171;
+    color: #991b1b;
+  }
+  
+  .personalize-customization .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+  
+  .personalize-customization .back-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    color: #4b5563;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  
+  .personalize-customization .back-button:hover {
+    color: #1f2937;
+  }
+  
+  .personalize-customization .customization-details {
+    display: flex;
+    gap: 2rem;
+  }
+  
+  .personalize-customization .image-section {
+    flex: 1;
+    position: relative;
+  }
+  
+  .personalize-customization .main-image-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    background: transparent;
+    overflow: hidden;
+  }
+  
+  .personalize-customization .frame-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    object-fit: contain;
+    pointer-events: none;
+  }
+  
+  .personalize-customization .generated-artwork {
+    position: relative;
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+    z-index: 0;
+    margin: auto;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .personalize-customization .info-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .personalize-customization .product-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .personalize-customization .options-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .personalize-customization .frame-type-buttons,
+  .personalize-customization .sub-frame-type-buttons,
+  .personalize-customization .size-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .personalize-customization .option-button {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .personalize-customization .option-button.active {
+    background-color: #2563eb;
+    color: white;
+    border-color: #2563eb;
+  }
+  
+  .personalize-customization .option-button:not(.active) {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+  
+  .personalize-customization .option-button:not(.active):hover {
+    background-color: #e5e7eb;
+  }
+  
+  .personalize-customization .option-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .personalize-customization .quantity-section {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .personalize-customization .quantity-input {
+    width: 80px;
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+  }
+  
+  .personalize-customization .price-section {
+    margin: 2rem 0;
+    padding: 1rem;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+  }
+  
+  .personalize-customization .price-section h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .personalize-customization .action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .personalize-customization .add-to-cart,
+  .personalize-customization .add-to-wishlist {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .personalize-customization .add-to-cart {
+    background-color: #2563eb;
+    color: white;
+  }
+  
+  .personalize-customization .add-to-cart:hover:not(:disabled) {
+    background-color: #1d4ed8;
+  }
+  
+  .personalize-customization .add-to-wishlist {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+  
+  .personalize-customization .add-to-wishlist:hover:not(:disabled) {
+    background-color: #e5e7eb;
+  }
+  
+  /* 🔹 Shopping Cart Popup */
+  .personalize-customization .sub-cart-popup {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100%;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .personalize-customization .sub-cart-popup.show {
+    transform: translateX(0);
+  }
+  
+  .personalize-customization .sub-cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  
+  .personalize-customization .sub-cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .personalize-customization .cart-footer {
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .personalize-customization .cart-actions {
+    display: flex;
+    justify-content: space-between;
+  }
+  

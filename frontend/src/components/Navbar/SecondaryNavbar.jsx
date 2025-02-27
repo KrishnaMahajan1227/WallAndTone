@@ -49,7 +49,8 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       'aboutus',
       'contact',
       'AiCreation',
-      'forbusiness'
+      'forbusiness',
+      'Personalize'
     ];
   
     if (mainNavigationItems.includes(currentPath)) {

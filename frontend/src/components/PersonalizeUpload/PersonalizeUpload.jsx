@@ -1,37 +1,48 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Upload } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./PersonalizeUpload.css"; // Custom CSS file
 
-const apiUrl = import.meta.env.VITE_API_URL || 
-  (window.location.hostname === 'localhost' 
-    ? 'http://localhost:8080' 
-    : 'https://wallandtone.com');
+const apiUrl =
+  import.meta.env.VITE_API_URL ||
+  (window.location.hostname === "localhost"
+    ? "http://localhost:8080"
+    : "https://wallandtone.com");
 
 const PersonalizeUpload = () => {
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [imageQuality, setImageQuality] = useState(null);
+  const [supportedSizes, setSupportedSizes] = useState([]);
+  const [orientation, setOrientation] = useState("portrait"); // Default portrait
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
 
   const token = localStorage.getItem("token");
 
-  // **🔹 Check Image Quality Before Upload**
+  // **🔹 Available Sizes Based on Quality**
+  const qualitySizes = {
+    Low: [],
+    Medium: ["13×18", "21×30", "30×40"],
+    Good: ["13×18", "21×30", "30×40", "40×50", "50×50", "50×70", "70×100"],
+  };
+
+  // **🔹 Check Image Quality & Set Sizes**
   const checkImageQuality = (file) => {
     const img = new Image();
     img.onload = () => {
-      const minResolution = 800; // Minimum 800px for printing
-      if (img.width < minResolution || img.height < minResolution) {
-        setImageQuality("Low");
-      } else if (img.width < 1500 || img.height < 1500) {
-        setImageQuality("Medium");
-      } else {
-        setImageQuality("Good");
+      let qualityLevel = "Low";
+      if (img.width >= 1500 && img.height >= 1500) {
+        qualityLevel = "Good";
+      } else if (img.width >= 800 && img.height >= 800) {
+        qualityLevel = "Medium";
       }
+
+      setImageQuality(qualityLevel);
+      setSupportedSizes(qualitySizes[qualityLevel]);
     };
     img.src = URL.createObjectURL(file);
   };
@@ -52,7 +63,7 @@ const PersonalizeUpload = () => {
     checkImageQuality(file);
   };
 
-  // **🔹 Upload Image to Backend (which then uploads to Cloudinary)**
+  // **🔹 Upload Image & Send Data to Customization**
   const uploadToCloudinary = async () => {
     if (!selectedImage) {
       setError("Please select an image first.");
@@ -70,22 +81,19 @@ const PersonalizeUpload = () => {
 
     try {
       // ✅ Upload image to Cloudinary via Backend API
-      const response = await axios.post(
-        `${apiUrl}/api/users/personalized-images`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post(`${apiUrl}/api/users/personalized-images`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       const imageUrl = response.data.image.imageUrl;
 
-      // ✅ Redirect user to customization with the uploaded image
-      navigate("/PersonalizeCustomization", { state: { image: imageUrl, isCustom: true } });
-
+      // ✅ Redirect user to customization with orientation info
+      navigate("/PersonalizeCustomization", {
+        state: { image: imageUrl, isCustom: true, orientation },
+      });
     } catch (err) {
       console.error("Upload Error:", err.response?.data || err.message);
       setError("Failed to upload image. Please try again.");
@@ -95,41 +103,66 @@ const PersonalizeUpload = () => {
   };
 
   return (
-    <div className="personalize-container">
-      <div className="personalize-card">
-        <h2 className="text-center">Personalized by You</h2>
-        <p className="text-center">Transform your favorite photos into a WORK OF ART!</p>
+    <div className="personalize-upload-container">
+      <div className="personalize-upload-card">
+        <h2 className="text-center personalize-title">Personalized by You</h2>
+        <p className="text-center personalize-subtitle">
+          Transform your favorite photos into a <strong>WORK OF ART!</strong>
+        </p>
 
-        <div className="upload-box">
-          <label className="upload-label">
+        {/* 🔹 Image Upload Box */}
+        <div className="personalize-upload-box">
+          <label className="personalize-upload-label">
             <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
-            <div className="upload-content">
+            <div className="personalize-upload-content">
               {previewUrl ? (
-                <img src={previewUrl} alt="Selected" className="preview-image" />
+                <div className="personalize-preview-container">
+                  <img src={previewUrl} alt="Selected" className="personalize-preview-image" />
+                  {imageQuality && (
+                    <div className={`image-quality-overlay ${imageQuality.toLowerCase()}`}>
+                      <p>Quality: {imageQuality}</p>
+                      <p>Available Sizes:</p>
+                      <ul>
+                        {supportedSizes.map((size, index) => (
+                          <li key={index}>{size}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               ) : (
-                <div className="upload-placeholder">
-                  <Upload size={40} />
-                  <p>Upload Photo</p>
-                  <span>Supported: PNG, JPG</span>
+                <div className="personalize-upload-placeholder">
+                  <Upload size={50} className="upload-icon" />
+                  <p className="upload-text">Upload Photo</p>
+                  <span className="upload-support">Supported: PNG, JPG</span>
                 </div>
               )}
             </div>
           </label>
         </div>
 
-        {imageQuality && (
-          <div className={`image-quality ${imageQuality.toLowerCase()}`}>
-            Image Quality: {imageQuality}
+        {/* 🔹 Orientation Selection */}
+        {previewUrl && (
+          <div className="orientation-selection">
+            <label
+              className={`orientation-option ${orientation === "portrait" ? "active" : ""}`}
+              onClick={() => setOrientation("portrait")}
+            >
+              Portrait (3:4)
+            </label>
+            <label
+              className={`orientation-option ${orientation === "landscape" ? "active" : ""}`}
+              onClick={() => setOrientation("landscape")}
+            >
+              Landscape (16:9)
+            </label>
           </div>
         )}
 
-        {error && <p className="error-text">{error}</p>}
+        {error && <p className="personalize-error-text">{error}</p>}
 
-        <button
-          className="btn btn-primary w-100 mt-3"
-          onClick={uploadToCloudinary}
-          disabled={!selectedImage || uploading || imageQuality === "Low"}
-        >
+        {/* 🔹 Upload Button */}
+        <button className="btn btn-primary personalize-upload-btn" onClick={uploadToCloudinary} disabled={!selectedImage || uploading || imageQuality === "Low"}>
           {uploading ? "Uploading..." : "Confirm & Customize"}
         </button>
       </div>

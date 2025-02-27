@@ -368,12 +368,14 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
     font-size: 12px;
 }
   .product-listing .regular-products {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr) !important; /* Keeps 2 per row */
   }
-
+  .product-listing .remaining-products-container {
+    grid-template-columns: repeat(2, 1fr) !important; /* Ensures 2 per row */
+  }
   .product-listing .product-image-wrapper,
   .product-listing .product-card.large-card .product-image-wrapper {
-    height: 250px;
+    height: 160px;
   }
 
   .product-listing .card-body {

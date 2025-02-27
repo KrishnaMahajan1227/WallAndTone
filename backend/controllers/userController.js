@@ -4,6 +4,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { uploadBase64Image } = require('../utils/cloudinary');
+require("dotenv").config();
+const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
 
 // Sign up a new user
 const signupUser = async (req, res) => {
@@ -76,20 +79,21 @@ const loginUser = async (req, res) => {
 };
 
 
-// Get all users (for admin only)
+// **🔹 Get All Users (Admin & Superadmin)**
 const getAllUsers = async (req, res) => {
-    try {
-      // Ensure the logged-in user has the required role
-      if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
-        return res.status(403).json({ message: 'Access forbidden' });
-      }
-  
-      const users = await User.find(); // Fetch all users
-      res.status(200).json(users); // Return users
-    } catch (error) {
-      res.status(500).json({ message: 'Error fetching users', error: error.message });
+  try {
+    if (req.user.role !== 'superadmin') {
+      return res.status(403).json({ message: 'Access forbidden' });
     }
-  };
+
+    const users = await User.find().select('-password'); // Exclude password
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Error fetching users', error: error.message });
+  }
+};
 
 // Update user (for admin only)
 const updateUser = async (req, res) => {
@@ -146,25 +150,28 @@ const deleteUser = async (req, res) => {
     }
   };
   
-  const getUserProfile = async (req, res) => {
-    try {
-      const user = await User.findById(req.user._id).select('+password'); // Include password in the query
-  
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      res.status(200).json({
-        firstName: user.firstName,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-        password: "",  // 🚨 Do NOT return actual password (security reasons)
-      });
-    } catch (error) {
-      res.status(500).json({ message: 'Server error', error: error.message });
+// **🔹 Get User Profile**
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password'); // Exclude password
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  };
+
+    res.status(200).json({
+      id: user._id,
+      firstName: user.firstName,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      personalizedImages: user.personalizedImages, // Includes user's uploaded images
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
   
 // Update user profile
 const updateUserProfile = async (req, res) => {
@@ -390,6 +397,104 @@ const deleteGeneratedImage = async (req, res) => {
     res.status(500).json({ message: "Error deleting image", error: error.message });
   }
 };
+
+// **🔹 Upload Personalized Image**
+const uploadPersonalizedImage = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const imageFile = req.file; // ✅ Get the uploaded file
+
+    if (!imageFile) {
+      return res.status(400).json({ message: "Image file is required" });
+    }
+
+    const timestamp = Date.now();
+    const publicId = `personalized_uploads/${userId}/personalized-${timestamp}`;
+
+    // ✅ Upload file to Cloudinary
+    const uploadResult = await cloudinary.uploader.upload(imageFile.path, {
+      public_id: publicId,
+      folder: "personalized_uploads",
+      resource_type: "image",
+      quality: "auto",
+      transformation: [{ width: 1200, crop: "limit" }],
+    });
+
+    // ✅ Delete the local file after upload
+    fs.unlinkSync(imageFile.path);
+
+    // ✅ Save uploaded image details in user database
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const newPersonalizedImage = {
+      imageUrl: uploadResult.secure_url,
+      publicId: uploadResult.public_id,
+      createdAt: new Date(),
+    };
+
+    user.personalizedImages.push(newPersonalizedImage);
+    await user.save();
+
+    res.status(200).json({
+      message: "Personalized image uploaded successfully",
+      image: newPersonalizedImage,
+    });
+  } catch (error) {
+    console.error("Error uploading personalized image:", error);
+    res.status(500).json({ message: "Error uploading image", error: error.message });
+  }
+};
+
+// **🔹 Get User's Personalized Images**
+const getPersonalizedImages = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId).select('personalizedImages');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ images: user.personalizedImages });
+  } catch (error) {
+    console.error('Error fetching personalized images:', error);
+    res.status(500).json({ message: 'Error fetching images', error: error.message });
+  }
+};
+
+// **🔹 Delete a Personalized Image**
+const deletePersonalizedImage = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { imageId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Find the image to delete
+    const image = user.personalizedImages.find(img => img._id.toString() === imageId);
+    if (!image) {
+      return res.status(404).json({ message: 'Image not found' });
+    }
+
+    // Delete from Cloudinary
+    await cloudinary.uploader.destroy(image.publicId);
+
+    // Remove from user data
+    user.personalizedImages = user.personalizedImages.filter(img => img._id.toString() !== imageId);
+    await user.save();
+
+    res.status(200).json({ message: 'Image deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting personalized image:', error);
+    res.status(500).json({ message: 'Error deleting image', error: error.message });
+  }
+};
   
 const deleteAllGeneratedImages = async () => {
     try {
@@ -405,7 +510,6 @@ const deleteAllGeneratedImages = async () => {
       console.error("Error deleting all images:", error);
     }
 };
-  
 
 // Export the functions
 module.exports = {
@@ -421,4 +525,7 @@ module.exports = {
   addImageChunk,
   deleteGeneratedImage,
   deleteAllGeneratedImages,
+  uploadPersonalizedImage,
+  getPersonalizedImages,
+  deletePersonalizedImage,
 };

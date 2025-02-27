@@ -27,6 +27,8 @@ import AboutUs from './components/AboutUs/AboutUs';
 import BusinessSection from './components/BusinessSection/BusinessSection';
 import Footer from './components/Footer/Footer';
 import { useLocation } from "react-router-dom";
+import PersonalizeUpload from './components/PersonalizeUpload/PersonalizeUpload';
+import PersonalizeCustomization from './components/PersonalizeUpload/PersonalizeCustomization';
 
 
 
@@ -61,8 +63,12 @@ function App() {
               <Route path="/customize" element={<FreepikCustomization />} />
               <Route path="/aboutus/*" element={<AboutUs/>} />
               <Route path="/forbusiness" element={<BusinessSection/>} />
+              <Route path="/Personalize" element={<PersonalizeUpload/>} />
+              <Route path="/PersonalizeCustomization" element={<PersonalizeCustomization/>} />
 
+              
 
+              
               {/* Admin Routes */}
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/manageProducts" element={<ProductManager />} />

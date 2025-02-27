@@ -155,6 +155,15 @@ const Navbar = () => {
           For Business
         </Link>
       </li>
+      <li className="nav-item">
+        <Link 
+          to="/Personalize" 
+          className="nav-link"
+          onClick={() => handleNavigation('Personalize', 'Personalize')}
+        >
+          Personalize
+        </Link>
+      </li>
     </>
   );
 

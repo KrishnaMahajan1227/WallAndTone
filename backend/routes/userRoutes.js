@@ -10,9 +10,14 @@ const { signupUser ,
      getGeneratedImages,
      addImageChunk,
      deleteGeneratedImage,
-     deleteAllGeneratedImages, } = require('../controllers/userController');
+     deleteAllGeneratedImages, 
+     uploadPersonalizedImage,
+  getPersonalizedImages,
+  deletePersonalizedImage,
+} = require('../controllers/userController');
 const router = express.Router();
 const { protectAdmin, protectUser  } = require('../middleware/authMiddleware');
+const multer = require("multer");
 
 // Routes
 router.post('/signup', signupUser );
@@ -35,5 +40,13 @@ router.post('/users/generated-images/chunk', protectUser, addImageChunk);
 router.get('/users/generated-images', protectUser, getGeneratedImages);
 router.delete("/users/generated-images/:imageId", protectUser, deleteGeneratedImage);
 router.delete("/users/generated-images", protectUser, deleteAllGeneratedImages);
+// **🔹 Multer Storage for Uploads**
+const upload = multer({ dest: "uploads/" });
+
+// **🔹 Personalized Image Upload Routes**
+router.post("/users/personalized-images", protectUser, upload.single("image"), uploadPersonalizedImage);
+
+router.get('/users/personalized-images', protectUser, getPersonalizedImages);
+router.delete('/users/personalized-images/:imageId', protectUser, deletePersonalizedImage);
 
 module.exports = router;

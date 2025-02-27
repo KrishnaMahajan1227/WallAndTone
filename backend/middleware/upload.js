@@ -28,6 +28,21 @@ const storageCloudinary = new CloudinaryStorage({
   }
 });
 
+// Cloudinary Storage for Personalized Images
+const personalizedStorageCloudinary = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    const timestamp = Date.now();
+    const fileName = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
+
+    return {
+      folder: 'personalized_uploads',
+      public_id: `personalized-${fileName}-${timestamp}`,
+      format: file.mimetype.split('/')[1],
+      transformation: [{ quality: 'auto' }]
+    };
+  }
+});
 // Local Storage for Excel Files
 const storageLocal = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -185,6 +200,9 @@ const uploadLocalToCloudinary = async (imagePath, publicId) => {
   }
 };
 
+
+const uploadPersonalizedImage = multer({ storage: personalizedStorageCloudinary, fileFilter: fileFilterImages, limits: { fileSize: 50 * 1024 * 1024 } });
+
 // Verify Cloudinary configuration
 cloudinary.uploader.upload('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', {
   folder: 'test'
@@ -206,5 +224,6 @@ module.exports = {
   uploadExcel, 
   uploadImage,
   uploadLocalToCloudinary,
-  uploadReviewImage
+  uploadReviewImage,
+  uploadPersonalizedImage,
 };

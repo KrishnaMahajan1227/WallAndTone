@@ -95,7 +95,9 @@ app.post('/api/upload', uploadImage.single('image'), (req, res) => {
   }
   res.json({ imageUrl: req.file.path }); // Return Cloudinary URL
 });
-
+// Import Routes
+const cloudinaryRoutes = require("./routes/cloudinaryRoutes");  // 👈 Import here
+app.use("/api", cloudinaryRoutes);  // 👈 Use the route here
 
 // Serve React Frontend (for production)
 const frontendPath = path.join(__dirname, '../frontend/dist');

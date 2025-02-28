@@ -13,15 +13,15 @@ const Footer = () => {
           <ul className="footer-links">
             <li><a href="/track-order">Track Your Order</a></li>
             <li><a href="/orders">Orders</a></li>
-            <li><a href="/shipping">Shipping & Delivery</a></li>
-            <li><a href="/returns">Returns & Exchange</a></li>
-            <li><a href="/about">About Us</a></li>
+            <li><NavLink to="/Shipping&Delivery">Shipping & Delivery</NavLink></li>
+            <li><NavLink to="/Return&Exchange">Return & Exchange</NavLink></li>
+            <li><NavLink to="/about">About Us</NavLink></li>
             <li><NavLink to="/FAQ">FAQ</NavLink></li>
             </ul>
         </div>
 
         <div className="footer-section">
-          <h3 className="footer-heading">Contact Us</h3>
+          <h3 className="footer-heading">Contact Us</h3> 
           <ul className="footer-links">
             <li>
               <span className="footer-label">Phone:</span>
@@ -41,8 +41,8 @@ const Footer = () => {
         <div className="footer-section">
           <h3 className="footer-heading">Notice</h3>
           <ul className="footer-links">
-            <li><a href="/privacy">Privacy Policy</a></li>
-            <li><a href="/terms">Terms & Condition</a></li>
+            <li><NavLink to="/Privacy&Policy">Privacy Policy</NavLink></li>
+            <li><NavLink to="/Terms&Conditions">Terms & Conditions</NavLink></li>
           </ul>
         </div>
 

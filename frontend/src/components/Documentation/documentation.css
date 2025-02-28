@@ -1,0 +1,23 @@
+section.documentation-main h2.main-heading {
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 40px;
+    margin: 0;
+    margin-bottom: 35px;
+}
+section.documentation-main p.content-heading {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 32px;
+    margin: 0;
+}
+section.documentation-main p.content-descp {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 24px;
+    margin: 0px 0 30px 0;
+}
+section.documentation-main p.content-descp a {
+ text-decoration: none;
+ color: #5b2eff;
+}

@@ -31,6 +31,10 @@ import PersonalizeUpload from './components/PersonalizeUpload/PersonalizeUpload'
 import PersonalizeCustomization from './components/PersonalizeUpload/PersonalizeCustomization';
 import FAQ from './components/Faq/Faq';
 import CheckoutPage from './components/CheckoutPage/CheckoutPage';
+import PrivacyPolicy from './components/Documentation/PrivacyPolicy';
+import TermsConditions from './components/Documentation/TermsConditions';
+import ShippingDelivery from './components/Documentation/ShippingDelivery';
+import ReturnExchange from './components/Documentation/ReturnExchange';
 
 
 
@@ -69,6 +73,12 @@ function App() {
               <Route path="/PersonalizeCustomization" element={<PersonalizeCustomization/>} />
               <Route path="/FAQ" element={<FAQ/>} />
               <Route path="/checkout" element={<CheckoutPage/>} />
+              <Route path="/Privacy&Policy" element={<PrivacyPolicy/>} />
+              <Route path="/Terms&Conditions" element={<TermsConditions/>} />
+              <Route path="/Shipping&Delivery" element={<ShippingDelivery/>} />
+              <Route path="/Return&Exchange" element={<ReturnExchange/>} />
+
+
 
               
               {/* Admin Routes */}

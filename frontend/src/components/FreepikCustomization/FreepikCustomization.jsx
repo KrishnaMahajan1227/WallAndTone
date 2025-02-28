@@ -46,6 +46,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   const guestWishlist = JSON.parse(localStorage.getItem('guestWishlist') || '[]');
   const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+  
 
   useEffect(() => {
     const fetchFrameTypes = async () => {

@@ -94,7 +94,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }
   };
   
-
   const handleStylingChange = (event) => {
     setStyling({ ...styling, [event.target.name]: event.target.value });
   };
@@ -213,11 +212,9 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
               onChange={handleStylingChange}
               disabled={loading}
             >
-              <option value="square_1_1">Square 1:1</option>
-              <option value="classic_4_3">Classic 4:3</option>
-              <option value="traditional_3_4">Traditional 3:4</option>
-              <option value="widescreen_16_9">Widescreen 16:9</option>
-              <option value="social_story_9_16">Social Story 9:16</option>
+              <option value="traditional_3_4">Portrait</option>
+              <option value="widescreen_16_9">Landscape</option>
+              <option value="square_1_1">Square</option>
             </select>
 
             <select

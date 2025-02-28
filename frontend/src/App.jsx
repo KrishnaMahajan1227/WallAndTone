@@ -30,6 +30,7 @@ import { useLocation } from "react-router-dom";
 import PersonalizeUpload from './components/PersonalizeUpload/PersonalizeUpload';
 import PersonalizeCustomization from './components/PersonalizeUpload/PersonalizeCustomization';
 import FAQ from './components/Faq/Faq';
+import CheckoutPage from './components/CheckoutPage/CheckoutPage';
 
 
 
@@ -67,6 +68,7 @@ function App() {
               <Route path="/Personalize" element={<PersonalizeUpload/>} />
               <Route path="/PersonalizeCustomization" element={<PersonalizeCustomization/>} />
               <Route path="/FAQ" element={<FAQ/>} />
+              <Route path="/checkout" element={<CheckoutPage/>} />
 
               
               {/* Admin Routes */}

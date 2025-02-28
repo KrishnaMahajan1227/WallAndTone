@@ -273,6 +273,21 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   // Final total after applying the discount
   const finalTotal = preDiscountTotal - discountAmount;
   
+  const handleProceedToCheckout = () => {
+    navigate("/checkout", { 
+      state: { 
+        total: finalTotal, 
+        cartItems: cart.items, 
+        subtotal, 
+        shippingCost, 
+        taxAmount, 
+        discountAmount, 
+        couponApplied, 
+        couponDiscount 
+      } 
+    });
+  };
+  
   
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -418,9 +433,10 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   </div>
 
   <div className="cart-actions">
-    <button className="checkout-btn" onClick={() => navigate("/checkout")}>
-      Proceed to Checkout
-    </button>
+  <button className="checkout-btn" onClick={handleProceedToCheckout}>
+  Proceed to Checkout
+</button>
+
     <button className="continue-shopping-btn" onClick={() => navigate("/products")}>
       Continue Shopping
     </button>

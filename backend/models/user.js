@@ -16,7 +16,16 @@ const userSchema = new mongoose.Schema({
     prompt: String,
     createdAt: { type: Date, default: Date.now }
   }],
-
+  // Shipping Details
+  shippingDetails: [{
+    shippingAddress: { type: String},
+    billingAddress: { type: String},
+    city: { type: String},
+    pincode: { type: String},
+    state: { type: String},
+    country: { type: String },
+    createdAt: { type: Date, default: Date.now }
+  }],
   // Personalized images uploaded by the user
   personalizedImages: [{
     imageUrl: { type: String, required: true },  // Cloudinary URL

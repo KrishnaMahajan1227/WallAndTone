@@ -165,47 +165,87 @@ const getUserProfile = async (req, res) => {
       email: user.email,
       phone: user.phone,
       role: user.role,
-      personalizedImages: user.personalizedImages, // Includes user's uploaded images
+      personalizedImages: user.personalizedImages, // User's uploaded images
+      shippingDetails: user.shippingDetails, // Include shipping details
     });
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-  
-// Update user profile
-const updateUserProfile = async (req, res) => {
-  const { firstName, email, phone, oldPassword, newPassword } = req.body;
 
+// **🔹 Update User Profile**
+const updateUserProfile = async (req, res) => {
   try {
+    const { firstName, email, phone, oldPassword, newPassword, shippingDetails } = req.body;
+    
+    // ✅ Find User
     const user = await User.findById(req.user._id);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // Update user details
-    user.firstName = firstName || user.firstName;
-    user.email = email || user.email;
-    user.phone = phone || user.phone;
+    // ✅ Update Basic Details (only if provided)
+    if (firstName) user.firstName = firstName;
+    if (phone) user.phone = phone;
 
-    // If user wants to update password
+    // ✅ Check if the new email already exists
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: "Email is already in use" });
+      }
+      user.email = email;
+    }
+
+    // ✅ Handle Password Update
     if (oldPassword && newPassword) {
       const isMatch = await user.matchPassword(oldPassword);
       if (!isMatch) {
-        return res.status(400).json({ message: 'Old password is incorrect' });
+        return res.status(400).json({ message: "Old password is incorrect" });
       }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "New password must be at least 6 characters long" });
+      }
+
       user.password = newPassword; // Password will be auto-hashed due to pre-save hook
     }
 
+    // ✅ Update Shipping Details (if provided)
+    if (shippingDetails) {
+      user.shippingDetails = {
+        shippingAddress: shippingDetails.shippingAddress || user.shippingDetails?.shippingAddress || '',
+        billingAddress: shippingDetails.billingAddress || user.shippingDetails?.billingAddress || '',
+        city: shippingDetails.city || user.shippingDetails?.city || '',
+        pincode: shippingDetails.pincode || user.shippingDetails?.pincode || '',
+        state: shippingDetails.state || user.shippingDetails?.state || '',
+        country: shippingDetails.country || user.shippingDetails?.country || 'India', // Default to 'India'
+      };
+    }
+
+    // ✅ Save Updated User Data
     await user.save();
+
+    // ✅ Return Updated Profile
     res.status(200).json({
-      message: 'Profile updated successfully',
-      user: { firstName: user.firstName, email: user.email, phone: user.phone },
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        email: user.email,
+        phone: user.phone,
+        shippingDetails: user.shippingDetails, // Return updated shipping details
+      },
     });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error updating user', error: error.message });
+    console.error("Error updating user profile:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+
 
 // Store for temporary upload chunks
 const uploadChunks = new Map();

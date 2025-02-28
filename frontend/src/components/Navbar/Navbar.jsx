@@ -242,13 +242,12 @@ const Navbar = () => {
         {showLoginModal && <LoginModal />}
         <div className="navbar-container">
           <div className="navbar-header">
-            <Link 
-              to="/" 
-              className="logo-container"
-              onClick={() => handleNavigation('', 'Home')}
-            >
-              <img src={whiteLogo} alt="Logo" className="logo" />
-            </Link>
+          <div className="logo-container">
+  <Link to="/" onClick={() => handleNavigation('', 'Home')}>
+    <img src={whiteLogo} alt="Logo" className="logo" />
+  </Link>
+</div>
+
 
             <button 
               className="navbar-toggler" 

@@ -7,38 +7,61 @@ import "./UserProfile.css";
 const UserProfile = () => {
   const apiUrl = import.meta.env.VITE_API_URL || "https://wallandtone.com";
   const [profile, setProfile] = useState({
-    name: "",
+    firstName: "",
     email: "",
     phone: "",
     shippingAddress: "",
     billingAddress: "",
+    city: "",
+    state: "",
+    pincode: "",
+    country: "India",
   });
-  const [isEditing, setIsEditing] = useState(false);
   const [sameAddress, setSameAddress] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [passwords, setPasswords] = useState({ oldPassword: "", newPassword: "" });
   const [activeTab, setActiveTab] = useState("profile");
   const [userGeneratedImages, setUserGeneratedImages] = useState([]);
-  
+  const [alertMessage, setAlertMessage] = useState("");
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(true);
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("User not authenticated");
+// ✅ Fetch User Profile
+useEffect(() => {
+  const fetchUserProfile = async () => {
+    try {
+      if (!token) throw new Error("User not authenticated");
 
-        const response = await axios.get(`${apiUrl}/api/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setProfile(response.data);
-        if (response.data.shippingAddress === response.data.billingAddress) {
-          setSameAddress(true);
-        }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
+      const response = await axios.get(`${apiUrl}/api/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const userData = response.data;
+      setProfile({
+        firstName: userData.firstName || "",
+        email: userData.email || "",
+        phone: userData.phone || "",
+        shippingAddress: userData.shippingDetails?.shippingAddress || "",
+        billingAddress: userData.shippingDetails?.billingAddress || "",
+        city: userData.shippingDetails?.city || "",
+        state: userData.shippingDetails?.state || "",
+        pincode: userData.shippingDetails?.pincode || "",
+        country: userData.shippingDetails?.country || "India",
+      });
+
+      if (userData.shippingDetails?.shippingAddress === userData.shippingDetails?.billingAddress) {
+        setSameAddress(true);
       }
-    };
-    fetchUserProfile();
-  }, []);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      setAlertMessage("Failed to load profile.");
+    }
+  };
+
+  fetchUserProfile();
+}, []);
 
   useEffect(() => {
     if (activeTab === "myRoom") {
@@ -65,20 +88,44 @@ const UserProfile = () => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("User not authenticated");
+ // ✅ Handle Save Profile
+ const handleSave = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-      await axios.put(`${apiUrl}/api/profile`, profile, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error updating profile:", error);
+  try {
+    const updatedData = {
+      firstName: profile.firstName,
+      phone: profile.phone,
+      shippingDetails: {
+        shippingAddress: profile.shippingAddress || "", // Save empty string if not provided
+          billingAddress: profile.billingAddress || "",
+          city: profile.city || "",
+          state: profile.state || "",
+          pincode: profile.pincode || "",
+          country: profile.country || "India",
+      },
+    };
+
+    if (showPasswordFields && passwords.oldPassword && passwords.newPassword) {
+      updatedData.oldPassword = passwords.oldPassword;
+      updatedData.newPassword = passwords.newPassword;
     }
-  };
+
+    const response = await axios.put(`${apiUrl}/api/profile/update`, updatedData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    setAlertMessage(response.data.message);
+    setIsEditing(false);
+    setShowPasswordFields(false);
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    setAlertMessage(error.response?.data?.message || "Failed to update profile.");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   const deleteGeneratedImage = async (imageId) => {
@@ -134,12 +181,22 @@ const UserProfile = () => {
         <div className="card p-4">
           <div className="d-flex justify-content-between mb-3">
             <h4>My Profile</h4>
-            <button className="btn btn-link" onClick={() => setIsEditing(!isEditing)}>Edit</button>
+            {!isEditing ? (
+            <button className="btn btn-warning" onClick={() => setIsEditing(true)}>Edit</button>
+          ) : (
+            <button className="btn btn-success" onClick={handleSave}>
+              {"Save Changes"}
+            </button>
+          )}
+            
           </div>
+
+          {alertMessage && <div className="alert alert-info">{alertMessage}</div>}
+
           <form onSubmit={handleSave}>
             <div className="mb-3">
               <label>Name</label>
-              <input type="text" name="name" value={profile.firstName} onChange={handleChange} className="form-control" disabled={!isEditing} />
+              <input type="text" name="firstName" value={profile.firstName} onChange={handleChange} className="form-control" disabled={!isEditing} />
             </div>
             <div className="mb-3">
               <label>Email</label>
@@ -149,21 +206,71 @@ const UserProfile = () => {
               <label>Phone</label>
               <input type="text" name="phone" value={profile.phone} onChange={handleChange} className="form-control" disabled={!isEditing} />
             </div>
+
             <div className="mb-3">
               <label>Shipping Address</label>
               <input type="text" name="shippingAddress" value={profile.shippingAddress} onChange={handleChange} className="form-control" disabled={!isEditing} />
             </div>
+
             <div className="mb-3">
               <label>Billing Address</label>
-              <input type="text" name="billingAddress" value={profile.billingAddress} onChange={handleChange} className="form-control" disabled={!isEditing || sameAddress} />
+              <input type="text" name="billingAddress" value={sameAddress ? profile.shippingAddress : profile.billingAddress} onChange={handleChange} className="form-control" disabled={!isEditing || sameAddress} />
               <div className="form-check">
-                <input type="checkbox" className="form-check-input" checked={sameAddress} onChange={() => setSameAddress(!sameAddress)} />
+                <input type="checkbox" className="form-check-input" checked={sameAddress} onChange={() => setSameAddress(!sameAddress)} disabled={!isEditing} />
                 <label className="form-check-label">Same as Shipping Address</label>
               </div>
             </div>
-          </form>
+      {/* City, State, Pincode */}
+      <div className="mb-3">
+        <label>City</label>
+        <input
+          type="text"
+          name="city"
+          value={profile.city}
+          onChange={handleChange}
+          className="form-control"
+          disabled={!isEditing}
+        />
+      </div>
+      <div className="mb-3">
+        <label>State</label>
+        <input
+          type="text"
+          name="state"
+          value={profile.state}
+          onChange={handleChange}
+          className="form-control"
+          disabled={!isEditing}
+        />
+      </div>
+      <div className="mb-3">
+        <label>Pincode</label>
+        <input
+          type="text"
+          name="pincode"
+          value={profile.pincode}
+          onChange={handleChange}
+          className="form-control"
+          disabled={!isEditing}
+        />
+      </div>
+            <button type="button" className="btn btn-outline-secondary mb-3" onClick={() => setShowPasswordFields(!showPasswordFields)}>
+              {showPasswordFields ? "Cancel Password Change" : "Change Password"}
+            </button>
+
+            {showPasswordFields && (
+              <>
+                <input type="password" className="form-control mb-3" placeholder="Old Password" onChange={(e) => setPasswords({ ...passwords, oldPassword: e.target.value })} />
+                <input type="password" className="form-control mb-3" placeholder="New Password" onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })} />
+              </>
+            )}
+
+<button className="btn btn-primary w-100 mt-3" type="submit" disabled={loading}>
+            {loading ? "Saving..." : "Save Changes"}
+          </button>          </form>
         </div>
       )}
+
 
 {activeTab === "myRoom" && (
         <div className="mt-4 user-profile__generated-images">

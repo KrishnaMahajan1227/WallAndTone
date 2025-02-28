@@ -32,7 +32,7 @@ router.delete('/users/:id', protectAdmin, deleteUser);
 
 // Profile routes for viewing and updating profile
 router.get('/profile', protectUser , getUserProfile);  // Get profile details
-router.put('/profile', protectUser , updateUserProfile);  // Update profile details
+router.put('/profile/update', protectUser , updateUserProfile);  // Update profile details
 
 // Generated images routes
 router.post('/users/generated-images', protectUser, addGeneratedImage);

@@ -3,6 +3,7 @@ import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import aboutturningcanvases from '../../assets/about/About-Turning-Canvases.png';
 import AboutDiscoverCollection from '../../assets/about/About-Discover-Collection.png';
 import Empoweringchange from '../../assets/about/Empowering-change.png';
+import { useMediaQuery } from 'react-responsive';
 
 // ProductionImages
 import PrecisionQualityCraftsmanship from '../../assets/about/Precision-Quality-Craftsmanship.png';
@@ -17,9 +18,9 @@ import './AboutUs.css';
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
 import Footer from '../Footer/Footer';
 
-
 const AboutContent = () => (
   <>
+  
     <section className="aboutus-hero">
       <div className="aboutus-container">
         <div className="abt-sec1-content">
@@ -131,135 +132,133 @@ const AboutContent = () => (
   </>
 );
 
-const ProductionContent = () => (
-  <section className="aboutus-production">
-    <div className="aboutus-container">
-      <div className="aboutus-production-content">
-        
-      <div className="aboutus-production-content-Precision">
-      <ImageContentComponent
-  image={PrecisionQualityCraftsmanship}
-  heading="Precision, Quality and Craftsmanship"
-  description={
-    <>
-      <p>
-        Unlike mass-produced wall art, every frame, print, and material is thoughtfully designed, carefully sourced, and expertly crafted to guarantee an unmatchable quality, innovation, and artistry.
-      </p>
-      <p className="mt-4">
-        We partner with expert manufacturers who blend automated precision with years of craftsmanship, allowing us to perform with best-in-class frames and give room for future innovation. Our printing is done fully in-house, giving us full control over color accuracy, texture, and detail, ensuring that each frame stands for true artistic excellence.
-      </p>
-    </>
-  }
-  reverse="yes"
-/>
-</div>
+const ProductionContent = () => {
+  const isMobile = useMediaQuery({ maxWidth: 768 }); // ✅ Define `isMobile`
 
-<div className="aboutus-production-content-Frames-Spaces">
-  <ImageContentComponent
-    image={FramesDefineSpaces}
-    heading="Frames That Define Spaces"
-    description={
-      <>
-        <p>
-          The frame is not just an edge; the frame is part of the artwork. With a huge inventory of solid wood, sleek metal, and bright neon acrylic frames, we cater to various styles:
-        </p>
-        <ul className="mt-2">
-          <li>- Minimalist black & metal frames for modern interiors.</li>
-          <li>- Warm wooden frames for a timeless and classic feel.</li>
-          <li>- Eye-catching neon acrylics for bold statement pieces.</li>
-        </ul>
-        <p className="mt-4">
-          Each frame receives construction from quality materials and assembly with fastidious attention to enhance your space.
-        </p>
-      </>
-    }
-  />
-</div>
+  return (
+    <section className="aboutus-production">
+      <div className="aboutus-container">
+        <div className="aboutus-production-content">
 
+          {/* Precision, Quality, and Craftsmanship */}
+          <div className="aboutus-production-content-Precision">
+            <ImageContentComponent
+              image={PrecisionQualityCraftsmanship}
+              heading="Precision, Quality and Craftsmanship"
+              description={
+                <>
+                  <p>
+                    Unlike mass-produced wall art, every frame, print, and material is thoughtfully designed, carefully sourced, and expertly crafted to guarantee an unmatchable quality, innovation, and artistry.
+                  </p>
+                  <p className="mt-4">
+                    We partner with expert manufacturers who blend automated precision with years of craftsmanship, allowing us to perform with best-in-class frames and give room for future innovation. Our printing is done fully in-house, giving us full control over color accuracy, texture, and detail, ensuring that each frame stands for true artistic excellence.
+                  </p>
+                </>
+              }
+              reverse={!isMobile ? "yes" : undefined} // ✅ Fix reverse logic
+            />
+          </div>
 
-<div className="aboutus-production-content-Paper-Matters">
-  <ImageContentComponent
-    image={PaperMatters}
-    heading="Paper Matters, for Every Artwork"
-    description={
-      <>
-        <p>We do not just print; we curate materials that do justice to the artwork. These include:</p>
-        <ul className="mt-2">
-          <li>Museum-Grade Canvas: Textured and stretched for eternal elegance.</li>
-          <li>Glass-Framed Prints: High-density, low-reflection paper for bright displays without glare.</li>
-          <li>No-Glass Frames: High-texture matte paper.</li>
-          <li>Acrylic Wall Art: Ultra-clear acrylic glass with a UV filter for eternal brilliance.</li>
-          <li>Rolled Prints: Available in gloss, matte, and fine art paper for versatility.</li>
-        </ul>
-      </>
-    }
-    reverse="yes"
-  />
-</div>
+          {/* Frames That Define Spaces */}
+          <div className="aboutus-production-content-Frames-Spaces">
+            <ImageContentComponent
+              image={FramesDefineSpaces}
+              heading="Frames That Define Spaces"
+              description={
+                <>
+                  <p>The frame is not just an edge; the frame is part of the artwork. With a huge inventory of solid wood, sleek metal, and bright neon acrylic frames, we cater to various styles:</p>
+                  <ul className="mt-2">
+                    <li>- Minimalist black & metal frames for modern interiors.</li>
+                    <li>- Warm wooden frames for a timeless and classic feel.</li>
+                    <li>- Eye-catching neon acrylics for bold statement pieces.</li>
+                  </ul>
+                  <p className="mt-4">
+                    Each frame receives construction from quality materials and assembly with fastidious attention to enhance your space.
+                  </p>
+                </>
+              }
+              reverse={!isMobile ? "yes" : undefined} // ✅ Fix reverse logic
+            />
+          </div>
 
+          {/* Paper Matters */}
+          <div className="aboutus-production-content-Paper-Matters">
+            <ImageContentComponent
+              image={PaperMatters}
+              heading="Paper Matters, for Every Artwork"
+              description={
+                <>
+                  <p>We do not just print; we curate materials that do justice to the artwork. These include:</p>
+                  <ul className="mt-2">
+                    <li>Museum-Grade Canvas: Textured and stretched for eternal elegance.</li>
+                    <li>Glass-Framed Prints: High-density, low-reflection paper for bright displays without glare.</li>
+                    <li>No-Glass Frames: High-texture matte paper.</li>
+                    <li>Acrylic Wall Art: Ultra-clear acrylic glass with a UV filter for eternal brilliance.</li>
+                    <li>Rolled Prints: Available in gloss, matte, and fine art paper for versatility.</li>
+                  </ul>
+                </>
+              }
+              reverse={!isMobile ? "yes" : undefined} // ✅ Remove reverse on mobile
+            />
+          </div>
 
-        <div className="aboutus-impact-image-container">
+          {/* Impact Image Section */}
+          <div className="aboutus-impact-image-container">
             <div className="aboutus-impact-content">
               <h2>In-House Production for Premium Wall-Art</h2>
-              <p>
-              Crafting Every Piece with Precision, Quality and Expertise
-              </p>
+              <p>Crafting Every Piece with Precision, Quality and Expertise</p>
             </div>
             <img 
               src={InHouseProduction}
               alt="Happy children learning"
               className="aboutus-impact-image"
             />
+          </div>
+
+          {/* In-House Printing */}
+          <div className="aboutus-production-content-In-House-Printing">
+            <ImageContentComponent
+              image={InHousePrinting}
+              heading="In-House Printing"
+              description={
+                <>
+                  <p>Using state-of-the-art UV and Giclée print technologies, we produce vivid colors, precise details, and enhanced depth. Our in-house printing assures:</p>
+                  <ul className="mt-2">
+                    <li>✔ Intricacy is maintained, from brush strokes to gradients.</li>
+                    <li>✔ Our prints never fade; their glory holds for years to come.</li>
+                    <li>✔ Best visibility under all lighting conditions.</li>
+                  </ul>
+                  <p className="mt-4">
+                    We have kept printing in-house to undergo a continuous cycle of experimentation, refinement, and perfection for each artwork—achieving optimum results that surpass general expectations.
+                  </p>
+                </>
+              }
+              reverse={!isMobile ? "yes" : undefined} // ✅ Remove reverse on mobile
+            />
+          </div>
+
+          {/* Made in India */}
+          <div className="aboutus-production-content-Proudly-Made-INDIA">
+            <ImageContentComponent
+              image={MadeInIndia}
+              heading="Proudly Made in INDIA"
+              description={
+                <>
+                  <p>Wall & Tone is a fully homegrown Indian brand, dedicated to creating high-quality wall art and wall frames. Every canvas, poster, and frame is crafted in India by skilled Indian artisans using premium materials. We take pride in our in-house production, supporting local talent, ensuring exceptional craftsmanship.</p>
+                  <p className="mt-0">With Wall & Tone, you’re not just decorating your space; you’re celebrating innovation and excellence, proudly Made in India.</p>
+                </>
+              }
+            />
+          </div>
+
         </div>
-
-        <div className="aboutus-production-content-In-House-Printing">
-  <ImageContentComponent
-    image={InHousePrinting}
-    heading="In-House Printing"
-    description={
-      <>
-        <p>
-          Using state-of-the-art UV and Giclée print technologies, we produce vivid colors, precise details, and enhanced depth. Our in-house printing assures:
-        </p>
-        <ul className="mt-2">
-          <li>✔ Intricacy is maintained, from brush strokes to gradients.</li>
-          <li>✔ Our prints never fade; their glory holds for years to come.</li>
-          <li>✔ Best visibility under all lighting conditions.</li>
-        </ul>
-        <p className="mt-4">
-          We have kept printing in-house to undergo a continuous cycle of experimentation, refinement, and perfection for each artwork—achieving optimum results that surpass general expectations.
-        </p>
-      </>
-    }
-    reverse="yes"
-  />
-</div>
-
-
-<div className="aboutus-production-content-Proudly-Made-INDIA">
-  <ImageContentComponent
-    image={MadeInIndia}
-    heading="Proudly Made in INDIA"
-    description={
-      <>
-        <p>
-        Wall & Tone is a fully homegrown Indian bran, dedicated to creating high-quality wall art and wall frames. Every canvas, poster and frame is crafted in India by skilled Indian artisans using premium materials. We take pride in our in-house production, supporting local tent, ensuring exceptional craftsmanship.
-        </p>
-        <p className="mt-0">
-        With Wall & Tone, you’re not just decorating your space; you’re celebrating innovation and excellence, proudly Made in India.
-        </p>
-      </>
-    }
-  />
-</div>
-
-        
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 function AboutUs() {
+
   return (
     <div className="aboutus-page">
       <div className="aboutus-tabs-container">

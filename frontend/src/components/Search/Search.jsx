@@ -8,6 +8,7 @@ import './search.css';
 import searchperfectartyourspace from '../../assets/searchPage/search-perfect-art-your-space.png';
 import ForBusinessesBulkOrdersB2B from '../../assets/searchPage/For-Businesses-Bulk-Orders-B2B.png';
 import ForHomePersonalSpacesB2C from '../../assets/searchPage/For-Home-Personal-Spaces-B2C.png';
+import { useMediaQuery } from "react-responsive";
 
 const Search = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -59,8 +60,10 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     setSearchQuery('');
     navigate(`/product/${product._id}`);
   };
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   return (
+    
     <div className="search-container">
       <div className="search-bar">
         <form onSubmit={handleSearch}>
@@ -112,14 +115,15 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         reverse='yes'
         />
 
-      <ImageContentComponent
+<ImageContentComponent
   image={ForBusinessesBulkOrdersB2B}
   heading="For Businesses & Bulk Orders (B2B)"
-        description="Interior Designers, Architects, builders, hotels, offices, retail spaces and more—we help businesses create unforgettable atmospheres with curated art collections. 
-Need custom sizes, bulk orders, or exclusive designs? We’ve got you covered. We get you the best prices and make your space stand out!"
-        ctaText="Discover More"
-        ctaLink="#"
-        />
+  description="Interior Designers, Architects, builders, hotels, offices, retail spaces and more—we help businesses create unforgettable atmospheres with curated art collections. 
+  Need custom sizes, bulk orders, or exclusive designs? We’ve got you covered. We get you the best prices and make your space stand out!"
+  ctaText="Discover More"
+  ctaLink="#"
+  reverse={!isMobile ? "yes" : 'yes'} // ✅ Remove reverse on mobile
+/>
 
 </div>
 

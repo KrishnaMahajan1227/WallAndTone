@@ -390,10 +390,10 @@ section.aboutus-production .aboutus-impact-content {
     top: unset;
     bottom: -10%;
 }
-section.aboutus-production .aboutus-impact-content h2 {
+.aboutus-production .aboutus-impact-content h2 {
     color: #FFFFFF;
 }
-section.aboutus-production .aboutus-impact-content h2 {
+.aboutus-production .aboutus-impact-content h2 {
     color: #FFFFFF;
     font-size: 48px;
     line-height: 48px;
@@ -491,14 +491,14 @@ section.aboutus-production .aboutus-impact-content p {
   padding: 30px 0;
 }
 .aboutus-collection-image {
-  order: 2;
+  order: 1;
 }
 .aboutus-collection-text {
-  order: 1;
+  order: 2;
 }
 .aboutus-container .aboutus-impact-content  h2 {
   font-size: 30px;
-  line-height: 48px;
+  line-height: 38px;
   color: #FFFFFF;
   font-weight: 500;
   margin: 0;
@@ -529,16 +529,20 @@ section.aboutus-production .aboutus-impact-content p {
     z-index: 2;
     width: 100%;
     padding: 20px;
-    color: white;
+    color: #2D2D2D;
     text-shadow: none;
+    order: 2;
 }
 .aboutus-container .aboutus-impact-content  h2 {
   font-size: 28px;
-  line-height: 48px;
+  line-height: 38px;
   color: #2D2D2D;
   font-weight: 500;
   margin: 0;
   width: 100%;
+}
+.aboutus-impact-image-container::after{
+  display: none;
 }
 .aboutus-impact-section p {
   font-size: 18px;
@@ -552,4 +556,13 @@ section.aboutus-production .aboutus-impact-content p {
 .aboutus-impact-section {
   padding-bottom: 50px;
 }
+.aboutus-container .abt-sec1-content .content {
+  order: 2;
+}
+.aboutus-impact-image-container {
+  position: unset;
+  display: flex;
+  flex-direction: column;
+}
+
 }

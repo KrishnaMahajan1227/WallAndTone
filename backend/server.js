@@ -19,8 +19,9 @@ const multer = require('multer');
 const upload = require('./middleware/upload'); 
 const { uploadExcel, uploadImage, uploadReviewImage } = require('./middleware/upload');
 const paymentRoutes = require("./routes/payment");
-const shiprocketRoutes = require("./routes/shiprocketRoutes");
-
+// Import Shiprocket routes
+const shiprocketAuthRoute = require("./shiprocketAuth");
+const shiprocketOrderRoute = require("./routes/shiprocketOrder");
 require('dotenv').config();
 
 const app = express();
@@ -113,7 +114,9 @@ app.get('*', (req, res) => {
 // Payment
 app.use("/api/payment", paymentRoutes);
 
-app.use("/api/shiprocket", shiprocketRoutes);
+// Mount routes under /api/shiprocket
+app.use("/api/shiprocket", shiprocketAuthRoute);
+app.use("/api/shiprocket", shiprocketOrderRoute);
 
 
 // Start the server

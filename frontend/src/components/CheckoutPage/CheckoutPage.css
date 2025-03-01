@@ -1,0 +1,126 @@
+/* Parent class for checkout page styles */
+.checkout-page {
+    padding: 30px 0;
+    background-color: #f7f7f7;
+    font-family: "Lexend Deca", serif;
+  }
+  
+  /* Container styling */
+  .checkout-container {
+    max-width: 1200px;
+    margin: auto;
+  }
+  
+  /* Card Styling */
+  .checkout-card {
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  /* Form Controls */
+  .checkout-page .form-control {
+    border-radius: 4px;
+    font-size: 16px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  /* Alert Messages */
+  .checkout-page .alert {
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  
+  /* Order Summary Items */
+  .order-summary-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .order-item {
+    display: flex;
+    gap: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+  }
+  
+  .order-item:last-child {
+    border-bottom: none;
+  }
+  
+  .order-item-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
+  .order-item-info h5 {
+    font-size: 18px;
+    margin: 0;
+    color: #333;
+  }
+  
+  .order-item-info p {
+    margin: 2px 0;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .order-item-price {
+    font-size: 16px;
+    font-weight: bold;
+    color: #e60000;
+  }
+  
+  /* Payment Method */
+  .payment-method p {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  /* Submit Button */
+  .checkout-btn {
+    font-size: 18px;
+    padding: 12px;
+    border-radius: 4px;
+    margin-top: 20px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .checkout-page {
+      padding: 20px 10px;
+    }
+    .checkout-card h4 {
+      font-size: 18px;
+    }
+    .checkout-page .form-control {
+      font-size: 14px;
+    }
+    .checkout-btn {
+      font-size: 16px;
+      padding: 10px;
+    }
+    .order-item {
+      flex-direction: column;
+      align-items: center;
+    }
+    .order-item-image {
+      width: 100%;
+      height: auto;
+    }
+    .order-item-info {
+      text-align: center;
+    }
+  }
+  

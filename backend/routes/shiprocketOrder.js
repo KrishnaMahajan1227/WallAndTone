@@ -9,9 +9,11 @@ router.post("/create-order", async (req, res) => {
   try {
     const { token, orderData } = req.body;
 
-    // Validate required billing fields before sending to Shiprocket
+    // Validate required billing fields – ensure key names match Shiprocket's documentation.
     if (!orderData.billing_address || !orderData.billing_city || !orderData.billing_pincode) {
-      return res.status(400).json({ success: false, message: "Billing address is incomplete" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Billing address is incomplete" });
     }
 
     const response = await axios.post(
@@ -27,7 +29,10 @@ router.post("/create-order", async (req, res) => {
 
     res.json({ success: true, orderResponse: response.data });
   } catch (error) {
-    console.error("Error creating order in Shiprocket:", error.response?.data || error.message);
+    console.error(
+      "Error creating order in Shiprocket:",
+      error.response ? error.response.data : error.message
+    );
     res.status(500).json({ success: false, message: "Failed to create order" });
   }
 });

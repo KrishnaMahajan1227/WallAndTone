@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./CheckoutPage.css";
 
@@ -11,19 +13,21 @@ const CheckoutPage = () => {
   const token = localStorage.getItem("token");
 
   const location = useLocation();
+  // The cart items and final price (price to be paid by the user) are passed in state
   const cartItems = location.state?.cartItems || [];
-  const initialTotal = Number(location.state?.total) || 0;
-  const discountAmount = location.state?.discountAmount || 0;
+  const finalPrice = Number(location.state?.total) || 0;
+  const discountAmount = Number(location.state?.discountAmount) || 0;
   const couponApplied = location.state?.couponApplied || false;
-  const couponDiscount = location.state?.couponDiscount || 0;
+  const couponDiscount = Number(location.state?.couponDiscount) || 0;
 
+  // Local state for cart & pricing – using passed data directly
   const [cart, setCart] = useState(cartItems);
-  const [totalPrice, setTotalPrice] = useState(initialTotal);
-  const [sameAddress, setSameAddress] = useState(true); // default true so billing equals shipping
-  const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [totalPrice, setTotalPrice] = useState(finalPrice);
+
+  // Only Online Payment is allowed – COD removed.
+  const paymentMethod = "Online";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [alertMessage, setAlertMessage] = useState("");
 
   // Shipping Details state with editable fields
   const [shippingDetails, setShippingDetails] = useState({
@@ -37,6 +41,7 @@ const CheckoutPage = () => {
     pincode: "",
     country: "India",
   });
+  const [sameAddress, setSameAddress] = useState(true);
 
   const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
@@ -48,25 +53,22 @@ const CheckoutPage = () => {
     document.body.appendChild(script);
   }, []);
 
-  // Fetch user profile and cart details on mount or when total changes
+  // On mount, prefill shipping details & fetch latest user data
   useEffect(() => {
-    setTotalPrice(initialTotal);
+    setTotalPrice(finalPrice);
     fetchUserProfile();
     fetchCartDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialTotal]);
+  }, [finalPrice]);
 
-  // Pre-fill shipping details from user profile
   const fetchUserProfile = async () => {
     try {
       if (!token) return;
-
       const response = await axios.get(`${apiUrl}/api/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const userData = response.data;
       const userShipping = userData.shippingDetails.length > 0 ? userData.shippingDetails[0] : {};
-
       setShippingDetails({
         name: userData.firstName || "",
         email: userData.email || "",
@@ -78,18 +80,15 @@ const CheckoutPage = () => {
         pincode: userShipping.pincode || "",
         country: userShipping.country || "India",
       });
-
-      // If billing equals shipping, we set sameAddress to true
       if (userShipping.shippingAddress === userShipping.billingAddress || !userShipping.billingAddress) {
         setSameAddress(true);
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
-      setAlertMessage("Could not fetch user profile.");
+      toast.error("Could not fetch user profile.");
     }
   };
 
-  // Fetch updated cart details from backend
   const fetchCartDetails = async () => {
     try {
       if (!token) return;
@@ -97,7 +96,8 @@ const CheckoutPage = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCart(response.data.items);
-      setTotalPrice(response.data.totalPrice);
+      // Use the final price already computed on previous page
+      setTotalPrice(finalPrice);
     } catch (error) {
       console.error("Error fetching cart details:", error);
     }
@@ -115,113 +115,110 @@ const CheckoutPage = () => {
       !shippingDetails.pincode ||
       (!sameAddress && !shippingDetails.billingAddress)
     ) {
-      setError("Please fill in all required fields.");
+      toast.error("Please fill in all required fields.");
       return false;
     }
     return true;
   };
 
-  // Handle order placement for COD
-  const handlePlaceOrder = async () => {
-    if (!validateFields()) return;
-    setLoading(true);
-    try {
-      // Prepare order data; if sameAddress, use shipping address as billing address
-      const orderData = {
-        cartItems: cart,
-        totalPrice,
-        shippingDetails: {
-          ...shippingDetails,
-          billingAddress: sameAddress ? shippingDetails.shippingAddress : shippingDetails.billingAddress,
-        },
-        paymentMethod: "COD",
-      };
-
-      const response = await axios.post(`${apiUrl}/api/place-order`, orderData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.data.success) {
-        navigate("/order-confirmation", { state: { orderId: response.data.orderId } });
-      }
-    } catch (error) {
-      console.error("Error placing order", error);
-      setError("Failed to place order. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle online payment using Razorpay and Shiprocket order creation
+  // Handle online payment via Razorpay
   const handlePayment = async () => {
     if (!validateFields()) return;
     setLoading(true);
     try {
-      // Create a Razorpay order on your server
+      // Create an order on your backend (orderResponse contains order details in paise)
       const orderResponse = await axios.post(`${apiUrl}/api/payment/create-order`, {
         amount: totalPrice * 100, // Amount in paise
         currency: "INR",
-        receipt: `order_rcptid_${Date.now()}`,
+        receipt: `order_rcptid_${Date.now()}`
       });
-
+      const { order } = orderResponse.data;
       const options = {
         key: razorpayKey,
-        amount: orderResponse.data.order.amount,
+        amount: order.amount,
         currency: "INR",
         name: "Wall and Tone",
         description: "Order Payment",
-        order_id: orderResponse.data.order.id,
+        order_id: order.id,
         handler: async (response) => {
           console.log("Payment Successful:", response);
-
-          // Fetch a new Shiprocket token
-          const shiprocketAuth = await axios.post(`${apiUrl}/api/shiprocket/auth`);
-          const shiprocketToken = shiprocketAuth.data.token;
-
-          // Create Shiprocket Order
-          const shiprocketOrderData = {
-            token: shiprocketToken,
-            orderData: {
-              order_id: `WT-${Date.now()}`,
-              order_date: new Date().toISOString().split("T")[0],
-              pickup_location: "Primary",
-              billing_customer_name: shippingDetails.name,
-              billing_last_name: "",
-              billing_address: shippingDetails.shippingAddress,
-              billing_city: shippingDetails.city,
-              billing_pincode: shippingDetails.pincode,
-              billing_state: shippingDetails.state,
-              billing_country: shippingDetails.country,
-              billing_email: shippingDetails.email,
-              billing_phone: shippingDetails.phone,
-              shipping_is_billing: true,
-              order_items: cart.map((item) => ({
+          toast.success("Payment successful!");
+  
+          // Aggregate order items so that each SKU is unique
+          const aggregatedItems = cart.reduce((acc, item) => {
+            const sku = item.productId ? item.productId._id : "CUSTOM";
+            const unitPrice =
+              (item.frameType.price || 0) +
+              (item.subFrameType.price || 0) +
+              (item.size.price || 0) +
+              (item.productId?.price || 0);
+            if (acc[sku]) {
+              acc[sku].units += item.quantity;
+            } else {
+              acc[sku] = {
                 name: item.productId?.productName || "Custom Artwork",
-                sku: item.productId?._id || "CUSTOM",
+                sku,
                 units: item.quantity,
-                selling_price:
-                  item.frameType.price +
-                  item.subFrameType.price +
-                  item.size.price,
+                selling_price: unitPrice,
                 discount: 0,
                 tax: 50,
                 hsn: 44140010,
-              })),
-              payment_method: "Prepaid",
-              sub_total: totalPrice,
-              length: 12,
-              breadth: 10,
-              height: 8,
-              weight: 2,
-            },
+              };
+            }
+            return acc;
+          }, {});
+  
+          const orderItems = Object.values(aggregatedItems);
+  
+          // Prepare orderData for Shiprocket order creation using exact key names
+          const orderData = {
+            order_id: `WT-${Date.now()}`,
+            order_date: new Date().toISOString().split("T")[0],
+            pickup_location: "Work",
+            billing_customer_name: shippingDetails.name,
+            billing_last_name: "",
+            billing_address: shippingDetails.shippingAddress,
+            billing_city: shippingDetails.city,
+            billing_pincode: shippingDetails.pincode,
+            billing_state: shippingDetails.state,
+            billing_country: shippingDetails.country,
+            billing_email: shippingDetails.email,
+            billing_phone: shippingDetails.phone,
+            shipping_is_billing: true,
+            order_items: orderItems,
+            payment_method: "Prepaid",
+            sub_total: totalPrice,
+            length: 12,
+            breadth: 10,
+            height: 8,
+            weight: 2,
           };
-
-          const shiprocketResponse = await axios.post(`${apiUrl}/api/shiprocket/create-order`, shiprocketOrderData);
-          if (shiprocketResponse.data.success) {
-            console.log("Shiprocket Order Created:", shiprocketResponse.data);
-            navigate("/order-confirmation", { state: { orderId: shiprocketResponse.data.orderResponse.order_id } });
-          } else {
-            console.error("Shiprocket Order Failed:", shiprocketResponse.data);
-            setError("Payment successful but Shiprocket order failed.");
+  
+          try {
+            // Obtain a Shiprocket token from your backend
+            const shiprocketAuth = await axios.post(`${apiUrl}/api/shiprocket/auth`);
+            const shiprocketToken = shiprocketAuth.data.token;
+  
+            // Create Shiprocket order
+            const shiprocketOrderData = { token: shiprocketToken, orderData };
+            const shiprocketResponse = await axios.post(
+              `${apiUrl}/api/shiprocket/create-order`,
+              shiprocketOrderData
+            );
+  
+            if (shiprocketResponse.data.success) {
+              console.log("Shiprocket Order Created:", shiprocketResponse.data);
+              // Pass the complete orderResponse for tracking purposes
+              navigate("/order-confirmation", {
+                state: { orderResponse: shiprocketResponse.data.orderResponse }
+              });
+            } else {
+              console.error("Shiprocket Order Failed:", shiprocketResponse.data);
+              toast.error("Payment successful but order creation failed.");
+            }
+          } catch (err) {
+            console.error("Error during Shiprocket order creation:", err);
+            toast.error("Error creating order. Please contact support.");
           }
         },
         prefill: {
@@ -231,31 +228,27 @@ const CheckoutPage = () => {
         },
         theme: { color: "#3399cc" },
         modal: {
-          ondismiss: () => setError("Payment cancelled by user."),
+          ondismiss: () => toast.error("Payment cancelled by user."),
         },
       };
-
+  
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
       console.error("Payment Error:", error);
-      setError("Failed to process payment. Please try again.");
+      toast.error("Failed to process payment. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
-  // A unified button handler based on selected payment method
+  
+  // Only Online Payment is available; handle submit accordingly
   const handleSubmit = () => {
     setError(null);
-    if (paymentMethod === "Online") {
-      handlePayment();
-    } else {
-      handlePlaceOrder();
-    }
+    handlePayment();
   };
 
-  // Update billing address automatically if sameAddress is checked
+  // Auto-update billing address if sameAddress is checked
   useEffect(() => {
     if (sameAddress) {
       setShippingDetails((prev) => ({
@@ -265,183 +258,167 @@ const CheckoutPage = () => {
     }
   }, [sameAddress, shippingDetails.shippingAddress]);
 
-  return (
-    <div className="checkout-container container mt-5">
-      <h2 className="mb-4">Checkout</h2>
-
-      {/* Error and Alert Messages */}
-      {error && <div className="alert alert-danger">{error}</div>}
-      {alertMessage && <div className="alert alert-warning">{alertMessage}</div>}
-
-      {/* Shipping Details Form */}
-      <div className="card p-4 mb-4">
-        <h4>Shipping Details</h4>
-        <input
-          type="text"
-          placeholder="Full Name"
-          className="form-control mb-2"
-          value={shippingDetails.name}
-          onChange={(e) =>
-            setShippingDetails({ ...shippingDetails, name: e.target.value })
-          }
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          className="form-control mb-2"
-          value={shippingDetails.email}
-          onChange={(e) =>
-            setShippingDetails({ ...shippingDetails, email: e.target.value })
-          }
-          required
-        />
-        <input
-          type="text"
-          placeholder="Phone"
-          className="form-control mb-2"
-          value={shippingDetails.phone}
-          onChange={(e) =>
-            setShippingDetails({ ...shippingDetails, phone: e.target.value })
-          }
-          required
-        />
-        <input
-          type="text"
-          placeholder="Shipping Address"
-          className="form-control mb-2"
-          value={shippingDetails.shippingAddress}
-          onChange={(e) =>
-            setShippingDetails({ ...shippingDetails, shippingAddress: e.target.value })
-          }
-          required
-        />
-        <input
-          type="text"
-          placeholder="City"
-          className="form-control mb-2"
-          value={shippingDetails.city}
-          onChange={(e) =>
-            setShippingDetails({ ...shippingDetails, city: e.target.value })
-          }
-          required
-        />
-        <input
-          type="text"
-          placeholder="State"
-          className="form-control mb-2"
-          value={shippingDetails.state}
-          onChange={(e) =>
-            setShippingDetails({ ...shippingDetails, state: e.target.value })
-          }
-          required
-        />
-        <input
-          type="text"
-          placeholder="Pincode"
-          className="form-control mb-2"
-          value={shippingDetails.pincode}
-          onChange={(e) =>
-            setShippingDetails({ ...shippingDetails, pincode: e.target.value })
-          }
-          required
-        />
-
-        {/* Billing Address Checkbox */}
-        <div className="form-check mb-3">
-          <input
-            type="checkbox"
-            className="form-check-input"
-            id="sameAddress"
-            checked={sameAddress}
-            onChange={() => setSameAddress(!sameAddress)}
-          />
-          <label className="form-check-label" htmlFor="sameAddress">
-            Billing Address same as Shipping Address
-          </label>
+  // Render Order Summary Items without extra recalculation – using passed details
+  const renderOrderSummaryItems = () => {
+    return cartItems.map((item, index) => (
+      <div key={index} className="order-item">
+        <div className="order-item-info">
+          <h5>{item.productName || "Custom Artwork"}</h5>
+          <p>Quantity: {item.quantity}</p>
+          {item.frameType && (
+            <p>
+              Options: Frame - {item.frameType.name}, Type - {item.subFrameType.name}, Size - {item.size.width} x {item.size.height}
+            </p>
+          )}
+          {item.itemTotal && (
+            <p className="order-item-price">₹ {item.itemTotal}</p>
+          )}
         </div>
+      </div>
+    ));
+  };
 
-        {/* Billing Address Input (if different) */}
-        {!sameAddress && (
+  // For order summary display, compute subtotal (excluding shipping & tax)
+  const shippingCost = 300;
+  const taxAmount = 50;
+  const subtotal = totalPrice - shippingCost - taxAmount;
+
+  return (
+    <div className="checkout-page">
+      <ToastContainer position="top-right" autoClose={3000} />
+      <div className="checkout-container container mt-5">
+        <h2 className="mb-4">Checkout</h2>
+
+        {error && <div className="alert alert-danger">{error}</div>}
+
+        {/* Shipping Details Form */}
+        <div className="checkout-card card p-4 mb-4">
+          <h4>Shipping Details</h4>
           <input
             type="text"
-            placeholder="Billing Address"
-            className="form-control mb-2"
-            value={shippingDetails.billingAddress}
+            placeholder="Full Name"
+            className="form-control"
+            value={shippingDetails.name}
             onChange={(e) =>
-              setShippingDetails({ ...shippingDetails, billingAddress: e.target.value })
+              setShippingDetails({ ...shippingDetails, name: e.target.value })
             }
             required
           />
-        )}
-      </div>
-
-      {/* Order Summary */}
-      <div className="card p-4 mb-4">
-        <h4>Order Summary</h4>
-        {cart.map((item) => (
-          <div key={item._id} className="d-flex justify-content-between">
-            <p>{item.productId?.productName || "Custom Artwork"} (x{item.quantity})</p>
-            <p>
-              ₹
-              {item.quantity *
-                (item.frameType.price +
-                  item.subFrameType.price +
-                  item.size.price)}
-            </p>
+          <input
+            type="email"
+            placeholder="Email"
+            className="form-control"
+            value={shippingDetails.email}
+            onChange={(e) =>
+              setShippingDetails({ ...shippingDetails, email: e.target.value })
+            }
+            required
+          />
+          <input
+            type="text"
+            placeholder="Phone"
+            className="form-control"
+            value={shippingDetails.phone}
+            onChange={(e) =>
+              setShippingDetails({ ...shippingDetails, phone: e.target.value })
+            }
+            required
+          />
+          <input
+            type="text"
+            placeholder="Shipping Address"
+            className="form-control"
+            value={shippingDetails.shippingAddress}
+            onChange={(e) =>
+              setShippingDetails({ ...shippingDetails, shippingAddress: e.target.value })
+            }
+            required
+          />
+          <input
+            type="text"
+            placeholder="City"
+            className="form-control"
+            value={shippingDetails.city}
+            onChange={(e) =>
+              setShippingDetails({ ...shippingDetails, city: e.target.value })
+            }
+            required
+          />
+          <input
+            type="text"
+            placeholder="State"
+            className="form-control"
+            value={shippingDetails.state}
+            onChange={(e) =>
+              setShippingDetails({ ...shippingDetails, state: e.target.value })
+            }
+            required
+          />
+          <input
+            type="text"
+            placeholder="Pincode"
+            className="form-control"
+            value={shippingDetails.pincode}
+            onChange={(e) =>
+              setShippingDetails({ ...shippingDetails, pincode: e.target.value })
+            }
+            required
+          />
+          <div className="form-check mb-3">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              id="sameAddress"
+              checked={sameAddress}
+              onChange={() => setSameAddress(!sameAddress)}
+            />
+            <label className="form-check-label" htmlFor="sameAddress">
+              Billing Address same as Shipping Address
+            </label>
           </div>
-        ))}
-        <hr />
-        {couponApplied && (
-          <p>
-            <strong>Discount ({couponDiscount}%):</strong> -₹{discountAmount.toFixed(2)}
-          </p>
-        )}
-        <h4>
-          <strong>Total:</strong> ₹{totalPrice.toFixed(2)}
-        </h4>
-      </div>
-
-      {/* Payment Methods */}
-      <div className="card p-4 mb-4">
-        <h4>Payment Method</h4>
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="radio"
-            id="cod"
-            value="COD"
-            checked={paymentMethod === "COD"}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-          />
-          <label className="form-check-label" htmlFor="cod">
-            Cash on Delivery (COD)
-          </label>
+          {!sameAddress && (
+            <input
+              type="text"
+              placeholder="Billing Address"
+              className="form-control"
+              value={shippingDetails.billingAddress}
+              onChange={(e) =>
+                setShippingDetails({ ...shippingDetails, billingAddress: e.target.value })
+              }
+              required
+            />
+          )}
         </div>
 
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="radio"
-            id="online"
-            value="Online"
-            checked={paymentMethod === "Online"}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-          />
-          <label className="form-check-label" htmlFor="online">
-            Online Payment (via Razorpay)
-          </label>
+        {/* Order Summary */}
+        <div className="checkout-card card p-4 mb-4">
+          <h4>Order Summary</h4>
+          <div className="order-summary-items">
+            {renderOrderSummaryItems()}
+          </div>
+          <hr />
+          <p>Subtotal: {subtotal.toFixed(2)} Rs.</p>
+          <p>Shipping Cost: {shippingCost} Rs.</p>
+          <p>Tax: {taxAmount} Rs.</p>
+          <hr />
+          <h4 className="total">
+            <strong>Total:</strong> {totalPrice.toFixed(2)} Rs.
+          </h4>
         </div>
-      </div>
 
-      {/* Unified Submit Button */}
-      <button className="btn btn-success w-100" onClick={handleSubmit} disabled={loading}>
-        {loading
-          ? "Processing..."
-          : paymentMethod === "Online"
-          ? "Pay Now"
-          : "Place Order"}
-      </button>
+        {/* Payment Method – Only Online Payment */}
+        <div className="checkout-card card p-4 mb-4">
+          <h4>Payment Method</h4>
+          <div className="payment-method">
+            <p>Online Payment (via Razorpay)</p>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <button className="btn btn-success w-100 checkout-btn" onClick={handleSubmit} disabled={loading}>
+          {loading ? "Processing..." : "Pay Now"}
+        </button>
+      </div>
     </div>
   );
 };

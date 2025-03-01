@@ -1,6 +1,8 @@
 import React from 'react';
 import './CartPopup.css';
 import { X, Minus, Plus } from 'lucide-react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CartPopup = ({ isOpen, onClose, cartItems, handleRemoveFromCart, handleUpdateQuantity, navigate }) => {
   const calculateItemPrice = (item) => {
@@ -8,17 +10,25 @@ const CartPopup = ({ isOpen, onClose, cartItems, handleRemoveFromCart, handleUpd
     const subFramePrice = item.subFrameType?.price || 0;
     const sizePrice = item.size?.price || 0;
     const basePrice = item.isCustom ? 0 : (item.productId?.price || 0);
-    
     return (framePrice + subFramePrice + sizePrice + basePrice) * item.quantity;
   };
 
-  const totalPrice = cartItems.reduce(
-    (acc, item) => acc + calculateItemPrice(item),
-    0
-  );
+  const totalPrice = cartItems.reduce((acc, item) => acc + calculateItemPrice(item), 0);
+
+  // Wrappers to call update functions and show toast alerts
+  const updateQuantity = (item, newQuantity) => {
+    handleUpdateQuantity(item, newQuantity);
+    toast.info('Quantity updated');
+  };
+
+  const removeItem = (item) => {
+    handleRemoveFromCart(item);
+    toast.info('Item removed from cart');
+  };
 
   return (
     <div className={`cart-popup ${isOpen ? 'show' : ''}`}>
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="sub-cart-overlay" onClick={onClose}></div>
       <div className="sub-cart-body">
         <div className="sub-cart-header">
@@ -53,10 +63,7 @@ const CartPopup = ({ isOpen, onClose, cartItems, handleRemoveFromCart, handleUpd
                     <div className="quantity-controls">
                       <button
                         className="quantity-btn"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleUpdateQuantity(item, Math.max(1, item.quantity - 1));
-                        }}
+                        onClick={() => updateQuantity(item, Math.max(1, item.quantity - 1))}
                         disabled={item.quantity <= 1}
                       >
                         <Minus size={16} />
@@ -64,20 +71,14 @@ const CartPopup = ({ isOpen, onClose, cartItems, handleRemoveFromCart, handleUpd
                       <span className="quantity">{item.quantity}</span>
                       <button
                         className="quantity-btn"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleUpdateQuantity(item, item.quantity + 1);
-                        }}
+                        onClick={() => updateQuantity(item, item.quantity + 1)}
                       >
                         <Plus size={16} />
                       </button>
                     </div>
                     <button
                       className="remove-btn"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleRemoveFromCart(item);
-                      }}
+                      onClick={() => removeItem(item)}
                     >
                       Remove
                     </button>
@@ -110,8 +111,7 @@ const CartPopup = ({ isOpen, onClose, cartItems, handleRemoveFromCart, handleUpd
           <div className="cart-actions">
             <button 
               className="view-cart-btn" 
-              onClick={(e) => {
-                e.preventDefault();
+              onClick={() => {
                 onClose();
                 navigate('/cart');
               }}
@@ -120,8 +120,7 @@ const CartPopup = ({ isOpen, onClose, cartItems, handleRemoveFromCart, handleUpd
             </button>
             <button 
               className="checkout-btn" 
-              onClick={(e) => {
-                e.preventDefault();
+              onClick={() => {
                 onClose();
                 navigate('/checkout');
               }}

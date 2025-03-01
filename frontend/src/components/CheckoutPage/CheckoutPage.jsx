@@ -145,7 +145,7 @@ const CheckoutPage = () => {
     setLoading(true);
     try {
       const orderResponse = await axios.post(`${apiUrl}/api/payment/create-order`, {
-        amount: totalPrice * 100, // Convert to paise
+        amount: totalPrice * 100,
         currency: "INR",
         receipt: `order_rcptid_${Date.now()}`,
       });
@@ -158,11 +158,15 @@ const CheckoutPage = () => {
         description: "Order Payment",
         order_id: orderResponse.data.order.id,
         handler: async (response) => {
-          console.log("Razorpay Payment Success:", response);
-          
-          // ✅ Create Shiprocket Order after successful payment
+          console.log("Payment Successful:", response);
+  
+          // ✅ Fetch a new Shiprocket token
+          const shiprocketAuth = await axios.post(`${apiUrl}/api/shiprocket/auth`);
+          const shiprocketToken = shiprocketAuth.data.token;
+  
+          // ✅ Create Shiprocket Order
           const shiprocketOrderData = {
-            token: localStorage.getItem("shiprocket_token"), // Store Shiprocket token somewhere after login
+            token: shiprocketToken,
             orderData: {
               order_id: `WT-${Date.now()}`,
               order_date: new Date().toISOString().split("T")[0],
@@ -202,7 +206,7 @@ const CheckoutPage = () => {
             navigate("/order-confirmation", { state: { orderId: shiprocketResponse.data.orderResponse.order_id } });
           } else {
             console.error("Shiprocket Order Failed:", shiprocketResponse.data);
-            setError("Payment was successful but order creation failed.");
+            setError("Payment successful but Shiprocket order failed.");
           }
         },
         prefill: {
@@ -225,6 +229,7 @@ const CheckoutPage = () => {
       setLoading(false);
     }
   };
+  
   
 
   const placeOrder = async (paymentId = null) => {

@@ -37,6 +37,7 @@ import ShippingDelivery from './components/Documentation/ShippingDelivery';
 import ReturnExchange from './components/Documentation/ReturnExchange';
 import CustomPaymentPage from './components/CheckoutPage/CustomPaymentPage';
 import OrderConfirmation from './components/OrderConfirmation/OrderConfirmation';
+import TrackOrder from './components/TrackOrder/TrackOrder';
 
 
 
@@ -81,6 +82,7 @@ function App() {
               <Route path="/Return&Exchange" element={<ReturnExchange/>} />
               <Route path="/custom-payment" element={<CustomPaymentPage />} />
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
+              <Route path="/track-order" element={<TrackOrder />} />
               
               {/* Admin Routes */}
               <Route path="/dashboard" element={<Dashboard />} />

@@ -1,0 +1,121 @@
+/* Parent class for tracking order styles */
+.track-order {
+  padding: 30px 0;
+  background-color: #f7f7f7;
+  font-family: "Lexend Deca", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.track-order-container {
+  background: #fff;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.track-order-container h1 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.track-order-container .instructions {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+/* Input group for order ID entry */
+.input-group {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  width: 70%;
+  outline: none;
+}
+
+.input-group button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.input-group button:hover {
+  background-color: #0056b3;
+}
+
+/* Order details card */
+.order-details-card {
+  background-color: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px;
+  text-align: left;
+}
+
+.order-details-card h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.order-detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.order-detail:last-child {
+  border-bottom: none;
+}
+
+.order-detail .label {
+  font-weight: bold;
+  color: #555;
+}
+
+.order-detail .value {
+  color: #e60000;
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .track-order-container {
+    padding: 20px;
+  }
+  .input-group input {
+    width: 60%;
+    font-size: 0.9rem;
+  }
+  .input-group button {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+  .order-details-card h2 {
+    font-size: 1.3rem;
+  }
+  .order-detail {
+    font-size: 0.9rem;
+  }
+}

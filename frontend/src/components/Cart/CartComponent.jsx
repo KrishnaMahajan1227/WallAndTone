@@ -8,14 +8,25 @@ import { v4 as uuidv4 } from "uuid";
 import Footer from "../Footer/Footer";
 import CouponUser from "../Coupon/CouponUser";
 
+/* ======= NEW IMPORTS FOR TOASTS ======= */
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const CartComponent = () => {
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : "https://wallandtone.com");
 
   const [cart, setCart] = useState({ items: [], totalPrice: 0, cartCount: 0 });
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Keeping alertMessage, but we'll rely on toasts now
   const [alertMessage, setAlertMessage] = useState("");
+
   const [couponApplied, setCouponApplied] = useState(false);
   const [couponDiscount, setCouponDiscount] = useState(0);
   const token = localStorage.getItem("token");
@@ -52,25 +63,25 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
             subFrameType: item.subFrameType?._id,
             size: item.size?._id,
             isCustom: item.isCustom,
-            image: item.isCustom ? item.image : null
+            image: item.isCustom ? item.image : null,
           });
 
           if (!seenConfigurations.has(configKey)) {
             seenConfigurations.add(configKey);
             uniqueItems.push({
               ...item,
-              uniqueId: uuidv4()
+              uniqueId: uuidv4(),
             });
           } else {
             // Find the existing item and update its quantity
-            const existingItem = uniqueItems.find(existing => {
+            const existingItem = uniqueItems.find((existing) => {
               const existingConfig = JSON.stringify({
                 productId: existing.productId?._id,
                 frameType: existing.frameType?._id,
                 subFrameType: existing.subFrameType?._id,
                 size: existing.size?._id,
                 isCustom: existing.isCustom,
-                image: existing.isCustom ? existing.image : null
+                image: existing.isCustom ? existing.image : null,
               });
               return existingConfig === configKey;
             });
@@ -101,22 +112,25 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     fetchCartAndWishlist();
   }, [token]);
 
+  // ======== UPDATE QUANTITY (already partial update, no full reload) ========
   const handleUpdateQuantity = async (e, item, newQuantity) => {
     e.preventDefault();
-  
+
     if (newQuantity < 1) return;
-  
+
     if (token) {
       try {
-        // ✅ Update UI instantly before API call
+        // Update UI instantly before API call
         setCart((prevCart) => {
           const updatedItems = prevCart.items.map((cartItem) =>
-            cartItem._id === item._id ? { ...cartItem, quantity: newQuantity } : cartItem
+            cartItem._id === item._id
+              ? { ...cartItem, quantity: newQuantity }
+              : cartItem
           );
           return { ...prevCart, items: updatedItems };
         });
-  
-        // ✅ Send API request to update in backend
+
+        // Send API request to update in backend
         const response = await fetch(`${apiUrl}/api/cart/update/${item._id}`, {
           method: "PUT",
           headers: {
@@ -130,29 +144,31 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
             size: item.size._id,
           }),
         });
-  
+
         if (!response.ok) {
           throw new Error("Failed to update quantity.");
         }
-  
-        // ✅ Backend updated successfully, but we already updated UI instantly
-        setAlertMessage("Quantity updated successfully!");
+
+        // Show success toast
+        toast.success("Quantity updated successfully!");
       } catch (err) {
         console.error(err);
-        setAlertMessage("Failed to update quantity. Please try again.");
-        
-        // ❌ Rollback UI change if API request fails
+        toast.error("Failed to update quantity. Please try again.");
+
+        // Rollback UI change if API request fails
         setCart((prevCart) => {
           const rollbackItems = prevCart.items.map((cartItem) =>
-            cartItem._id === item._id ? { ...cartItem, quantity: item.quantity } : cartItem
+            cartItem._id === item._id
+              ? { ...cartItem, quantity: item.quantity }
+              : cartItem
           );
           return { ...prevCart, items: rollbackItems };
         });
       }
     }
   };
-  
-  
+
+  // ======== ADD TO WISHLIST (changed to partial update) ========
   const handleAddToWishlist = async (e, product) => {
     e.preventDefault();
     if (!product) return;
@@ -160,11 +176,16 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     const productInWishlist = wishlist.some(
       (item) => item.productId && item.productId._id === product._id
     );
-
     if (productInWishlist) return;
 
     if (token) {
       try {
+        // Update local wishlist instantly
+        setWishlist((prevWishlist) => [
+          ...prevWishlist,
+          { productId: product, _id: uuidv4() },
+        ]);
+
         const response = await fetch(`${apiUrl}/api/wishlist/add`, {
           method: "POST",
           headers: {
@@ -178,67 +199,92 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           throw new Error("Failed to add to wishlist.");
         }
 
-        await fetchCartAndWishlist(); // Refresh both cart and wishlist
-        setAlertMessage("Added to wishlist successfully!");
+        toast.success("Added to wishlist successfully!");
       } catch (error) {
         console.error("Error adding product to wishlist:", error);
-        setAlertMessage("Failed to add to wishlist. Please try again.");
-      }
-    }
-  };
+        toast.error("Failed to add to wishlist. Please try again.");
 
-  const handleRemoveFromWishlist = async (e, product) => {
-    e.preventDefault();
-    if (!product) return;
-
-    if (token) {
-      try {
-        const response = await fetch(
-          `${apiUrl}/api/wishlist/remove/${product._id}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        // Revert local wishlist update
+        setWishlist((prevWishlist) =>
+          prevWishlist.filter(
+            (item) => item.productId && item.productId._id !== product._id
+          )
         );
-
-        if (!response.ok) {
-          throw new Error("Failed to remove from wishlist.");
-        }
-
-        await fetchCartAndWishlist(); // Refresh both cart and wishlist
-        setAlertMessage("Removed from wishlist successfully!");
-      } catch (error) {
-        console.error("Error removing product from wishlist:", error);
-        setAlertMessage("Failed to remove from wishlist. Please try again.");
       }
     }
   };
 
+  // ======== REMOVE FROM WISHLIST (changed to partial update) ========
+const handleRemoveFromWishlist = async (e, product) => {
+  e.preventDefault();
+  if (!product) return;
+
+  if (token) {
+    // Save current wishlist state for rollback
+    const previousWishlist = [...wishlist];
+    try {
+      // Optimistically remove from local wishlist using optional chaining
+      setWishlist((prev) =>
+        prev.filter((item) => item.productId?._id !== product._id)
+      );
+
+      const response = await fetch(
+        `${apiUrl}/api/wishlist/remove/${product._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to remove from wishlist.");
+      }
+
+      toast.success("Removed from wishlist successfully!");
+    } catch (error) {
+      console.error("Error removing product from wishlist:", error);
+      toast.error("Failed to remove from wishlist. Please try again.");
+      // Revert to previous wishlist state
+      setWishlist(previousWishlist);
+    }
+  }
+};
+
+
+  // ======== REMOVE ITEM FROM CART (changed to partial update) ========
   const handleRemoveItem = async (item) => {
     if (token) {
       try {
-        const response = await fetch(
-          `${apiUrl}/api/cart/remove/${item._id}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        // Optimistically remove from local cart
+        const oldItems = [...cart.items];
+        setCart((prevCart) => {
+          const filtered = prevCart.items.filter(
+            (cartItem) => cartItem._id !== item._id
+          );
+          return { ...prevCart, items: filtered };
+        });
+
+        const response = await fetch(`${apiUrl}/api/cart/remove/${item._id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || "Failed to remove item");
         }
 
-        await fetchCartAndWishlist(); // Refresh both cart and wishlist
-        setAlertMessage("Item removed from cart successfully!");
+        toast.success("Item removed from cart successfully!");
       } catch (error) {
         console.error("Error removing item:", error);
-        setAlertMessage("Failed to remove item. Please try again.");
+        toast.error("Failed to remove item. Please try again.");
+
+        // Revert local cart state
+        setCart((_) => ({ ...cart, items: [...cart.items] }));
       }
     }
   };
@@ -248,52 +294,60 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     setCouponDiscount(discount);
   };
 
+  // Price calculation
   const calculateItemPrice = (item) => {
     const framePrice = item.frameType?.price || 0;
     const subFramePrice = item.subFrameType?.price || 0;
     const sizePrice = item.size?.price || 0;
-    const basePrice = item.isCustom ? 0 : (item.productId?.price || 0); 
-  
+    const basePrice = item.isCustom ? 0 : item.productId?.price || 0;
+
     return (framePrice + subFramePrice + sizePrice + basePrice) * item.quantity;
   };
-  
+
   // Calculate subtotal (before tax, shipping, and discount)
-  const subtotal = cart.items.reduce((acc, item) => acc + calculateItemPrice(item), 0);
-  
+  const subtotal = cart.items.reduce(
+    (acc, item) => acc + calculateItemPrice(item),
+    0
+  );
+
   // Define shipping and tax
   const shippingCost = 300; // Flat rate shipping
   const taxAmount = 50; // Fixed tax
-  
+
   // Pre-discount total (subtotal + shipping + tax)
   const preDiscountTotal = subtotal + shippingCost + taxAmount;
-  
+
   // Calculate discount on the total price
-  const discountAmount = couponApplied ? (preDiscountTotal * couponDiscount) / 100 : 0;
-  
+  const discountAmount = couponApplied
+    ? (preDiscountTotal * couponDiscount) / 100
+    : 0;
+
   // Final total after applying the discount
   const finalTotal = preDiscountTotal - discountAmount;
-  
+
   const handleProceedToCheckout = () => {
-    navigate("/checkout", { 
-      state: { 
-        total: Number(finalTotal.toFixed(2)), // ✅ Ensure number before sending
-        cartItems: cart.items, 
-        subtotal, 
-        shippingCost, 
-        taxAmount, 
-        discountAmount, 
-        couponApplied, 
-        couponDiscount 
-      } 
+    navigate("/checkout", {
+      state: {
+        total: Number(finalTotal.toFixed(2)), // ensure number before sending
+        cartItems: cart.items,
+        subtotal,
+        shippingCost,
+        taxAmount,
+        discountAmount,
+        couponApplied,
+        couponDiscount,
+      },
     });
   };
-  
-  
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="cart-container">
+      {/* Toast Container for global toasts */}
+      <ToastContainer position="top-right" autoClose={3000} />
+
       <h1 className="cart-header">My Cart</h1>
 
       {alertMessage && (
@@ -315,12 +369,18 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
               <div key={item.uniqueId} className="cart-item">
                 <img
                   src={item.isCustom ? item.image : item.productId?.mainImage}
-                  alt={item.isCustom ? "Custom Artwork" : item.productId?.productName}
+                  alt={
+                    item.isCustom
+                      ? "Custom Artwork"
+                      : item.productId?.productName
+                  }
                   className="item-image"
                 />
                 <div className="item-details">
                   <h3 className="item-title">
-                    {item.isCustom ? "Custom Artwork" : item.productId?.productName}
+                    {item.isCustom
+                      ? "Custom Artwork"
+                      : item.productId?.productName}
                   </h3>
                   <p className="item-size">
                     Size: {item.size?.width} x {item.size?.height}
@@ -336,7 +396,9 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                       <button
                         type="button"
                         className="quantity-btn"
-                        onClick={(e) => handleUpdateQuantity(e, item, item.quantity - 1)}
+                        onClick={(e) =>
+                          handleUpdateQuantity(e, item, item.quantity - 1)
+                        }
                         disabled={item.quantity <= 1}
                       >
                         -
@@ -356,7 +418,9 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                       <button
                         type="button"
                         className="quantity-btn"
-                        onClick={(e) => handleUpdateQuantity(e, item, item.quantity + 1)}
+                        onClick={(e) =>
+                          handleUpdateQuantity(e, item, item.quantity + 1)
+                        }
                       >
                         +
                       </button>
@@ -379,7 +443,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
                             (wishItem) =>
                               wishItem.productId?._id === item.productId._id
                           );
-                          
                           if (isInWishlist) {
                             handleRemoveFromWishlist(e, item.productId);
                           } else {
@@ -411,42 +474,48 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           </div>
 
           <div className="cart-summary">
-  <h2>Order Summary</h2>
-  <div className="summary-details">
-    <p>Subtotal: {subtotal.toFixed(2)} Rs.</p>
-    <p>Shipping Cost: {shippingCost} Rs.</p>
-    <p>Tax: {taxAmount} Rs.</p>
+            <h2>Order Summary</h2>
+            <div className="summary-details">
+              <p>Subtotal: {subtotal.toFixed(2)} Rs.</p>
+              <p>Shipping Cost: {shippingCost} Rs.</p>
+              <p>Tax: {taxAmount} Rs.</p>
 
-    {/* Coupon Section */}
-    <CouponUser onApplyCoupon={handleApplyCoupon} />
+              {/* Coupon Section */}
+              <CouponUser onApplyCoupon={handleApplyCoupon} />
 
-    {couponApplied && (
-      <>
-        <p>Discount: {couponDiscount}%</p>
-        <p>Discount Amount: - {discountAmount.toFixed(2)} Rs.</p>
-        <h3>New Total Price (After Discount): <span style={{ color: 'green' }}>{finalTotal.toFixed(2)} Rs.</span></h3>
-      </>
-    )}
+              {couponApplied && (
+                <>
+                  <p>Discount: {couponDiscount}%</p>
+                  <p>Discount Amount: - {discountAmount.toFixed(2)} Rs.</p>
+                  <h3>
+                    New Total Price (After Discount):{" "}
+                    <span style={{ color: "green" }}>
+                      {finalTotal.toFixed(2)} Rs.
+                    </span>
+                  </h3>
+                </>
+              )}
 
-    {/* Show original total if no coupon is applied */}
-    {!couponApplied && <h3>Total: {preDiscountTotal.toFixed(2)} Rs.</h3>}
-  </div>
+              {!couponApplied && (
+                <h3>Total: {preDiscountTotal.toFixed(2)} Rs.</h3>
+              )}
+            </div>
 
-  <div className="cart-actions">
-  <button className="checkout-btn" onClick={handleProceedToCheckout}>
-  Proceed to Checkout
-</button>
+            <div className="cart-actions">
+              <button className="checkout-btn" onClick={handleProceedToCheckout}>
+                Proceed to Checkout
+              </button>
 
-    <button className="continue-shopping-btn" onClick={() => navigate("/products")}>
-      Continue Shopping
-    </button>
-  </div>
-</div>
-
-
+              <button
+                className="continue-shopping-btn"
+                onClick={() => navigate("/products")}
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
         </div>
       )}
-      
     </div>
   );
 };

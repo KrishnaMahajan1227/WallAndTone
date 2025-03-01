@@ -18,6 +18,8 @@ const historyRoutes = require('./routes/historyRoutes');
 const multer = require('multer'); 
 const upload = require('./middleware/upload'); 
 const { uploadExcel, uploadImage, uploadReviewImage } = require('./middleware/upload');
+const paymentRoutes = require("./routes/payment");
+const shiprocketRoutes = require("./routes/shiprocketRoutes");
 
 require('dotenv').config();
 
@@ -106,6 +108,13 @@ app.use(express.static(frontendPath));
 app.get('*', (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
+
+
+// Payment
+app.use("/api/payment", paymentRoutes);
+
+app.use("/api/shiprocket", shiprocketRoutes);
+
 
 // Start the server
 app.listen(port, () => {

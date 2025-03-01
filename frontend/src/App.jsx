@@ -35,6 +35,7 @@ import PrivacyPolicy from './components/Documentation/PrivacyPolicy';
 import TermsConditions from './components/Documentation/TermsConditions';
 import ShippingDelivery from './components/Documentation/ShippingDelivery';
 import ReturnExchange from './components/Documentation/ReturnExchange';
+import CustomPaymentPage from './components/CheckoutPage/CustomPaymentPage';
 
 
 
@@ -77,7 +78,7 @@ function App() {
               <Route path="/Terms&Conditions" element={<TermsConditions/>} />
               <Route path="/Shipping&Delivery" element={<ShippingDelivery/>} />
               <Route path="/Return&Exchange" element={<ReturnExchange/>} />
-
+              <Route path="/custom-payment" element={<CustomPaymentPage />} />
 
 
               

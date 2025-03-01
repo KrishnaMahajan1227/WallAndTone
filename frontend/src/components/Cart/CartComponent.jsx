@@ -276,7 +276,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   const handleProceedToCheckout = () => {
     navigate("/checkout", { 
       state: { 
-        total: finalTotal, 
+        total: Number(finalTotal.toFixed(2)), // ✅ Ensure number before sending
         cartItems: cart.items, 
         subtotal, 
         shippingCost, 

@@ -11,10 +11,7 @@ const CheckoutPage = () => {
 
   const location = useLocation();
   const cartItems = location.state?.cartItems || [];
-  const initialTotal = location.state?.total || 0;
-  const subtotal = location.state?.subtotal || 0;
-  const shippingCost = location.state?.shippingCost || 0;
-  const taxAmount = location.state?.taxAmount || 0;
+  const initialTotal = Number(location.state?.total) || 0;
   const discountAmount = location.state?.discountAmount || 0;
   const couponApplied = location.state?.couponApplied || false;
   const couponDiscount = location.state?.couponDiscount || 0;
@@ -39,6 +36,16 @@ const CheckoutPage = () => {
     pincode: "",
     country: "India",
   });
+
+  const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+
+  useEffect(() => {
+  const script = document.createElement("script");
+  script.src = "https://checkout.razorpay.com/v1/checkout.js";
+  script.async = true;
+  document.body.appendChild(script);
+}, []);
+
 
   useEffect(() => {
     setTotalPrice(initialTotal);
@@ -134,6 +141,118 @@ const CheckoutPage = () => {
     }
   };
 
+  const handlePayment = async () => {
+    setLoading(true);
+    try {
+      const orderResponse = await axios.post(`${apiUrl}/api/payment/create-order`, {
+        amount: totalPrice * 100, // Convert to paise
+        currency: "INR",
+        receipt: `order_rcptid_${Date.now()}`,
+      });
+  
+      const options = {
+        key: razorpayKey,
+        amount: orderResponse.data.order.amount,
+        currency: "INR",
+        name: "Wall and Tone",
+        description: "Order Payment",
+        order_id: orderResponse.data.order.id,
+        handler: async (response) => {
+          console.log("Razorpay Payment Success:", response);
+          
+          // ✅ Create Shiprocket Order after successful payment
+          const shiprocketOrderData = {
+            token: localStorage.getItem("shiprocket_token"), // Store Shiprocket token somewhere after login
+            orderData: {
+              order_id: `WT-${Date.now()}`,
+              order_date: new Date().toISOString().split("T")[0],
+              pickup_location: "Primary",
+              billing_customer_name: shippingDetails.name,
+              billing_last_name: "",
+              billing_address: shippingDetails.shippingAddress,
+              billing_city: shippingDetails.city,
+              billing_pincode: shippingDetails.pincode,
+              billing_state: shippingDetails.state,
+              billing_country: shippingDetails.country,
+              billing_email: shippingDetails.email,
+              billing_phone: shippingDetails.phone,
+              shipping_is_billing: true,
+              order_items: cart.map((item) => ({
+                name: item.productId?.productName || "Custom Artwork",
+                sku: item.productId?._id || "CUSTOM",
+                units: item.quantity,
+                selling_price: item.frameType.price + item.subFrameType.price + item.size.price,
+                discount: 0,
+                tax: 50,
+                hsn: 44140010,
+              })),
+              payment_method: "Prepaid",
+              sub_total: totalPrice,
+              length: 12,
+              breadth: 10,
+              height: 8,
+              weight: 2,
+            },
+          };
+  
+          const shiprocketResponse = await axios.post(`${apiUrl}/api/shiprocket/create-order`, shiprocketOrderData);
+  
+          if (shiprocketResponse.data.success) {
+            console.log("Shiprocket Order Created:", shiprocketResponse.data);
+            navigate("/order-confirmation", { state: { orderId: shiprocketResponse.data.orderResponse.order_id } });
+          } else {
+            console.error("Shiprocket Order Failed:", shiprocketResponse.data);
+            setError("Payment was successful but order creation failed.");
+          }
+        },
+        prefill: {
+          name: shippingDetails.name,
+          email: shippingDetails.email,
+          contact: shippingDetails.phone,
+        },
+        theme: { color: "#3399cc" },
+        modal: {
+          ondismiss: () => setError("Payment cancelled by user."),
+        },
+      };
+  
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error("Payment Error:", error);
+      setError("Failed to process payment. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  const placeOrder = async (paymentId = null) => {
+    setLoading(true);
+    try {
+      const orderData = {
+        cartItems: cart,
+        totalPrice,
+        shippingDetails,
+        paymentMethod: paymentId ? "Online Payment" : "COD",
+        paymentId,
+      };
+
+      const response = await axios.post(`${apiUrl}/api/place-order`, orderData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data.success) {
+        navigate("/order-confirmation", { state: { orderId: response.data.orderId } });
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+      setError("Failed to place order. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="checkout-container container mt-5">
       <h2 className="mb-4">Checkout</h2>
@@ -174,24 +293,55 @@ const CheckoutPage = () => {
           </div>
         ))}
         <hr />
-        <p><strong>Subtotal:</strong> ₹{subtotal.toFixed(2)}</p>
-        <p><strong>Shipping Cost:</strong> ₹{shippingCost.toFixed(2)}</p>
-        <p><strong>Tax:</strong> ₹{taxAmount.toFixed(2)}</p>
         {couponApplied && <p><strong>Discount ({couponDiscount}%):</strong> -₹{discountAmount.toFixed(2)}</p>}
         <h4><strong>Total:</strong> ₹{totalPrice.toFixed(2)}</h4>
       </div>
 
       {/* Payment Methods */}
-      <div className="card p-4 mb-4">
-        <h4>Payment Method</h4>
-        <select className="form-control" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-          <option value="COD">Cash on Delivery</option>
-        </select>
-      </div>
+<div className="card p-4 mb-4">
+  <h4>Payment Method</h4>
+  <div className="form-check">
+    <input
+      className="form-check-input"
+      type="radio"
+      id="cod"
+      value="COD"
+      checked={paymentMethod === "COD"}
+      onChange={(e) => setPaymentMethod(e.target.value)}
+    />
+    <label className="form-check-label" htmlFor="cod">
+      Cash on Delivery (COD)
+    </label>
+  </div>
 
-      {/* Place Order Button */}
+  <div className="form-check">
+    <input
+      className="form-check-input"
+      type="radio"
+      id="online"
+      value="Online"
+      checked={paymentMethod === "Online"}
+      onChange={(e) => setPaymentMethod(e.target.value)}
+    />
+    <label className="form-check-label" htmlFor="online">
+      Online Payment (via Razorpay)
+    </label>
+  </div>
+
+  {paymentMethod === "Online" && (
+    <button
+      className="btn btn-primary mt-3"
+      onClick={handlePayment}
+      disabled={loading}
+    >
+      {loading ? "Processing Payment..." : "Pay Now"}
+    </button>
+  )}
+</div>
+
+
       <button className="btn btn-success w-100" onClick={handlePlaceOrder} disabled={loading}>
-        {loading ? "Placing Order..." : "Place Order"}
+        {loading ? "Processing..." : "Place Order"}
       </button>
     </div>
   );

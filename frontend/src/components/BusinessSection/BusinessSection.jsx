@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import emailjs from '@emailjs/browser';
 import './BusinessSection.css';
+import { Helmet } from 'react-helmet'; // Import Helmet
 import mailiconblack from '../../assets/icons/mail-icon-black.png';
 import messageiconblack from '../../assets/icons/message-icon-black.png';
 import whatsappiconblack from '../../assets/icons/whatsapp-icon-black.png';
@@ -89,6 +90,36 @@ const BusinessSection = () => {
 
   return (
     <div className="business-section">
+      {/* SEO Meta Tags for Business Section */}
+      <Helmet>
+        <title>For Business | Wall & Tone</title>
+        <meta
+          name="description"
+          content="Discover custom wall art solutions for businesses. Whether you're an interior designer, architect, or restaurant chain, unlock exclusive discounts on bulk orders."
+        />
+        <meta
+          name="keywords"
+          content="wall art for business, bulk wall art, interior design, custom wall decor, exclusive discounts"
+        />
+        <link rel="canonical" href="https://wallandtone.com/for-business" />
+        {/* Open Graph Tags */}
+        <meta property="og:title" content="For Business | Wall & Tone" />
+        <meta
+          property="og:description"
+          content="Discover custom wall art solutions for businesses. Unlock exclusive discounts on bulk orders and enhance your space with our curated art selections."
+        />
+        <meta property="og:image" content="https://wallandtone.com/assets/forBusiness/For-Business-banner.png" />
+        <meta property="og:url" content="https://wallandtone.com/for-business" />
+        <meta property="og:type" content="website" />
+        {/* Twitter Card Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="For Business | Wall & Tone" />
+        <meta
+          name="twitter:description"
+          content="Discover custom wall art solutions for businesses with exclusive discounts."
+        />
+        <meta name="twitter:image" content="https://wallandtone.com/assets/forBusiness/For-Business-banner.png" />
+      </Helmet>
       {showThankYou && <ThankYouModal />}
       
       <div className="business-hero">

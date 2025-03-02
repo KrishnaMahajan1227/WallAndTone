@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Helmet } from 'react-helmet'; // Import Helmet
+
 import SearchSuggestions from './SearchSuggestions';
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
 import './search.css';

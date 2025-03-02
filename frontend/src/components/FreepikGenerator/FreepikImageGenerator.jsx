@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ChevronRight } from 'lucide-react';
 import './FreepikImageGenerator.css';
 import Footer from '../Footer/Footer';
+import { Helmet } from 'react-helmet'; // Import Helmet
 
 const FreepikImageGenerator = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');

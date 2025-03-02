@@ -188,6 +188,36 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   return (
     <div className="freepik-generator">
+       {/* SEO Meta Tags for Freepik Image Generator */}
+       <Helmet>
+        <title>Freepik Image Generator | Wall & Tone</title>
+        <meta
+          name="description"
+          content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
+        />
+        <meta
+          name="keywords"
+          content="Freepik image generator, AI art, wall art, custom art, art generator, Wall & Tone"
+        />
+        <link rel="canonical" href="https://wallandtone.com/freepik-generator" />
+        {/* Open Graph Tags */}
+        <meta property="og:title" content="Freepik Image Generator | Wall & Tone" />
+        <meta
+          property="og:description"
+          content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
+        />
+        <meta property="og:image" content="https://wallandtone.com/assets/og-freepik.jpg" />
+        <meta property="og:url" content="https://wallandtone.com/freepik-generator" />
+        <meta property="og:type" content="website" />
+        {/* Twitter Card Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Freepik Image Generator | Wall & Tone" />
+        <meta
+          name="twitter:description"
+          content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
+        />
+        <meta name="twitter:image" content="https://wallandtone.com/assets/og-freepik.jpg" />
+      </Helmet>
       <div className="freepik-generator__header">
         <h2>AI Art generator by Wall & Tone</h2>
         <p>Use the power of limitless imagination to curate your own unique art prints!</p>

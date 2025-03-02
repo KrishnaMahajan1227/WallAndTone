@@ -65,6 +65,30 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   return (
     
     <div className="search-container">
+      {/* SEO Meta Tags for Search Page */}
+      <Helmet>
+        <title>Search Products | Wall & Tone</title>
+        <meta 
+          name="description" 
+          content="Find the perfect wall art for your space using Wall & Tone's advanced search. Discover curated collections of modern, abstract, and classic art pieces." 
+        />
+        <meta 
+          name="keywords" 
+          content="search wall art, find art, wall decor search, modern art, abstract art, art collections" 
+        />
+        <link rel="canonical" href="https://wallandtone.com/search" />
+        {/* Open Graph Tags */}
+        <meta property="og:title" content="Search Products | Wall & Tone" />
+        <meta property="og:description" content="Find the perfect wall art for your space using Wall & Tone's advanced search. Discover curated collections of modern, abstract, and classic art pieces." />
+        <meta property="og:image" content="https://wallandtone.com/assets/og-search.jpg" />
+        <meta property="og:url" content="https://wallandtone.com/search" />
+        <meta property="og:type" content="website" />
+        {/* Twitter Card Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Search Products | Wall & Tone" />
+        <meta name="twitter:description" content="Find the perfect wall art for your space using Wall & Tone's advanced search." />
+        <meta name="twitter:image" content="https://wallandtone.com/assets/og-search.jpg" />
+      </Helmet>
       <div className="search-bar">
         <form onSubmit={handleSearch}>
           <input

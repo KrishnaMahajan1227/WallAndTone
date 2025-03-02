@@ -26,6 +26,7 @@
 
 .product-listing .product-card {
   width: 100%;
+  max-width: 238px;
   display: flex;
   flex-direction: column;
   height: 100%;

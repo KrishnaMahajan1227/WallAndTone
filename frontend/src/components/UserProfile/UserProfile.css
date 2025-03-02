@@ -1,126 +1,133 @@
-.user-profile {
-  display: flex;
-  justify-content: center;
+
+/* ----- TABS ----- */
+ul.nav.nav-tabs.my-profile-page__tabs {
   align-items: center;
-  height: 100vh;
-  background: #f4f4f4;
-}
-
-.user-profile__container {
-  background: #fff;
-  padding: 30px;
-border-radius: 4px;
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  width: 100%;
-  text-align: center;
-}
-
-.user-profile__title {
-  font-size: 24px;
-  color: #333;
+  justify-content: space-evenly;
+  border: none;
   margin-bottom: 20px;
 }
-
-.user-profile__error {
-  color: #d9534f;
-  font-size: 14px;
-  margin-bottom: 10px;
+.my-profile-page__tabs {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
-.user-profile__success {
-  color: #28a745;
-  font-size: 14px;
-  margin-bottom: 10px;
+.my-profile-page__tabs button.nav-link {
+  font-weight: 500;
+  border: none !important;
+  border-radius: 0;
+  border-radius: 4px;
+  color: #2D2D2D;
+  padding: 10px 25px;
+  max-width: fit-content;
+}
+.my-profile-page__card.card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
-.user-profile__info {
-  text-align: left;
+.my-profile-page__tabs button.nav-link:hover {
+  background-color: #4f2fbf !important;
+  color: #FFFFFF !important;
+  margin: 0 !important;
 }
 
-.user-profile__edit-button {
+.my-profile-page__tabs button.nav-link.active {
+  background-color: #4f2fbf !important;
+  color: #FFFFFF !important;
+ 
+}
+
+/* ----- CARD WRAPPER ----- */
+.my-profile-page__card {
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+/* Card body spacing */
+.my-profile-page__card-body {
+  padding: 2rem;
+}
+
+/* ----- HEADER ----- */
+.my-profile-page__header {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1rem;
+}
+
+/* Title */
+.my-profile-page__title {
+  font-size: 1.4rem; /* keep your existing font sizing if needed */
+  font-weight: 600; /* or match your typography */
+  margin: 0;
+}
+
+/* ----- FORM ELEMENTS ----- */
+.my-profile-page__card-body label {
   display: block;
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  background: #007bff;
-  color: #fff;
-  border: none;
-border-radius: 4px;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.my-profile-page__card-body .form-control {
+  border-radius: 4px;
+  border: 1px solid #D0D0D0;
+  max-width: 100%;
+  /* Keep your existing typography, e.g., font-size, font-family */
+}
+
+.my-profile-page__card-body .form-control:disabled {
+  background-color: #FFFFFF;
+}
+/* Optional: add some margin between each row */
+.my-profile-page__card-body .row {
+  margin-bottom: 1rem;
+}
+
+/* ----- BUTTONS ----- */
+.my-profile-page__edit-btn {
+  min-width: 100px;
+  font-weight: 500;
+}
+
+.my-profile-page__card-body .btn-success,
+.my-profile-page__card-body .btn-warning,
+.my-profile-page__card-body .btn-outline-secondary {
+  font-weight: 500;
+}
+
+/* ----- ORDER HISTORY STYLING ----- */
+.order-card {
+  border-radius: 4px;
+  border: 1px solid #eee;
+  margin-bottom: 1rem;
+}
+
+.order-card h5 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* ----- GENERATED IMAGES STYLING ----- */
+.my-profile-page__image-card {
+  border-radius: 6px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.my-profile-page__image-card:hover {
+  transform: scale(1.02);
+}
+
+.my-profile-page__image {
+  height: 180px;
+  object-fit: cover;
   cursor: pointer;
-  transition: background 0.3s ease-in-out;
 }
 
-.user-profile__edit-button:hover {
-  background: #0056b3;
-}
-
-.user-profile__form {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-profile__form-group {
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-.user-profile__input {
-  width: 100%;
-  padding: 8px;
-  font-size: 16px;
-border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-.user-profile__update-button {
-  padding: 10px;
-  font-size: 16px;
-  background: #28a745;
-  color: #fff;
-  border: none;
-border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.3s ease-in-out;
-}
-
-.user-profile__update-button:hover {
-  background: #218838;
-}
-
-.user-profile__cancel-button {
-  padding: 10px;
-  font-size: 16px;
-  background: #dc3545;
-  color: #fff;
-  border: none;
-border-radius: 4px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.user-profile__logout-button {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  background: #ff4747;
-  color: #fff;
-  border: none;
-border-radius: 4px;
-  cursor: pointer;
-  margin-top: 20px;
-  transition: background 0.3s ease-in-out;
-}
-
-.user-profile__logout-button:hover {
-  background: #d32f2f;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .user-profile__container {
-    padding: 20px;
-    max-width: 90%;
-  }
+/* Adjust as needed */
+.my-profile-page__image-card .card-body {
+  padding: 1rem;
 }

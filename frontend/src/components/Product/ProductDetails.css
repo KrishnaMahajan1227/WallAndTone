@@ -54,7 +54,7 @@
     object-fit: contain;
 }
   
-.product-details-container .product-details-image[src*="Front"] {
+.product-details-container .product-details-image[src*="Main"] {
   max-width: 300px;
   height: 300px;
   z-index: 2;
@@ -65,7 +65,7 @@
 }
   
   /* Use a pseudo-element to render the box shadow on "Front" images */
-  .product-details-container .product-details-image[src*="Front"]::before {
+  .product-details-container .product-details-image[src*="Main"]::before {
     content: "";
     position: absolute;
     top: 0;
@@ -78,9 +78,10 @@
   }
   
   /* For all other images, show the entire image without cropping */
-  .product-details-container .product-details-image:not([src*="Front"]) {
+  .product-details-container .product-details-image:not([src*="Main"]) {
     object-fit: contain;
   }
+
 
   .product-details-container .thumbnails {
     display: flex;

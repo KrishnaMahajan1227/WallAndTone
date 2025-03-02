@@ -235,19 +235,31 @@ const addProduct = async (req, res) => {
     }
     // For subframe images, assume file uploads if provided (no grouping here)
     let subframeImageMap = [];
-    if (req.files && req.files.subframeImages) {
-      subframeImageMap = await Promise.all(req.files.subframeImages.map(async (file) => {
+    if (row['SubframeImageMap'] && row['SubframeImageMap'].trim() !== "") {
+      // Process the mapping as before...
+    } else if (row['SubframeImages'] && row['SubframeImages'].trim() !== "") {
+      // If there is a SubframeImages column, process it as a fallback
+      const imagePaths = row['SubframeImages'].split(',').map(t => t.trim());
+      subframeImageMap = await Promise.all(imagePaths.map(async (imagePath) => {
         try {
-          const publicId = path.basename(file.path).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
-          const imageUrl = await uploadImage(file);
-          return { imageUrl };
+          const publicId = path.basename(imagePath)
+            .replace(/\.[^/.]+$/, "")
+            .replace(/[^a-zA-Z0-9]/g, "_");
+          const imageUrl = await uploadLocalToCloudinary(imagePath, publicId);
+          if (!imageUrl) {
+            console.error(`Failed to upload subframe image for ${row['Product Name']}`);
+            return null;
+          }
+          // You might need to set default frameType/subFrameType here if required
+          return { imagePath, frameType: "defaultFrame", subFrameType: "defaultSubFrame", imageUrl };
         } catch (error) {
-          console.error(`Error uploading subframe image:`, error);
+          console.error(`Error uploading subframe image for ${row['Product Name']}:`, error);
           return null;
         }
       }));
       subframeImageMap = subframeImageMap.filter(Boolean);
     }
+    
 
     // Validate sub frame types
     if (!subFrameTypes || !Array.isArray(subFrameTypes) || subFrameTypes.length === 0) {
@@ -1033,11 +1045,12 @@ const processExcelFile = async (req, res) => {
         longTailKeywords = row['Long-Tail Keywords'].split(',').map(k => k.trim());
       }
 
-      // Upload main image
+      // Upload main image (assumes file is in the "uploads" folder)
       let mainImageUrl = '';
       try {
+        const fullMainImagePath = path.join('uploads', row['MainImage']);
         const publicId = path.basename(row['MainImage']).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
-        mainImageUrl = await uploadLocalToCloudinary(row['MainImage'], publicId);
+        mainImageUrl = await uploadLocalToCloudinary(fullMainImagePath, publicId);
         if (!mainImageUrl) {
           console.error(`Failed to upload main image for ${row['Product Name']}`);
           return null;
@@ -1047,14 +1060,15 @@ const processExcelFile = async (req, res) => {
         return null;
       }
 
-      // Upload thumbnails
+      // Upload thumbnails (assumes files are in the "uploads" folder)
       let thumbnailUrls = [];
       if (row['Thumbnails']) {
         const thumbnailPaths = row['Thumbnails'].split(',').map(t => t.trim());
         thumbnailUrls = await Promise.all(thumbnailPaths.map(async (thumbnailPath) => {
           try {
+            const fullThumbnailPath = path.join('uploads', thumbnailPath);
             const publicId = path.basename(thumbnailPath).replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
-            return await uploadLocalToCloudinary(thumbnailPath, publicId);
+            return await uploadLocalToCloudinary(fullThumbnailPath, publicId);
           } catch (error) {
             console.error(`Error uploading thumbnail for ${row['Product Name']}:`, error);
             return null;
@@ -1062,33 +1076,45 @@ const processExcelFile = async (req, res) => {
         }));
       }
 
-      // Process subframe images from the SubframeImageMap column
+      // Process subframe images:
       let subframeImageMap = [];
-      if (row['SubframeImageMap']) {
-        // Split by commas then split each mapping by colon.
-        const mappings = row['SubframeImageMap']
-          .split(/\s*,\s*/)
-          .map(mappingStr => {
-            const parts = mappingStr.split(':');
-            if (parts.length < 3) return null;
-            return {
-              imagePath: parts[0].trim(),
-              frameType: parts[1].trim(),
-              subFrameType: parts[2].trim()
-            };
-          })
-          .filter(Boolean);
-        subframeImageMap = await Promise.all(mappings.map(async (mapping) => {
+      if (row['SubframeImageMap'] && row['SubframeImageMap'].trim() !== "") {
+        // Expecting format: "filename:frameType:subFrameType, filename:frameType:subFrameType, ..."
+        const mappings = row['SubframeImageMap'].split(',').map(item => item.trim());
+        subframeImageMap = await Promise.all(mappings.map(async (mappingStr) => {
+          const parts = mappingStr.split(':');
+          if (parts.length < 3) {
+            console.error(`Invalid subframe mapping for product ${row['Product Name']}: ${mappingStr}`);
+            return null;
+          }
+          const [imageName, frameType, subFrameType] = parts;
+          const fullImagePath = path.join('uploads', imageName);
+          const publicId = path.basename(imageName)
+            .replace(/\.[^/.]+$/, "")
+            .replace(/[^a-zA-Z0-9]/g, "_");
+          const imageUrl = await uploadLocalToCloudinary(fullImagePath, publicId);
+          if (!imageUrl) {
+            console.error(`Failed to upload subframe image for ${row['Product Name']}`);
+            return null;
+          }
+          return { imagePath: imageName, frameType, subFrameType, imageUrl };
+        }));
+        subframeImageMap = subframeImageMap.filter(Boolean);
+      } else if (row['SubframeImages'] && row['SubframeImages'].trim() !== "") {
+        // Fallback: use the SubframeImages column and assign default frameType/subFrameType
+        const imagePaths = row['SubframeImages'].split(',').map(t => t.trim());
+        subframeImageMap = await Promise.all(imagePaths.map(async (imageName) => {
           try {
-            const publicId = path.basename(mapping.imagePath)
+            const fullImagePath = path.join('uploads', imageName);
+            const publicId = path.basename(imageName)
               .replace(/\.[^/.]+$/, "")
               .replace(/[^a-zA-Z0-9]/g, "_");
-            const imageUrl = await uploadLocalToCloudinary(mapping.imagePath, publicId);
+            const imageUrl = await uploadLocalToCloudinary(fullImagePath, publicId);
             if (!imageUrl) {
               console.error(`Failed to upload subframe image for ${row['Product Name']}`);
               return null;
             }
-            return { ...mapping, imageUrl };
+            return { imagePath: imageName, frameType: "defaultFrame", subFrameType: "defaultSubFrame", imageUrl };
           } catch (error) {
             console.error(`Error uploading subframe image for ${row['Product Name']}:`, error);
             return null;
@@ -1096,7 +1122,7 @@ const processExcelFile = async (req, res) => {
         }));
         subframeImageMap = subframeImageMap.filter(Boolean);
       }
-
+      
       return {
         ...row,
         mainImage: mainImageUrl,
@@ -1125,7 +1151,7 @@ const processExcelFile = async (req, res) => {
       });
     }
 
-    // Fetch and validate frame types from the products (if provided as comma-separated strings)
+    // Fetch and validate frame types from the products
     const frameTypesSet = new Set();
     validProducts.forEach(d => {
       if (d['FrameTypes']) {
@@ -1154,7 +1180,7 @@ const processExcelFile = async (req, res) => {
     });
 
     // Process and create product objects for insertion.
-    // Here, we map each subframe image individually and skip any mapping that doesn’t have a valid frameType or subFrameType.
+    // Map each subframe image using the processed subframeImageMap.
     const products = validProducts.map(data => {
       const subFrameImages = data.subframeImageMap && Array.isArray(data.subframeImageMap)
          ? data.subframeImageMap.map(mapping => {
@@ -1198,7 +1224,7 @@ const processExcelFile = async (req, res) => {
         rooms: data.rooms,
         mainImage: data.mainImage,
         thumbnails: data.thumbnails,
-        subFrameImages,
+        subFrameImages: subFrameImages,  // Mapped subframe images
         // SEO fields
         primaryKeyword: data['Primary Keyword'] || data.primaryKeyword,
         shortTailKeywords: data['Short-Tail Keywords'] || data.shortTailKeywords || [],
@@ -1222,6 +1248,7 @@ const processExcelFile = async (req, res) => {
     });
   }
 };
+
 
 module.exports = {
   addFrameType,

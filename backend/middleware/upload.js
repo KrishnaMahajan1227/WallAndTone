@@ -151,7 +151,7 @@ const uploadLocalToCloudinary = async (imagePath, publicId) => {
 
     // Validate file type
     const ext = path.extname(normalizedPath).toLowerCase();
-    if (!['.jpg', '.jpeg', '.png'].includes(ext)) {
+    if (!['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
       console.error(`Invalid file type: ${ext}`);
       return null;
     }

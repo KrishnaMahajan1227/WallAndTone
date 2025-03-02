@@ -486,7 +486,7 @@ const ProductListing = () => {
 
   // Updated renderProductCard to display extra SEO fields.
   const renderProductCard = (product, isLarge = false) => (
-    <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
+    <div className={`card product-card ${isLarge ? 'large-card' : ''}`}>
       <div className="product-image-wrapper position-relative">
         <img
           src={product.mainImage}

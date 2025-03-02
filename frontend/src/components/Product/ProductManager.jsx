@@ -4,9 +4,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductManager.css';
 
 const ProductManager = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 
-    (window.location.hostname === 'localhost' 
-      ? 'http://localhost:8080' 
+  const apiUrl = import.meta.env.VITE_API_URL ||
+    (window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
       : 'https://wallandtone.com');
   const [products, setProducts] = useState([]);
   const [frameTypes, setFrameTypes] = useState([]);
@@ -25,7 +25,11 @@ const ProductManager = () => {
     orientations: [],
     categories: [],
     medium: '',
-    rooms: ''
+    rooms: '',
+    // New SEO fields
+    primaryKeyword: '',
+    shortTailKeywords: '',
+    longTailKeywords: ''
   });
   const [files, setFiles] = useState({
     mainImage: null,
@@ -129,7 +133,7 @@ const ProductManager = () => {
     const { value, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      frameTypes: checked 
+      frameTypes: checked
         ? [...prev.frameTypes, value]
         : prev.frameTypes.filter(id => id !== value)
     }));
@@ -213,7 +217,7 @@ const ProductManager = () => {
       const url = formData._id
         ? `${apiUrl}/api/products/${formData._id}`
         : `${apiUrl}/api/products`;
-      
+
       const method = formData._id ? 'put' : 'post';
       const response = await axios[method](url, formDataToSend);
 
@@ -267,9 +271,13 @@ const ProductManager = () => {
       colors: product.colors || [],
       orientations: product.orientations || [],
       categories: product.categories || [],
-      // New fields: join array values into comma-separated strings for display
+      // Existing fields
       medium: product.medium ? product.medium.join(',') : '',
-      rooms: product.rooms ? product.rooms.join(',') : ''
+      rooms: product.rooms ? product.rooms.join(',') : '',
+      // New SEO fields
+      primaryKeyword: product.primaryKeyword || '',
+      shortTailKeywords: product.shortTailKeywords ? product.shortTailKeywords.join(',') : '',
+      longTailKeywords: product.longTailKeywords ? product.longTailKeywords.join(',') : ''
     });
     setModalVisible(true);
   };
@@ -298,7 +306,11 @@ const ProductManager = () => {
       orientations: [],
       categories: [],
       medium: '',
-      rooms: ''
+      rooms: '',
+      // Reset SEO fields
+      primaryKeyword: '',
+      shortTailKeywords: '',
+      longTailKeywords: ''
     });
     setFiles({
       mainImage: null,
@@ -353,6 +365,10 @@ const ProductManager = () => {
               <th>Colors</th>
               <th>Orientations</th>
               <th>Categories</th>
+              {/* New SEO Columns */}
+              <th>Primary Keyword</th>
+              <th>Short Tail Keywords</th>
+              <th>Long Tail Keywords</th>
               <th>Medium</th>
               <th>Rooms</th>
               <th>Price</th>
@@ -408,6 +424,10 @@ const ProductManager = () => {
                     ))}
                   </ul>
                 </td>
+                {/* New SEO columns display */}
+                <td>{product.primaryKeyword || '-'}</td>
+                <td>{product.shortTailKeywords ? product.shortTailKeywords.join(', ') : '-'}</td>
+                <td>{product.longTailKeywords ? product.longTailKeywords.join(', ') : '-'}</td>
                 <td>{product.medium ? product.medium.join(', ') : ''}</td>
                 <td>{product.rooms ? product.rooms.join(', ') : ''}</td>
                 <td>${product.startFromPrice}</td>
@@ -574,7 +594,41 @@ const ProductManager = () => {
                       ))}
                     </div>
                   </div>
-                  {/* New Medium field */}
+                  {/* New SEO fields */}
+                  <div className="mb-3">
+                    <label className="form-label">Primary Keyword</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="primaryKeyword"
+                      value={formData.primaryKeyword}
+                      onChange={handleInputChange}
+                      placeholder="Enter primary SEO keyword"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Short Tail Keywords</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="shortTailKeywords"
+                      value={formData.shortTailKeywords}
+                      onChange={handleInputChange}
+                      placeholder="Comma-separated (e.g. modern art, wall decor)"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Long Tail Keywords</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="longTailKeywords"
+                      value={formData.longTailKeywords}
+                      onChange={handleInputChange}
+                      placeholder="Comma-separated (e.g. modern abstract wall art, contemporary living room decor)"
+                    />
+                  </div>
+                  {/* Existing fields */}
                   <div className="mb-3">
                     <label className="form-label">Medium</label>
                     <input
@@ -586,7 +640,6 @@ const ProductManager = () => {
                       placeholder="Comma-separated (e.g. Oil Painting, Watercolor Painting)"
                     />
                   </div>
-                  {/* New Rooms field */}
                   <div className="mb-3">
                     <label className="form-label">Rooms</label>
                     <input
@@ -689,7 +742,6 @@ const ProductManager = () => {
       )}
 
       {modalVisible && <div className="modal-backdrop show"></div>}
-
     </div>
   );
 };

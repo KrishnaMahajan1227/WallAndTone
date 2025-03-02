@@ -9,7 +9,6 @@ const reviewSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now, index: true }
 });
 
-
 // Product Schema
 const productSchema = new mongoose.Schema(
   {
@@ -19,6 +18,10 @@ const productSchema = new mongoose.Schema(
     thumbnails: { type: [String], default: [] },
     quantity: { type: Number, required: true },
     startFromPrice: { type: Number, required: true },
+    // SEO fields
+    primaryKeyword: { type: String },
+    shortTailKeywords: { type: [String], default: [] },
+    longTailKeywords: { type: [String], default: [] },
     frameTypes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FrameType', required: true }],
     subFrameTypes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SubFrameType' }],
     colors: [{
@@ -53,7 +56,7 @@ const productSchema = new mongoose.Schema(
         'Love & Romance', 'Seasonal Art', 'Nautical'
       ]
     }],
-    // New field: Medium (an array of strings with defined enum)
+    // New field: Medium
     medium: [{
       type: String,
       enum: [
@@ -83,7 +86,7 @@ const productSchema = new mongoose.Schema(
         "Sketch & Mixed Media"
       ]
     }],
-    // New field: Rooms (an array of strings with defined enum)
+    // New field: Rooms
     rooms: [{
       type: String,
       enum: [

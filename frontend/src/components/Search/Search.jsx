@@ -112,7 +112,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         description="Your walls deserve personality! Whether it’s your cozy living room, a sleek workspace, or a dreamy bedroom, we make finding the right art effortless. Browse, pick, and get it delivered—hassle-free. Need help? Our art experts are just a message away!"
         ctaText="Explore our Collection"
         ctaLink="#"
-        reverse='yes'
         />
 
 <ImageContentComponent

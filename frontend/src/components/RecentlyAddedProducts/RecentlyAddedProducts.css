@@ -112,5 +112,12 @@
       border-radius: 4px;
       height: 220px;
       object-fit: contain;
+      padding: 1rem;
     }
+    .recently-added-products-container .card-title{
+      font-size: 16px;
+    }
+    .recently-added-products-container .card-text {
+      font-size: 12px;
+  }
   }

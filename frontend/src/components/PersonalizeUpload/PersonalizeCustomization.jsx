@@ -3,11 +3,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import axios from "axios";
 import { frameBackgrounds } from "../constants/frameImages";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./PersonalizeCustomization.css"; // Keeps UI Consistency
 
 const PersonalizeCustomization = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 
-    (window.location.hostname === "localhost" ? "http://localhost:8080" : "https://wallandtone.com");
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : "https://wallandtone.com");
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,7 +26,6 @@ const PersonalizeCustomization = () => {
   const [subFrameTypes, setSubFrameTypes] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [quantity, setQuantity] = useState(1);
-  const [alertMessage, setAlertMessage] = useState("");
   const [cart, setCart] = useState({ items: [], totalPrice: 0 });
 
   const [selectedFrameType, setSelectedFrameType] = useState(null);
@@ -47,7 +51,9 @@ const PersonalizeCustomization = () => {
     const fetchSubFrameTypes = async () => {
       if (selectedFrameType?._id) {
         try {
-          const response = await axios.get(`${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`);
+          const response = await axios.get(
+            `${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`
+          );
           setSubFrameTypes(response.data);
           if (response.data.length > 0) {
             setSelectedSubFrameType(response.data[0]);
@@ -79,13 +85,16 @@ const PersonalizeCustomization = () => {
 
   const calculateTotalPrice = () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) return 0;
-    let total = parseFloat(selectedFrameType.price) + parseFloat(selectedSubFrameType.price) + parseFloat(selectedSize.price);
+    let total =
+      parseFloat(selectedFrameType.price) +
+      parseFloat(selectedSubFrameType.price) +
+      parseFloat(selectedSize.price);
     return (total * quantity).toFixed(2);
   };
 
   const handleAddToCart = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
-      setAlertMessage("Please select all options before adding to cart");
+      toast.error("Please select all options before adding to cart");
       return;
     }
 
@@ -101,12 +110,14 @@ const PersonalizeCustomization = () => {
       };
 
       if (token) {
-        const response = await axios.post(`${apiUrl}/api/cart/add`, cartItem, { headers: { Authorization: `Bearer ${token}` } });
+        const response = await axios.post(`${apiUrl}/api/cart/add`, cartItem, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setCart(response.data.cart);
-        setAlertMessage("Added to cart successfully!");
+        toast.success("Added to cart successfully!");
       }
     } catch (err) {
-      setAlertMessage("Failed to add to cart");
+      toast.error("Failed to add to cart");
     }
   };
 
@@ -116,17 +127,30 @@ const PersonalizeCustomization = () => {
 
   return (
     <div className="personalize-customization">
+      <ToastContainer />
       <button className="back-button" onClick={() => navigate(-1)}>
         <ArrowLeft size={20} /> Back
       </button>
 
       <div className="customization-details">
         <div className="image-section">
-          <div className={`main-image-container ${selectedOrientation === "landscape" ? "landscape-mode" : ""}`}>
+          <div
+            className={`main-image-container ${
+              selectedOrientation === "landscape" ? "landscape-mode" : ""
+            }`}
+          >
             {selectedSubFrameType && (
-              <img src={frameBackgrounds[selectedSubFrameType.name]} alt="Frame background" className="frame-background" />
+              <img
+                src={frameBackgrounds[selectedSubFrameType.name]}
+                alt="Frame background"
+                className="frame-background"
+              />
             )}
-            <img src={personalizedImage} alt="Uploaded Artwork" className="generated-artwork" />
+            <img
+              src={personalizedImage}
+              alt="Uploaded Artwork"
+              className="generated-artwork"
+            />
           </div>
         </div>
 
@@ -135,8 +159,14 @@ const PersonalizeCustomization = () => {
           <div className="options-section">
             <h4>Select Frame Type</h4>
             <div className="frame-type-buttons">
-              {frameTypes.map(frameType => (
-                <button key={frameType._id} className={`option-button ${selectedFrameType?._id === frameType._id ? "active" : ""}`} onClick={() => setSelectedFrameType(frameType)}>
+              {frameTypes.map((frameType) => (
+                <button
+                  key={frameType._id}
+                  className={`option-button ${
+                    selectedFrameType?._id === frameType._id ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedFrameType(frameType)}
+                >
                   {frameType.name}
                 </button>
               ))}
@@ -144,8 +174,14 @@ const PersonalizeCustomization = () => {
 
             <h4>Select Sub-Frame</h4>
             <div className="sub-frame-type-buttons">
-              {subFrameTypes.map(subFrameType => (
-                <button key={subFrameType._id} className={`option-button ${selectedSubFrameType?._id === subFrameType._id ? "active" : ""}`} onClick={() => setSelectedSubFrameType(subFrameType)}>
+              {subFrameTypes.map((subFrameType) => (
+                <button
+                  key={subFrameType._id}
+                  className={`option-button ${
+                    selectedSubFrameType?._id === subFrameType._id ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedSubFrameType(subFrameType)}
+                >
                   {subFrameType.name}
                 </button>
               ))}
@@ -153,8 +189,14 @@ const PersonalizeCustomization = () => {
 
             <h4>Select Size</h4>
             <div className="size-buttons">
-              {sizes.map(size => (
-                <button key={size._id} className={`option-button ${selectedSize?._id === size._id ? "active" : ""}`} onClick={() => setSelectedSize(size)}>
+              {sizes.map((size) => (
+                <button
+                  key={size._id}
+                  className={`option-button ${
+                    selectedSize?._id === size._id ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedSize(size)}
+                >
                   {size.width} x {size.height}
                 </button>
               ))}

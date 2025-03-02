@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, ShoppingCart, Heart, X } from 'lucide-react';
 import heartIcon from '../../assets/icons/heart-icon.svg';
 import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
-
-import './ProductDetails.css';
+import ProductSEO from './ProductSEO'; // adjust the path as needed
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './ProductDetails.css';
 
 const ProductDetails = () => {
   const apiUrl =
@@ -25,7 +27,6 @@ const ProductDetails = () => {
   const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
   const [quantity, setQuantity] = useState(1);
-  const [alertMessage, setAlertMessage] = useState('');
   const [activeImage, setActiveImage] = useState('');
   const [newRating, setNewRating] = useState(0);
   const [newReview, setNewReview] = useState('');
@@ -57,7 +58,13 @@ const ProductDetails = () => {
   const guestWishlist = JSON.parse(localStorage.getItem('guestWishlist')) || [];
   const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
 
-  // Calculate item price
+  // Utility functions
+  const calculateAverageRating = (reviews) => {
+    if (!Array.isArray(reviews) || reviews.length === 0) return 0;
+    const total = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (total / reviews.length).toFixed(1);
+  };
+
   const calculateItemPrice = (item) => {
     if (!item || !item.productId || !item.quantity) return 0;
     const basePrice = parseFloat(item.productId.price) || 0;
@@ -67,12 +74,22 @@ const ProductDetails = () => {
     return ((basePrice + frameTypePrice + subFrameTypePrice + sizePrice) * item.quantity).toFixed(2);
   };
 
-  // Calculate total cart price
   const calculateCartTotal = () => {
     if (!Array.isArray(cart)) return 0;
     return cart.reduce((total, item) => total + parseFloat(calculateItemPrice(item)), 0).toFixed(2);
   };
 
+  // NEW: Calculate total price for current product with selected options
+  const calculateTotalPrice = () => {
+    if (!product) return 0;
+    let total = parseFloat(product.price) || 0;
+    if (selectedFrameType?.price) total += parseFloat(selectedFrameType.price);
+    if (selectedSubFrameType?.price) total += parseFloat(selectedSubFrameType.price);
+    if (selectedSize?.price) total += parseFloat(selectedSize.price);
+    return (total * quantity).toFixed(2);
+  };
+
+  // Update history
   useEffect(() => {
     const updateHistory = async () => {
       try {
@@ -110,6 +127,7 @@ const ProductDetails = () => {
         setAverageRating(calculateAverageRating(data.reviews || []));
       } catch (err) {
         setError(err.message);
+        toast.error(err.message);
       } finally {
         setLoading(false);
       }
@@ -144,7 +162,16 @@ const ProductDetails = () => {
     fetchUserData();
   }, [token]);
 
-  // Fetch subFrameTypes when frameType changes
+  // Save selections to localStorage
+  useEffect(() => {
+    if (selectedFrameType && selectedSubFrameType && selectedSize) {
+      localStorage.setItem('selectedFrameType', JSON.stringify(selectedFrameType));
+      localStorage.setItem('selectedSubFrameType', JSON.stringify(selectedSubFrameType));
+      localStorage.setItem('selectedSize', JSON.stringify(selectedSize));
+    }
+  }, [selectedFrameType, selectedSubFrameType, selectedSize]);
+
+  // Fetch subFrameTypes when frame type changes
   useEffect(() => {
     if (selectedFrameType?._id) {
       fetch(`${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`)
@@ -152,7 +179,7 @@ const ProductDetails = () => {
         .then(data => setSubFrameTypes(Array.isArray(data) ? data : []))
         .catch(err => {
           console.error('Error fetching sub-frame types:', err);
-          setAlertMessage('Failed to load sub-frame types');
+          toast.error('Failed to load sub-frame types');
         });
     } else {
       setSubFrameTypes([]);
@@ -167,7 +194,7 @@ const ProductDetails = () => {
         .then(data => setSizes(Array.isArray(data) ? data : []))
         .catch(err => {
           console.error('Error fetching sizes:', err);
-          setAlertMessage('Failed to load sizes');
+          toast.error('Failed to load sizes');
         });
     } else {
       setSizes([]);
@@ -193,32 +220,7 @@ const ProductDetails = () => {
     }
   }, [product]);
 
-  // Save selections to localStorage
-  useEffect(() => {
-    if (selectedFrameType && selectedSubFrameType && selectedSize) {
-      localStorage.setItem('selectedFrameType', JSON.stringify(selectedFrameType));
-      localStorage.setItem('selectedSubFrameType', JSON.stringify(selectedSubFrameType));
-      localStorage.setItem('selectedSize', JSON.stringify(selectedSize));
-    }
-  }, [selectedFrameType, selectedSubFrameType, selectedSize]);
-
-  // Utility functions
-  const calculateAverageRating = (reviews) => {
-    if (!Array.isArray(reviews) || reviews.length === 0) return 0;
-    const total = reviews.reduce((acc, review) => acc + review.rating, 0);
-    return (total / reviews.length).toFixed(1);
-  };
-
-  const calculateTotalPrice = () => {
-    if (!product) return 0;
-    let total = parseFloat(product.price) || 0;
-    if (selectedFrameType?.price) total += parseFloat(selectedFrameType.price);
-    if (selectedSubFrameType?.price) total += parseFloat(selectedSubFrameType.price);
-    if (selectedSize?.price) total += parseFloat(selectedSize.price);
-    return (total * quantity).toFixed(2);
-  };
-
-  // Event handlers
+  // Event Handlers
   const handleQuantityChange = (e) => {
     const newQuantity = Math.max(1, parseInt(e.target.value, 10) || 1);
     setQuantity(newQuantity);
@@ -246,19 +248,16 @@ const ProductDetails = () => {
       setSelectedSize(null);
     } catch (err) {
       console.error('Error selecting frame type:', err);
-      setAlertMessage('Failed to select frame type');
+      toast.error('Failed to select frame type');
     }
   };
 
-  // UPDATED: This function now checks product data first and then calls the API.
-  // It combines all image URLs (removing duplicates) for the selected sub-frame type.
   const handleSubFrameTypeSelect = async (subFrameType) => {
     setSelectedSubFrameType(subFrameType);
     setSelectedSize(null);
     setLoadingSubFrame(true);
     try {
       let imagesArr = [];
-      // Check if product.subFrameImages exists in product data
       if (product?.subFrameImages && product.subFrameImages.length > 0) {
         const matchingGroups = product.subFrameImages.filter(
           (group) =>
@@ -273,7 +272,6 @@ const ProductDetails = () => {
           }
         });
       }
-      // If no images found in product data, fetch from API
       if (imagesArr.length === 0) {
         const response = await fetch(
           `${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`
@@ -289,12 +287,9 @@ const ProductDetails = () => {
           imagesArr.push(data.imageUrl);
         }
       }
-      // Remove duplicates
       imagesArr = [...new Set(imagesArr)];
-      // Append constant images from subFrameType if any
       const constantSubFrameImages = subFrameType.images || [];
       const updatedThumbnails = [...imagesArr, ...constantSubFrameImages];
-      
       if (updatedThumbnails.length > 0) {
         setActiveImage(updatedThumbnails[0]);
       } else {
@@ -305,6 +300,7 @@ const ProductDetails = () => {
       console.error(err);
       setActiveImage(product.mainImage);
       setSubFrameThumbnails(subFrameType.images || []);
+      toast.error('Failed to load subframe images');
     } finally {
       setLoadingSubFrame(false);
     }
@@ -317,7 +313,7 @@ const ProductDetails = () => {
   // Cart and wishlist handlers
   const handleAddToCart = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
-      setAlertMessage('Please select all options before adding to cart');
+      toast.error('Please select all options before adding to cart');
       return;
     }
     const cartItem = {
@@ -342,23 +338,23 @@ const ProductDetails = () => {
         });
         if (!response.ok) throw new Error('Failed to add to cart');
         setCart(prevCart => [...prevCart, cartItem]);
-        setAlertMessage('Product added to cart!');
+        toast.success('Product added to cart!');
         setSubCartOpen(true);
       } catch (err) {
-        setAlertMessage('Failed to add product to cart');
+        toast.error('Failed to add product to cart');
       }
     } else {
       const updatedCart = [...guestCart, cartItem];
       setCart(updatedCart);
       localStorage.setItem('guestCart', JSON.stringify(updatedCart));
-      setAlertMessage('Product added to cart!');
+      toast.success('Product added to cart!');
       setSubCartOpen(true);
     }
   };
 
   const handleAddToWishlist = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
-      setAlertMessage('Please select all options before adding to wishlist');
+      toast.error('Please select all options before adding to wishlist');
       return;
     }
     const inWishlist =
@@ -391,7 +387,7 @@ const ProductDetails = () => {
         if (!response.ok) {
           const errorData = await response.json();
           if (!inWishlist && errorData.message === "Product already in wishlist.") {
-            setAlertMessage("Product is already in your wishlist!");
+            toast.info("Product is already in your wishlist!");
             return;
           }
           throw new Error(errorData.message || 'Failed to update wishlist');
@@ -410,9 +406,9 @@ const ProductDetails = () => {
                 { productId: product, frameType: selectedFrameType, subFrameType: selectedSubFrameType, size: selectedSize }
               ]
         );
-        setAlertMessage(inWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
+        toast.success(inWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
       } catch (err) {
-        setAlertMessage(err.message || 'Failed to update wishlist');
+        toast.error(err.message || 'Failed to update wishlist');
       }
     } else {
       const updatedWishlist = inWishlist
@@ -429,7 +425,7 @@ const ProductDetails = () => {
           ];
       setWishlist(updatedWishlist);
       localStorage.setItem('guestWishlist', JSON.stringify(updatedWishlist));
-      setAlertMessage(inWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
+      toast.success(inWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
     }
   };
 
@@ -461,9 +457,9 @@ const ProductDetails = () => {
               : cartItem
           )
         );
-        setAlertMessage('Quantity updated successfully!');
+        toast.success('Quantity updated successfully!');
       } catch (err) {
-        setAlertMessage('Failed to update quantity');
+        toast.error('Failed to update quantity');
       }
     } else {
       const updatedCart = cart.map(cartItem =>
@@ -473,7 +469,7 @@ const ProductDetails = () => {
       );
       setCart(updatedCart);
       localStorage.setItem('guestCart', JSON.stringify(updatedCart));
-      setAlertMessage('Quantity updated successfully!');
+      toast.success('Quantity updated successfully!');
     }
   };
 
@@ -497,9 +493,9 @@ const ProductDetails = () => {
               cartItem.size._id !== item.size._id
           )
         );
-        setAlertMessage('Item removed from cart!');
+        toast.success('Item removed from cart!');
       } catch (err) {
-        setAlertMessage('Failed to remove item from cart');
+        toast.error('Failed to remove item from cart');
       }
     } else {
       const updatedCart = cart.filter(
@@ -511,55 +507,45 @@ const ProductDetails = () => {
       );
       setCart(updatedCart);
       localStorage.setItem('guestCart', JSON.stringify(updatedCart));
-      setAlertMessage('Item removed from cart!');
+      toast.success('Item removed from cart!');
     }
   };
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-  
     if (!newRating || !newReview.trim()) {
-      setAlertMessage("Rating and comment are required.");
+      toast.error("Rating and comment are required.");
       return;
     }
-  
-    const formData = new FormData();
-    formData.append("rating", newRating);
-    formData.append("comment", newReview);
-  
-    // Append images if they exist
+    const formDataObj = new FormData();
+    formDataObj.append("rating", newRating);
+    formDataObj.append("comment", newReview);
     if (reviewImages.length > 0) {
       reviewImages.forEach(image => {
-        formData.append("reviewImages", image);
+        formDataObj.append("reviewImages", image);
       });
     }
-  
     try {
       const response = await fetch(`${apiUrl}/api/products/${productId}/reviews`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` }, 
-        body: formData
+        headers: { Authorization: `Bearer ${token}` },
+        body: formDataObj
       });
-  
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Failed to submit review");
-  
-      // Update state with the new review
       setProduct((prev) => ({
         ...prev,
         reviews: [...prev.reviews, data],
       }));
-  
-      setAlertMessage("Review submitted successfully!");
+      toast.success("Review submitted successfully!");
       setNewRating(0);
       setNewReview("");
       setReviewImages([]);
     } catch (err) {
       console.error("Review Submission Error:", err);
-      setAlertMessage(err.message || "Failed to submit review");
+      toast.error(err.message || "Failed to submit review");
     }
   };
-  
 
   const renderCartItems = () => {
     if (!Array.isArray(cart) || cart.length === 0) {
@@ -568,7 +554,7 @@ const ProductDetails = () => {
     return cart.map((item, index) => (
       <div key={index} className="cart-item">
         <img
-          src={`${item.productId.mainImage}`}
+          src={item.productId.mainImage}
           alt={item.productId.productName}
           className="cart-item-image"
         />
@@ -578,16 +564,9 @@ const ProductDetails = () => {
           <p>Type: {item.subFrameTypeName}</p>
           <p>Size: {item.sizeName}</p>
           <div className="quantity-controls">
-            <button
-              onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-              disabled={item.quantity <= 1}
-            >
-              -
-            </button>
+            <button onClick={() => handleUpdateQuantity(item, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
             <span>{item.quantity}</span>
-            <button onClick={() => handleUpdateQuantity(item, item.quantity + 1)}>
-              +
-            </button>
+            <button onClick={() => handleUpdateQuantity(item, item.quantity + 1)}>+</button>
           </div>
           <p>Price: ₹{calculateItemPrice(item)}</p>
         </div>
@@ -597,51 +576,148 @@ const ProductDetails = () => {
       </div>
     ));
   };
-  
+
+  // renderProductCard and renderProductRows are used if needed in the listing view.
+  const renderProductCard = (product, isLarge = false) => (
+    <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
+      <div className="product-image-wrapper position-relative">
+        <img
+          src={product.mainImage}
+          className="card-img-top product-image"
+          alt={product.productName}
+          onClick={() => navigate(`/product/${product._id}`)}
+        />
+        <div
+          className="wishlist-icon position-absolute"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (wishlist && wishlist.some(item => item.productId && item.productId._id === product._id)) {
+              handleRemoveFromWishlist(product);
+            } else {
+              handleAddToWishlist(product);
+            }
+          }}
+        >
+          <img
+            src={
+              wishlist && wishlist.some(item => item.productId && item.productId._id === product._id)
+                ? heartIconFilled
+                : heartIcon
+            }
+            alt="Heart Icon"
+          />
+        </div>
+      </div>
+      <div className="card-body text-center d-flex flex-column">
+        <h5 className="card-title product-title">{product.productName}</h5>
+        <p className="card-text text-muted">{product.description.slice(0, isLarge ? 150 : 100)}...</p>
+        <p className="card-text text-muted">Starting From Rs {product.startFromPrice}/-</p>
+      </div>
+    </div>
+  );
+
+  const renderProductRows = () => {
+    const sortedProducts = sortProducts(products);
+    const rows = [];
+    let remainingProducts = [...sortedProducts];
+    while (remainingProducts.length >= 7) {
+      const regularProducts = remainingProducts.slice(0, 6);
+      const featuredProduct = remainingProducts[6];
+      const isEvenRow = rows.length % 2 === 0;
+      rows.push(
+        <div key={rows.length} className={`products-container mb-4 ${isEvenRow ? 'featured-right' : 'featured-left'}`}>
+          {isEvenRow ? (
+            <>
+              <div className="regular-products">
+                {regularProducts.map(product =>
+                  product && product._id ? (
+                    <div key={product._id} className="regular-product-item">
+                      {renderProductCard(product)}
+                    </div>
+                  ) : null
+                )}
+              </div>
+              <div className="featured-product">
+                {renderProductCard(featuredProduct, true)}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="featured-product">
+                {renderProductCard(featuredProduct, true)}
+              </div>
+              <div className="regular-products">
+                {regularProducts.map(product =>
+                  product && product._id ? (
+                    <div key={product._id} className="regular-product-item">
+                      {renderProductCard(product)}
+                    </div>
+                  ) : null
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      );
+      remainingProducts = remainingProducts.slice(7);
+    }
+    if (remainingProducts.length > 0) {
+      rows.push(
+        <div key="remaining" className="remaining-products-container mb-4">
+          {remainingProducts.map(product =>
+            product && product._id ? (
+              <div key={product._id} className="remaining-product-item">
+                {renderProductCard(product)}
+              </div>
+            ) : null
+          )}
+        </div>
+      );
+    }
+    return rows;
+  };
 
   if (loading)
     return (
-      <div className="LoadingIcon text-center d-flex justify-content-center my-5">
-  <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24">
-    <path fill="#2F231F" d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
-      <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/>
-    </path>
-  </svg>
-</div>
-
+      <div className="text-center d-flex justify-content-center my-5 ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24">
+          <path
+            fill="#2F231F"
+            d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z"
+          >
+            <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12" />
+          </path>
+        </svg>
+      </div>
     );
-  if (error) return <div>{error}</div>;
+  if (error) return <div className="alert alert-danger">{error}</div>;
   if (!product) return <div>Product not found</div>;
 
   return (
     <div className="product-details-container">
-      {alertMessage && (
-        <div className="alert alert-success" onClick={() => setAlertMessage('')}>
-          {alertMessage}
-          <button className="close-alert">×</button>
-        </div>
-      )}
+      {/* SEO Meta Tags for this product */}
+      <ProductSEO product={product} />
       <button className="back-button" onClick={() => navigate('/products')}>
         <ArrowLeft size={20} /> Back to Products
       </button>
       <div className="product-details">
         <div className="image-section">
-        <div className="main-image-container">
-  {activeImage ? (
-    <div className={`image-wrapper ${activeImage.includes("Front") ? "shadow" : ""}`}>
-      <img
-        src={activeImage}
-        alt={product?.productName || "Product Image"}
-        className="product-details-image"
-         onContextMenu={(e) => e.preventDefault()}
-         draggable="false"
-         onDragStart={(e) => e.preventDefault()}      />
-    </div>
-  ) : (
-    <div className="image-placeholder">No image available</div>
-  )}
-</div>
-
+          <div className="main-image-container">
+            {activeImage ? (
+              <div className={`image-wrapper ${activeImage.includes("Front") ? "shadow" : ""}`}>
+                <img
+                  src={activeImage}
+                  alt={product?.productName || "Product Image"}
+                  className="product-details-image"
+                  onContextMenu={(e) => e.preventDefault()}
+                  draggable="false"
+                  onDragStart={(e) => e.preventDefault()}
+                />
+              </div>
+            ) : (
+              <div className="image-placeholder">No image available</div>
+            )}
+          </div>
           {subFrameThumbnails && subFrameThumbnails.length > 0 && (
             <div className="thumbnails">
               {subFrameThumbnails.map((thumbnail, index) => (
@@ -683,7 +759,7 @@ const ProductDetails = () => {
             {selectedFrameType && subFrameTypes.length > 0 && (
               <div className="sub-frame-type-section">
                 <div className="sub-frame-type-buttons d-flex gap-2">
-                  {subFrameTypes.map((subFrameType) => (
+                  {subFrameTypes.map(subFrameType => (
                     <div
                       key={subFrameType._id}
                       className={`subframe-thumbnail ${selectedSubFrameType?._id === subFrameType._id ? 'active' : ''}`}
@@ -691,7 +767,6 @@ const ProductDetails = () => {
                       title={subFrameType.name}
                     >
                       <button
-                        key={subFrameType._id}
                         className={`option-button ${selectedSubFrameType?._id === subFrameType._id ? 'active' : ''}`}
                         onClick={() => handleSubFrameTypeSelect(subFrameType)}
                         disabled={loadingSubFrame}
@@ -774,72 +849,67 @@ const ProductDetails = () => {
           </div>
         </div>
       )}
-        <div className="review-section">
-            <h5>Write a Review</h5>
-            <form onSubmit={handleReviewSubmit} className="review-form">
-              <div className="rating-group">
-                <label>Rate this product:</label>
-                <div className="rating-stars">
-                  {[...Array(5)].map((_, index) => (
-                    <Star key={index} className={`star ${newRating > index ? 'active' : ''}`} onClick={() => handleRatingChange(index + 1)} />
-                  ))}
+      <div className="review-section">
+        <h5>Write a Review</h5>
+        <form onSubmit={handleReviewSubmit} className="review-form">
+          <div className="rating-group">
+            <label>Rate this product:</label>
+            <div className="rating-stars">
+              {[...Array(5)].map((_, index) => (
+                <Star key={index} className={`star ${newRating > index ? 'active' : ''}`} onClick={() => handleRatingChange(index + 1)} />
+              ))}
+            </div>
+          </div>
+          <div className="review-text-group">
+            <label>Your Review:</label>
+            <textarea rows={3} value={newReview} onChange={(e) => setNewReview(e.target.value)} placeholder="Share your experience with this product..." />
+          </div>
+          <div className="image-upload-group">
+            <label>Add Photos (optional):</label>
+            <input type="file" multiple onChange={handleImageChange} accept="image/*" className="image-upload" />
+          </div>
+          <button type="submit" className="submit-review" disabled={!newRating || !newReview.trim()}>
+            Submit Review
+          </button>
+        </form>
+        <div className="reviews-list">
+          <h5>
+            Customer Reviews
+            {averageRating > 0 && (
+              <span className="average-rating">
+                {averageRating} <Star size={16} className="star-icon" />
+              </span>
+            )}
+          </h5>
+          {Array.isArray(product.reviews) && product.reviews.length > 0 ? (
+            product.reviews
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .map((review, index) => (
+                <div key={index} className="review-card">
+                  <div className="review-header">
+                    <strong className="review-author">
+                      {review.user && review.user.firstName ? `${review.user.firstName}` : "Anonymous"}
+                    </strong>
+                    <span className="review-rating">
+                      {review.rating} <Star size={16} className="star-icon" />
+                    </span>
+                  </div>
+                  <p className="review-comment">{review.comment}</p>
+                  {Array.isArray(review.images) && review.images.length > 0 && (
+                    <div className="review-images">
+                      {review.images.map((image, i) => (
+                        <img key={i} src={image} alt={`Review image ${i + 1}`} className="review-image" />
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-              <div className="review-text-group">
-                <label>Your Review:</label>
-                <textarea rows={3} value={newReview} onChange={(e) => setNewReview(e.target.value)} placeholder="Share your experience with this product..." />
-              </div>
-              <div className="image-upload-group">
-                <label>Add Photos (optional):</label>
-                <input type="file" multiple onChange={handleImageChange} accept="image/*" className="image-upload" />
-              </div>
-              <button type="submit" className="submit-review" disabled={!newRating || !newReview.trim()}>
-                Submit Review
-              </button>
-            </form>
-            <div className="reviews-list">
-  <h5>
-    Customer Reviews
-    {averageRating > 0 && (
-      <span className="average-rating">
-        {averageRating} <Star size={16} className="star-icon" />
-      </span>
-    )}
-  </h5>
-
-  {Array.isArray(product.reviews) && product.reviews.length > 0 ? (
-  product.reviews
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .map((review, index) => (
-      <div key={index} className="review-card">
-        <div className="review-header">
-          <strong className="review-author">
-            {review.user && review.user.firstName ? `${review.user.firstName}` : "Anonymous"}
-          </strong>
-          <span className="review-rating">
-            {review.rating} <Star size={16} className="star-icon" />
-          </span>
+              ))
+          ) : (
+            <p className="no-reviews">No reviews yet. Be the first to review!</p>
+          )}
         </div>
-        <p className="review-comment">{review.comment}</p>
-        {Array.isArray(review.images) && review.images.length > 0 && (
-          <div className="review-images">
-            {review.images.map((image, i) => (
-              <img key={i} src={image} alt={`Review image ${i + 1}`} className="review-image" />
-            ))}
-          </div>
-        )}
       </div>
-    ))
-) : (
-  <p className="no-reviews">No reviews yet. Be the first to review!</p>
-)}
-
-</div>
-
-
-
-
-          </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

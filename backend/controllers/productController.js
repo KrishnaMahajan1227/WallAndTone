@@ -89,7 +89,10 @@ const addProduct = async (req, res) => {
       orientations,
       categories,
       medium,
-      rooms
+      rooms,
+      primaryKeyword,      // new SEO field
+      shortTailKeywords,   // new SEO field (array)
+      longTailKeywords     // new SEO field (array)
     } = req.body;
 
     // Validate required fields
@@ -278,7 +281,7 @@ const addProduct = async (req, res) => {
       frameTypesArray = frameTypesArray.map(ft => frameTypeMap[ft]).filter(Boolean);
     }
 
-    // Construct the product object
+    // Construct the product object including the new SEO fields
     const product = {
       productName,
       description,
@@ -294,8 +297,11 @@ const addProduct = async (req, res) => {
       rooms: rooms || [],
       mainImage: mainImageUrl,
       thumbnails: thumbnailUrls,
-      // For subframe images, we now directly use the uploaded files (or mappings if provided via Excel)
-      subFrameImages: subframeImageMap
+      subFrameImages: subframeImageMap,
+      // SEO fields
+      primaryKeyword,
+      shortTailKeywords: shortTailKeywords || [],
+      longTailKeywords: longTailKeywords || []
     };
 
     const savedProduct = await Product.create(product);
@@ -424,7 +430,10 @@ const updateProduct = async (req, res) => {
       orientations,
       categories,
       medium,
-      rooms
+      rooms,
+      primaryKeyword,      // new SEO field
+      shortTailKeywords,   // new SEO field
+      longTailKeywords     // new SEO field
     } = req.body;
     let mainImage = null;
     let thumbnails = [];
@@ -484,7 +493,7 @@ const updateProduct = async (req, res) => {
       if (!Array.isArray(medium) || medium.length === 0) {
         return res.status(400).json({ message: 'If provided, at least one medium must be selected.' });
       }
-      const invalidMediums = medium.filter(m => !validMediums.includes(m));
+      const invalidMediums = medium.filter(m => !validMediumArray.includes(m));
       if (invalidMediums.length > 0) {
         return res.status(400).json({ message: `Invalid mediums: ${invalidMediums.join(', ')}` });
       }
@@ -525,7 +534,11 @@ const updateProduct = async (req, res) => {
         orientations, 
         categories,
         medium: medium || [],
-        rooms: rooms || []
+        rooms: rooms || [],
+        // SEO fields update
+        primaryKeyword,
+        shortTailKeywords: shortTailKeywords || [],
+        longTailKeywords: longTailKeywords || []
       },
       { new: true }
     );
@@ -1009,6 +1022,17 @@ const processExcelFile = async (req, res) => {
         }
       }
 
+      // Process SEO fields from Excel:
+      const primaryKeyword = row['Primary Keyword'] ? row['Primary Keyword'].trim() : '';
+      let shortTailKeywords = [];
+      if (row['Short-Tail Keywords']) {
+        shortTailKeywords = row['Short-Tail Keywords'].split(',').map(k => k.trim());
+      }
+      let longTailKeywords = [];
+      if (row['Long-Tail Keywords']) {
+        longTailKeywords = row['Long-Tail Keywords'].split(',').map(k => k.trim());
+      }
+
       // Upload main image
       let mainImageUrl = '';
       try {
@@ -1077,13 +1101,16 @@ const processExcelFile = async (req, res) => {
         ...row,
         mainImage: mainImageUrl,
         thumbnails: thumbnailUrls.filter(Boolean),
-        // Keep each processed mapping without grouping
         subframeImageMap,
         colors,
         orientations,
         categories,
         medium: mediumArr,
-        rooms: roomsArr
+        rooms: roomsArr,
+        // Include SEO fields
+        primaryKeyword,
+        shortTailKeywords,
+        longTailKeywords
       };
     }));
 
@@ -1171,7 +1198,11 @@ const processExcelFile = async (req, res) => {
         rooms: data.rooms,
         mainImage: data.mainImage,
         thumbnails: data.thumbnails,
-        subFrameImages
+        subFrameImages,
+        // SEO fields
+        primaryKeyword: data['Primary Keyword'] || data.primaryKeyword,
+        shortTailKeywords: data['Short-Tail Keywords'] || data.shortTailKeywords || [],
+        longTailKeywords: data['Long-Tail Keywords'] || data.longTailKeywords || []
       };
     });
 

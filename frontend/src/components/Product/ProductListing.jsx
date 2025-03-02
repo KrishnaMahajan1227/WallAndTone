@@ -7,6 +7,7 @@ import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
 import filtericon from '../../assets/icons/filter-icon.png';
 import sorticon from '../../assets/icons/sort-icon.svg';
 import { WishlistContext } from '../Wishlist/WishlistContext';
+import ListingSEO from './ListingSEO'; // adjust the path as needed
 
 import './ProductListing.css';
 
@@ -483,6 +484,7 @@ const ProductListing = () => {
     );
   if (error) return <div className="alert alert-danger">{error}</div>;
 
+  // Updated renderProductCard to display extra SEO fields.
   const renderProductCard = (product, isLarge = false) => (
     <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
       <div className="product-image-wrapper position-relative">
@@ -584,6 +586,8 @@ const ProductListing = () => {
 
   return (
     <div className="product-listing container">
+     {/* SEO Meta Tags for the listing page */}
+    <ListingSEO />
       {/* Filter Offcanvas */}
       <Offcanvas
         show={showFilterOffcanvas}
@@ -709,47 +713,46 @@ const ProductListing = () => {
 
       {/* Top Navigation Section */}
       <div className="shop-navigation">
-  <div className="category-buttons d-flex align-items-center gap-2">
-    <button className="category-button active d-flex" onClick={handleShowFilterOffcanvas}>
-      <img src={filtericon} alt="Filter-Icon" />
-      <p>Filters By</p>
-    </button>
-    <Dropdown>
-      <Dropdown.Toggle variant="secondary" id="sort-dropdown" className="product-sorting d-flex align-items-center">
-       <img src={sorticon} alt="sort-icon" /><p className="m-0"> Sort By: {" "}</p>
-        {sortOption === ""
-          ? "Select"
-          : sortOption === "alphabetical"
-          ? "Alphabetical A-Z"
-          : sortOption === "priceLowHigh"
-          ? "Price Low-high"
-          : sortOption === "priceHighLow"
-          ? "Price High-Low"
-          : sortOption === "newArrivals"
-          ? "New Arrivals"
-          : ""}
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <Dropdown.Item onClick={() => setSortOption("alphabetical")}>
-          Alphabetical A-Z
-        </Dropdown.Item>
-        <Dropdown.Item onClick={() => setSortOption("priceLowHigh")}>
-          Price Low-high
-        </Dropdown.Item>
-        <Dropdown.Item onClick={() => setSortOption("priceHighLow")}>
-          Price High-Low
-        </Dropdown.Item>
-        <Dropdown.Item onClick={() => setSortOption("newArrivals")}>
-          New Arrivals
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
-  </div>
-</div>
+        <div className="category-buttons d-flex align-items-center gap-2">
+          <button className="category-button active d-flex" onClick={handleShowFilterOffcanvas}>
+            <img src={filtericon} alt="Filter-Icon" />
+            <p>Filters By</p>
+          </button>
+          <Dropdown>
+            <Dropdown.Toggle variant="secondary" id="sort-dropdown" className="product-sorting d-flex align-items-center">
+              <img src={sorticon} alt="sort-icon" /><p className="m-0"> Sort By: {" "}</p>
+              {sortOption === ""
+                ? "Select"
+                : sortOption === "alphabetical"
+                  ? "Alphabetical A-Z"
+                  : sortOption === "priceLowHigh"
+                    ? "Price Low-high"
+                    : sortOption === "priceHighLow"
+                      ? "Price High-Low"
+                      : sortOption === "newArrivals"
+                        ? "New Arrivals"
+                        : ""}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => setSortOption("alphabetical")}>
+                Alphabetical A-Z
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => setSortOption("priceLowHigh")}>
+                Price Low-high
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => setSortOption("priceHighLow")}>
+                Price High-Low
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => setSortOption("newArrivals")}>
+                New Arrivals
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
+      </div>
 
-  {/* Active Filter Summary */}
-  {renderFilterSummary()}
-
+      {/* Active Filter Summary */}
+      {renderFilterSummary()}
 
       {/* Products Grid */}
       {products && products.length > 0 ? (

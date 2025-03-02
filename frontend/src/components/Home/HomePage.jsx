@@ -11,9 +11,10 @@ import RecentlyAddedProducts from "../RecentlyAddedProducts/RecentlyAddedProduct
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
 import LivePreviewHome from '../../assets/Home/Live-Preview-Home.png';
 import AiCreationHome from '../../assets/Home/Ai-Creation-Home.png';
+import ArtforEveryCorner from '../../assets/Home/Art-for-Every-Corner.png';
+
 import CreateYourWallArt from '../../assets/Home/create-your-Wall-art-home.png';
 import createyouwallartframehome from '../../assets/Home/create-you-wall-art-frame-home.png';
-
 
 const HomePage = () => {
 const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
@@ -186,14 +187,14 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
       <section className="homepage-Art-Corner">
         <ImageContentComponent
-          image={AiCreationHome}
+          image={ArtforEveryCorner}
           heading="Art for Every Corner"
           description="No more boring walls! Whether it’s your living room, office, café, hotel, or even that awkward empty hallway, the right wall art and frames can instantly transform any space. 
 Go bold with pop art, keep it classy with monochromes, or add a touch of nostalgia with vintage prints — whatever your vibe, we’ve got a piece for it. 
-From sleek modern frames to timeless classics, let’s turn your walls into conversation starters!
-"
+From sleek modern frames to timeless classics, let’s turn your walls into conversation starters!"
           ctaText="Explore Collection"
           ctaLink="/products"
+          reverse="yes"
         />
       </section>
 

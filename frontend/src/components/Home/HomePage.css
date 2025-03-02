@@ -3,6 +3,7 @@
   color: #333;
   margin: auto;
   overflow-x: hidden;
+  padding-bottom: 40px;
 }
 
 /* Login Modal */
@@ -176,10 +177,10 @@ border-radius: 4px;
 
 /* Products Section */
 .homepage-products-section {
-  background-color: #f7f7f7;
   padding: 20px 0;
   height: auto;
 }
+
 
 .homepage-products-section .nav-tabs {
   border-bottom: none;
@@ -241,9 +242,10 @@ border-radius: 4px;
 .home-create-your-Wall-art {
   position: relative;
   max-width: 100%;
-  margin: auto;
+  margin: 30px auto;
   border-radius: 4px;
   overflow: hidden;
+  margin-bottom: 0;
 }
 
 .home-create-your-Wall-art .background-image {
@@ -293,6 +295,10 @@ border-radius: 4px;
   font-weight: 600 !important;
   margin: 0;
   line-height: 40px !important;
+}
+
+.homepage .image-content-component {
+  margin: 0;
 }
 
 @media (max-width: 1024px) {

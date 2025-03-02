@@ -155,7 +155,8 @@ const ProductionContent = () => {
                   </p>
                 </>
               }
-              reverse={!isMobile ? "yes" : undefined} // ✅ Fix reverse logic
+              reverse="yes" // ✅ Fix reverse logic
+
             />
           </div>
 
@@ -177,7 +178,6 @@ const ProductionContent = () => {
                   </p>
                 </>
               }
-              reverse={!isMobile ? "yes" : undefined} // ✅ Fix reverse logic
             />
           </div>
 

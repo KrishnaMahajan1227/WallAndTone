@@ -134,7 +134,7 @@
 .aboutus-collection-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: 40px;
   align-items: start;
 }
 
@@ -194,7 +194,6 @@ border-radius: 4px;
 .aboutus-production {
   padding:0;
   padding-bottom: 80px;
-  background-color: #f8f5f3;
 }
 
 .aboutus-production a.cta-button {
@@ -448,7 +447,7 @@ section.aboutus-production .aboutus-impact-content p {
   }
   .abt-sec1-content {
     display: flex;
-    gap: 30px;
+    gap: 40px;
     flex-direction: column;
 }
 .aboutus-container h2, .aboutus-production .aboutus-production-content h2 {

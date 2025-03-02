@@ -55,8 +55,8 @@
 }
   
 .product-details-container .product-details-image[src*="Main"] {
-  max-width: 300px;
-  height: 300px;
+  height: 200px;
+  width: 200px;
   z-index: 2;
   background: transparent;
   position: relative;
@@ -80,6 +80,11 @@
   /* For all other images, show the entire image without cropping */
   .product-details-container .product-details-image:not([src*="Main"]) {
     object-fit: contain;
+    max-width: 250px;
+  }
+  .product-details-container .product-details-image:is([src*="Mockup"]) {
+    object-fit: contain;
+    max-width: 400px !important;
   }
 
 

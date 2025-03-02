@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { X, Sparkles, Lock, ArrowRight } from "lucide-react";
+import { Helmet } from "react-helmet";  // Import Helmet for SEO
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./HomePage.css";
 import BannerSlider from "./BannerSlider/BannerSlider";
@@ -136,6 +138,50 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   return (
     <div className="homepage">
+      {/* SEO Meta Tags for HomePage */}
+      <Helmet>
+        <title>Wall & Tone | Home - Exclusive Wall Art & Decor</title>
+        <meta
+          name="description"
+          content="Discover unique wall art pieces for every space. Explore our exclusive collections, experience live previews, and create custom art with our AI-powered tools at Wall & Tone."
+        />
+        <meta
+          name="keywords"
+          content="wall art, home decor, live preview, AI art, exclusive wall art, custom art"
+        />
+        <link rel="canonical" href="https://wallandtone.com/" />
+        {/* Open Graph Tags */}
+        <meta
+          property="og:title"
+          content="Wall & Tone | Home - Exclusive Wall Art & Decor"
+        />
+        <meta
+          property="og:description"
+          content="Discover unique wall art pieces for every space. Explore our exclusive collections, experience live previews, and create custom art with our AI-powered tools at Wall & Tone."
+        />
+        <meta
+          property="og:image"
+          content="https://wallandtone.com/assets/og-home.jpg"
+        />
+        <meta property="og:url" content="https://wallandtone.com/" />
+        <meta property="og:type" content="website" />
+        {/* Twitter Card Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content="Wall & Tone | Home - Exclusive Wall Art & Decor"
+        />
+        <meta
+          name="twitter:description"
+          content="Discover unique wall art pieces for every space. Explore our exclusive collections, experience live previews, and create custom art with our AI-powered tools at Wall & Tone."
+        />
+        <meta
+          name="twitter:image"
+          content="https://wallandtone.com/assets/og-home.jpg"
+        />
+      </Helmet>
+
+
       {showLoginModal && <LoginModal />}
       
       <section className="homepage-banner-slider-section">

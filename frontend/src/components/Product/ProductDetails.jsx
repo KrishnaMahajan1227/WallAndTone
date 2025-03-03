@@ -28,6 +28,8 @@ const ProductDetails = () => {
   const [cart, setCart] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState('');
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
   const [newRating, setNewRating] = useState(0);
   const [newReview, setNewReview] = useState('');
   const [averageRating, setAverageRating] = useState(0);
@@ -43,12 +45,10 @@ const ProductDetails = () => {
     const stored = localStorage.getItem('selectedFrameType');
     return stored ? JSON.parse(stored) : null;
   });
-
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(() => {
     const stored = localStorage.getItem('selectedSubFrameType');
     return stored ? JSON.parse(stored) : null;
   });
-
   const [selectedSize, setSelectedSize] = useState(() => {
     const stored = localStorage.getItem('selectedSize');
     return stored ? JSON.parse(stored) : null;
@@ -72,11 +72,6 @@ const ProductDetails = () => {
     const subFrameTypePrice = parseFloat(item.subFrameType?.price) || 0;
     const sizePrice = parseFloat(item.size?.price) || 0;
     return ((basePrice + frameTypePrice + subFrameTypePrice + sizePrice) * item.quantity).toFixed(2);
-  };
-
-  const calculateCartTotal = () => {
-    if (!Array.isArray(cart)) return 0;
-    return cart.reduce((total, item) => total + parseFloat(calculateItemPrice(item)), 0).toFixed(2);
   };
 
   // NEW: Calculate total price for current product with selected options
@@ -134,6 +129,11 @@ const ProductDetails = () => {
     };
     fetchProduct();
   }, [productId, token]);
+
+  // Reset image loaded state when activeImage changes
+  useEffect(() => {
+    setImgLoaded(false);
+  }, [activeImage]);
 
   // Fetch wishlist and cart
   useEffect(() => {
@@ -703,15 +703,30 @@ const ProductDetails = () => {
       <div className="product-details">
         <div className="image-section">
           <div className="main-image-container">
+            {/* Loader overlay until image is loaded */}
+            {!imgLoaded && (
+              <div className="image-loader">
+                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24">
+                  <path fill="#2F231F" d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
+                    <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12" />
+                  </path>
+                </svg>
+              </div>
+            )}
             {activeImage ? (
-              <div className={`image-wrapper ${activeImage.includes("Front") ? "shadow" : ""}`}>
+              <div className="image-wrapper">
                 <img
                   src={activeImage}
                   alt={product?.productName || "Product Image"}
-                  className="product-details-image"
+                  className={`product-details-image ${isLandscape ? 'landscape' : ''}`}
+                  onLoad={(e) => {
+                    setImgLoaded(true);
+                    const { naturalWidth, naturalHeight } = e.target;
+                    setIsLandscape(naturalWidth > naturalHeight);
+                  }}
+                  onError={() => setImgLoaded(true)}
                   onContextMenu={(e) => e.preventDefault()}
                   draggable="false"
-                  onDragStart={(e) => e.preventDefault()}
                 />
               </div>
             ) : (

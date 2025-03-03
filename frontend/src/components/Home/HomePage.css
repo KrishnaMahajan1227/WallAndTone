@@ -242,7 +242,7 @@ border-radius: 4px;
 .home-create-your-Wall-art {
   position: relative;
   max-width: 100%;
-  margin: 30px auto;
+  margin: 50px auto;
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 0;
@@ -339,33 +339,30 @@ border-radius: 4px;
 }
 
 .home-create-your-Wall-art .background-image {
-  height: auto;
+  height: 500px;
   border-radius: 4px;
 }
 
 .home-create-your-Wall-art .image-frame {
 display: none;
 }
-
 .home-create-your-Wall-art .overlay-content {
-  position: relative;
-  top: 0;
+  position: absolute;
+  top: 65%;
+  bottom: 0;
   right: 0;
+  left: 0;
   transform: none;
   text-align: center;
   max-width: 100%;
   padding: 0 20px;
 }
 
-.home-create-your-Wall-art .overlay-content h2 {
-  color: #2D2D2D;
-  margin-top: 20px;
-}
-
 .home-create-your-Wall-art .overlay-content .btn-primary {
   font-size: 16px;
   padding: 10px 20px;
 }
+
 }
 
 /* Responsive Styles */
@@ -411,4 +408,24 @@ display: none;
   .homepage-modal-features li {
     font-size: 0.875rem;
   }
+  .homepage-Ai-creation .image-content-component .col-md-6.sec-image {
+    order: 2;
+}
+.home-create-your-Wall-art .overlay-content {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  transform: none;
+  text-align: center;
+  max-width: 100%;
+  padding: 0 20px;
+}
+.homepage .image-content-component .col-md-6.sec-image {
+  order: 1;
+}
+.homepage .image-content-component .col-md-6 {
+  order: 2;
+}
+
 }

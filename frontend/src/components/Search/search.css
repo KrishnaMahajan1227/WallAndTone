@@ -185,5 +185,10 @@
   .image-content {
     margin-top: 0;
 }
-
+.search-container .image-content-component .col-md-6.sec-image {
+  order: 1;
+}
+.search-container .image-content-component .col-md-6 {
+  order: 2;
+}
   }

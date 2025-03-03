@@ -97,10 +97,12 @@
     .recently-added-products-container .card {
       border: none !important;
       max-width: 100%;
-      height: 400px;
+      height: 350px;
       background: transparent;
       box-shadow: none;
-    }
+      overflow: hidden;
+      margin: 0 1rem;
+  }
     .recently-added-products-container .recently-added-product-card {
       width: 100%;
       text-align: center;
@@ -110,9 +112,8 @@
       
     .recently-added-products-container .card-img-top {
       border-radius: 4px;
-      height: 220px;
-      object-fit: contain;
-      padding: 1rem;
+      height: 180px;
+      object-fit: cover;
     }
     .recently-added-products-container .card-title{
       font-size: 16px;
@@ -120,4 +121,9 @@
     .recently-added-products-container .card-text {
       font-size: 12px;
   }
+  .recently-added-products-container .slick-dots {
+    bottom: 0px !important;
+    text-align: center !important;
+    margin: auto !important;
+}
   }

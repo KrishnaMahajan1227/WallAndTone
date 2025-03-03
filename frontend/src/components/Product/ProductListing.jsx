@@ -11,11 +11,115 @@ import ListingSEO from './ListingSEO'; // adjust the path as needed
 
 import './ProductListing.css';
 
-// Grouped options (colors, categories, medium, rooms)
-const groupedColorOptions = { /* ... as defined ... */ };
-const groupedCategoryOptions = { /* ... as defined ... */ };
-const groupedMediumOptions = { /* ... as defined ... */ };
-const groupedRoomOptions = { /* ... as defined ... */ };
+// Grouped Color Options – only group headings will be shown.
+const groupedColorOptions = {
+  "Black & White": ["Black", "White", "Gray / Grey", "Silver"],
+  "Blue Tones": ["Blue", "Navy Blue", "Dark Blue", "Teal", "Aqua"],
+  "Green Tones": ["Green", "Dark Green", "Light Green", "Neon Green"],
+  "Red & Warm Tones": ["Red", "Fiery Orange", "Soft Red", "Warm Browns", "Terracotta"],
+  "Earthy & Neutral Tones": ["Earth Tones", "Beige / Warm Beige", "Brown / Light Brown / Dark Brown", "Cream"],
+  "Pastel & Soft Tones": ["Pastel Pink", "Soft Pink", "Soft Orange", "Soft Gold", "Soft Yellow"],
+  "Yellow & Gold Tones": ["Yellow", "Mustard", "Golden Yellow", "Gold / Soft Gold"],
+  "Pink & Purple Tones": ["Pink", "Lavender", "Mauve", "Purple"],
+  "Orange & Coral Tones": ["Orange", "Peach", "Coral", "Soft Orange"],
+  "Mixed & Multi-Color Tones": ["Multi-color", "Neon Colors (Neon Blue, Neon Green, Neon Pink)", "Cool Tones", "Warm Tones"]
+};
+
+// Grouped Category Options
+const groupedCategoryOptions = {
+  "Abstract & Conceptual": ["Abstract Art", "Surrealism", "Expressionism", "Minimalist", "Fluid Art", "Optical Art"],
+  "Nature & Landscape": ["Nature Art", "Botanical", "Seascape", "Wildlife", "Scenic", "Marine Art"],
+  "Animals & Creatures": ["Animal Portraits", "Birds", "Wildlife", "Fantasy Creatures"],
+  "City & Architecture": ["Cityscape", "Urban Art", "Landmark", "Classical Architecture"],
+  "People & Portraits": ["Figurative", "Portraits", "Classical Art", "Realism", "Ukiyo-e"],
+  "Classic & Fine Art": ["Renaissance", "Baroque", "Impressionism", "Post-Impressionism", "Realism"],
+  "Fantasy & Sci-Fi": ["Space Art", "Cyberpunk", "Steampunk", "Futuristic", "Retro-Futurism"],
+  "Spiritual & Symbolic": ["Religious Art", "Mandalas", "Symbolism", "Calligraphy"],
+  "Photography & Digital Art": ["Fine Art Photography", "Black & White", "Conceptual Photography", "Digital Illustration"],
+  "Pop & Retro Culture": ["Pop Art", "Vintage", "Whimsical", "Caricature", "Cartoon"],
+  "Modern & Contemporary": ["Modern Art", "Geometric", "Contemporary", "Modernism"],
+  "Illustration & Typography": ["Hand-Drawn", "Calligraphy", "Text Art", "Line Art"],
+  "Still Life & Food": ["Food Art", "Gourmet", "Drinks", "Classic Still Life"],
+  "Traditional & Cultural Art": ["Asian Art", "Ukiyo-e", "Tribal", "Cultural Paintings"],
+  "Thematic & Seasonal": ["Love & Romance", "Seasonal Art", "Nautical", "Marine Art"]
+};
+
+// Grouped Medium Options
+const groupedMediumOptions = {
+  "Paintings": [
+    "Acrylic Painting",
+    "Oil Painting",
+    "Watercolor Painting",
+    "Cubist Painting",
+    "Fresco"
+  ],
+  "Drawings & Illustrations": [
+    "Ink Drawing / Illustration / Sketch",
+    "Charcoal Drawing",
+    "Chalk Drawing",
+    "Pencil Drawing / Sketch",
+    "Hand-Drawn Illustration"
+  ],
+  "Digital & Mixed Media": [
+    "Digital Painting",
+    "Digital Illustration / Drawing",
+    "Digital Mixed Media",
+    "3D Digital Art / Illustration",
+    "Digital Photography",
+    "Digital Print"
+  ],
+  "Prints & Photography": [
+    "Canvas Print",
+    "Photography / Photography Print",
+    "Woodblock Print / Woodcut Print",
+    "Printmaking",
+    "Printed Art"
+  ],
+  "Mixed & Experimental Media": [
+    "Mixed Media",
+    "Ink & Watercolor",
+    "Painting (Oil or Acrylic)",
+    "Sketch & Mixed Media"
+  ]
+};
+
+// Grouped Room Options
+const groupedRoomOptions = {
+  "Living Spaces": [
+    "Living Room",
+    "Cozy Living Room",
+    "Luxury Living Room",
+    "Lounge"
+  ],
+  "Bedrooms & Personal Spaces": [
+    "Bedroom",
+    "Contemporary Bedroom",
+    "Cozy Bedroom",
+    "Tranquil Bedroom",
+    "Nursery"
+  ],
+  "Work & Creative Spaces": [
+    "Office / Workspace",
+    "Art Studio",
+    "Creative Studio",
+    "Library & Study Room",
+    "Music Room"
+  ],
+  "Dining & Hospitality Spaces": [
+    "Dining Room",
+    "Kitchen",
+    "Café & Coffee Shop",
+    "Bar & Lounge",
+    "Hotel & Lobby"
+  ],
+  "Wellness & Leisure Spaces": [
+    "Yoga & Meditation Room",
+    "Spa & Relaxation Space",
+    "Gym",
+    "Zen Garden",
+    "Outdoor & Nature-Inspired Spaces"
+  ]
+};
 
 const ProductListing = () => {
   const apiUrl =
@@ -109,8 +213,7 @@ const ProductListing = () => {
             headers: { Authorization: `Bearer ${token}` },
           });
           const wishlistData = await wishlistResponse.json();
-          if (!wishlistData || !Array.isArray(wishlistData.items))
-            throw new Error('Invalid wishlist data received');
+          if (!wishlistData || !Array.isArray(wishlistData.items)) throw new Error('Invalid wishlist data received');
           const wishlist = wishlistData.items || [];
           setWishlist(wishlist);
           setWishlistCount(wishlist.length);

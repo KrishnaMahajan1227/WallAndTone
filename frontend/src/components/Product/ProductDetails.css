@@ -619,6 +619,17 @@
 }
 
 @media (max-width: 576px) {
+  .product-details-container .main-image-container {
+    width: 100%;
+    max-width: 300px;
+    height: 300px;
+    margin: 0 auto;
+  }
+  .product-details-container .product-details-image {
+    max-width: 100%;
+    height: auto;
+  }
+  
   .back-button {
     font-size: 14px;
   }

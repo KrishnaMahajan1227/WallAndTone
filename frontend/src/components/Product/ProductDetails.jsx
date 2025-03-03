@@ -59,17 +59,6 @@ const ProductDetails = () => {
   const guestWishlist = JSON.parse(localStorage.getItem('guestWishlist')) || [];
   const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
 
-  // State for responsive design (mobile dropdowns)
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // State for the login popup modal
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
   // Utility functions
   const calculateAverageRating = (reviews) => {
     if (!Array.isArray(reviews) || reviews.length === 0) return 0;
@@ -323,7 +312,7 @@ const ProductDetails = () => {
   };
 
   // Cart and wishlist handlers
-  // Updated: Show login popup instead of toast if user is not logged in
+  // Updated: Show login popup modal if user is not logged in
   const handleAddToCart = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
       toast.error('Please select all options before adding to cart');
@@ -572,7 +561,7 @@ const ProductDetails = () => {
     ));
   };
 
-  // renderProductCard and renderProductRows are used if needed in the listing view.
+  // renderProductCard for listing
   const renderProductCard = (product, isLarge = false) => (
     <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
       <div className="product-image-wrapper position-relative">
@@ -580,7 +569,7 @@ const ProductDetails = () => {
           src={product.mainImage}
           className="card-img-top product-image"
           alt={product.productName}
-          onClick={() => navigate(`/product/${product._id}`)}
+          onClick={() => handleProductClick(product._id)}
         />
         <div
           className="wishlist-icon position-absolute"
@@ -611,6 +600,7 @@ const ProductDetails = () => {
     </div>
   );
 
+  // renderProductRows definition
   const renderProductRows = () => {
     const sortedProducts = sortProducts(products);
     const rows = [];

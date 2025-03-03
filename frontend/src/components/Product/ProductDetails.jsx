@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, ShoppingCart, Heart, X } from 'lucide-react';
+import { Modal, Button } from 'react-bootstrap';
 import heartIcon from '../../assets/icons/heart-icon.svg';
 import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
 import ProductSEO from './ProductSEO'; // adjust the path as needed
@@ -57,6 +58,17 @@ const ProductDetails = () => {
   // Guest mode storage
   const guestWishlist = JSON.parse(localStorage.getItem('guestWishlist')) || [];
   const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+
+  // State for responsive design (mobile dropdowns)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // State for the login popup modal
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Utility functions
   const calculateAverageRating = (reviews) => {
@@ -201,7 +213,7 @@ const ProductDetails = () => {
     }
   }, [product]);
 
-  // Reset selections when product changes
+  // Preselect first frame type, first subframe type and first size when product changes
   useEffect(() => {
     if (product?.frameTypes?.length > 0) {
       setSelectedFrameType(product.frameTypes[0]);
@@ -311,9 +323,14 @@ const ProductDetails = () => {
   };
 
   // Cart and wishlist handlers
+  // Updated: Show login popup instead of toast if user is not logged in
   const handleAddToCart = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
       toast.error('Please select all options before adding to cart');
+      return;
+    }
+    if (!token) {
+      setShowLoginModal(true);
       return;
     }
     const cartItem = {
@@ -326,35 +343,31 @@ const ProductDetails = () => {
       subFrameTypeName: selectedSubFrameType.name,
       sizeName: `${selectedSize.width} x ${selectedSize.height}`
     };
-    if (token) {
-      try {
-        const response = await fetch(`${apiUrl}/api/cart/add`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(cartItem)
-        });
-        if (!response.ok) throw new Error('Failed to add to cart');
-        setCart(prevCart => [...prevCart, cartItem]);
-        toast.success('Product added to cart!');
-        setSubCartOpen(true);
-      } catch (err) {
-        toast.error('Failed to add product to cart');
-      }
-    } else {
-      const updatedCart = [...guestCart, cartItem];
-      setCart(updatedCart);
-      localStorage.setItem('guestCart', JSON.stringify(updatedCart));
+    try {
+      const response = await fetch(`${apiUrl}/api/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(cartItem)
+      });
+      if (!response.ok) throw new Error('Failed to add to cart');
+      setCart(prevCart => [...prevCart, cartItem]);
       toast.success('Product added to cart!');
       setSubCartOpen(true);
+    } catch (err) {
+      toast.error('Failed to add product to cart');
     }
   };
 
   const handleAddToWishlist = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
       toast.error('Please select all options before adding to wishlist');
+      return;
+    }
+    if (!token) {
+      setShowLoginModal(true);
       return;
     }
     const inWishlist =
@@ -366,66 +379,48 @@ const ProductDetails = () => {
           item.subFrameType._id === selectedSubFrameType._id &&
           item.size._id === selectedSize._id
       );
-    if (token) {
-      try {
-        const response = await fetch(
-          `${apiUrl}/api/wishlist/${inWishlist ? 'remove' : 'add'}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              productId: product._id,
-              frameType: selectedFrameType._id,
-              subFrameType: selectedSubFrameType._id,
-              size: selectedSize._id
-            })
-          }
-        );
-        if (!response.ok) {
-          const errorData = await response.json();
-          if (!inWishlist && errorData.message === "Product already in wishlist.") {
-            toast.info("Product is already in your wishlist!");
-            return;
-          }
-          throw new Error(errorData.message || 'Failed to update wishlist');
+    try {
+      const response = await fetch(
+        `${apiUrl}/api/wishlist/${inWishlist ? 'remove' : 'add'}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            productId: product._id,
+            frameType: selectedFrameType._id,
+            subFrameType: selectedSubFrameType._id,
+            size: selectedSize._id
+          })
         }
-        setWishlist(prev =>
-          inWishlist
-            ? prev.filter(
-                item =>
-                  item.productId._id !== product._id ||
-                  item.frameType._id !== selectedFrameType._id ||
-                  item.subFrameType._id !== selectedSubFrameType._id ||
-                  item.size._id !== selectedSize._id
-              )
-            : [
-                ...prev,
-                { productId: product, frameType: selectedFrameType, subFrameType: selectedSubFrameType, size: selectedSize }
-              ]
-        );
-        toast.success(inWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
-      } catch (err) {
-        toast.error(err.message || 'Failed to update wishlist');
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (!inWishlist && errorData.message === "Product already in wishlist.") {
+          toast.info("Product is already in your wishlist!");
+          return;
+        }
+        throw new Error(errorData.message || 'Failed to update wishlist');
       }
-    } else {
-      const updatedWishlist = inWishlist
-        ? guestWishlist.filter(
-            item =>
-              item.productId._id !== product._id ||
-              item.frameType._id !== selectedFrameType._id ||
-              item.subFrameType._id !== selectedSubFrameType._id ||
-              item.size._id !== selectedSize._id
-          )
-        : [
-            ...guestWishlist,
-            { productId: product, frameType: selectedFrameType, subFrameType: selectedSubFrameType, size: selectedSize }
-          ];
-      setWishlist(updatedWishlist);
-      localStorage.setItem('guestWishlist', JSON.stringify(updatedWishlist));
+      setWishlist(prev =>
+        inWishlist
+          ? prev.filter(
+              item =>
+                item.productId._id !== product._id ||
+                item.frameType._id !== selectedFrameType._id ||
+                item.subFrameType._id !== selectedSubFrameType._id ||
+                item.size._id !== selectedSize._id
+            )
+          : [
+              ...prev,
+              { productId: product, frameType: selectedFrameType, subFrameType: selectedSubFrameType, size: selectedSize }
+            ]
+      );
       toast.success(inWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
+    } catch (err) {
+      toast.error(err.message || 'Failed to update wishlist');
     }
   };
 
@@ -758,57 +753,113 @@ const ProductDetails = () => {
             </div>
           </div>
           <div className="options-section">
-            <div className="frame-type-section">
-              <div className="frame-type-buttons d-flex">
-                {product.frameTypes?.map(frameType => (
-                  <button
-                    key={frameType._id}
-                    className={`option-button ${selectedFrameType?._id === frameType._id ? 'active' : ''}`}
-                    onClick={() => handleFrameTypeSelect(frameType)}
+            {isMobile ? (
+              <>
+                <div className="frame-type-dropdown">
+                  <select
+                    value={selectedFrameType?._id || ''}
+                    onChange={(e) => {
+                      const ft = product.frameTypes.find((ft) => ft._id === e.target.value);
+                      handleFrameTypeSelect(ft);
+                    }}
                   >
-                    {frameType.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {selectedFrameType && subFrameTypes.length > 0 && (
-              <div className="sub-frame-type-section">
-                <div className="sub-frame-type-buttons d-flex gap-2">
-                  {subFrameTypes.map(subFrameType => (
-                    <div
-                      key={subFrameType._id}
-                      className={`subframe-thumbnail ${selectedSubFrameType?._id === subFrameType._id ? 'active' : ''}`}
-                      onClick={() => handleSubFrameTypeSelect(subFrameType)}
-                      title={subFrameType.name}
+                    {product.frameTypes?.map((ft) => (
+                      <option key={ft._id} value={ft._id}>
+                        {ft.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {selectedFrameType && subFrameTypes.length > 0 && (
+                  <div className="sub-frame-type-dropdown">
+                    <select
+                      value={selectedSubFrameType?._id || ''}
+                      onChange={(e) => {
+                        const st = subFrameTypes.find((st) => st._id === e.target.value);
+                        handleSubFrameTypeSelect(st);
+                      }}
                     >
+                      {subFrameTypes.map((st) => (
+                        <option key={st._id} value={st._id}>
+                          {st.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {product?.sizes?.length > 0 && (
+                  <div className="size-dropdown">
+                    <select
+                      value={selectedSize?._id || ''}
+                      onChange={(e) => {
+                        const sz = product.sizes.find((sz) => sz._id === e.target.value);
+                        handleSizeSelect(sz);
+                      }}
+                    >
+                      {product.sizes.map((sz) => (
+                        <option key={sz._id} value={sz._id}>
+                          {sz.width} x {sz.height}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="frame-type-section">
+                  <div className="frame-type-buttons d-flex">
+                    {product.frameTypes?.map((frameType) => (
                       <button
-                        className={`option-button ${selectedSubFrameType?._id === subFrameType._id ? 'active' : ''}`}
-                        onClick={() => handleSubFrameTypeSelect(subFrameType)}
-                        disabled={loadingSubFrame}
+                        key={frameType._id}
+                        className={`option-button ${selectedFrameType?._id === frameType._id ? 'active' : ''}`}
+                        onClick={() => handleFrameTypeSelect(frameType)}
                       >
-                        {loadingSubFrame && selectedSubFrameType?._id === subFrameType._id
-                          ? 'Loading...'
-                          : subFrameType.name}
+                        {frameType.name}
                       </button>
+                    ))}
+                  </div>
+                </div>
+                {selectedFrameType && subFrameTypes.length > 0 && (
+                  <div className="sub-frame-type-section">
+                    <div className="sub-frame-type-buttons d-flex gap-2">
+                      {subFrameTypes.map((subFrameType) => (
+                        <div
+                          key={subFrameType._id}
+                          className={`subframe-thumbnail ${selectedSubFrameType?._id === subFrameType._id ? 'active' : ''}`}
+                          onClick={() => handleSubFrameTypeSelect(subFrameType)}
+                          title={subFrameType.name}
+                        >
+                          <button
+                            className={`option-button ${selectedSubFrameType?._id === subFrameType._id ? 'active' : ''}`}
+                            onClick={() => handleSubFrameTypeSelect(subFrameType)}
+                            disabled={loadingSubFrame}
+                          >
+                            {loadingSubFrame && selectedSubFrameType?._id === subFrameType._id
+                              ? 'Loading...'
+                              : subFrameType.name}
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {selectedSubFrameType && sizes.length > 0 && (
-              <div className="size-section">
-                <div className="size-buttons">
-                  {sizes.map(size => (
-                    <button
-                      key={size._id}
-                      className={`option-button ${selectedSize?._id === size._id ? 'active' : ''}`}
-                      onClick={() => handleSizeSelect(size)}
-                    >
-                      {size.width} x {size.height}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                )}
+                {selectedSubFrameType && sizes.length > 0 && (
+                  <div className="size-section">
+                    <div className="size-buttons">
+                      {sizes.map((size) => (
+                        <button
+                          key={size._id}
+                          className={`option-button ${selectedSize?._id === size._id ? 'active' : ''}`}
+                          onClick={() => handleSizeSelect(size)}
+                        >
+                          {size.width} x {size.height}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
           <div className="product-description">
@@ -827,7 +878,7 @@ const ProductDetails = () => {
             <button className="add-to-wishlist" onClick={handleAddToWishlist} disabled={!selectedFrameType || !selectedSubFrameType || !selectedSize}>
               <Heart size={20} />
               {Array.isArray(wishlist) && wishlist.some(
-                item =>
+                (item) =>
                   item.productId._id === product._id &&
                   item.frameType._id === selectedFrameType?._id &&
                   item.subFrameType._id === selectedSubFrameType?._id &&
@@ -851,7 +902,7 @@ const ProductDetails = () => {
             </div>
             <div className="cart-items">{renderCartItems()}</div>
             <div className="cart-footer">
-              <p className="cart-total">Total: ₹{calculateCartTotal()}</p>
+              <p className="cart-total">Total: ₹{calculateItemPrice(cart)}</p>
               <div className="cart-actions">
                 <button className="view-cart" onClick={() => navigate('/cart')}>
                   View Cart
@@ -925,6 +976,24 @@ const ProductDetails = () => {
         </div>
       </div>
       <ToastContainer position="top-right" autoClose={3000} />
+
+      {/* Login Modal Popup */}
+      <Modal show={showLoginModal} onHide={() => setShowLoginModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Login Required</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Please login to perform this action.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => { setShowLoginModal(false); navigate('/login'); }}>
+            Login
+          </Button>
+          <Button variant="secondary" onClick={() => setShowLoginModal(false)}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

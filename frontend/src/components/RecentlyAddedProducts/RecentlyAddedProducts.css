@@ -10,7 +10,6 @@
     display: inline-block; /* Display the cards as inline-block elements */
     margin: 20px 10px; /* Add some margin to separate the cards */
     vertical-align: top; /* Align the cards to the top */
-    width: 25%; /* Set the width of each card to 25% */
     position: relative; /* Add relative positioning to the card */
   }
   
@@ -20,28 +19,39 @@
     height: 550px;
     background: transparent;
     box-shadow: none;
-  }
-  
-  .recently-added-products-container .card-img-top {
+    overflow: hidden;
+}
+
+.recently-added-products-container .card-img-top {
     border-radius: 4px;
     height: 320px;
     object-fit: cover;
-  }
-  
-  .recently-added-products-container .card-body {
-    padding: 20px;
-    padding-left: 0;
-  }
-  
-  .recently-added-products-container .card-title {
+    width: 100%;
+}
+
+.recently-added-products-container .card-body {
+    padding: 20px 0;
+    overflow: hidden;
+}
+
+.recently-added-products-container .card-title {
     font-weight: bold;
     font-size: 18px;
-  }
-  
-  .recently-added-products-container .card-text {
+    margin-bottom: 8px;
+}
+
+.recently-added-products-container .card-text {
     font-size: 16px;
     color: #666;
-  }
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    max-height: calc(1.4em * 2);
+}
+
   
   .recently-added-products-container .recently-added-products-message {
     font-size: 18px;

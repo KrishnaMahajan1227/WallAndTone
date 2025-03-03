@@ -602,7 +602,15 @@
   .product-details-container .product-details-image {
     max-width: 100%;
   }
+  .product-details {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    justify-content: center;
+    flex-direction: column;
 }
+}
+
 
 @media (max-width: 768px) {
   .product-details-container {

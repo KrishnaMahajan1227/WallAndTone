@@ -242,6 +242,38 @@ color: #e7e7e7;
 .camera-component .selected-product:hover .remove-from-preview {
   display: block;
 }
+
+.camera-component .product-title {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  color: #FFFFFF;
+}
+.camera-component .product-card .wishlist-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  z-index: 10;
+}
+
+.camera-component .product-card .wishlist-icon img {
+  width: 16px;
+  height: 16px;
+}
+
+.camera-component .product-card .wishlist-icon:hover {
+  background-color: rgb(138, 12, 12);
+}
+
 @media (max-width: 768px) {
   .camera-component .remove-from-preview {
     display: block !important;
@@ -260,9 +292,12 @@ color: #e7e7e7;
   margin-bottom: 5px;
 }
 .camera-component .form-select {
-  margin-bottom: 10px;
+  margin-bottom: 0px;
 }
 
+.camera-component .product-details.p-3 .row.gx-2.gy-3.w-100 {
+  align-items: flex-end;
+}
 /* Controls Bar at Bottom */
 .camera-component .controls {
   margin-top: 20px;
@@ -275,8 +310,19 @@ color: #e7e7e7;
 }
 .camera-component .controls button {
   padding: 10px 20px;
-border-radius: 4px;
+  border-radius: 4px;
   transition: background-color 0.3s ease;
+  background: #5a433c;
+  border: none;
+  color: #FFFFFF;
+}
+.camera-component .controls button:hover {
+  padding: 10px 20px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  background: #2F231F;
+  border: none;
+  color: #FFFFFF;
 }
 
 /* Toast Notification */

@@ -7,6 +7,7 @@ import heartIcon from '../../assets/icons/heart-icon.svg';
 import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
 import whiteLogo from '../../assets/logo/wall-n-tone-white.png';
 import './CameraComponent.css';
+import SecondaryNavbar from '../Navbar/SecondaryNavbar';
 
 const CameraComponent = () => {
   const apiUrl =
@@ -404,11 +405,15 @@ const CameraComponent = () => {
     }
   };
 
-  // For wishlist, we no longer trigger a login popup if the user isn’t logged in.
+  // For wishlist now, if the user is not logged in the login popup is shown.
   const handleAddToWishlist = async (product) => {
     if (!product || !product._id) return;
-    if (!token) return; // simply do nothing if not logged in
-    const productInWishlist = wishlist.some(
+    if (!token) {
+      setShowAuthPopup(true);
+      setCartMessage("Please log in to add items to your wishlist.");
+      return;
+    }
+    const productInWishlist = wishlist.find(
       item => item.productId && item.productId._id === product._id
     );
     if (productInWishlist) return;
@@ -644,11 +649,6 @@ const CameraComponent = () => {
       <div className="row g-0">
         {/* LEFT PANEL for Desktop */}
         <div className="col-md-3 camera-left-panel">
-          <div className="logo-container">
-            <Link to="/" className="d-flex align-items-center">
-              <img src={whiteLogo} alt="Logo" className="logo-img" />
-            </Link>
-          </div>
           <div className="products-scrollable">
             <h4 className="products-title">Select Product</h4>
             <div className="row g-3 mx-0">
@@ -819,9 +819,8 @@ const CameraComponent = () => {
           {/* PRODUCT DETAILS / OPTIONS */}
           {selectedProduct && (
             <div className="product-details p-3">
-              <h4 className="mb-3">Product Details</h4>
-              <div className="row gx-2 gy-3">
-                <div className="col-12 col-sm-4">
+              <div className="row gx-2 gy-3 w-100">
+                <div className="col-12 col-sm-3">
                   <label className="form-label fw-bold">Frame Type:</label>
                   <select
                     className="form-select"
@@ -836,7 +835,7 @@ const CameraComponent = () => {
                     ))}
                   </select>
                 </div>
-                <div className="col-12 col-sm-4">
+                <div className="col-12 col-sm-3">
                   <label className="form-label fw-bold">Sub Frame Type:</label>
                   <select
                     className="form-select"
@@ -851,7 +850,7 @@ const CameraComponent = () => {
                     ))}
                   </select>
                 </div>
-                <div className="col-12 col-sm-4">
+                <div className="col-12 col-sm-3">
                   <label className="form-label fw-bold">Size:</label>
                   <select
                     className="form-select"
@@ -868,7 +867,7 @@ const CameraComponent = () => {
                     ))}
                   </select>
                 </div>
-                <div className="col-12">
+                <div className="col-12 col-sm-3">
                   <Button variant="primary" onClick={handleAddToCart}>Add to Cart</Button>
                 </div>
               </div>
@@ -917,14 +916,14 @@ const CameraComponent = () => {
         </div>
       </div>
 
-      {/* Login Popup Modal (only triggered by the Add to Cart button when not logged in) */}
+      {/* Login Popup Modal (triggered by Add to Cart or Wishlist actions when not logged in) */}
       <Modal show={showAuthPopup} onHide={handleAuthPopupClose} centered>
         <Modal.Header closeButton>
           <Modal.Title>Login Required</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>
-           Please log in to add items to your cart.
+            Please log in to add items to your cart.
           </p>
         </Modal.Body>
         <Modal.Footer>

@@ -64,16 +64,8 @@ const CameraComponent = () => {
   // ------------------- FETCH DATA -------------------
   useEffect(() => {
     const fetchData = async () => {
-      if (!token) return;
       try {
-        const wishlistRes = await fetch(`${apiUrl}/api/wishlist`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (!wishlistRes.ok) throw new Error('Failed to fetch wishlist');
+        // Always fetch products for both desktop and mobile views
         const productsRes = await fetch(`${apiUrl}/api/products`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
@@ -82,20 +74,31 @@ const CameraComponent = () => {
         const productsData = await productsRes.json();
         setProducts(productsData);
 
-        const cartRes = await fetch(`${apiUrl}/api/cart`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (!cartRes.ok) throw new Error('Failed to fetch cart');
-        const cartData = await cartRes.json();
-        setCart(cartData);
+        // Fetch wishlist and cart only if token exists
+        if (token) {
+          const wishlistRes = await fetch(`${apiUrl}/api/wishlist`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            }
+          });
+          if (!wishlistRes.ok) throw new Error('Failed to fetch wishlist');
+          const wishlistData = await wishlistRes.json();
+          const wishlistItems = wishlistData.items.filter(item => item.productId !== null);
+          setWishlist(wishlistItems);
 
-        const wishlistData = await wishlistRes.json();
-        const wishlistItems = wishlistData.items.filter(item => item.productId !== null);
-        setWishlist(wishlistItems);
+          const cartRes = await fetch(`${apiUrl}/api/cart`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            }
+          });
+          if (!cartRes.ok) throw new Error('Failed to fetch cart');
+          const cartData = await cartRes.json();
+          setCart(cartData);
+        }
       } catch (err) {
         setError(err.message);
       }
@@ -152,7 +155,6 @@ const CameraComponent = () => {
   // ------------------- PRODUCT PREVIEW & SELECTION -------------------
   const handleProductSelect = (product) => {
     if (!wallImage && !capturedImage && !showWebcam) {
-      setShowAuthPopup(true);
       setCartMessage('Please select your wall first or upload/capture a wall photo');
       return;
     }
@@ -331,8 +333,24 @@ const CameraComponent = () => {
     setProductPositions(updatedPositions);
   };
 
+  // A helper to remove a product from preview – now attached to both click and touch events.
+  const removeProduct = (product, index, e) => {
+    e.stopPropagation();
+    setSelectedProducts(prev => prev.filter(p => p && p._id !== product._id));
+    setProductPositions(prev => prev.filter((_, i) => i !== index));
+    setProductDimensions(prev => prev.filter((_, i) => i !== index));
+    setCartMessage(`${product.productName} removed from preview`);
+    setTimeout(() => setCartMessage(null), 3000);
+  };
+
   // ------------------- CART & WISHLIST HANDLERS -------------------
   const handleAddToCart = async () => {
+    // Only the Add to Cart button triggers login popup if user is not logged in.
+    if (!token) {
+      setShowAuthPopup(true);
+      setCartMessage("Please log in to add items to your cart.");
+      return;
+    }
     const itemsToAdd = selectedProducts
       .filter(prod => prod !== null)
       .map(prod => {
@@ -386,12 +404,10 @@ const CameraComponent = () => {
     }
   };
 
+  // For wishlist, we no longer trigger a login popup if the user isn’t logged in.
   const handleAddToWishlist = async (product) => {
     if (!product || !product._id) return;
-    if (!token) {
-      handleAuthRequired();
-      return;
-    }
+    if (!token) return; // simply do nothing if not logged in
     const productInWishlist = wishlist.some(
       item => item.productId && item.productId._id === product._id
     );
@@ -427,12 +443,24 @@ const CameraComponent = () => {
     }
   };
 
+  // Pricing calculation remains unchanged except for using the product options.
   const calculateItemPrice = (item) => {
     if (!item || !item.productId || !item.quantity) return 0;
     const basePrice = parseFloat(item.productId.price) || 0;
-    const framePrice = parseFloat(item.frameType?.price) || 0;
-    const subFramePrice = parseFloat(item.subFrameType?.price) || 0;
-    const sizePrice = parseFloat(item.size?.price) || 0;
+    const opts = item.productId.options || {};
+    let framePrice = 0, subFramePrice = 0, sizePrice = 0;
+    if (opts.frameType && item.productId.frameTypes) {
+      const selectedFrame = item.productId.frameTypes.find(ft => ft._id === opts.frameType);
+      framePrice = selectedFrame ? parseFloat(selectedFrame.price) : 0;
+    }
+    if (opts.subFrameType && item.productId.subFrameTypes) {
+      const selectedSubFrame = item.productId.subFrameTypes.find(sft => sft._id === opts.subFrameType);
+      subFramePrice = selectedSubFrame ? parseFloat(selectedSubFrame.price) : 0;
+    }
+    if (opts.size && item.productId.sizes) {
+      const selectedSize = item.productId.sizes.find(sz => sz._id === opts.size);
+      sizePrice = selectedSize ? parseFloat(selectedSize.price) : 0;
+    }
     return ((basePrice + framePrice + subFramePrice + sizePrice) * item.quantity).toFixed(2);
   };
 
@@ -441,15 +469,7 @@ const CameraComponent = () => {
     selectedProducts
       .filter(p => p !== null)
       .forEach(product => {
-        const opts = product.options || {};
-        const item = {
-          productId: product,
-          frameType: opts.frameType ? { _id: opts.frameType } : {},
-          subFrameType: opts.subFrameType ? { _id: opts.subFrameType } : {},
-          size: opts.size ? { _id: opts.size } : {},
-          quantity: 1
-        };
-        total += parseFloat(calculateItemPrice(item));
+        total += parseFloat(calculateItemPrice({ productId: product, quantity: 1 }));
       });
     return total.toFixed(2);
   };
@@ -558,8 +578,12 @@ const CameraComponent = () => {
 
   return (
     <div className="camera-component container-fluid px-0">
-      {/* Toast Notification */}
-      <ToastContainer position="top-end" className="p-3">
+      {/* Toast Notification with fixed styling so it’s always visible */}
+      <ToastContainer
+        position="top-end"
+        className="p-3"
+        style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}
+      >
         <Toast onClose={() => setCartMessage(null)} show={!!cartMessage} delay={3000} autohide>
           <Toast.Body>{cartMessage}</Toast.Body>
         </Toast>
@@ -618,8 +642,8 @@ const CameraComponent = () => {
       )}
 
       <div className="row g-0">
-        {/* LEFT PANEL for desktop */}
-        <div className="d-none d-md-block col-md-3 camera-left-panel">
+        {/* LEFT PANEL for Desktop */}
+        <div className="col-md-3 camera-left-panel">
           <div className="logo-container">
             <Link to="/" className="d-flex align-items-center">
               <img src={whiteLogo} alt="Logo" className="logo-img" />
@@ -782,14 +806,8 @@ const CameraComponent = () => {
                   />
                   <div
                     className="remove-from-preview"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedProducts(prev => prev.filter(p => p && p._id !== product._id));
-                      setProductPositions(prev => prev.filter((_, i) => i !== index));
-                      setProductDimensions(prev => prev.filter((_, i) => i !== index));
-                      setCartMessage(`${product.productName} removed from preview`);
-                      setTimeout(() => setCartMessage(null), 3000);
-                    }}
+                    onClick={(e) => removeProduct(product, index, e)}
+                    onTouchEnd={(e) => removeProduct(product, index, e)}
                   >
                     <span>X</span>
                   </div>
@@ -898,6 +916,26 @@ const CameraComponent = () => {
           </div>
         </div>
       </div>
+
+      {/* Login Popup Modal (only triggered by the Add to Cart button when not logged in) */}
+      <Modal show={showAuthPopup} onHide={handleAuthPopupClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Login Required</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+           Please log in to add items to your cart.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleAuthPopupClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleAuthLogin}>
+            Login
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

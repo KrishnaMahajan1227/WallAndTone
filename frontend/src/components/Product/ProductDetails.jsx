@@ -22,9 +22,9 @@ const ProductDetails = () => {
   const token = localStorage.getItem('token');
 
   // Define isMobile for responsive behavior
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 992);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -48,23 +48,12 @@ const ProductDetails = () => {
   const [sizes, setSizes] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
   const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
-  const [showLoginModal, setshowLoginModal] = useState(false);
-  
-  
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Local storage state initialization
-  const [selectedFrameType, setSelectedFrameType] = useState(() => {
-    const stored = localStorage.getItem('selectedFrameType');
-    return stored ? JSON.parse(stored) : null;
-  });
-  const [selectedSubFrameType, setSelectedSubFrameType] = useState(() => {
-    const stored = localStorage.getItem('selectedSubFrameType');
-    return stored ? JSON.parse(stored) : null;
-  });
-  const [selectedSize, setSelectedSize] = useState(() => {
-    const stored = localStorage.getItem('selectedSize');
-    return stored ? JSON.parse(stored) : null;
-  });
+  // Remove preselection: Do not automatically set selectedFrameType/subFrameType/size
+  const [selectedFrameType, setSelectedFrameType] = useState(null);
+  const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
 
   // Guest mode storage
   const guestWishlist = JSON.parse(localStorage.getItem('guestWishlist')) || [];
@@ -86,7 +75,6 @@ const ProductDetails = () => {
     return ((basePrice + frameTypePrice + subFrameTypePrice + sizePrice) * item.quantity).toFixed(2);
   };
 
-  // NEW: Calculate total price for current product with selected options
   const calculateTotalPrice = () => {
     if (!product) return 0;
     let total = parseFloat(product.price) || 0;
@@ -174,7 +162,7 @@ const ProductDetails = () => {
     fetchUserData();
   }, [token]);
 
-  // Save selections to localStorage
+  // Save selections to localStorage when user selects them manually
   useEffect(() => {
     if (selectedFrameType && selectedSubFrameType && selectedSize) {
       localStorage.setItem('selectedFrameType', JSON.stringify(selectedFrameType));
@@ -213,24 +201,7 @@ const ProductDetails = () => {
     }
   }, [product]);
 
-  // Preselect first frame type, first subframe type and first size when product changes
-  useEffect(() => {
-    if (product?.frameTypes?.length > 0) {
-      setSelectedFrameType(product.frameTypes[0]);
-    } else {
-      setSelectedFrameType(null);
-    }
-    if (product?.frameTypes?.length > 0 && product.frameTypes[0].subFrameTypes?.length > 0) {
-      setSelectedSubFrameType(product.frameTypes[0].subFrameTypes[0]);
-    } else {
-      setSelectedSubFrameType(null);
-    }
-    if (product?.sizes?.length > 0) {
-      setSelectedSize(product.sizes[0]);
-    } else {
-      setSelectedSize(null);
-    }
-  }, [product]);
+  // (Preselection removed - user must manually select options)
 
   // Event Handlers
   const handleQuantityChange = (e) => {
@@ -256,6 +227,7 @@ const ProductDetails = () => {
       if (!response.ok) throw new Error('Failed to fetch frame type details');
       const data = await response.json();
       setSelectedFrameType(data);
+      // Reset dependent selections
       setSelectedSubFrameType(null);
       setSelectedSize(null);
     } catch (err) {
@@ -322,11 +294,10 @@ const ProductDetails = () => {
     setSelectedSize(size);
   };
 
-  // Cart and wishlist handlers
-  // Updated: Show login popup modal if user is not logged in
+  // Cart and wishlist handlers (show login modal or missing selection toast if needed)
   const handleAddToCart = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
-      toast.error('Please select all options before adding to cart');
+      toast.error('Please select all required options before adding to cart');
       return;
     }
     if (!token) {
@@ -363,7 +334,7 @@ const ProductDetails = () => {
 
   const handleAddToWishlist = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
-      toast.error('Please select all options before adding to wishlist');
+      toast.error('Please select all required options before adding to wishlist');
       return;
     }
     if (!token) {
@@ -611,7 +582,7 @@ const ProductDetails = () => {
     </div>
   );
 
-  // renderProductRows definition
+  // renderProductRows definition (for listing view)
   const renderProductRows = () => {
     const sortedProducts = sortProducts(products);
     const rows = [];
@@ -703,7 +674,10 @@ const ProductDetails = () => {
             {!imgLoaded && (
               <div className="image-loader">
                 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24">
-                  <path fill="#2F231F" d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
+                  <path
+                    fill="#2F231F"
+                    d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z"
+                  >
                     <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12" />
                   </path>
                 </svg>
@@ -764,6 +738,9 @@ const ProductDetails = () => {
                       handleFrameTypeSelect(ft);
                     }}
                   >
+                    <option value="" disabled>
+                      Select Frame
+                    </option>
                     {product.frameTypes?.map((ft) => (
                       <option key={ft._id} value={ft._id}>
                         {ft.name}
@@ -780,6 +757,9 @@ const ProductDetails = () => {
                         handleSubFrameTypeSelect(st);
                       }}
                     >
+                      <option value="" disabled>
+                        Select SubFrame
+                      </option>
                       {subFrameTypes.map((st) => (
                         <option key={st._id} value={st._id}>
                           {st.name}
@@ -797,6 +777,9 @@ const ProductDetails = () => {
                         handleSizeSelect(sz);
                       }}
                     >
+                      <option value="" disabled>
+                        Select Size
+                      </option>
                       {product.sizes.map((sz) => (
                         <option key={sz._id} value={sz._id}>
                           {sz.width} x {sz.height}
@@ -978,8 +961,13 @@ const ProductDetails = () => {
       </div>
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* Login Modal Popup */}
-      <Modal show={showLoginModal} onHide={() => setShowLoginModal(false)} centered>
+      {/* Login Modal Popup with custom animated styling */}
+      <Modal 
+        show={showLoginModal} 
+        onHide={() => setShowLoginModal(false)} 
+        centered 
+        dialogClassName="custom-login-modal"
+      >
         <Modal.Header closeButton>
           <Modal.Title>Login Required</Modal.Title>
         </Modal.Header>

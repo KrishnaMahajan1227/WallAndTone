@@ -23,14 +23,32 @@ const Login = () => {
     }
   }, [navigate]);
 
+  // Validate the login fields before submission
+  const validateForm = () => {
+    if (!email.trim()) {
+      setGeneralError('Email is required');
+      return false;
+    }
+    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email.trim())) {
+      setGeneralError('Please enter a valid email address');
+      return false;
+    }
+    if (!password) {
+      setGeneralError('Password is required');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGeneralError('');
+    if (!validateForm()) return;
+
     setIsLoading(true);
 
     try {
       const response = await axios.post(`${apiUrl}/api/login`, { email, password });
-
       if (response.status === 200) {
         const { token, user } = response.data;
         localStorage.setItem('token', token);
@@ -48,14 +66,34 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-left">
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <input type="email" className="form-control" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input
+              type="email"
+              required
+              className="form-control"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setGeneralError('');
+              }}
+            />
           </div>
           <hr className="seperating-line" />
 
           <div className="form-group">
-            <input type="password" className="form-control" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <input
+              type="password"
+              required
+              className="form-control"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setGeneralError('');
+              }}
+            />
           </div>
           <hr className="seperating-line" />
 
@@ -73,8 +111,12 @@ const Login = () => {
 
       <div className="login-right">
         <h3>Discover the Art of Framing</h3>
-        <p>Enhance your walls with high-quality frames, tailored to your style. Wall & Tone offers a unique selection to transform your space.</p>
-        <button className="btn explore-btn" onClick={() => navigate('/')}>Explore Now</button>
+        <p>
+          Enhance your walls with high-quality frames, tailored to your style. Wall & Tone offers a unique selection to transform your space.
+        </p>
+        <button className="btn explore-btn" onClick={() => navigate('/')}>
+          Explore Now
+        </button>
       </div>
     </div>
   );

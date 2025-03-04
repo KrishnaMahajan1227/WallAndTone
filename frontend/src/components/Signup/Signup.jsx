@@ -5,7 +5,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Signup.css';
 
 const Signup = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : 'https://wallandtone.com');
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -13,7 +17,7 @@ const Signup = () => {
     email: '',
     phone: '',
     password: '',
-    role: 'user',  
+    role: 'user',
   });
 
   const [errors, setErrors] = useState({});
@@ -21,35 +25,89 @@ const Signup = () => {
   const [generalError, setGeneralError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Handle form field changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+  // Validate individual field
+  const validateField = (name, value) => {
+    let error = '';
+    switch (name) {
+      case 'firstName':
+        if (!value.trim()) {
+          error = 'First Name is required';
+        } else if (value.trim().length < 2) {
+          error = 'First Name must be at least 2 characters';
+        }
+        break;
+      case 'email':
+        if (!value.trim()) {
+          error = 'Email is required';
+        } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value.trim())) {
+          error = 'Please enter a valid email address';
+        }
+        break;
+      case 'phone':
+        if (!value.trim()) {
+          error = 'Phone number is required';
+        } else if (!/^\d{10}$/.test(value.trim())) {
+          error = 'Phone number must be exactly 10 digits';
+        }
+        break;
+      case 'password':
+        if (!value) {
+          error = 'Password is required';
+        } else if (value.length < 6) {
+          error = 'Password must be at least 6 characters';
+        } else if (!/(?=.*[A-Z])/.test(value)) {
+          error = 'Password must include at least one capital letter';
+        } else if (!/(?=.*\d)/.test(value)) {
+          error = 'Password must include at least one number';
+        } else if (!/(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/.test(value)) {
+          error = 'Password must include at least one special character';
+        }
+        break;
+      default:
+        break;
+    }
+    return error;
   };
 
-  // Form validation
+  // Validate the whole form before submission
   const validateForm = () => {
     const errorObj = {};
-    if (!formData.firstName) errorObj.firstName = 'First Name is required';
-    if (!formData.email) errorObj.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) errorObj.email = 'Please enter a valid email address';
-    if (!formData.phone) errorObj.phone = 'Phone number is required';
-    if (!formData.password) errorObj.password = 'Password is required';
+    Object.keys(formData).forEach((field) => {
+      if (field === 'role') return;
+      const error = validateField(field, formData[field]);
+      if (error) {
+        errorObj[field] = error;
+      }
+    });
     setErrors(errorObj);
     return Object.keys(errorObj).length === 0;
   };
 
-  // Submit handler
+  // Handle field changes and clear error for that field
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value,
+    }));
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setGeneralError('');
+  };
+
+  // Validate on blur event for immediate feedback
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    const error = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: error }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsLoading(true);
     setGeneralError('');
     setSuccessMessage('');
+    if (!validateForm()) return; // Only proceed if no errors
+
+    setIsLoading(true);
 
     try {
       const response = await axios.post(`${apiUrl}/api/signup`, formData);
@@ -68,30 +126,66 @@ const Signup = () => {
   return (
     <div className="signup-container">
       <div className="signup-left">
-        <form className="signup-form" onSubmit={handleSubmit}>
+        <form className="signup-form" onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <input type="text" name="firstName" className="form-control" placeholder="Enter your name" value={formData.firstName} onChange={handleChange} />
+            <input
+              type="text"
+              name="firstName"
+              required
+              className="form-control"
+              placeholder="Enter your name"
+              value={formData.firstName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
             {errors.firstName && <small className="error-text">{errors.firstName}</small>}
           </div>
-          <hr className="seperating-line"/>
+          <hr className="seperating-line" />
 
           <div className="form-group">
-            <input type="email" name="email" className="form-control" placeholder="Enter your email" value={formData.email} onChange={handleChange} />
+            <input
+              type="email"
+              name="email"
+              required
+              className="form-control"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
             {errors.email && <small className="error-text">{errors.email}</small>}
           </div>
-          <hr className="seperating-line"/>
+          <hr className="seperating-line" />
 
           <div className="form-group">
-            <input type="text" name="phone" className="form-control" placeholder="Enter your phone" value={formData.phone} onChange={handleChange} />
+            <input
+              type="text"
+              name="phone"
+              required
+              className="form-control"
+              placeholder="Enter your phone"
+              value={formData.phone}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
             {errors.phone && <small className="error-text">{errors.phone}</small>}
           </div>
-          <hr className="seperating-line"/>
+          <hr className="seperating-line" />
 
           <div className="form-group">
-            <input type="password" name="password" className="form-control" placeholder="Enter your password" value={formData.password} onChange={handleChange} />
+            <input
+              type="password"
+              name="password"
+              required
+              className="form-control"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
             {errors.password && <small className="error-text">{errors.password}</small>}
           </div>
-          <hr className="seperating-line"/>
+          <hr className="seperating-line" />
 
           {generalError && <div className="error-message">{generalError}</div>}
           {successMessage && <div className="success-message">{successMessage}</div>}
@@ -101,13 +195,19 @@ const Signup = () => {
           </button>
         </form>
 
-        <p className="redirect-link">Already have an account ? <Link to="/login">Login</Link></p>
+        <p className="redirect-link">
+          Already have an account? <Link to="/login">Login</Link>
+        </p>
       </div>
 
       <div className="signup-right">
         <h3>Find the Perfect Frame for Your Space</h3>
-        <p>Transform any wall with art that speaks to your style. From homes to businesses, Wall & Tone offers frames designed to inspire and elevate every space.</p>
-        <button className="btn explore-btn" onClick={() => navigate('/')}>Explore Now</button>
+        <p>
+          Transform any wall with art that speaks to your style. From homes to businesses, Wall & Tone offers frames designed to inspire and elevate every space.
+        </p>
+        <button className="btn explore-btn" onClick={() => navigate('/')}>
+          Explore Now
+        </button>
       </div>
     </div>
   );

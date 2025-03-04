@@ -12,57 +12,102 @@ const fs = require("fs");
 const signupUser = async (req, res) => {
   const { firstName, email, phone, password, role } = req.body;
 
+  // Inline validations
+  if (!firstName || firstName.trim().length < 2) {
+    return res.status(400).json({ message: 'First Name is required and must be at least 2 characters long' });
+  }
+
+  if (!email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email.trim())) {
+    return res.status(400).json({ message: 'A valid email address is required' });
+  }
+
+  if (!phone || !/^\d{10}$/.test(phone.trim())) {
+    return res.status(400).json({ message: 'Phone number is required and must be exactly 10 digits' });
+  }
+
+  if (!password) {
+    return res.status(400).json({ message: 'Password is required' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+  }
+  if (!/(?=.*[A-Z])/.test(password)) {
+    return res.status(400).json({ message: 'Password must include at least one capital letter' });
+  }
+  if (!/(?=.*\d)/.test(password)) {
+    return res.status(400).json({ message: 'Password must include at least one number' });
+  }
+  if (!/(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/.test(password)) {
+    return res.status(400).json({ message: 'Password must include at least one special character' });
+  }
+
   try {
-    // Check if user already exists
+    // Check if the email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create and save the new user (password will be hashed automatically)
+    // Create a new user. The password is assumed to be hashed in a pre-save hook.
     const user = new User({
       firstName,
       email,
       phone,
-      password, // This will be hashed automatically
-      role: role || 'user', // Default role is 'user'
+      password, // Password hashing should be handled in the User model middleware.
+      role: role || 'user',
     });
 
     await user.save();
-    res.status(201).json({
+
+    // Respond with success message and limited user info.
+    return res.status(201).json({
       message: 'User created successfully',
-      user: { id: user._id, firstName: user.firstName, email: user.email, role: user.role },
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Signup error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 // Login user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
+  // Inline validations
+  if (!email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email.trim())) {
+    return res.status(400).json({ message: 'A valid email address is required' });
+  }
+  if (!password) {
+    return res.status(400).json({ message: 'Password is required' });
+  }
+
   try {
-    // Find user by email
+    // Find the user by email.
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Compare entered password with stored hash
-    const isMatch = await user.matchPassword(password);  // Use matchPassword method
-    console.log('Password match result:', isMatch);  // Log match result for debugging
+    // Compare entered password with stored hash using a model instance method.
+    const isMatch = await user.matchPassword(password);
+    console.log('Password match result:', isMatch);
 
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT token if passwords match
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    // Generate a JWT token (expires in 24h)
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
+    });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Login successful',
       token,
       user: {
@@ -73,10 +118,11 @@ const loginUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Login error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
 // **🔹 Get All Users (Admin & Superadmin)**

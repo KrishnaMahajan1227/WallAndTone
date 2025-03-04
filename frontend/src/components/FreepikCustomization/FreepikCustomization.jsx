@@ -18,6 +18,7 @@ const FreepikCustomization = () => {
   const generatedImage = location.state?.image;
   const prompt = location.state?.prompt;
   const isCustom = location.state?.isCustom;
+  const passedOrientation = location.state?.orientation; // Orientation passed from generator component
   const token = localStorage.getItem('token');
 
   const [loading, setLoading] = useState(true);
@@ -286,14 +287,15 @@ const FreepikCustomization = () => {
     }
   };
 
-  // Compute orientation based on selected size.
-  const orientation = selectedSize
+  // Compute orientation: if location.state contains an orientation, use it; otherwise, use selectedSize's dimensions.
+  const computedOrientation = selectedSize
     ? selectedSize.width > selectedSize.height
       ? 'landscape'
       : selectedSize.width < selectedSize.height
       ? 'portrait'
       : 'square'
     : 'portrait';
+  const orientation = passedOrientation || computedOrientation;
 
   // For square orientation, attempt to use a "square" background from frameBackgrounds if available.
   const backgroundImage =
@@ -336,7 +338,15 @@ const FreepikCustomization = () => {
 
       <div className="product-details">
         <div className="image-section">
-          <div className="main-image-container">
+          <div
+            className={`main-image-container ${
+              selectedFrameType?.name?.toLowerCase() === 'acrylic'
+                ? 'acrylic'
+                : selectedFrameType?.name?.toLowerCase() === 'wooden'
+                ? 'wooden'
+                : ''
+            }`}
+          >
             {selectedSubFrameType && (
               <img
                 src={backgroundImage}
@@ -347,7 +357,7 @@ const FreepikCustomization = () => {
             <img
               src={activeImage || generatedImage}
               alt="Generated artwork"
-              className="generated-artwork"
+              className= {`generated-artwork ${orientation}`}
             />
           </div>
         </div>

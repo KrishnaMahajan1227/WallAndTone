@@ -32,6 +32,20 @@ const FreepikImageGenerator = () => {
   const [remainingPrompts, setRemainingPrompts] = useState(10);
   const [showPromptLimitModal, setShowPromptLimitModal] = useState(false);
 
+  // Helper function to compute orientation based on styling.size
+  const computeOrientation = (size) => {
+    switch (size) {
+      case 'traditional_3_4':
+        return 'portrait';
+      case 'widescreen_16_9':
+        return 'landscape';
+      case 'square_1_1':
+        return 'square';
+      default:
+        return 'portrait';
+    }
+  };
+
   useEffect(() => {
     if (token) {
       fetchUserGeneratedImages();
@@ -44,7 +58,7 @@ const FreepikImageGenerator = () => {
       const response = await axios.get(`${apiUrl}/api/prompts`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Fetched prompt data:", response.data);
+      console.log('Fetched prompt data:', response.data);
       const prompts =
         response.data.remainingPrompts === undefined ||
         response.data.remainingPrompts === null
@@ -88,10 +102,10 @@ const FreepikImageGenerator = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setRemainingPrompts(prev => (typeof prev === 'number' ? prev - 1 : 0));
+      setRemainingPrompts((prev) => (typeof prev === 'number' ? prev - 1 : 0));
     } catch (err) {
       const msg = err.response?.data?.message;
-      if (msg && msg.includes("Prompt limit exceeded")) {
+      if (msg && msg.includes('Prompt limit exceeded')) {
         setShowPromptLimitModal(true);
       } else {
         setError(msg || 'Failed to decrement prompt count');
@@ -101,11 +115,14 @@ const FreepikImageGenerator = () => {
 
     setLoading(true);
     setError(null);
-  
+    
+    // Compute orientation based on selected styling.size
+    const orientation = computeOrientation(styling.size);
+
     try {
       const response = await axios.post(
         `${apiUrl}/api/freepik/generate-image`,
-        { prompt, styling, num_images: 3 },
+        { prompt, styling, orientation, num_images: 3 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data.images && response.data.images.length > 0) {
@@ -186,17 +203,21 @@ const FreepikImageGenerator = () => {
         await fetchUserGeneratedImages();
       }
       if (existingImage) {
-        // Pass the styling details along with the image data.
+        // Compute orientation for customization page
+        const orientation = computeOrientation(styling.size);
         navigate('/customize', {
           state: {
             image: existingImage.imageUrl,
             prompt: existingImage.prompt,
             isCustom: true,
-            styling, // <-- Added styling info here
+            styling,
+            orientation,
           },
         });
       } else {
-        throw new Error('Image saving failed, unable to proceed with customization.');
+        throw new Error(
+          'Image saving failed, unable to proceed with customization.'
+        );
       }
     } catch (error) {
       console.error('Error handling customization:', error);
@@ -275,17 +296,29 @@ const FreepikImageGenerator = () => {
     <div className="freepik-generator">
       <Helmet>
         <title>Freepik Image Generator | Wall & Tone</title>
-        <meta name="description" content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly." />
-        <meta name="keywords" content="Freepik image generator, AI art, wall art, custom art, art generator, Wall & Tone" />
+        <meta
+          name="description"
+          content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
+        />
+        <meta
+          name="keywords"
+          content="Freepik image generator, AI art, wall art, custom art, art generator, Wall & Tone"
+        />
         <link rel="canonical" href="https://wallandtone.com/freepik-generator" />
         <meta property="og:title" content="Freepik Image Generator | Wall & Tone" />
-        <meta property="og:description" content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly." />
+        <meta
+          property="og:description"
+          content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
+        />
         <meta property="og:image" content="https://wallandtone.com/assets/og-freepik.jpg" />
         <meta property="og:url" content="https://wallandtone.com/freepik-generator" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Freepik Image Generator | Wall & Tone" />
-        <meta name="twitter:description" content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly." />
+        <meta
+          name="twitter:description"
+          content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
+        />
         <meta name="twitter:image" content="https://wallandtone.com/assets/og-freepik.jpg" />
       </Helmet>
       <div className="freepik-generator__header">
@@ -354,14 +387,28 @@ const FreepikImageGenerator = () => {
           </div>
           <div className="freepik-generator__previous-grid">
             {userGeneratedImages.slice(0, 4).map((img, index) => (
-              <div key={index} className="freepik-generator__previous-item" onClick={() => {
-                navigate('/customize', { state: { image: img.imageUrl, prompt: img.prompt, isCustom: true, styling } });
-              }}>
+              <div
+                key={index}
+                className="freepik-generator__previous-item"
+                onClick={() => {
+                  navigate('/customize', {
+                    state: {
+                      image: img.imageUrl,
+                      prompt: img.prompt,
+                      isCustom: true,
+                      styling,
+                      orientation: computeOrientation(styling.size),
+                    },
+                  });
+                }}
+              >
                 <div className="freepik-generator__previous-image">
                   <img src={img.imageUrl} alt={img.prompt} />
                 </div>
                 <p className="freepik-generator__previous-prompt">{img.prompt}</p>
-                <span className="freepik-generator__previous-date">{new Date(img.createdAt).toLocaleDateString()}</span>
+                <span className="freepik-generator__previous-date">
+                  {new Date(img.createdAt).toLocaleDateString()}
+                </span>
               </div>
             ))}
           </div>
@@ -372,7 +419,9 @@ const FreepikImageGenerator = () => {
           <div className="freepik-generator-modal-content">
             <div className="freepik-generator-modal-header">
               <h5>Vision</h5>
-              <button type="button" className="btn-close" onClick={handleCloseModal} aria-label="Close">×</button>
+              <button type="button" className="btn-close" onClick={handleCloseModal} aria-label="Close">
+                ×
+              </button>
             </div>
             {showImageDetails ? (
               <div className="freepik-generator-modal-body">
@@ -384,14 +433,22 @@ const FreepikImageGenerator = () => {
                     <p>{prompt}</p>
                     <div className="row">
                       <div className="col-md-12">
-                        <button type="button" className="btn btn-warning me-2" onClick={handleEditVision} disabled={customizing}>Edit Vision</button>
+                        <button type="button" className="btn btn-warning me-2" onClick={handleEditVision} disabled={customizing}>
+                          Edit Vision
+                        </button>
                         <button type="button" className="btn btn-info" onClick={() => handleCustomize(selectedImage)} disabled={customizing}>
                           {customizing ? (
                             <div className="freepik-generator__customizing">
-                              <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xMiwyM2E5LjYzLDkuNjMsMCwwLDEtOC05LjUsOS41MSw5LjUxLDAsMCwxLDYuNzktOS4xQTEuNjYsMS42NiwwLDAsMCwxMiwyM1oiPjxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIgZHVyPSIwLjc1cyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiIHR5cGU9InJvdGF0ZSIgdmFsdWVzPSIwIDEyIDEyOzM2MCAxMiAxMiIvPjwvcGF0aD48L3N2Zz4=" alt="Loading" className="freepik-generator__spinner" />
+                              <img
+                                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xMiwyM2E5LjYzLDkuNjMsMCwwLDEtOC05LjUsOS41MSw5LjUxLDAsMCwxLDYuNzktOS4xQTEuNjYsMS42NiwwLDAsMCwxMiwyM1oiPjxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIgZHVyPSIwLjc1cyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiIHR5cGU9InJvdGF0ZSIgdmFsdWVzPSIwIDEyIDEyOzM2MCAxMiAxMiIvPjwvcGF0aD48L3N2Zz4="
+                                alt="Loading"
+                                className="freepik-generator__spinner"
+                              />
                               <span>Generating Image...</span>
                             </div>
-                          ) : 'Customize'}
+                          ) : (
+                            'Customize'
+                          )}
                         </button>
                       </div>
                     </div>
@@ -419,7 +476,9 @@ const FreepikImageGenerator = () => {
           <div className="freepik-generator-modal-content">
             <div className="freepik-generator-modal-header">
               <h5>Prompt Limit Reached</h5>
-              <button type="button" className="btn-close" onClick={closePromptLimitModal} aria-label="Close">×</button>
+              <button type="button" className="btn-close" onClick={closePromptLimitModal} aria-label="Close">
+                ×
+              </button>
             </div>
             <div className="freepik-generator-modal-body">
               <p>You have exceeded your free prompt limit. Please pay Rs.50 to purchase additional prompts.</p>
@@ -430,11 +489,7 @@ const FreepikImageGenerator = () => {
           </div>
         </div>
       )}
-      {error && (
-        <div className="freepik-generator__error">
-          {error}
-        </div>
-      )}
+      {error && <div className="freepik-generator__error">{error}</div>}
     </div>
   );
 };

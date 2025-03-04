@@ -80,7 +80,7 @@
 .freepik-customization .main-image-container {
   position: relative;
   width: 100%;
-  max-width: 600px;
+  /* max-width: 600px; */
   margin: 0 auto;
   aspect-ratio: 1;
   overflow: hidden;
@@ -96,13 +96,13 @@
   z-index: 1;
   object-fit: contain;
   pointer-events: none;
+  transform: rotate(0);
 }
 
 /* Orientation-specific styling */
 /* Portrait & Square use default */
-.freepik-customization .frame-background.portrait,
-.freepik-customization .frame-background.square {
-  /* No additional transform needed */
+.freepik-customization .frame-background.portrait{
+  transform: rotate(0deg);
 }
 
 /* Landscape: Rotate 90deg */
@@ -122,6 +122,19 @@
   z-index: 0;
   bottom: 0;
 }
+
+/* Acrylic-specific styling */
+.freepik-customization .main-image-container.acrylic .generated-artwork {
+  padding: 1.9rem;
+}
+.freepik-customization .main-image-container.wooden .generated-artwork {
+  padding: 1.9rem;
+}
+.freepik-customization .main-image-container.acrylic .generated-artwork.portrait,
+.freepik-customization .main-image-container.wooden .generated-artwork.portrait {
+  padding: 0;
+}
+
 
 /* Options Section */
 .freepik-customization .options-section {
@@ -301,4 +314,22 @@
     font-size: 20px;
     text-transform: capitalize;
   }
+  .freepik-customization .generated-artwork {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: 0;
+    width: 88%;
+    height: 88%;
+    object-fit: contain;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    bottom: 0;
+}
+.freepik-customization .main-image-container.acrylic .generated-artwork{
+  padding: 0;
+}
+.freepik-customization .main-image-container.wooden .generated-artwork  {
+  padding: 7px;
+}
 }

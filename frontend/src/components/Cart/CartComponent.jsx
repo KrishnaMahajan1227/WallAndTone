@@ -355,6 +355,7 @@ const CartComponent = () => {
                   <p className="item-size">
                     Size: {item.size?.name}
                   </p>
+                  
                   <p className="item-frameType">
                     Frame Type: {item.frameType?.name || "N/A"}
                   </p>
@@ -402,42 +403,45 @@ const CartComponent = () => {
                     >
                       <img src={deleteicon} alt="Remove-From-Cart" />
                     </button>
-                    {!item.isCustom && item.productId && (
-                      <button
-                        type="button"
-                        className="wishlist-btn"
-                        onClick={(e) => {
-                          const isInWishlist = wishlist.some(
-                            (wishItem) =>
-                              wishItem.productId?._id === item.productId._id
-                          );
-                          if (isInWishlist) {
-                            handleRemoveFromWishlist(e, item.productId);
-                          } else {
-                            handleAddToWishlist(e, item.productId);
-                          }
-                        }}
-                      >
-                        <img
-                          src={
-                            wishlist.some(
-                              (wishItem) =>
-                                wishItem.productId?._id === item.productId._id
-                            )
-                              ? heartIconFilled
-                              : heartIcon
-                          }
-                          alt="Wishlist Icon"
-                        />
-                      </button>
-                    )}
                   </div>
-                  <p className="item-total">
-                    Total: {calculateItemPrice(item)} Rs.
+                </div>
+                <div className="item-details-2 d-flex">
+                  <div className="item-pricing">
+                  <p className="item-price">
+                  MRP INR ₹{item.size?.price}
                   </p>
+                  </div>
+                  <div className="wishlisht-button">
+  {!item.isCustom && item.productId && (
+    <button
+      type="button"
+      className="wishlist-btn"
+      onClick={(e) => {
+        const isInWishlist = wishlist.some(
+          (wishItem) =>
+            wishItem.productId?._id === item.productId._id
+        );
+        if (isInWishlist) {
+          handleRemoveFromWishlist(e, item.productId);
+        } else {
+          handleAddToWishlist(e, item.productId);
+        }
+      }}
+    >
+      {wishlist.some((wishItem) => wishItem.productId?._id === item.productId._id)
+        ? "Remove from Favourites"
+        : "Move to Favourites"}
+    </button>
+  )}
+</div>
+
                 </div>
               </div>
+              
             ))}
+                <hr className="cart-item-separator"></hr>
+             
+
           </div>
 
           <div className="cart-summary">

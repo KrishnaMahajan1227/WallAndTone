@@ -136,6 +136,7 @@
 .personalize-customization .size-buttons {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 /* Updated Button Styles with reduced size */

@@ -24,6 +24,7 @@ const PersonalizeCustomization = () => {
   const [error, setError] = useState(null);
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
+  // 'sizes' are now derived from the selected frame type's frameSizes array
   const [sizes, setSizes] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [cart, setCart] = useState({ items: [], totalPrice: 0 });
@@ -32,56 +33,62 @@ const PersonalizeCustomization = () => {
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
+  // Fetch frame types on mount
   useEffect(() => {
     const fetchFrameTypes = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/frame-types`);
         setFrameTypes(response.data);
         if (response.data.length > 0) {
-          setSelectedFrameType(response.data[0]);
+          // Default: select the first frame type
+          const defaultFrameType = response.data[0];
+          setSelectedFrameType(defaultFrameType);
         }
       } catch (err) {
         setError("Failed to fetch frame types");
       }
     };
     fetchFrameTypes();
-  }, []);
+  }, [apiUrl]);
 
+  // When selectedFrameType changes, fetch its sub-frame types and update available sizes from frameSizes
   useEffect(() => {
-    const fetchSubFrameTypes = async () => {
+    const fetchSubFrameTypesAndSizes = async () => {
       if (selectedFrameType?._id) {
         try {
-          const response = await axios.get(
+          const subResponse = await axios.get(
             `${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`
           );
-          setSubFrameTypes(response.data);
-          if (response.data.length > 0) {
-            setSelectedSubFrameType(response.data[0]);
+          setSubFrameTypes(subResponse.data);
+          if (subResponse.data.length > 0) {
+            setSelectedSubFrameType(subResponse.data[0]);
+          } else {
+            setSelectedSubFrameType(null);
           }
         } catch (err) {
           setError("Failed to fetch sub-frame types");
         }
-      }
-    };
-    fetchSubFrameTypes();
-  }, [selectedFrameType]);
-
-  useEffect(() => {
-    const fetchSizes = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/api/admin/sizes/getsizes`);
-        setSizes(response.data);
-        if (response.data.length > 0) {
-          setSelectedSize(response.data[0]);
+        // Update sizes using the frameSizes field from the selected frame type
+        if (
+          selectedFrameType.frameSizes &&
+          Array.isArray(selectedFrameType.frameSizes) &&
+          selectedFrameType.frameSizes.length > 0
+        ) {
+          setSizes(selectedFrameType.frameSizes);
+          setSelectedSize(selectedFrameType.frameSizes[0]);
+        } else {
+          setSizes([]);
+          setSelectedSize(null);
         }
-      } catch (err) {
-        setError("Failed to fetch sizes");
-      } finally {
-        setLoading(false);
+      } else {
+        setSubFrameTypes([]);
+        setSizes([]);
+        setSelectedSize(null);
       }
+      setLoading(false);
     };
-    fetchSizes();
-  }, []);
+    fetchSubFrameTypesAndSizes();
+  }, [selectedFrameType, apiUrl]);
 
   const calculateTotalPrice = () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) return 0;
@@ -106,12 +113,12 @@ const PersonalizeCustomization = () => {
         size: selectedSize._id,
         isCustom: true,
         image: personalizedImage,
-        orientation: selectedOrientation // ✅ Send orientation to backend
+        orientation: selectedOrientation, // Send orientation to backend
       };
 
       if (token) {
         const response = await axios.post(`${apiUrl}/api/cart/add`, cartItem, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         setCart(response.data.cart);
         toast.success("Added to cart successfully!");
@@ -123,7 +130,8 @@ const PersonalizeCustomization = () => {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
-  if (!personalizedImage) return <div>No image selected for customization</div>;
+  if (!personalizedImage)
+    return <div>No image selected for customization</div>;
 
   return (
     <div className="personalize-customization">
@@ -197,7 +205,7 @@ const PersonalizeCustomization = () => {
                   }`}
                   onClick={() => setSelectedSize(size)}
                 >
-                  {size.width} x {size.height}
+                  {size.name}
                 </button>
               ))}
             </div>

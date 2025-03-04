@@ -1,202 +1,304 @@
-/* Frame customization styles */
+/* Scoped under .freepik-customization to prevent conflicts */
+.freepik-customization {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
 
-  .alert {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    z-index: 40;
-    animation: slideIn 0.3s ease-out;
-  }
-  
-  .alert-success {
-    background-color: #d1fae5;
-    border: 1px solid #34d399;
-    color: #065f46;
-  }
-  
-  .alert-danger {
-    background-color: #fee2e2;
-    border: 1px solid #f87171;
-    color: #991b1b;
-  }
-  
-  .close-alert {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0.25rem;
-    line-height: 1;
-    cursor: pointer;
-  }
-  
-  .loading-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(255, 255, 255, 0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-  }
-  
-  .back-button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.5rem 1rem;
-    color: #4b5563;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: color 0.2s;
-  }
-  
-  .back-button:hover {
-    color: #1f2937;
-  }
-  
-  .image-section {
-    position: relative;
-  }
-  
-  .main-image-container {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    aspect-ratio: 1;
-    background: transparent;
-    overflow: hidden;
-  }
-  
-  .frame-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    /* Frame image should be a PNG with transparent center */
-    object-fit: contain;
-    pointer-events: none;
-  }
-  
-  .generated-artwork {
-    position: relative;
-    width: 85%;
-    height: 85%;
-    object-fit: contain;
-    z-index: 0;
-    margin: auto;
-    display: block;
-    /* Center the artwork */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-  
-  
-  .options-section {
-    display: flex;
+.freepik-customization .product-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Alerts */
+.freepik-customization .alert {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  z-index: 40;
+  animation: slideIn 0.3s ease-out;
+}
+.freepik-customization .alert-success {
+  background-color: #d1fae5;
+  border: 1px solid #34d399;
+  color: #065f46;
+}
+.freepik-customization .alert-danger {
+  background-color: #fee2e2;
+  border: 1px solid #f87171;
+  color: #991b1b;
+}
+.freepik-customization .close-alert {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Loading Overlay */
+.freepik-customization .loading-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+/* Back Button */
+.freepik-customization .back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  color: #4b5563;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.freepik-customization .back-button:hover {
+  color: #1f2937;
+}
+
+/* Image Section */
+.freepik-customization .image-section {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.freepik-customization .main-image-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+/* Frame Background Styling */
+.freepik-customization .frame-background {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+  z-index: 1;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Orientation-specific styling */
+/* Portrait & Square use default */
+.freepik-customization .frame-background.portrait,
+.freepik-customization .frame-background.square {
+  /* No additional transform needed */
+}
+
+/* Landscape: Rotate 90deg */
+.freepik-customization .frame-background.landscape {
+  transform: rotate(90deg);
+}
+
+.freepik-customization .generated-artwork {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: 0;
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  bottom: 0;
+}
+
+/* Options Section */
+.freepik-customization .options-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.freepik-customization .frame-type-buttons,
+.freepik-customization .sub-frame-type-buttons,
+.freepik-customization .size-buttons {
+  display: flex;
+  flex-wrap: wrap;
+}
+.freepik-customization .option-button {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+  color: #1f2937;
+  cursor: pointer;
+}
+.freepik-customization .option-button.active {
+  background-color: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+.freepik-customization .option-button:hover:not(.active) {
+  background-color: #e5e7eb;
+}
+.freepik-customization .option-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dropdown for mobile */
+.freepik-customization .dropdown-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Quantity & Price */
+.freepik-customization .quantity-section {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.freepik-customization .quantity-input {
+  width: 80px;
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+}
+.freepik-customization .price-section {
+  margin: 2rem 0;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+.freepik-customization .price-section h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Action Buttons */
+.freepik-customization .action-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.freepik-customization .add-to-cart,
+.freepik-customization .add-to-wishlist {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+.freepik-customization .add-to-cart {
+  background-color: #2563eb;
+  color: white;
+}
+.freepik-customization .add-to-cart:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+.freepik-customization .add-to-wishlist {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+.freepik-customization .add-to-wishlist:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+/* Sub Cart Popup */
+.freepik-customization .sub-cart-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}
+.freepik-customization .sub-cart-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.freepik-customization .sub-cart-body {
+  position: relative;
+  background-color: #fff;
+  margin: 5% auto;
+  max-width: 500px;
+  padding: 20px;
+  border-radius: 8px;
+  z-index: 1001;
+}
+.freepik-customization .sub-cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.freepik-customization .cart-item {
+  display: flex;
+  margin-bottom: 15px;
+}
+.freepik-customization .cart-item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  margin-right: 10px;
+}
+.freepik-customization .cart-item-details {
+  flex: 1;
+}
+.freepik-customization .quantity-controls {
+  display: flex;
+  align-items: center;
+}
+.freepik-customization .quantity-btn {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.freepik-customization .remove-item {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .freepik-customization .product-details-container {
     flex-direction: column;
-    gap: 2rem;
   }
-  
-  .frame-type-buttons,
-  .sub-frame-type-buttons,
-  .size-buttons {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.5rem;
+  .freepik-customization .options-section {
+    flex-direction: column;
   }
-  
-  .option-button {
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    transition: all 0.2s;
-    border: 1px solid #e5e7eb;
-  }
-  
-  .option-button.active {
-    background-color: #2563eb;
-    color: white;
-    border-color: #2563eb;
-  }
-  
-  .option-button:not(.active) {
-    background-color: #f3f4f6;
-    color: #1f2937;
-  }
-  
-  .option-button:not(.active):hover {
-    background-color: #e5e7eb;
-  }
-  
-  .option-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  .quantity-section {
-    margin-top: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .quantity-input {
-    width: 80px;
-    padding: 0.5rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.375rem;
-  }
-  
-  .price-section {
-    margin: 2rem 0;
-    padding: 1rem;
-    background-color: #f9fafb;
-    border-radius: 0.5rem;
-  }
-  
-  .price-section h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-  
-  
-  .add-to-cart,
-  .add-to-wishlist {
-    flex: 1;
-    display: flex;
-    align-items: center;
+  .freepik-customization .product-details {
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    transition: all 0.2s;
+    align-items: center;
   }
-  
-  .add-to-cart {
-    background-color: #2563eb;
-    color: white;
+  .freepik-customization .product-title {
+    font-size: 20px;
+    text-transform: capitalize;
   }
-  
-  .add-to-cart:hover:not(:disabled) {
-    background-color: #1d4ed8;
-  }
-  
-  .add-to-wishlist {
-    background-color: #f3f4f6;
-    color: #1f2937;
-  }
-  
-  .add-to-wishlist:hover:not(:disabled) {
-    background-color: #e5e7eb;
-  }
-  
+}

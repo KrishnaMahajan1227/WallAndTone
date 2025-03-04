@@ -29,7 +29,6 @@ const FreepikImageGenerator = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [showImageDetails, setShowImageDetails] = useState(false);
-  // Set initial value to 10 for new users
   const [remainingPrompts, setRemainingPrompts] = useState(10);
   const [showPromptLimitModal, setShowPromptLimitModal] = useState(false);
 
@@ -40,16 +39,17 @@ const FreepikImageGenerator = () => {
     }
   }, [token]);
 
-  // Explicitly check for undefined or null so that 0 is not replaced with 10.
   const fetchRemainingPrompts = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/prompts`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("Fetched prompt data:", response.data);
-      const prompts = (response.data.remainingPrompts === undefined || response.data.remainingPrompts === null)
-                        ? 10
-                        : Number(response.data.remainingPrompts);
+      const prompts =
+        response.data.remainingPrompts === undefined ||
+        response.data.remainingPrompts === null
+          ? 10
+          : Number(response.data.remainingPrompts);
       setRemainingPrompts(prompts);
     } catch (err) {
       console.error('Error fetching remaining prompts:', err);
@@ -77,7 +77,6 @@ const FreepikImageGenerator = () => {
       return;
     }
 
-    // If no free prompts remain, show the payment modal.
     if (remainingPrompts <= 0) {
       setShowPromptLimitModal(true);
       return;
@@ -187,11 +186,13 @@ const FreepikImageGenerator = () => {
         await fetchUserGeneratedImages();
       }
       if (existingImage) {
+        // Pass the styling details along with the image data.
         navigate('/customize', {
           state: {
             image: existingImage.imageUrl,
             prompt: existingImage.prompt,
             isCustom: true,
+            styling, // <-- Added styling info here
           },
         });
       } else {
@@ -205,7 +206,6 @@ const FreepikImageGenerator = () => {
     }
   };
 
-  // Helper to load Razorpay script if not already loaded.
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
       const script = document.createElement('script');
@@ -216,7 +216,6 @@ const FreepikImageGenerator = () => {
     });
   };
 
-  // Payment flow: Trigger payment of Rs.50 to purchase additional prompts.
   const handlePurchasePrompts = async () => {
     const res = await loadRazorpayScript();
     if (!res) {
@@ -356,7 +355,7 @@ const FreepikImageGenerator = () => {
           <div className="freepik-generator__previous-grid">
             {userGeneratedImages.slice(0, 4).map((img, index) => (
               <div key={index} className="freepik-generator__previous-item" onClick={() => {
-                navigate('/customize', { state: { image: img.imageUrl, prompt: img.prompt, isCustom: true } });
+                navigate('/customize', { state: { image: img.imageUrl, prompt: img.prompt, isCustom: true, styling } });
               }}>
                 <div className="freepik-generator__previous-image">
                   <img src={img.imageUrl} alt={img.prompt} />
@@ -389,7 +388,7 @@ const FreepikImageGenerator = () => {
                         <button type="button" className="btn btn-info" onClick={() => handleCustomize(selectedImage)} disabled={customizing}>
                           {customizing ? (
                             <div className="freepik-generator__customizing">
-                              <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xMiwyM2E5LjYzLDkuNjMsMCwwLDEtOC05LjUsOS41MSw5LjUxLDAsMCwxLDYuNzktOS4xQTEuNjYsMS42NiwwLDAsMCwxMiwyLjgxaDBhMS42NywxLjY3LDAsMCwwLTEuOTQtMS42NEExMSwxMSwwLDAsMCwxMiwyM1oiPjxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIgZHVyPSIwLjc1cyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiIHR5cGU9InJvdGF0ZSIgdmFsdWVzPSIwIDEyIDEyOzM2MCAxMiAxMiIvPjwvcGF0aD48L3N2Zz4=" alt="Loading" className="freepik-generator__spinner" />
+                              <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xMiwyM2E5LjYzLDkuNjMsMCwwLDEtOC05LjUsOS41MSw5LjUxLDAsMCwxLDYuNzktOS4xQTEuNjYsMS42NiwwLDAsMCwxMiwyM1oiPjxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIgZHVyPSIwLjc1cyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiIHR5cGU9InJvdGF0ZSIgdmFsdWVzPSIwIDEyIDEyOzM2MCAxMiAxMiIvPjwvcGF0aD48L3N2Zz4=" alt="Loading" className="freepik-generator__spinner" />
                               <span>Generating Image...</span>
                             </div>
                           ) : 'Customize'}

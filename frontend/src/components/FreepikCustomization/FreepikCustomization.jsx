@@ -7,7 +7,11 @@ import './FreepikCustomization.css';
 import Footer from '../Footer/Footer';
 
 const FreepikCustomization = () => {
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : 'https://wallandtone.com');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,17 +32,16 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   const [cart, setCart] = useState({ items: [], totalPrice: 0 });
   const [wishlist, setWishlist] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const [selectedFrameType, setSelectedFrameType] = useState(() => {
     const stored = localStorage.getItem('selectedFrameType');
     return stored ? JSON.parse(stored) : null;
   });
-
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(() => {
     const stored = localStorage.getItem('selectedSubFrameType');
     return stored ? JSON.parse(stored) : null;
   });
-
   const [selectedSize, setSelectedSize] = useState(() => {
     const stored = localStorage.getItem('selectedSize');
     return stored ? JSON.parse(stored) : null;
@@ -46,7 +49,16 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   const guestWishlist = JSON.parse(localStorage.getItem('guestWishlist') || '[]');
   const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-  
+
+  // Responsive check – if window width is less than 768px, show dropdowns
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchFrameTypes = async () => {
@@ -62,13 +74,15 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       }
     };
     fetchFrameTypes();
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
     const fetchSubFrameTypes = async () => {
       if (selectedFrameType?._id) {
         try {
-          const response = await axios.get(`${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`);
+          const response = await axios.get(
+            `${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`
+          );
           setSubFrameTypes(response.data);
           if (response.data.length > 0) {
             setSelectedSubFrameType(response.data[0]);
@@ -80,7 +94,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       }
     };
     fetchSubFrameTypes();
-  }, [selectedFrameType]);
+  }, [selectedFrameType, apiUrl]);
 
   useEffect(() => {
     const fetchSizes = async () => {
@@ -98,7 +112,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       }
     };
     fetchSizes();
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
     if (selectedFrameType && selectedSubFrameType && selectedSize) {
@@ -110,12 +124,10 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
 
   const calculateTotalPrice = () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) return 0;
-
     let total = 0;
     if (selectedFrameType?.price) total += parseFloat(selectedFrameType.price);
     if (selectedSubFrameType?.price) total += parseFloat(selectedSubFrameType.price);
     if (selectedSize?.price) total += parseFloat(selectedSize.price);
-
     return (total * quantity).toFixed(2);
   };
 
@@ -146,27 +158,19 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       setAlertMessage('Please select all options before adding to cart');
       return;
     }
-  
     try {
-      // Create the cart item without image upload first
       const cartItem = {
         quantity,
         frameType: selectedFrameType._id,
         subFrameType: selectedSubFrameType._id,
         size: selectedSize._id,
         isCustom: true,
-        image: generatedImage // Use the image directly
+        image: generatedImage
       };
-  
       if (token) {
-        const response = await axios.post(
-          `${apiUrl}/api/cart/add`,
-          cartItem,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
-  
+        const response = await axios.post(`${apiUrl}/api/cart/add`, cartItem, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         if (response.data.cart) {
           setCart(response.data.cart);
           setAlertMessage('Added to cart successfully!');
@@ -192,12 +196,9 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       setAlertMessage('Please select all options before adding to wishlist');
       return;
     }
-
     try {
-      // First, upload the image to Cloudinary
       const imageFormData = new FormData();
       imageFormData.append('image', generatedImage);
-      
       const uploadResponse = await axios.post(
         `${apiUrl}/api/upload/image`,
         imageFormData,
@@ -208,7 +209,6 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           }
         }
       );
-
       const wishlistItem = {
         image: uploadResponse.data.imageUrl,
         frameType: selectedFrameType._id,
@@ -216,15 +216,10 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         size: selectedSize._id,
         isCustom: true
       };
-
       if (token) {
-        const response = await axios.post(
-          `${apiUrl}/api/wishlist/add`,
-          wishlistItem,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
+        const response = await axios.post(`${apiUrl}/api/wishlist/add`, wishlistItem, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setWishlist(response.data.wishlist);
         setAlertMessage('Added to wishlist successfully!');
       } else {
@@ -242,24 +237,18 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   const handleRemoveItem = async (index) => {
     try {
       if (token) {
-        // Remove item from backend cart
         await axios.delete(`${apiUrl}/api/cart/remove/${cart.items[index]._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` }
         });
-  
-        // Update frontend cart
         const updatedCart = [...cart.items];
         updatedCart.splice(index, 1);
         setCart({ ...cart, items: updatedCart });
-  
         setAlertMessage("Item removed successfully!");
       } else {
-        // Guest Cart (Local Storage)
         const updatedGuestCart = [...guestCart];
         updatedGuestCart.splice(index, 1);
         setCart({ items: updatedGuestCart, totalPrice: calculateTotalPrice() });
         localStorage.setItem("guestCart", JSON.stringify(updatedGuestCart));
-  
         setAlertMessage("Item removed successfully!");
       }
     } catch (error) {
@@ -269,26 +258,23 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
   };
 
   const handleUpdateQuantity = async (index, newQuantity) => {
-    if (newQuantity < 1) return; // Prevents quantity going below 1
-  
+    if (newQuantity < 1) return;
     try {
       if (token) {
         const response = await axios.put(
-          `${apiUrl}/api/cart/update`, // Corrected API endpoint
+          `${apiUrl}/api/cart/update`,
           {
-            itemId: cart.items[index]._id, // Ensure ID is passed correctly
-            quantity: newQuantity,
+            itemId: cart.items[index]._id,
+            quantity: newQuantity
           },
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` }
           }
         );
-  
         if (response.data.cart) {
-          setCart(response.data.cart); // Update frontend cart
+          setCart(response.data.cart);
         }
       } else {
-        // Update guest cart (Local Storage)
         const updatedGuestCart = [...guestCart];
         updatedGuestCart[index].quantity = newQuantity;
         setCart({ items: updatedGuestCart, totalPrice: calculateTotalPrice() });
@@ -299,19 +285,35 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       setAlertMessage("Failed to update quantity.");
     }
   };
-  
-  
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
-  if (!generatedImage) return <div>No image selected for customization</div>;
+  // Compute orientation based on selected size.
+  const orientation = selectedSize
+    ? selectedSize.width > selectedSize.height
+      ? 'landscape'
+      : selectedSize.width < selectedSize.height
+      ? 'portrait'
+      : 'square'
+    : 'portrait';
+
+  // For square orientation, attempt to use a "square" background from frameBackgrounds if available.
+  const backgroundImage =
+    orientation === 'square'
+      ? frameBackgrounds['square'] || frameBackgrounds[selectedSubFrameType?.name]
+      : frameBackgrounds[selectedSubFrameType?.name];
+
+  if (loading) return <div className="freepik-customization">Loading...</div>;
+  if (error) return <div className="freepik-customization">{error}</div>;
+  if (!generatedImage)
+    return <div className="freepik-customization">No image selected for customization</div>;
 
   return (
-    <div className="product-details-container">
+    <div className="freepik-customization product-details-container">
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
-          <button className="close-alert" onClick={() => setError(null)}>×</button>
+          <button className="close-alert" onClick={() => setError(null)}>
+            ×
+          </button>
         </div>
       )}
 
@@ -337,9 +339,9 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           <div className="main-image-container">
             {selectedSubFrameType && (
               <img
-                src={frameBackgrounds[selectedSubFrameType.name]}
+                src={backgroundImage}
                 alt="Frame background"
-                className="frame-background"
+                className={`frame-background ${orientation}`}
               />
             )}
             <img
@@ -351,60 +353,116 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         </div>
 
         <div className="info-section">
-        <h3 className="product-title">{prompt ? prompt : "Customize Your Artwork"}</h3>
+          <h3 className="product-title">
+            {prompt ? prompt : 'Customize Your Artwork'}
+          </h3>
           <div className="options-section">
             <div className="frame-type-section">
-              <div className="frame-type-buttons">
-                {frameTypes.map(frameType => (
-                  <button
-                    key={frameType._id}
-                    className={`option-button ${
-                      selectedFrameType?._id === frameType._id ? 'active' : ''
-                    }`}
-                    onClick={() => handleFrameTypeSelect(frameType)}
-                  >
-                    {frameType.name}
-                  </button>
-                ))}
-              </div>
+              {isMobile ? (
+                <select
+                  className="dropdown-select"
+                  value={selectedFrameType?._id || ''}
+                  onChange={(e) => {
+                    const frame = frameTypes.find((ft) => ft._id === e.target.value);
+                    handleFrameTypeSelect(frame);
+                  }}
+                >
+                  {frameTypes.map((ft) => (
+                    <option key={ft._id} value={ft._id}>
+                      {ft.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="frame-type-buttons">
+                  {frameTypes.map((frameType) => (
+                    <button
+                      key={frameType._id}
+                      className={`option-button ${
+                        selectedFrameType?._id === frameType._id ? 'active' : ''
+                      }`}
+                      onClick={() => handleFrameTypeSelect(frameType)}
+                    >
+                      {frameType.name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {selectedFrameType && subFrameTypes.length > 0 && (
               <div className="sub-frame-type-section">
-                <div className="sub-frame-type-buttons">
-                  {subFrameTypes.map(subFrameType => (
-                    <button
-                      key={subFrameType._id}
-                      className={`option-button ${
-                        selectedSubFrameType?._id === subFrameType._id ? 'active' : ''
-                      }`}
-                      onClick={() => handleSubFrameTypeSelect(subFrameType)}
-                      disabled={loadingSubFrame}
-                    >
-                      {loadingSubFrame && selectedSubFrameType?._id === subFrameType._id
-                        ? 'Loading...'
-                        : subFrameType.name}
-                    </button>
-                  ))}
-                </div>
+                {isMobile ? (
+                  <select
+                    className="dropdown-select"
+                    value={selectedSubFrameType?._id || ''}
+                    onChange={(e) => {
+                      const subFrame = subFrameTypes.find(
+                        (sft) => sft._id === e.target.value
+                      );
+                      handleSubFrameTypeSelect(subFrame);
+                    }}
+                  >
+                    {subFrameTypes.map((subFrameType) => (
+                      <option key={subFrameType._id} value={subFrameType._id}>
+                        {subFrameType.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="sub-frame-type-buttons">
+                    {subFrameTypes.map((subFrameType) => (
+                      <button
+                        key={subFrameType._id}
+                        className={`option-button ${
+                          selectedSubFrameType?._id === subFrameType._id ? 'active' : ''
+                        }`}
+                        onClick={() => handleSubFrameTypeSelect(subFrameType)}
+                        disabled={loadingSubFrame}
+                      >
+                        {loadingSubFrame &&
+                        selectedSubFrameType?._id === subFrameType._id
+                          ? 'Loading...'
+                          : subFrameType.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
             {selectedSubFrameType && sizes.length > 0 && (
               <div className="size-section">
-                <div className="size-buttons">
-                  {sizes.map(size => (
-                    <button
-                      key={size._id}
-                      className={`option-button ${
-                        selectedSize?._id === size._id ? 'active' : ''
-                      }`}
-                      onClick={() => handleSizeSelect(size)}
-                    >
-                      {size.width} x {size.height}
-                    </button>
-                  ))}
-                </div>
+                {isMobile ? (
+                  <select
+                    className="dropdown-select"
+                    value={selectedSize?._id || ''}
+                    onChange={(e) => {
+                      const size = sizes.find((s) => s._id === e.target.value);
+                      handleSizeSelect(size);
+                    }}
+                  >
+                    {sizes.map((size) => (
+                      <option key={size._id} value={size._id}>
+                        {size.width} x {size.height}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="size-buttons">
+                    {sizes.map((size) => (
+                      <button
+                        key={size._id}
+                        className={`option-button ${
+                          selectedSize?._id === size._id ? 'active' : ''
+                        }`}
+                        onClick={() => handleSizeSelect(size)}
+                      >
+                        {size.width} x {size.height}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -447,101 +505,107 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       </div>
 
       {subCartOpen && (
-  <div className="sub-cart-popup">
-    <div className="sub-cart-overlay" onClick={() => setSubCartOpen(false)} />
-
-    <div className={`sub-cart-body ${subCartOpen ? "show" : ""}`}>
-      <div className="sub-cart-header">
-        <h2>Shopping Cart</h2>
-        <button className="close-btn" onClick={() => setSubCartOpen(false)}>
-          <X size={24} />
-        </button>
-      </div>
-
-      {cart.items?.length === 0 ? (
-        <div className="empty-cart-message">
-          <p>Your cart is empty.</p>
-          <button className="continue-shopping" onClick={() => setSubCartOpen(false)}>
-            Continue Shopping
-          </button>
-        </div>
-      ) : (
-        <>
-          <div className="cart-items">
-            {cart.items?.map((item, index) => (
-              <div key={index} className="cart-item">
-                <img
-                  src={item.image || item.productId?.mainImage}
-                  alt="Product"
-                  className="cart-item-image"
-                />
-                <div className="cart-item-details">
-                  <h3>{item.isCustom ? "Customized Artwork" : item.productId?.productName}</h3>
-                  <p><strong>Frame:</strong> {item.frameType?.name || "N/A"}</p>
-                  <p><strong>Type:</strong> {item.subFrameType?.name || "N/A"}</p>
-                  <p><strong>Size:</strong> {item.size?.width} x {item.size?.height}</p>
-
-                  {/* Quantity Controls */}
-                  <div className="quantity-controls">
-                    <button
-                      className="quantity-btn"
-                      onClick={() => handleUpdateQuantity(index, item.quantity - 1)}
-                      disabled={item.quantity <= 1}
-                    >
-                      -
-                    </button>
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) => handleUpdateQuantity(index, parseInt(e.target.value))}
-                      className="quantity-input"
-                      min="1"
-                    />
-                    <button
-                      className="quantity-btn"
-                      onClick={() => handleUpdateQuantity(index, item.quantity + 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  <p><strong>Price:</strong> ₹{(
-                    item.quantity *
-                    (parseFloat(item.frameType?.price || 0) +
-                      parseFloat(item.subFrameType?.price || 0) +
-                      parseFloat(item.size?.price || 0))
-                  ).toFixed(2)}</p>
-
-                  <button className="remove-item" onClick={() => handleRemoveItem(index)}>
-                    Remove
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="cart-footer">
-            <p className="cart-total">
-              <strong>Total:</strong> ₹{cart.totalPrice?.toFixed(2) || "0.00"}
-            </p>
-
-            <div className="cart-actions">
-              <button className="view-cart" onClick={() => navigate("/cart")}>
-                View Cart
-              </button>
-              <button className="checkout" onClick={() => navigate("/checkout")}>
-                Checkout
+        <div className="sub-cart-popup">
+          <div className="sub-cart-overlay" onClick={() => setSubCartOpen(false)} />
+          <div className={`sub-cart-body ${subCartOpen ? 'show' : ''}`}>
+            <div className="sub-cart-header">
+              <h2>Shopping Cart</h2>
+              <button className="close-btn" onClick={() => setSubCartOpen(false)}>
+                <X size={24} />
               </button>
             </div>
+
+            {cart.items?.length === 0 ? (
+              <div className="empty-cart-message">
+                <p>Your cart is empty.</p>
+                <button className="continue-shopping" onClick={() => setSubCartOpen(false)}>
+                  Continue Shopping
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="cart-items">
+                  {cart.items?.map((item, index) => (
+                    <div key={index} className="cart-item">
+                      <img
+                        src={item.image || item.productId?.mainImage}
+                        alt="Product"
+                        className="cart-item-image"
+                      />
+                      <div className="cart-item-details">
+                        <h3>{item.isCustom ? 'Customized Artwork' : item.productId?.productName}</h3>
+                        <p>
+                          <strong>Frame:</strong> {item.frameType?.name || 'N/A'}
+                        </p>
+                        <p>
+                          <strong>Type:</strong> {item.subFrameType?.name || 'N/A'}
+                        </p>
+                        <p>
+                          <strong>Size:</strong> {item.size?.width} x {item.size?.height}
+                        </p>
+
+                        <div className="quantity-controls">
+                          <button
+                            className="quantity-btn"
+                            onClick={() => handleUpdateQuantity(index, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                          >
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            value={item.quantity}
+                            onChange={(e) =>
+                              handleUpdateQuantity(index, parseInt(e.target.value))
+                            }
+                            className="quantity-input"
+                            min="1"
+                          />
+                          <button
+                            className="quantity-btn"
+                            onClick={() => handleUpdateQuantity(index, item.quantity + 1)}
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <p>
+                          <strong>Price:</strong> ₹
+                          {(
+                            item.quantity *
+                            (parseFloat(item.frameType?.price || 0) +
+                              parseFloat(item.subFrameType?.price || 0) +
+                              parseFloat(item.size?.price || 0))
+                          ).toFixed(2)}
+                        </p>
+
+                        <button className="remove-item" onClick={() => handleRemoveItem(index)}>
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="cart-footer">
+                  <p className="cart-total">
+                    <strong>Total:</strong> ₹{cart.totalPrice?.toFixed(2) || '0.00'}
+                  </p>
+
+                  <div className="cart-actions">
+                    <button className="view-cart" onClick={() => navigate('/cart')}>
+                      View Cart
+                    </button>
+                    <button className="checkout" onClick={() => navigate('/checkout')}>
+                      Checkout
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
-        </>
+        </div>
       )}
-    </div>
-  </div>
-)}
-
-
-      
     </div>
   );
 };

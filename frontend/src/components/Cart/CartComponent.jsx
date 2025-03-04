@@ -327,21 +327,36 @@ const handleRemoveFromWishlist = async (e, product) => {
 
   const handleProceedToCheckout = () => {
     // Create a clean array with detailed information for each cart item.
-    const checkoutItems = cart.items.map(item => ({
-      productId: item.productId._id,
-      productName: item.productId.productName,
-      mainImage: item.productId.mainImage,
-      quantity: item.quantity,
-      frameType: item.frameType,
-      subFrameType: item.subFrameType,
-      size: item.size,
-      itemTotal: calculateItemPrice(item)
-    }));
+    const checkoutItems = cart.items.map(item => {
+      if (item.isCustom) {
+        return {
+          productId: null,
+          productName: "Customized Artwork",
+          mainImage: item.image,
+          quantity: item.quantity,
+          frameType: item.frameType,
+          subFrameType: item.subFrameType,
+          size: item.size,
+          itemTotal: calculateItemPrice(item)
+        };
+      } else {
+        return {
+          productId: item.productId?._id || null,
+          productName: item.productId?.productName || "",
+          mainImage: item.productId?.mainImage || "",
+          quantity: item.quantity,
+          frameType: item.frameType,
+          subFrameType: item.subFrameType,
+          size: item.size,
+          itemTotal: calculateItemPrice(item)
+        };
+      }
+    });
   
     navigate("/checkout", { 
       state: { 
-        total: Number(finalTotal.toFixed(2)), // final total price
-        cartItems: checkoutItems,            // detailed cart items
+        total: Number(finalTotal.toFixed(2)),
+        cartItems: checkoutItems,
         subtotal,
         shippingCost,
         taxAmount,
@@ -351,6 +366,7 @@ const handleRemoveFromWishlist = async (e, product) => {
       } 
     });
   };
+  
   
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;

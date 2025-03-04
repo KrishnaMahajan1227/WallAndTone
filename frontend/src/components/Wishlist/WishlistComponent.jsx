@@ -216,12 +216,6 @@ const WishlistComponent = () => {
                         </button>
                       )}
                       <button
-                        className="btn btn-success wishlist-buy-now-btn"
-                        onClick={() => navigate(`/products/${item.productId._id}`)}
-                      >
-                        Buy Now
-                      </button>
-                      <button
                         className="btn btn-danger wishlist-remove-btn"
                         onClick={(e) => {
                           e.preventDefault();

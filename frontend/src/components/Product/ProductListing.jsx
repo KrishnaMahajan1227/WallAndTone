@@ -2,16 +2,16 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Offcanvas, Accordion, Button, Dropdown, Modal } from 'react-bootstrap';
+import axios from 'axios';
+import HistoryDropdown from '../History/HistoryDropdown';
+import { WishlistContext } from '../Wishlist/WishlistContext';
 import heartIcon from '../../assets/icons/heart-icon.svg';
 import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
 import filtericon from '../../assets/icons/filter-icon.png';
 import sorticon from '../../assets/icons/sort-icon.svg';
-import { WishlistContext } from '../Wishlist/WishlistContext';
-import ListingSEO from './ListingSEO'; // adjust the path as needed
-
+import ListingSEO from './ListingSEO';
 import './ProductListing.css';
 
-// Grouped Color Options – only group headings will be shown.
 const groupedColorOptions = {
   "Black & White": ["Black", "White", "Gray / Grey", "Silver"],
   "Blue Tones": ["Blue", "Navy Blue", "Dark Blue", "Teal", "Aqua"],
@@ -25,7 +25,6 @@ const groupedColorOptions = {
   "Mixed & Multi-Color Tones": ["Multi-color", "Neon Colors (Neon Blue, Neon Green, Neon Pink)", "Cool Tones", "Warm Tones"]
 };
 
-// Grouped Category Options
 const groupedCategoryOptions = {
   "Abstract & Conceptual": ["Abstract Art", "Surrealism", "Expressionism", "Minimalist", "Fluid Art", "Optical Art"],
   "Nature & Landscape": ["Nature Art", "Botanical", "Seascape", "Wildlife", "Scenic", "Marine Art"],
@@ -44,7 +43,6 @@ const groupedCategoryOptions = {
   "Thematic & Seasonal": ["Love & Romance", "Seasonal Art", "Nautical", "Marine Art"]
 };
 
-// Grouped Medium Options
 const groupedMediumOptions = {
   "Paintings": [
     "Acrylic Painting",
@@ -83,7 +81,6 @@ const groupedMediumOptions = {
   ]
 };
 
-// Grouped Room Options
 const groupedRoomOptions = {
   "Living Spaces": [
     "Living Room",
@@ -121,6 +118,8 @@ const groupedRoomOptions = {
   ]
 };
 
+const orientationOptions = ['Portrait', 'Landscape', 'Square'];
+
 const ProductListing = () => {
   const apiUrl =
     import.meta.env.VITE_API_URL ||
@@ -128,18 +127,18 @@ const ProductListing = () => {
       ? 'http://localhost:8080'
       : 'https://wallandtone.com');
 
-  const { wishlistCount, setWishlistCount } = useContext(WishlistContext);
+  // Get wishlist from context (wishlistCount is derived in SecondaryNavbar)
+  const { wishlist, setWishlist } = useContext(WishlistContext);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [wishlist, setWishlist] = useState([]);
   const [wishlistAlert, setWishlistAlert] = useState(false);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [authAction, setAuthAction] = useState(null);
   const [showFilterOffcanvas, setShowFilterOffcanvas] = useState(false);
   const [sortOption, setSortOption] = useState('');
 
-  // Group selection states for filters.
+  // Filter group selections
   const [selectedColorGroups, setSelectedColorGroups] = useState([]);
   const [selectedCategoryGroups, setSelectedCategoryGroups] = useState([]);
   const [selectedOrientations, setSelectedOrientations] = useState([]);
@@ -150,9 +149,7 @@ const ProductListing = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const orientationOptions = ['Portrait', 'Landscape', 'Square'];
-
-  // Sync query parameters
+  // Sync query parameters for orientation, medium, and rooms.
   useEffect(() => {
     const qp = new URLSearchParams(location.search);
     const orientationParam = qp.get('orientation')
@@ -185,6 +182,7 @@ const ProductListing = () => {
     setSelectedRoomGroups(roomGroups);
   }, [location.search]);
 
+  // Fetch products (only once or when location.search/token/apiUrl changes)
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -193,11 +191,7 @@ const ProductListing = () => {
         const response = await fetch(url, { method: 'GET' });
         const data = await response.json();
         if (!data || !Array.isArray(data)) throw new Error('Invalid data received');
-        const updatedProducts = data.map(product => ({
-          ...product,
-          inWishlist: wishlist.some(item => item.productId && item.productId._id === product._id)
-        }));
-        setProducts(updatedProducts);
+        setProducts(data);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -205,6 +199,11 @@ const ProductListing = () => {
       }
     };
 
+    fetchProducts();
+  }, [location.search, token, apiUrl]);
+
+  // Fetch wishlist and update context
+  useEffect(() => {
     const fetchWishlist = async () => {
       if (token) {
         try {
@@ -213,28 +212,34 @@ const ProductListing = () => {
             headers: { Authorization: `Bearer ${token}` },
           });
           const wishlistData = await wishlistResponse.json();
-          if (!wishlistData || !Array.isArray(wishlistData.items)) throw new Error('Invalid wishlist data received');
-          const wishlist = wishlistData.items || [];
-          setWishlist(wishlist);
-          setWishlistCount(wishlist.length);
+          if (!wishlistData || !Array.isArray(wishlistData.items))
+            throw new Error('Invalid wishlist data received');
+          const items = wishlistData.items || [];
+          setWishlist(items);
         } catch (error) {
           console.error('Error fetching wishlist:', error.message);
-          setWishlistCount(0);
+          setWishlist([]);
         }
       } else {
-        setWishlistCount(0);
+        setWishlist([]);
       }
     };
 
-    fetchProducts();
     fetchWishlist();
-  }, [location.search, token]);
+  }, [location.search, token, apiUrl, setWishlist]);
 
+  // Update products' inWishlist flag when wishlist changes
   useEffect(() => {
-    setWishlistCount(wishlist.length);
-  }, [wishlist]);
+    if (products.length > 0) {
+      const updatedProducts = products.map(product => ({
+        ...product,
+        inWishlist: wishlist.some(item => item.productId && item.productId._id === product._id)
+      }));
+      setProducts(updatedProducts);
+    }
+  }, [wishlist]); 
 
-  // Sorting function
+  // Sorting function for products
   const sortProducts = (productsArray) => {
     let sorted = [...productsArray];
     if (sortOption === 'alphabetical') {
@@ -249,7 +254,7 @@ const ProductListing = () => {
     return sorted;
   };
 
-  // Login popup functions for listing actions
+  // Authentication popup functions
   const handleAuthRequired = (action) => {
     setAuthAction(() => action);
     setShowAuthPopup(true);
@@ -263,22 +268,20 @@ const ProductListing = () => {
     navigate('/login');
   };
 
-  // Wishlist actions
+  // Wishlist actions using context
   const handleAddToWishlist = async (product) => {
     if (!product || !product._id) return;
     if (!token) {
       handleAuthRequired(() => handleAddToWishlist(product));
       return;
     }
-    const productInWishlist = wishlist.some(item => item.productId && item.productId._id === product._id);
-    if (productInWishlist) {
+    if (wishlist.some(item => item.productId && item.productId._id === product._id)) {
       setWishlistAlert(true);
       setTimeout(() => setWishlistAlert(false), 3000);
       return;
     }
     const updatedWishlist = [...wishlist, { productId: product }];
     setWishlist(updatedWishlist);
-    setWishlistCount(updatedWishlist.length);
     try {
       const response = await fetch(`${apiUrl}/api/wishlist/add`, {
         method: 'POST',
@@ -296,8 +299,6 @@ const ProductListing = () => {
     } catch (error) {
       console.error('Error adding product to wishlist:', error);
       setWishlist(wishlist);
-      setWishlistCount(wishlist.length);
-      setWishlistAlert('Failed to add product to wishlist. Please try again.');
     }
   };
 
@@ -305,7 +306,6 @@ const ProductListing = () => {
     if (!product || !product._id) return;
     const updatedWishlist = wishlist.filter(item => item.productId && item.productId._id !== product._id);
     setWishlist(updatedWishlist);
-    setWishlistCount(updatedWishlist.length);
     try {
       const response = await fetch(`${apiUrl}/api/wishlist/remove/${product._id}`, {
         method: 'DELETE',
@@ -315,8 +315,6 @@ const ProductListing = () => {
     } catch (error) {
       console.error('Error removing product from wishlist:', error);
       setWishlist(wishlist);
-      setWishlistCount(wishlist.length);
-      setWishlistAlert('Failed to remove product from wishlist. Please try again.');
     }
   };
 
@@ -324,7 +322,7 @@ const ProductListing = () => {
     navigate(`/product/${productId}`);
   };
 
-  // Offcanvas handlers
+  // Offcanvas handlers for filters
   const handleShowFilterOffcanvas = () => setShowFilterOffcanvas(true);
   const handleCloseFilterOffcanvas = () => setShowFilterOffcanvas(false);
 
@@ -337,7 +335,7 @@ const ProductListing = () => {
     }
   };
 
-  // Group toggles for Colors, Categories, Medium, and Rooms.
+  // Group toggles for filter groups.
   const toggleColorGroup = (group) => {
     if (selectedColorGroups.includes(group)) {
       setSelectedColorGroups(selectedColorGroups.filter(g => g !== group));
@@ -367,7 +365,7 @@ const ProductListing = () => {
     }
   };
 
-  // When "View Result" is clicked, build query string from group selections.
+  // Build query string for filters on "View Result"
   const handleViewResult = () => {
     const queryParams = new URLSearchParams();
     if (selectedColorGroups.length > 0) {
@@ -403,7 +401,7 @@ const ProductListing = () => {
     navigate({ pathname: location.pathname, search: '' });
   };
 
-  // Render active filter summary with a "Clear All" button.
+  // Render active filter summary with "Clear All" button.
   const renderFilterSummary = () => {
     const qp = new URLSearchParams(location.search);
     const activeOrientations = qp.get('orientation') ? qp.get('orientation').split(',') : [];
@@ -477,7 +475,7 @@ const ProductListing = () => {
     }
   };
 
-  // renderProductCard for listing
+  // Render a product card with wishlist icon.
   const renderProductCard = (product, isLarge = false) => (
     <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
       <div className="product-image-wrapper position-relative">
@@ -516,7 +514,7 @@ const ProductListing = () => {
     </div>
   );
 
-  // renderProductRows definition
+  // Render product rows grouping products (6 regular + 1 featured per row)
   const renderProductRows = () => {
     const sortedProducts = sortProducts(products);
     const rows = [];
@@ -729,7 +727,8 @@ const ProductListing = () => {
           </button>
           <Dropdown>
             <Dropdown.Toggle variant="secondary" id="sort-dropdown" className="product-sorting d-flex align-items-center">
-              <img src={sorticon} alt="sort-icon" /><p className="m-0"> Sort By: </p>
+              <img src={sorticon} alt="sort-icon" />
+              <p className="m-0"> Sort By: </p>
               {sortOption === ""
                 ? "Select"
                 : sortOption === "alphabetical"

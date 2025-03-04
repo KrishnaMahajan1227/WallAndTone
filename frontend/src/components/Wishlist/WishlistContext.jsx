@@ -4,10 +4,12 @@ const WishlistContext = createContext();
 
 const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
-  const [wishlistCount, setWishlistCount] = useState(0);
+
+  // Derive the wishlist count directly from the wishlist array length.
+  const wishlistCount = wishlist.length;
 
   return (
-    <WishlistContext.Provider value={{ wishlist, setWishlist, wishlistCount, setWishlistCount }}>
+    <WishlistContext.Provider value={{ wishlist, setWishlist, wishlistCount }}>
       {children}
     </WishlistContext.Provider>
   );

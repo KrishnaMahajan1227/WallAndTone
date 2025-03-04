@@ -31,7 +31,8 @@ const userSchema = new mongoose.Schema({
     imageUrl: { type: String, required: true },  // Cloudinary URL
     publicId: { type: String, required: true },  // Cloudinary public ID for easy deletion
     createdAt: { type: Date, default: Date.now }
-  }]
+  }],
+  remainingPrompts: { type: Number, default: 10 } // Har user ko 10 prompts se start karne ke liye
 
 }, { timestamps: true });
 

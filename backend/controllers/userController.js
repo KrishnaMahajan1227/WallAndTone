@@ -151,6 +151,7 @@ const deleteUser = async (req, res) => {
   };
   
 // **🔹 Get User Profile**
+// **🔹 Get User Profile**
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password'); // Exclude password
@@ -165,6 +166,7 @@ const getUserProfile = async (req, res) => {
       email: user.email,
       phone: user.phone,
       role: user.role,
+      remainingPrompts: user.remainingPrompts, // Added remaining prompts
       personalizedImages: user.personalizedImages, // User's uploaded images
       shippingDetails: user.shippingDetails, // Include shipping details
     });
@@ -173,6 +175,7 @@ const getUserProfile = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 // **🔹 Update User Profile**
 const updateUserProfile = async (req, res) => {

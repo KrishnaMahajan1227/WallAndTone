@@ -9,27 +9,31 @@ const cartRoutes = require('./routes/cart');
 const wishlistRoutes = require('./routes/wishlist');
 const { protectAdmin, protectUser } = require('./middleware/authMiddleware');
 const couponAdminRouter = require("./routes/couponAdmin");
-const couponUserRouter = require("./routes/couponUser"); // ✅ NEW USER COUPON ROUTE
+const couponUserRouter = require("./routes/couponUser"); // NEW USER COUPON ROUTE
 const freepikRoutes = require("./routes/freepikRoutes");
-const categoryRoutes = require("./routes/FrameTypeRoutes")
+const categoryRoutes = require("./routes/FrameTypeRoutes");
 const sizeAdminRouter = require("./routes/sizeRoutes");
 const searchRoutes = require('./routes/searchRoutes');
 const historyRoutes = require('./routes/historyRoutes');
-const multer = require('multer'); 
-const upload = require('./middleware/upload'); 
+const multer = require('multer');
+const upload = require('./middleware/upload');
 const { uploadExcel, uploadImage, uploadReviewImage } = require('./middleware/upload');
 const paymentRoutes = require("./routes/payment");
 // Import Shiprocket routes
 const shiprocketAuthRoute = require("./shiprocketAuth");
 const shiprocketOrderRoute = require("./routes/shiprocketOrder");
-require('dotenv').config();
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 8080;
 
+// NEW: Import prompt management and prompt payment routes
+const promptRoutes = require("./routes/promptRoutes");
+const promptPaymentRoutes = require("./routes/promptPaymentRoutes");
+
 // Middleware
 app.use(express.json({ limit: '50mb' }));
-app.use(cors()); 
+app.use(cors());
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Static File Serving (for product images)
@@ -37,15 +41,12 @@ app.use('/uploads', express.static('uploads'));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-
 const cloudinary = require('cloudinary').v2;
-
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
 
 // MongoDB connection
 mongoose
@@ -54,16 +55,15 @@ mongoose
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
 // Routes
-app.use('/api', userRoutes); 
+app.use('/api', userRoutes);
 app.use('/api/products', productRoutes);
 
 // Protected Routes Example
-app.use('/api/secure', protectAdmin, protectUser , (req, res) => {
+app.use('/api/secure', protectAdmin, protectUser, (req, res) => {
   res.json({ message: 'This is a secure endpoint!' });
 });
 
 app.use('/api/cart', cartRoutes);
-
 app.use('/api/wishlist', wishlistRoutes);
 
 // Include Freepik Routes
@@ -73,14 +73,18 @@ app.use('/api/freepik', freepikRoutes);
 app.use('/api', categoryRoutes);
 
 app.use("/api/admin/coupons", couponAdminRouter);
-app.use('/api/users/coupons', couponUserRouter);  // ✅ Correct User Coupon Route
+app.use('/api/users/coupons', couponUserRouter);  // Correct User Coupon Route
 
 app.use("/api/admin/sizes", sizeAdminRouter);
 
-
-// Add these routes to your app
 app.use('/api/search', searchRoutes);
 app.use('/api/history', historyRoutes);
+
+// NEW: Mount Prompt Management Routes
+app.use('/api/prompts', promptRoutes);
+
+// NEW: Mount Prompt Payment Routes (for purchasing prompts)
+app.use('/api/prompt-payment', promptPaymentRoutes);
 
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {
@@ -90,34 +94,31 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-// ✅ Upload Route (Now correctly defined after `upload` is set)
+// ✅ Upload Route (using uploadImage middleware)
 app.post('/api/upload', uploadImage.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: 'No file uploaded' });
   }
-  res.json({ imageUrl: req.file.path }); // Return Cloudinary URL
+  res.json({ imageUrl: req.file.path });
 });
-// Import Routes
-const cloudinaryRoutes = require("./routes/cloudinaryRoutes");  // 👈 Import here
-app.use("/api", cloudinaryRoutes);  // 👈 Use the route here
+
+// Cloudinary Routes (if any)
+const cloudinaryRoutes = require("./routes/cloudinaryRoutes");
+app.use("/api", cloudinaryRoutes);
 
 // Serve React Frontend (for production)
 const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
-
 app.get('*', (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-
-// Payment
+// Payment Routes
 app.use("/api/payment", paymentRoutes);
 
-// Mount routes under /api/shiprocket
+// Shiprocket Routes
 app.use("/api/shiprocket", shiprocketAuthRoute);
 app.use("/api/shiprocket", shiprocketOrderRoute);
-
 
 // Start the server
 app.listen(port, () => {

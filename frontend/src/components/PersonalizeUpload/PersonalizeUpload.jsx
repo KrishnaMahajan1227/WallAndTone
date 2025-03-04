@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cropper from "react-easy-crop";
-import { Upload, X } from "lucide-react";
+import { Upload } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./PersonalizeUpload.css";
 
@@ -12,12 +12,25 @@ const apiUrl =
     ? "http://localhost:8080"
     : "https://wallandtone.com");
 
+// Define qualitySizes mapping for determining quality.
+const qualitySizes = {
+  Good: [{ width: 1500, height: 1500 }, { width: 2000, height: 2000 }],
+  Medium: [{ width: 800, height: 800 }, { width: 1200, height: 1200 }],
+  Low: [] // No supported sizes for low quality
+};
+
+const getQualityPercentage = (quality) => {
+  if (quality === "Good") return 100;
+  if (quality === "Medium") return 70;
+  if (quality === "Low") return 40;
+  return 0;
+};
+
 const PersonalizeUpload = () => {
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [imageQuality, setImageQuality] = useState(null);
-  const [supportedSizes, setSupportedSizes] = useState([]);
   const [orientation, setOrientation] = useState(null); // Selected Orientation
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,9 +38,7 @@ const PersonalizeUpload = () => {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
-  const token = localStorage.getItem("token");
-
-  // **🔹 Check Image Quality & Set Sizes**
+  // **🔹 Check Image Quality & Set Percentage**
   const checkImageQuality = (file) => {
     const img = new Image();
     img.onload = () => {
@@ -37,9 +48,7 @@ const PersonalizeUpload = () => {
       } else if (img.width >= 800 && img.height >= 800) {
         qualityLevel = "Medium";
       }
-
       setImageQuality(qualityLevel);
-      setSupportedSizes(qualitySizes[qualityLevel]);
     };
     img.src = URL.createObjectURL(file);
   };
@@ -48,12 +57,10 @@ const PersonalizeUpload = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
     if (!file.type.startsWith("image/")) {
       setError("Please upload a valid image file (JPG or PNG).");
       return;
     }
-
     setSelectedImage(file);
     setPreviewUrl(URL.createObjectURL(file));
     setError(null);
@@ -73,10 +80,8 @@ const PersonalizeUpload = () => {
       image.onload = () => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-
         canvas.width = pixelCrop.width;
         canvas.height = pixelCrop.height;
-
         ctx.drawImage(
           image,
           pixelCrop.x,
@@ -88,7 +93,6 @@ const PersonalizeUpload = () => {
           pixelCrop.width,
           pixelCrop.height
         );
-
         canvas.toBlob((blob) => {
           resolve(new File([blob], "cropped-image.jpg", { type: "image/jpeg" }));
         }, "image/jpeg");
@@ -102,28 +106,23 @@ const PersonalizeUpload = () => {
       setError("Please select an image first.");
       return;
     }
-
     if (imageQuality === "Low") {
-      setError("Image quality is too low for printing. Please upload a better image.");
+      setError("Image quality is too low for printing. Please upload a higher quality image.");
       return;
     }
-
     setUploading(true);
-
     try {
       const croppedFile = await getCroppedImg(previewUrl, croppedAreaPixels);
       const formData = new FormData();
       formData.append("image", croppedFile);
-
+      // Proceed regardless of login status.
+      const headers = { "Content-Type": "multipart/form-data" };
+      const token = localStorage.getItem("token");
+      if (token) headers["Authorization"] = `Bearer ${token}`;
       const response = await axios.post(`${apiUrl}/api/users/personalized-images`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+        headers,
       });
-
       const imageUrl = response.data.image.imageUrl;
-
       navigate("/PersonalizeCustomization", {
         state: { image: imageUrl, isCustom: true, orientation },
       });
@@ -134,6 +133,20 @@ const PersonalizeUpload = () => {
       setUploading(false);
     }
   };
+
+  // Determine overlay color based on quality
+  const qualityColor =
+    imageQuality === "Good"
+      ? "rgba(0, 128, 0, 0.8)"
+      : imageQuality === "Medium"
+      ? "rgba(255, 165, 0, 0.8)"
+      : "rgba(255, 0, 0, 0.8)";
+
+  // Determine overlay message
+  const overlayMessage =
+    imageQuality === "Low"
+      ? `Low Quality (${getQualityPercentage(imageQuality)}%) - Please upload a higher quality image`
+      : `Image Quality: ${imageQuality} (${getQualityPercentage(imageQuality)}%)`;
 
   return (
     <div className="personalize-upload-container">
@@ -158,6 +171,9 @@ const PersonalizeUpload = () => {
                     onZoomChange={setZoom}
                     onCropComplete={onCropComplete}
                   />
+                  <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
+                    <p>{overlayMessage}</p>
+                  </div>
                 </div>
               ) : (
                 <div className="personalize-upload-placeholder">
@@ -189,7 +205,11 @@ const PersonalizeUpload = () => {
 
         {error && <p className="personalize-error-text">{error}</p>}
 
-        <button className="btn btn-primary personalize-upload-btn" onClick={uploadToCloudinary} disabled={!selectedImage || uploading || imageQuality === "Low"}>
+        <button
+          className="btn btn-primary personalize-upload-btn"
+          onClick={uploadToCloudinary}
+          disabled={!selectedImage || uploading || imageQuality === "Low"}
+        >
           {uploading ? "Uploading..." : "Confirm & Customize"}
         </button>
       </div>

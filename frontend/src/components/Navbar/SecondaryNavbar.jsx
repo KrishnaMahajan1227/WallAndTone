@@ -5,21 +5,28 @@ import HistoryDropdown from '../History/HistoryDropdown';
 import { WishlistContext } from '../Wishlist/WishlistContext';
 import cartIconUrl from '../../assets/icons/cart-icon.svg';
 import historyIconUrl from '../../assets/icons/history-icon.svg';
-import heartIconUrl from '../../assets/icons/heart-icon.svg';
+import heartIconUrl from '../../assets/icons/Sec-nav-heart-icon.svg';
 import wishlistIconUrl from '../../assets/icons/heart-icon-filled.svg';
 import './SecondaryNavbar.css';
 
 const SecondaryNavbar = () => {
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl = import.meta.env.VITE_API_URL || 
+    (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  
   const [historyList, setHistoryList] = useState([]);
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const [navigationHistory, setNavigationHistory] = useState([]);
-  const { wishlistCount } = useContext(WishlistContext);
+  
+  // Get wishlist array from context; count is derived from its length
+  const { wishlist, setWishlist } = useContext(WishlistContext);
+  const wishlistCount = wishlist.length;
+  
   const navigate = useNavigate();
   const location = useLocation();
   const token = localStorage.getItem('token');
   const historyRef = useRef(null);
 
+  // Fetch history if token is available
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -37,12 +44,13 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     if (token) {
       fetchHistory();
     }
-  }, [token]);
+  }, [token, apiUrl]);
 
+  // Update navigation history based on location
   useEffect(() => {
     const currentPath = location.pathname.substring(1);
     if (!currentPath) return;
-  
+
     const mainNavigationItems = [
       'search',
       'products',
@@ -52,7 +60,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       'forbusiness',
       'Personalize'
     ];
-  
+
     if (mainNavigationItems.includes(currentPath)) {
       const pathName = currentPath
         .split('/')
@@ -60,13 +68,12 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
-  
+
       setNavigationHistory(prev => {
         const newHistory = [
           ...prev.filter(item => item.path !== currentPath),
           { path: currentPath, name: pathName }
         ].slice(-3);
-  
         localStorage.setItem('navHistory', JSON.stringify(newHistory));
         return newHistory;
       });
@@ -80,6 +87,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     }
   }, []);
 
+  // Hide history dropdown if click occurs outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (historyRef.current && !historyRef.current.contains(event.target)) {
@@ -95,6 +103,34 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
     setShowHistoryDropdown(false);
     navigate(`/product/${item.productId}`);
   };
+
+  // Fetch wishlist from API and update context
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (token) {
+        try {
+          const wishlistResponse = await fetch(`${apiUrl}/api/wishlist`, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const wishlistData = await wishlistResponse.json();
+          // Ensure items is an array before updating context
+          if (wishlistData && Array.isArray(wishlistData.items)) {
+            setWishlist(wishlistData.items);
+          } else {
+            setWishlist([]);
+          }
+        } catch (error) {
+          console.error('Error fetching wishlist:', error.message);
+          setWishlist([]);
+        }
+      } else {
+        setWishlist([]);
+      }
+    };
+
+    fetchWishlist();
+  }, [location.search, token, apiUrl, setWishlist]);
 
   return (
     <nav className="secondary-navbar">

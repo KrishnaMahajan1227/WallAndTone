@@ -23,14 +23,34 @@ const CartComponent = () => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Keeping alertMessage, but we'll rely on toasts now
   const [alertMessage, setAlertMessage] = useState("");
 
   const [couponApplied, setCouponApplied] = useState(false);
   const [couponDiscount, setCouponDiscount] = useState(0);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+
+  // Price calculation
+  const calculateItemPrice = (item) => {
+    const framePrice = item.frameType?.price || 0;
+    const subFramePrice = item.subFrameType?.price || 0;
+    const sizePrice = item.size?.price || 0;
+    const basePrice = item.isCustom ? 0 : item.productId?.price || 0;
+    return (framePrice + subFramePrice + sizePrice + basePrice) * item.quantity;
+  };
+
+  const subtotal = cart.items.reduce(
+    (acc, item) => acc + calculateItemPrice(item),
+    0
+  );
+
+  const shippingCost = 300; // Flat rate shipping
+  const taxAmount = 50; // Fixed tax
+  const preDiscountTotal = subtotal + shippingCost + taxAmount;
+  const discountAmount = couponApplied
+    ? (preDiscountTotal * couponDiscount) / 100
+    : 0;
+  const finalTotal = preDiscountTotal - discountAmount;
 
   const fetchCartAndWishlist = async () => {
     setLoading(true);
@@ -52,7 +72,7 @@ const CartComponent = () => {
         const cartData = await cartResponse.json();
         const wishlistData = await wishlistResponse.json();
 
-        // Deduplicate items based on product, frame, and size configuration
+        // Deduplicate items based on product, frame, subframe, and size configuration
         const uniqueItems = [];
         const seenConfigurations = new Set();
 
@@ -65,15 +85,10 @@ const CartComponent = () => {
             isCustom: item.isCustom,
             image: item.isCustom ? item.image : null,
           });
-
           if (!seenConfigurations.has(configKey)) {
             seenConfigurations.add(configKey);
-            uniqueItems.push({
-              ...item,
-              uniqueId: uuidv4(),
-            });
+            uniqueItems.push({ ...item, uniqueId: uuidv4() });
           } else {
-            // Find the existing item and update its quantity
             const existingItem = uniqueItems.find((existing) => {
               const existingConfig = JSON.stringify({
                 productId: existing.productId?._id,
@@ -85,7 +100,6 @@ const CartComponent = () => {
               });
               return existingConfig === configKey;
             });
-
             if (existingItem) {
               existingItem.quantity += item.quantity;
             }
@@ -112,15 +126,12 @@ const CartComponent = () => {
     fetchCartAndWishlist();
   }, [token]);
 
-  // ======== UPDATE QUANTITY (already partial update, no full reload) ========
   const handleUpdateQuantity = async (e, item, newQuantity) => {
     e.preventDefault();
-
     if (newQuantity < 1) return;
-
     if (token) {
       try {
-        // Update UI instantly before API call
+        // Optimistically update UI
         setCart((prevCart) => {
           const updatedItems = prevCart.items.map((cartItem) =>
             cartItem._id === item._id
@@ -130,7 +141,6 @@ const CartComponent = () => {
           return { ...prevCart, items: updatedItems };
         });
 
-        // Send API request to update in backend
         const response = await fetch(`${apiUrl}/api/cart/update/${item._id}`, {
           method: "PUT",
           headers: {
@@ -149,18 +159,14 @@ const CartComponent = () => {
           throw new Error("Failed to update quantity.");
         }
 
-        // Show success toast
         toast.success("Quantity updated successfully!");
       } catch (err) {
         console.error(err);
         toast.error("Failed to update quantity. Please try again.");
-
-        // Rollback UI change if API request fails
+        // Rollback UI change if needed
         setCart((prevCart) => {
           const rollbackItems = prevCart.items.map((cartItem) =>
-            cartItem._id === item._id
-              ? { ...cartItem, quantity: item.quantity }
-              : cartItem
+            cartItem._id === item._id ? { ...cartItem, quantity: item.quantity } : cartItem
           );
           return { ...prevCart, items: rollbackItems };
         });
@@ -168,19 +174,15 @@ const CartComponent = () => {
     }
   };
 
-  // ======== ADD TO WISHLIST (changed to partial update) ========
   const handleAddToWishlist = async (e, product) => {
     e.preventDefault();
     if (!product) return;
-
     const productInWishlist = wishlist.some(
       (item) => item.productId && item.productId._id === product._id
     );
     if (productInWishlist) return;
-
     if (token) {
       try {
-        // Update local wishlist instantly
         setWishlist((prevWishlist) => [
           ...prevWishlist,
           { productId: product, _id: uuidv4() },
@@ -203,8 +205,6 @@ const CartComponent = () => {
       } catch (error) {
         console.error("Error adding product to wishlist:", error);
         toast.error("Failed to add to wishlist. Please try again.");
-
-        // Revert local wishlist update
         setWishlist((prevWishlist) =>
           prevWishlist.filter(
             (item) => item.productId && item.productId._id !== product._id
@@ -214,50 +214,39 @@ const CartComponent = () => {
     }
   };
 
-  // ======== REMOVE FROM WISHLIST (changed to partial update) ========
-const handleRemoveFromWishlist = async (e, product) => {
-  e.preventDefault();
-  if (!product) return;
+  const handleRemoveFromWishlist = async (e, product) => {
+    e.preventDefault();
+    if (!product) return;
+    if (token) {
+      const previousWishlist = [...wishlist];
+      try {
+        setWishlist((prev) =>
+          prev.filter((item) => item.productId?._id !== product._id)
+        );
 
-  if (token) {
-    // Save current wishlist state for rollback
-    const previousWishlist = [...wishlist];
-    try {
-      // Optimistically remove from local wishlist using optional chaining
-      setWishlist((prev) =>
-        prev.filter((item) => item.productId?._id !== product._id)
-      );
+        const response = await fetch(
+          `${apiUrl}/api/wishlist/remove/${product._id}`,
+          {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-      const response = await fetch(
-        `${apiUrl}/api/wishlist/remove/${product._id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        if (!response.ok) {
+          throw new Error("Failed to remove from wishlist.");
         }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to remove from wishlist.");
+        toast.success("Removed from wishlist successfully!");
+      } catch (error) {
+        console.error("Error removing product from wishlist:", error);
+        toast.error("Failed to remove from wishlist. Please try again.");
+        setWishlist(previousWishlist);
       }
-
-      toast.success("Removed from wishlist successfully!");
-    } catch (error) {
-      console.error("Error removing product from wishlist:", error);
-      toast.error("Failed to remove from wishlist. Please try again.");
-      // Revert to previous wishlist state
-      setWishlist(previousWishlist);
     }
-  }
-};
+  };
 
-
-  // ======== REMOVE ITEM FROM CART (changed to partial update) ========
   const handleRemoveItem = async (item) => {
     if (token) {
       try {
-        // Optimistically remove from local cart
         const oldItems = [...cart.items];
         setCart((prevCart) => {
           const filtered = prevCart.items.filter(
@@ -268,9 +257,7 @@ const handleRemoveFromWishlist = async (e, product) => {
 
         const response = await fetch(`${apiUrl}/api/cart/remove/${item._id}`, {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!response.ok) {
@@ -282,9 +269,7 @@ const handleRemoveFromWishlist = async (e, product) => {
       } catch (error) {
         console.error("Error removing item:", error);
         toast.error("Failed to remove item. Please try again.");
-
-        // Revert local cart state
-        setCart((_) => ({ ...cart, items: [...cart.items] }));
+        setCart((prevCart) => ({ ...prevCart, items: [...prevCart.items] }));
       }
     }
   };
@@ -294,40 +279,8 @@ const handleRemoveFromWishlist = async (e, product) => {
     setCouponDiscount(discount);
   };
 
-  // Price calculation
-  const calculateItemPrice = (item) => {
-    const framePrice = item.frameType?.price || 0;
-    const subFramePrice = item.subFrameType?.price || 0;
-    const sizePrice = item.size?.price || 0;
-    const basePrice = item.isCustom ? 0 : item.productId?.price || 0;
-
-    return (framePrice + subFramePrice + sizePrice + basePrice) * item.quantity;
-  };
-
-  // Calculate subtotal (before tax, shipping, and discount)
-  const subtotal = cart.items.reduce(
-    (acc, item) => acc + calculateItemPrice(item),
-    0
-  );
-
-  // Define shipping and tax
-  const shippingCost = 300; // Flat rate shipping
-  const taxAmount = 50; // Fixed tax
-
-  // Pre-discount total (subtotal + shipping + tax)
-  const preDiscountTotal = subtotal + shippingCost + taxAmount;
-
-  // Calculate discount on the total price
-  const discountAmount = couponApplied
-    ? (preDiscountTotal * couponDiscount) / 100
-    : 0;
-
-  // Final total after applying the discount
-  const finalTotal = preDiscountTotal - discountAmount;
-
   const handleProceedToCheckout = () => {
-    // Create a clean array with detailed information for each cart item.
-    const checkoutItems = cart.items.map(item => {
+    const checkoutItems = cart.items.map((item) => {
       if (item.isCustom) {
         return {
           productId: null,
@@ -337,7 +290,7 @@ const handleRemoveFromWishlist = async (e, product) => {
           frameType: item.frameType,
           subFrameType: item.subFrameType,
           size: item.size,
-          itemTotal: calculateItemPrice(item)
+          itemTotal: calculateItemPrice(item),
         };
       } else {
         return {
@@ -348,13 +301,13 @@ const handleRemoveFromWishlist = async (e, product) => {
           frameType: item.frameType,
           subFrameType: item.subFrameType,
           size: item.size,
-          itemTotal: calculateItemPrice(item)
+          itemTotal: calculateItemPrice(item),
         };
       }
     });
-  
-    navigate("/checkout", { 
-      state: { 
+
+    navigate("/checkout", {
+      state: {
         total: Number(finalTotal.toFixed(2)),
         cartItems: checkoutItems,
         subtotal,
@@ -362,29 +315,24 @@ const handleRemoveFromWishlist = async (e, product) => {
         taxAmount,
         discountAmount,
         couponApplied,
-        couponDiscount 
-      } 
+        couponDiscount,
+      },
     });
   };
-  
-  
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="cart-container">
-      {/* Toast Container for global toasts */}
       <ToastContainer position="top-right" autoClose={3000} />
-
       <h1 className="cart-header">My Cart</h1>
-
       {alertMessage && (
         <div className="alert alert-success" onClick={() => setAlertMessage("")}>
           {alertMessage}
           <button className="close-alert">×</button>
         </div>
       )}
-
       {cart.items.length === 0 ? (
         <div className="empty-cart-message">
           <p>Your cart is empty. Go for browsing!</p>
@@ -397,21 +345,15 @@ const handleRemoveFromWishlist = async (e, product) => {
               <div key={item.uniqueId} className="cart-item">
                 <img
                   src={item.isCustom ? item.image : item.productId?.mainImage}
-                  alt={
-                    item.isCustom
-                      ? "Custom Artwork"
-                      : item.productId?.productName
-                  }
+                  alt={item.isCustom ? "Custom Artwork" : item.productId?.productName}
                   className="item-image"
                 />
                 <div className="item-details">
                   <h3 className="item-title">
-                    {item.isCustom
-                      ? "Custom Artwork"
-                      : item.productId?.productName}
+                    {item.isCustom ? "Custom Artwork" : item.productId?.productName}
                   </h3>
                   <p className="item-size">
-                    Size: {item.size?.width} x {item.size?.height}
+                    Size: {item.size?.name}
                   </p>
                   <p className="item-frameType">
                     Frame Type: {item.frameType?.name || "N/A"}
@@ -453,7 +395,6 @@ const handleRemoveFromWishlist = async (e, product) => {
                         +
                       </button>
                     </div>
-
                     <button
                       type="button"
                       className="remove-btn"
@@ -461,7 +402,6 @@ const handleRemoveFromWishlist = async (e, product) => {
                     >
                       <img src={deleteicon} alt="Remove-From-Cart" />
                     </button>
-
                     {!item.isCustom && item.productId && (
                       <button
                         type="button"
@@ -492,7 +432,6 @@ const handleRemoveFromWishlist = async (e, product) => {
                       </button>
                     )}
                   </div>
-
                   <p className="item-total">
                     Total: {calculateItemPrice(item)} Rs.
                   </p>
@@ -507,10 +446,7 @@ const handleRemoveFromWishlist = async (e, product) => {
               <p>Subtotal: {subtotal.toFixed(2)} Rs.</p>
               <p>Shipping Cost: {shippingCost} Rs.</p>
               <p>Tax: {taxAmount} Rs.</p>
-
-              {/* Coupon Section */}
               <CouponUser onApplyCoupon={handleApplyCoupon} />
-
               {couponApplied && (
                 <>
                   <p>Discount: {couponDiscount}%</p>
@@ -523,17 +459,14 @@ const handleRemoveFromWishlist = async (e, product) => {
                   </h3>
                 </>
               )}
-
               {!couponApplied && (
                 <h3>Total: {preDiscountTotal.toFixed(2)} Rs.</h3>
               )}
             </div>
-
             <div className="cart-actions">
               <button className="checkout-btn" onClick={handleProceedToCheckout}>
                 Proceed to Checkout
               </button>
-
               <button
                 className="continue-shopping-btn"
                 onClick={() => navigate("/products")}
@@ -544,6 +477,8 @@ const handleRemoveFromWishlist = async (e, product) => {
           </div>
         </div>
       )}
+      <ToastContainer position="top-right" autoClose={3000} />
+
     </div>
   );
 };

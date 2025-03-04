@@ -140,7 +140,7 @@ async function populateCart(cart) {
     { path: "items.productId", select: "productName price mainImage" },
     { path: "items.frameType", select: "name price" },
     { path: "items.subFrameType", select: "name price" },
-    { path: "items.size", select: "width height price" },
+    { path: "items.size", select: "name price" } // Updated to select name and price
   ]);
 }
 

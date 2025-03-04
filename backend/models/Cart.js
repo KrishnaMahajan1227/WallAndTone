@@ -28,7 +28,7 @@ const cartSchema = new mongoose.Schema({
     },
     size: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Size',
+      ref: 'FrameSize', // Updated reference
       required: true
     },
     isCustom: {
@@ -48,9 +48,9 @@ cartSchema.methods.calculateTotalPrice = function() {
   return this.items.reduce((total, item) => {
     // For custom images, only include frame prices
     const basePrice = item.isCustom ? 0 : (item.productId?.price || 0);
-    const itemPrice = basePrice + 
-                     (item.frameType?.price || 0) + 
-                     (item.subFrameType?.price || 0) + 
+    const itemPrice = basePrice +
+                     (item.frameType?.price || 0) +
+                     (item.subFrameType?.price || 0) +
                      (item.size?.price || 0);
     return total + (itemPrice * item.quantity);
   }, 0);

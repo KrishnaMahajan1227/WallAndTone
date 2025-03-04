@@ -40,7 +40,7 @@ const groupedCategoryOptions = {
   "Illustration & Typography": ["Hand-Drawn", "Calligraphy", "Text Art", "Line Art"],
   "Still Life & Food": ["Food Art", "Gourmet", "Drinks", "Classic Still Life"],
   "Traditional & Cultural Art": ["Asian Art", "Ukiyo-e", "Tribal", "Cultural Paintings"],
-  "Thematic & Seasonal": ["Love & Romance", "Seasonal Art", "Nautical", "Marine Art"]
+  "Thematic & Seasonal": ["Love & Romance", "Seasonal Art", "Nautical"]
 };
 
 const groupedMediumOptions = {
@@ -127,7 +127,6 @@ const ProductListing = () => {
       ? 'http://localhost:8080'
       : 'https://wallandtone.com');
 
-  // Get wishlist from context (wishlistCount is derived in SecondaryNavbar)
   const { wishlist, setWishlist } = useContext(WishlistContext);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -149,7 +148,7 @@ const ProductListing = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Sync query parameters for orientation, medium, and rooms.
+  // Sync query parameters for filters (orientation, medium, rooms)
   useEffect(() => {
     const qp = new URLSearchParams(location.search);
     const orientationParam = qp.get('orientation')
@@ -182,13 +181,13 @@ const ProductListing = () => {
     setSelectedRoomGroups(roomGroups);
   }, [location.search]);
 
-  // Fetch products (only once or when location.search/token/apiUrl changes)
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         let url = `${apiUrl}/api/products`;
         if (location.search) url += location.search;
-        const response = await fetch(url, { method: 'GET' });
+        const response = await fetch(url);
         const data = await response.json();
         if (!data || !Array.isArray(data)) throw new Error('Invalid data received');
         setProducts(data);
@@ -198,7 +197,6 @@ const ProductListing = () => {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, [location.search, token, apiUrl]);
 
@@ -208,7 +206,6 @@ const ProductListing = () => {
       if (token) {
         try {
           const wishlistResponse = await fetch(`${apiUrl}/api/wishlist`, {
-            method: 'GET',
             headers: { Authorization: `Bearer ${token}` },
           });
           const wishlistData = await wishlistResponse.json();
@@ -224,7 +221,6 @@ const ProductListing = () => {
         setWishlist([]);
       }
     };
-
     fetchWishlist();
   }, [location.search, token, apiUrl, setWishlist]);
 
@@ -237,9 +233,9 @@ const ProductListing = () => {
       }));
       setProducts(updatedProducts);
     }
-  }, [wishlist]); 
+  }, [wishlist, products]);
 
-  // Sorting function for products
+  // Sorting function
   const sortProducts = (productsArray) => {
     let sorted = [...productsArray];
     if (sortOption === 'alphabetical') {
@@ -268,7 +264,7 @@ const ProductListing = () => {
     navigate('/login');
   };
 
-  // Wishlist actions using context
+  // Wishlist actions
   const handleAddToWishlist = async (product) => {
     if (!product || !product._id) return;
     if (!token) {
@@ -326,7 +322,7 @@ const ProductListing = () => {
   const handleShowFilterOffcanvas = () => setShowFilterOffcanvas(true);
   const handleCloseFilterOffcanvas = () => setShowFilterOffcanvas(false);
 
-  // Generic checkbox change for Orientation.
+  // Generic checkbox change
   const handleCheckboxChange = (setter, selected, value) => {
     if (selected.includes(value)) {
       setter(selected.filter(item => item !== value));
@@ -335,103 +331,7 @@ const ProductListing = () => {
     }
   };
 
-  // Group toggles for filter groups.
-  const toggleColorGroup = (group) => {
-    if (selectedColorGroups.includes(group)) {
-      setSelectedColorGroups(selectedColorGroups.filter(g => g !== group));
-    } else {
-      setSelectedColorGroups([...selectedColorGroups, group]);
-    }
-  };
-  const toggleCategoryGroup = (group) => {
-    if (selectedCategoryGroups.includes(group)) {
-      setSelectedCategoryGroups(selectedCategoryGroups.filter(g => g !== group));
-    } else {
-      setSelectedCategoryGroups([...selectedCategoryGroups, group]);
-    }
-  };
-  const toggleMediumGroup = (group) => {
-    if (selectedMediumGroups.includes(group)) {
-      setSelectedMediumGroups(selectedMediumGroups.filter(g => g !== group));
-    } else {
-      setSelectedMediumGroups([...selectedMediumGroups, group]);
-    }
-  };
-  const toggleRoomGroup = (group) => {
-    if (selectedRoomGroups.includes(group)) {
-      setSelectedRoomGroups(selectedRoomGroups.filter(g => g !== group));
-    } else {
-      setSelectedRoomGroups([...selectedRoomGroups, group]);
-    }
-  };
-
-  // Build query string for filters on "View Result"
-  const handleViewResult = () => {
-    const queryParams = new URLSearchParams();
-    if (selectedColorGroups.length > 0) {
-      const allColors = selectedColorGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
-      queryParams.set('colors', allColors.join(','));
-    }
-    if (selectedOrientations.length > 0) queryParams.set('orientation', selectedOrientations.join(','));
-    if (selectedCategoryGroups.length > 0) {
-      const allCats = selectedCategoryGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
-      queryParams.set('categories', allCats.join(','));
-    }
-    if (selectedMediumGroups.length > 0) {
-      const allMediums = selectedMediumGroups.reduce((acc, group) => acc.concat(groupedMediumOptions[group]), []);
-      queryParams.set('medium', allMediums.join(','));
-    }
-    if (selectedRoomGroups.length > 0) {
-      const allRooms = selectedRoomGroups.reduce((acc, group) => acc.concat(groupedRoomOptions[group]), []);
-      queryParams.set('rooms', allRooms.join(','));
-    }
-    navigate({
-      pathname: location.pathname,
-      search: queryParams.toString(),
-    });
-    setShowFilterOffcanvas(false);
-  };
-
-  const handleClearSelection = () => {
-    setSelectedColorGroups([]);
-    setSelectedCategoryGroups([]);
-    setSelectedOrientations([]);
-    setSelectedMediumGroups([]);
-    setSelectedRoomGroups([]);
-    navigate({ pathname: location.pathname, search: '' });
-  };
-
-  // Render active filter summary with "Clear All" button.
-  const renderFilterSummary = () => {
-    const qp = new URLSearchParams(location.search);
-    const activeOrientations = qp.get('orientation') ? qp.get('orientation').split(',') : [];
-    const filters = [];
-    selectedColorGroups.forEach(group => filters.push({ type: 'Color', value: group }));
-    activeOrientations.forEach(ori => filters.push({ type: 'Orientation', value: ori }));
-    selectedCategoryGroups.forEach(group => filters.push({ type: 'Category', value: group }));
-    selectedMediumGroups.forEach(group => filters.push({ type: 'Medium', value: group }));
-    selectedRoomGroups.forEach(group => filters.push({ type: 'Room', value: group }));
-    if (filters.length === 0) return null;
-    return (
-      <div className="filter-summary d-flex flex-wrap align-items-center my-3">
-        {filters.map((filter, index) => (
-          <div key={index} className="filter-chip d-flex align-items-center me-2">
-            <span className="filter-chip-label">{filter.value}</span>
-            <button
-              className="filter-chip-remove btn btn-link p-0 ms-1"
-              onClick={() => removeFilterValue(filter.type, filter.value)}
-            >
-              &times;
-            </button>
-          </div>
-        ))}
-        <button className="btn btn-outline-secondary btn-sm ms-2" onClick={handleClearSelection}>
-          Clear All
-        </button>
-      </div>
-    );
-  };
-
+  // Remove filter value (for filter chips)
   const removeFilterValue = (filterType, value) => {
     if (filterType === 'Color') {
       const newGroups = selectedColorGroups.filter(item => item !== value);
@@ -475,7 +375,46 @@ const ProductListing = () => {
     }
   };
 
-  // Render a product card with wishlist icon.
+  const renderFilterSummary = () => {
+    const qp = new URLSearchParams(location.search);
+    const activeOrientations = qp.get('orientation') ? qp.get('orientation').split(',') : [];
+    const filters = [];
+    selectedColorGroups.forEach(group => filters.push({ type: 'Color', value: group }));
+    activeOrientations.forEach(ori => filters.push({ type: 'Orientation', value: ori }));
+    selectedCategoryGroups.forEach(group => filters.push({ type: 'Category', value: group }));
+    selectedMediumGroups.forEach(group => filters.push({ type: 'Medium', value: group }));
+    selectedRoomGroups.forEach(group => filters.push({ type: 'Room', value: group }));
+    if (filters.length === 0) return null;
+    return (
+      <div className="filter-summary d-flex flex-wrap align-items-center my-3">
+        {filters.map((filter, index) => (
+          <div key={index} className="filter-chip d-flex align-items-center me-2">
+            <span className="filter-chip-label">{filter.value}</span>
+            <button
+              className="filter-chip-remove btn btn-link p-0 ms-1"
+              onClick={() => removeFilterValue(filter.type, filter.value)}
+            >
+              &times;
+            </button>
+          </div>
+        ))}
+        <button className="btn btn-outline-secondary btn-sm ms-2" onClick={handleClearSelection}>
+          Clear All
+        </button>
+      </div>
+    );
+  };
+
+  const handleClearSelection = () => {
+    setSelectedColorGroups([]);
+    setSelectedCategoryGroups([]);
+    setSelectedOrientations([]);
+    setSelectedMediumGroups([]);
+    setSelectedRoomGroups([]);
+    navigate({ pathname: location.pathname, search: '' });
+  };
+
+  // Render a product card
   const renderProductCard = (product, isLarge = false) => (
     <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
       <div className="product-image-wrapper position-relative">
@@ -514,7 +453,6 @@ const ProductListing = () => {
     </div>
   );
 
-  // Render product rows grouping products (6 regular + 1 featured per row)
   const renderProductRows = () => {
     const sortedProducts = sortProducts(products);
     const rows = [];
@@ -578,7 +516,7 @@ const ProductListing = () => {
 
   if (loading)
     return (
-      <div className="text-center d-flex justify-content-center my-5 ">
+      <div className="text-center d-flex justify-content-center my-5">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path
             fill="#2F231F"
@@ -593,9 +531,7 @@ const ProductListing = () => {
 
   return (
     <div className="product-listing container">
-      {/* SEO Meta Tags for the listing page */}
       <ListingSEO />
-      {/* Filter Offcanvas */}
       <Offcanvas
         show={showFilterOffcanvas}
         onHide={handleCloseFilterOffcanvas}
@@ -618,7 +554,13 @@ const ProductListing = () => {
                         id={`color-group-${group}`}
                         value={group}
                         checked={selectedColorGroups.includes(group)}
-                        onChange={() => toggleColorGroup(group)}
+                        onChange={() => {
+                          if (selectedColorGroups.includes(group)) {
+                            setSelectedColorGroups(selectedColorGroups.filter(g => g !== group));
+                          } else {
+                            setSelectedColorGroups([...selectedColorGroups, group]);
+                          }
+                        }}
                       />
                       <label htmlFor={`color-group-${group}`}>{group}</label>
                     </div>
@@ -638,7 +580,13 @@ const ProductListing = () => {
                         id={`category-group-${group}`}
                         value={group}
                         checked={selectedCategoryGroups.includes(group)}
-                        onChange={() => toggleCategoryGroup(group)}
+                        onChange={() => {
+                          if (selectedCategoryGroups.includes(group)) {
+                            setSelectedCategoryGroups(selectedCategoryGroups.filter(g => g !== group));
+                          } else {
+                            setSelectedCategoryGroups([...selectedCategoryGroups, group]);
+                          }
+                        }}
                       />
                       <label htmlFor={`category-group-${group}`}>{group}</label>
                     </div>
@@ -678,7 +626,13 @@ const ProductListing = () => {
                         id={`medium-group-${group}`}
                         value={group}
                         checked={selectedMediumGroups.includes(group)}
-                        onChange={() => toggleMediumGroup(group)}
+                        onChange={() => {
+                          if (selectedMediumGroups.includes(group)) {
+                            setSelectedMediumGroups(selectedMediumGroups.filter(g => g !== group));
+                          } else {
+                            setSelectedMediumGroups([...selectedMediumGroups, group]);
+                          }
+                        }}
                       />
                       <label htmlFor={`medium-group-${group}`}>{group}</label>
                     </div>
@@ -698,7 +652,13 @@ const ProductListing = () => {
                         id={`room-group-${group}`}
                         value={group}
                         checked={selectedRoomGroups.includes(group)}
-                        onChange={() => toggleRoomGroup(group)}
+                        onChange={() => {
+                          if (selectedRoomGroups.includes(group)) {
+                            setSelectedRoomGroups(selectedRoomGroups.filter(g => g !== group));
+                          } else {
+                            setSelectedRoomGroups([...selectedRoomGroups, group]);
+                          }
+                        }}
                       />
                       <label htmlFor={`room-group-${group}`}>{group}</label>
                     </div>
@@ -712,13 +672,33 @@ const ProductListing = () => {
           <Button variant="secondary" onClick={handleClearSelection}>
             Clear Selection
           </Button>
-          <Button variant="primary" onClick={handleViewResult} className="ms-2">
+          <Button variant="primary" onClick={() => {
+            const qp = new URLSearchParams();
+            if (selectedColorGroups.length > 0) {
+              const allColors = selectedColorGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
+              qp.set('colors', allColors.join(','));
+            }
+            if (selectedOrientations.length > 0) qp.set('orientation', selectedOrientations.join(','));
+            if (selectedCategoryGroups.length > 0) {
+              const allCats = selectedCategoryGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
+              qp.set('categories', allCats.join(','));
+            }
+            if (selectedMediumGroups.length > 0) {
+              const allMediums = selectedMediumGroups.reduce((acc, group) => acc.concat(groupedMediumOptions[group]), []);
+              qp.set('medium', allMediums.join(','));
+            }
+            if (selectedRoomGroups.length > 0) {
+              const allRooms = selectedRoomGroups.reduce((acc, group) => acc.concat(groupedRoomOptions[group]), []);
+              qp.set('rooms', allRooms.join(','));
+            }
+            navigate({ pathname: location.pathname, search: qp.toString() });
+            setShowFilterOffcanvas(false);
+          }} className="ms-2">
             View Result
           </Button>
         </div>
       </Offcanvas>
 
-      {/* Top Navigation Section */}
       <div className="shop-navigation">
         <div className="category-buttons d-flex align-items-center gap-2">
           <button className="category-button active d-flex" onClick={handleShowFilterOffcanvas}>
@@ -759,17 +739,14 @@ const ProductListing = () => {
         </div>
       </div>
 
-      {/* Active Filter Summary */}
       {renderFilterSummary()}
 
-      {/* Products Grid */}
       {products && products.length > 0 ? (
         <div className="all-products-container">{renderProductRows()}</div>
       ) : (
         <div className="text-center my-5">No products found.</div>
       )}
 
-      {/* Login Popup Modal */}
       <Modal show={showAuthPopup} onHide={handleAuthPopupClose} centered>
         <Modal.Header closeButton>
           <Modal.Title>Login Required</Modal.Title>

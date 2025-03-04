@@ -12,7 +12,7 @@ const couponAdminRouter = require("./routes/couponAdmin");
 const couponUserRouter = require("./routes/couponUser"); // NEW USER COUPON ROUTE
 const freepikRoutes = require("./routes/freepikRoutes");
 const categoryRoutes = require("./routes/FrameTypeRoutes");
-const sizeAdminRouter = require("./routes/sizeRoutes");
+// Removed: const sizeAdminRouter = require("./routes/sizeRoutes");
 const searchRoutes = require('./routes/searchRoutes');
 const historyRoutes = require('./routes/historyRoutes');
 const multer = require('multer');
@@ -38,8 +38,6 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Static File Serving (for product images)
 app.use('/uploads', express.static('uploads'));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const cloudinary = require('cloudinary').v2;
 cloudinary.config({
@@ -75,7 +73,7 @@ app.use('/api', categoryRoutes);
 app.use("/api/admin/coupons", couponAdminRouter);
 app.use('/api/users/coupons', couponUserRouter);  // Correct User Coupon Route
 
-app.use("/api/admin/sizes", sizeAdminRouter);
+// Removed: app.use("/api/admin/sizes", sizeAdminRouter);
 
 app.use('/api/search', searchRoutes);
 app.use('/api/history', historyRoutes);

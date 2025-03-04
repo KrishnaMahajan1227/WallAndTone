@@ -21,7 +21,7 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  // Define isMobile for responsive behavior
+  // Responsive handling
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 992);
@@ -41,18 +41,18 @@ const ProductDetails = () => {
   const [isLandscape, setIsLandscape] = useState(false);
   const [newRating, setNewRating] = useState(0);
   const [newReview, setNewReview] = useState('');
-  const [averageRating, setAverageRating] = useState(0);
   const [reviewImages, setReviewImages] = useState([]);
   const [subCartOpen, setSubCartOpen] = useState(false);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
-  const [sizes, setSizes] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
   const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
-
-  // Remove preselection: Do not automatically set selectedFrameType/subFrameType/size
+  const [averageRating, setAverageRating] = useState(0);
   const [selectedFrameType, setSelectedFrameType] = useState(null);
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
+
+  // SIZE SELECTION: available sizes and selected size
+  const [sizes, setSizes] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
 
   // Guest mode storage
@@ -162,7 +162,7 @@ const ProductDetails = () => {
     fetchUserData();
   }, [token]);
 
-  // Save selections to localStorage when user selects them manually
+  // Save selections to localStorage
   useEffect(() => {
     if (selectedFrameType && selectedSubFrameType && selectedSize) {
       localStorage.setItem('selectedFrameType', JSON.stringify(selectedFrameType));
@@ -171,7 +171,7 @@ const ProductDetails = () => {
     }
   }, [selectedFrameType, selectedSubFrameType, selectedSize]);
 
-  // Fetch subFrameTypes when frame type changes
+  // When a frame type is selected, fetch its sub-frame types and update available sizes
   useEffect(() => {
     if (selectedFrameType?._id) {
       fetch(`${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`)
@@ -181,27 +181,19 @@ const ProductDetails = () => {
           console.error('Error fetching sub-frame types:', err);
           toast.error('Failed to load sub-frame types');
         });
+      // Update available sizes from the selected frame type
+      if (selectedFrameType.frameSizes && Array.isArray(selectedFrameType.frameSizes)) {
+        setSizes(selectedFrameType.frameSizes);
+      } else {
+        setSizes([]);
+        setSelectedSize(null);
+      }
     } else {
       setSubFrameTypes([]);
-    }
-  }, [selectedFrameType]);
-
-  // Fetch sizes when product changes
-  useEffect(() => {
-    if (product?._id) {
-      fetch(`${apiUrl}/api/products/${product._id}/sizes`)
-        .then(res => res.json())
-        .then(data => setSizes(Array.isArray(data) ? data : []))
-        .catch(err => {
-          console.error('Error fetching sizes:', err);
-          toast.error('Failed to load sizes');
-        });
-    } else {
       setSizes([]);
+      setSelectedSize(null);
     }
-  }, [product]);
-
-  // (Preselection removed - user must manually select options)
+  }, [selectedFrameType, apiUrl]);
 
   // Event Handlers
   const handleQuantityChange = (e) => {
@@ -227,9 +219,13 @@ const ProductDetails = () => {
       if (!response.ok) throw new Error('Failed to fetch frame type details');
       const data = await response.json();
       setSelectedFrameType(data);
-      // Reset dependent selections
       setSelectedSubFrameType(null);
       setSelectedSize(null);
+      if (data.frameSizes && Array.isArray(data.frameSizes)) {
+        setSizes(data.frameSizes);
+      } else {
+        setSizes([]);
+      }
     } catch (err) {
       console.error('Error selecting frame type:', err);
       toast.error('Failed to select frame type');
@@ -238,7 +234,6 @@ const ProductDetails = () => {
 
   const handleSubFrameTypeSelect = async (subFrameType) => {
     setSelectedSubFrameType(subFrameType);
-    setSelectedSize(null);
     setLoadingSubFrame(true);
     try {
       let imagesArr = [];
@@ -294,7 +289,7 @@ const ProductDetails = () => {
     setSelectedSize(size);
   };
 
-  // Cart and wishlist handlers (show login modal or missing selection toast if needed)
+  // Cart and wishlist handlers – require frame type, subframe type, and size
   const handleAddToCart = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
       toast.error('Please select all required options before adding to cart');
@@ -312,7 +307,7 @@ const ProductDetails = () => {
       size: selectedSize,
       frameTypeName: selectedFrameType.name,
       subFrameTypeName: selectedSubFrameType.name,
-      sizeName: `${selectedSize.width} x ${selectedSize.height}`
+      sizeName: selectedSize.name
     };
     try {
       const response = await fetch(`${apiUrl}/api/cart/add`, {
@@ -346,9 +341,9 @@ const ProductDetails = () => {
       wishlist.some(
         item =>
           item.productId._id === product._id &&
-          item.frameType._id === selectedFrameType._id &&
-          item.subFrameType._id === selectedSubFrameType._id &&
-          item.size._id === selectedSize._id
+          item.frameType._id === selectedFrameType?._id &&
+          item.subFrameType._id === selectedSubFrameType?._id &&
+          item.size._id === selectedSize?._id
       );
     try {
       const response = await fetch(
@@ -543,7 +538,6 @@ const ProductDetails = () => {
     ));
   };
 
-  // renderProductCard for listing
   const renderProductCard = (product, isLarge = false) => (
     <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
       <div className="product-image-wrapper position-relative">
@@ -551,7 +545,7 @@ const ProductDetails = () => {
           src={product.mainImage}
           className="card-img-top product-image"
           alt={product.productName}
-          onClick={() => handleProductClick(product._id)}
+          onClick={() => navigate(`/products/${product._id}`)}
         />
         <div
           className="wishlist-icon position-absolute"
@@ -582,9 +576,8 @@ const ProductDetails = () => {
     </div>
   );
 
-  // renderProductRows definition (for listing view)
   const renderProductRows = () => {
-    const sortedProducts = sortProducts(products);
+    const sortedProducts = products;
     const rows = [];
     let remainingProducts = [...sortedProducts];
     while (remainingProducts.length >= 7) {
@@ -662,7 +655,6 @@ const ProductDetails = () => {
 
   return (
     <div className="product-details-container">
-      {/* SEO Meta Tags for this product */}
       <ProductSEO product={product} />
       <button className="back-button" onClick={() => navigate('/products')}>
         <ArrowLeft size={20} /> Back to Products
@@ -670,7 +662,6 @@ const ProductDetails = () => {
       <div className="product-details">
         <div className="image-section">
           <div className="main-image-container">
-            {/* Loader overlay until image is loaded */}
             {!imgLoaded && (
               <div className="image-loader">
                 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24">
@@ -768,21 +759,21 @@ const ProductDetails = () => {
                     </select>
                   </div>
                 )}
-                {product?.sizes?.length > 0 && (
+                {selectedFrameType && sizes.length > 0 && (
                   <div className="size-dropdown">
                     <select
                       value={selectedSize?._id || ''}
                       onChange={(e) => {
-                        const sz = product.sizes.find((sz) => sz._id === e.target.value);
+                        const sz = sizes.find((sz) => sz._id === e.target.value);
                         handleSizeSelect(sz);
                       }}
                     >
                       <option value="" disabled>
                         Select Size
                       </option>
-                      {product.sizes.map((sz) => (
+                      {sizes.map((sz) => (
                         <option key={sz._id} value={sz._id}>
-                          {sz.width} x {sz.height}
+                          {sz.name} - ₹{sz.price}
                         </option>
                       ))}
                     </select>
@@ -828,16 +819,16 @@ const ProductDetails = () => {
                     </div>
                   </div>
                 )}
-                {selectedSubFrameType && sizes.length > 0 && (
+                {selectedFrameType && sizes.length > 0 && (
                   <div className="size-section">
                     <div className="size-buttons">
-                      {sizes.map((size) => (
+                      {sizes.map((sz) => (
                         <button
-                          key={size._id}
-                          className={`option-button ${selectedSize?._id === size._id ? 'active' : ''}`}
-                          onClick={() => handleSizeSelect(size)}
+                          key={sz._id}
+                          className={`option-button ${selectedSize?._id === sz._id ? 'active' : ''}`}
+                          onClick={() => handleSizeSelect(sz)}
                         >
-                          {size.width} x {size.height}
+                          {sz.name}
                         </button>
                       ))}
                     </div>
@@ -961,7 +952,6 @@ const ProductDetails = () => {
       </div>
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* Login Modal Popup with custom animated styling */}
       <Modal 
         show={showLoginModal} 
         onHide={() => setShowLoginModal(false)} 

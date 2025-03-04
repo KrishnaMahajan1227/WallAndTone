@@ -143,7 +143,7 @@ const CheckoutPage = () => {
         handler: async (response) => {
           console.log("Payment Successful:", response);
           toast.success("Payment successful!");
-  
+
           // Aggregate order items so that each SKU is unique
           const aggregatedItems = cart.reduce((acc, item) => {
             const sku = item.productId ? item.productId._id : "CUSTOM";
@@ -167,9 +167,9 @@ const CheckoutPage = () => {
             }
             return acc;
           }, {});
-  
+
           const orderItems = Object.values(aggregatedItems);
-  
+
           // Prepare orderData for Shiprocket order creation using exact key names
           const orderData = {
             order_id: `WT-${Date.now()}`,
@@ -193,19 +193,19 @@ const CheckoutPage = () => {
             height: 8,
             weight: 2,
           };
-  
+
           try {
             // Obtain a Shiprocket token from your backend
             const shiprocketAuth = await axios.post(`${apiUrl}/api/shiprocket/auth`);
             const shiprocketToken = shiprocketAuth.data.token;
-  
+
             // Create Shiprocket order
             const shiprocketOrderData = { token: shiprocketToken, orderData };
             const shiprocketResponse = await axios.post(
               `${apiUrl}/api/shiprocket/create-order`,
               shiprocketOrderData
             );
-  
+
             if (shiprocketResponse.data.success) {
               console.log("Shiprocket Order Created:", shiprocketResponse.data);
               // Pass the complete orderResponse for tracking purposes
@@ -231,7 +231,7 @@ const CheckoutPage = () => {
           ondismiss: () => toast.error("Payment cancelled by user."),
         },
       };
-  
+
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
@@ -241,7 +241,7 @@ const CheckoutPage = () => {
       setLoading(false);
     }
   };
-  
+
   // Only Online Payment is available; handle submit accordingly
   const handleSubmit = () => {
     setError(null);
@@ -258,16 +258,16 @@ const CheckoutPage = () => {
     }
   }, [sameAddress, shippingDetails.shippingAddress]);
 
-  // Render Order Summary Items without extra recalculation – using passed details
+  // Render Order Summary Items using updated size info
   const renderOrderSummaryItems = () => {
     return cartItems.map((item, index) => (
       <div key={index} className="order-item">
         <div className="order-item-info">
           <h5>{item.productName || "Custom Artwork"}</h5>
           <p>Quantity: {item.quantity}</p>
-          {item.frameType && (
+          {item.frameType && item.subFrameType && item.size && (
             <p>
-              Options: Frame - {item.frameType.name}, Type - {item.subFrameType.name}, Size - {item.size.width} x {item.size.height}
+              Options: Frame - {item.frameType.name}, Type - {item.subFrameType.name}, Size - {item.size.name}
             </p>
           )}
           {item.itemTotal && (
@@ -278,10 +278,53 @@ const CheckoutPage = () => {
     ));
   };
 
-  // For order summary display, compute subtotal (excluding shipping & tax)
   const shippingCost = 300;
   const taxAmount = 50;
   const subtotal = totalPrice - shippingCost - taxAmount;
+
+  const handleProceedToCheckout = () => {
+    const checkoutItems = cartItems.map(item => {
+      if (item.isCustom) {
+        return {
+          productId: null,
+          productName: "Customized Artwork",
+          mainImage: item.image,
+          quantity: item.quantity,
+          frameType: item.frameType,
+          subFrameType: item.subFrameType,
+          size: item.size,
+          itemTotal: calculateItemPrice(item)
+        };
+      } else {
+        return {
+          productId: item.productId?._id || null,
+          productName: item.productId?.productName || "",
+          mainImage: item.productId?.mainImage || "",
+          quantity: item.quantity,
+          frameType: item.frameType,
+          subFrameType: item.subFrameType,
+          size: item.size,
+          itemTotal: calculateItemPrice(item)
+        };
+      }
+    });
+  
+    navigate("/checkout", { 
+      state: { 
+        total: Number(finalTotal.toFixed(2)),
+        cartItems: checkoutItems,
+        subtotal,
+        shippingCost,
+        taxAmount,
+        discountAmount,
+        couponApplied,
+        couponDiscount 
+      } 
+    });
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="checkout-page">

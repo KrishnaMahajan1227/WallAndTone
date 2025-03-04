@@ -4,14 +4,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductManager.css';
 
 const ProductManager = () => {
-  const apiUrl = import.meta.env.VITE_API_URL ||
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
     (window.location.hostname === 'localhost'
       ? 'http://localhost:8080'
       : 'https://wallandtone.com');
   const [products, setProducts] = useState([]);
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
-  const [sizes, setSizes] = useState([]);
+  // Sizes state removed
   const [formData, setFormData] = useState({
     _id: '',
     productName: '',
@@ -19,14 +20,14 @@ const ProductManager = () => {
     quantity: '',
     frameTypes: [],
     subFrameTypes: [],
-    sizes: [],
+    // sizes field removed
     startFromPrice: '',
     colors: [],
     orientations: [],
     categories: [],
     medium: '',
     rooms: '',
-    // New SEO fields
+    // SEO fields
     primaryKeyword: '',
     shortTailKeywords: '',
     longTailKeywords: ''
@@ -59,21 +60,12 @@ const ProductManager = () => {
     'Optical Art', 'Nature Art', 'Botanical', 'Seascape', 'Wildlife', 'Scenic',
     'Marine Art', 'Animal Portraits', 'Birds', 'Fantasy Creatures', 'Cityscape',
     'Urban Art', 'Landmark', 'Classical Architecture', 'Figurative', 'Portraits',
-    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque',
-    'Impressionism', 'Post-Impressionism', 'Space Art', 'Cyberpunk', 'Steampunk',
-    'Futuristic', 'Retro-Futurism', 'Religious Art', 'Mandalas', 'Symbolism',
-    'Calligraphy', 'Fine Art Photography', 'Black & White', 'Conceptual Photography',
-    'Digital Illustration', 'Pop Art', 'Vintage', 'Whimsical', 'Caricature',
-    'Cartoon', 'Modern Art', 'Geometric', 'Contemporary', 'Modernism',
-    'Hand-Drawn', 'Calligraphy', 'Text Art', 'Line Art', 'Food Art', 'Gourmet', 'Drinks',
-    'Classic Still Life', 'Asian Art', 'Ukiyo-e', 'Tribal', 'Cultural Paintings',
-    'Love & Romance', 'Seasonal Art', 'Nautical'
+    'Classical Art', 'Realism', 'Ukiyo-e', 'Renaissance', 'Baroque'
   ];
 
   useEffect(() => {
     fetchFrameTypes();
     fetchSubFrameTypes();
-    fetchSizes();
     fetchProducts();
   }, []);
 
@@ -97,15 +89,6 @@ const ProductManager = () => {
       setSubFrameTypes(response.data);
     } catch (err) {
       handleError('Failed to fetch sub frame types');
-    }
-  };
-
-  const fetchSizes = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/admin/sizes/getsizes`);
-      setSizes(response.data);
-    } catch (err) {
-      handleError('Failed to fetch sizes');
     }
   };
 
@@ -146,16 +129,6 @@ const ProductManager = () => {
       subFrameTypes: checked
         ? [...prev.subFrameTypes, value]
         : prev.subFrameTypes.filter(id => id !== value)
-    }));
-  };
-
-  const handleSizeChange = (e) => {
-    const { value, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      sizes: checked
-        ? [...prev.sizes, value]
-        : prev.sizes.filter(id => id !== value)
     }));
   };
 
@@ -217,7 +190,6 @@ const ProductManager = () => {
       const url = formData._id
         ? `${apiUrl}/api/products/${formData._id}`
         : `${apiUrl}/api/products`;
-
       const method = formData._id ? 'put' : 'post';
       const response = await axios[method](url, formDataToSend);
 
@@ -266,15 +238,13 @@ const ProductManager = () => {
       quantity: product.quantity,
       frameTypes: product.frameTypes.map(ft => ft._id),
       subFrameTypes: product.subFrameTypes.map(sft => sft._id),
-      sizes: product.sizes.map(s => s._id),
+      // Sizes field removed.
       startFromPrice: product.startFromPrice,
       colors: product.colors || [],
       orientations: product.orientations || [],
       categories: product.categories || [],
-      // Existing fields
       medium: product.medium ? product.medium.join(',') : '',
       rooms: product.rooms ? product.rooms.join(',') : '',
-      // New SEO fields
       primaryKeyword: product.primaryKeyword || '',
       shortTailKeywords: product.shortTailKeywords ? product.shortTailKeywords.join(',') : '',
       longTailKeywords: product.longTailKeywords ? product.longTailKeywords.join(',') : ''
@@ -300,14 +270,13 @@ const ProductManager = () => {
       quantity: '',
       frameTypes: [],
       subFrameTypes: [],
-      sizes: [],
+      // Sizes field removed.
       startFromPrice: '',
       colors: [],
       orientations: [],
       categories: [],
       medium: '',
       rooms: '',
-      // Reset SEO fields
       primaryKeyword: '',
       shortTailKeywords: '',
       longTailKeywords: ''
@@ -361,11 +330,10 @@ const ProductManager = () => {
               <th>Description</th>
               <th>Frame Types</th>
               <th>Sub Frame Types</th>
-              <th>Sizes</th>
+              {/* Sizes column removed */}
               <th>Colors</th>
               <th>Orientations</th>
               <th>Categories</th>
-              {/* New SEO Columns */}
               <th>Primary Keyword</th>
               <th>Short Tail Keywords</th>
               <th>Long Tail Keywords</th>
@@ -396,13 +364,7 @@ const ProductManager = () => {
                     ))}
                   </ul>
                 </td>
-                <td>
-                  <ul className="list-unstyled mb-0">
-                    {product.sizes.map(s => (
-                      <li key={s._id}>{s.width}x{s.height}</li>
-                    ))}
-                  </ul>
-                </td>
+                {/* Sizes column removed */}
                 <td>
                   <ul className="list-unstyled mb-0">
                     {product.colors?.map((color, index) => (
@@ -424,7 +386,6 @@ const ProductManager = () => {
                     ))}
                   </ul>
                 </td>
-                {/* New SEO columns display */}
                 <td>{product.primaryKeyword || '-'}</td>
                 <td>{product.shortTailKeywords ? product.shortTailKeywords.join(', ') : '-'}</td>
                 <td>{product.longTailKeywords ? product.longTailKeywords.join(', ') : '-'}</td>
@@ -683,24 +644,6 @@ const ProductManager = () => {
                         />
                         <label className="form-check-label" htmlFor={`sft-${sft._id}`}>
                           {sft.name}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Sizes</label>
-                    {sizes.map(size => (
-                      <div key={size._id} className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id={`size-${size._id}`}
-                          value={size._id}
-                          checked={formData.sizes.includes(size._id)}
-                          onChange={handleSizeChange}
-                        />
-                        <label className="form-check-label" htmlFor={`size-${size._id}`}>
-                          {size.width}x{size.height}
                         </label>
                       </div>
                     ))}

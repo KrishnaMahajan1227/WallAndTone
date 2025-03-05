@@ -182,7 +182,7 @@ const PersonalizeUpload = () => {
         image={previewUrl}
         crop={crop}
         zoom={zoom}
-        aspect={orientation === "portrait" ? 3 / 4 : 16 / 9}
+        aspect={orientation === "portrait" ? 3 / 4 : 4 / 3}
         onCropChange={setCrop}
         onZoomChange={setZoom}
         onCropComplete={onCropComplete}

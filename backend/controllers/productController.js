@@ -204,29 +204,40 @@ const getAllProducts = async (req, res) => {
       ];
     }
 
+    // For array fields, use case-insensitive regex matching
     if (colors) {
       const colorsArray = colors.split(',').map(c => c.trim());
-      filterQuery.colors = { $in: colorsArray };
+      filterQuery.colors = { 
+        $in: colorsArray.map(color => new RegExp(`^${color}$`, 'i'))
+      };
     }
 
     if (categories) {
       const categoriesArray = categories.split(',').map(c => c.trim());
-      filterQuery.categories = { $in: categoriesArray };
+      filterQuery.categories = { 
+        $in: categoriesArray.map(cat => new RegExp(`^${cat}$`, 'i'))
+      };
     }
 
     if (orientation) {
       const orientationArray = orientation.split(',').map(o => o.trim());
-      filterQuery.orientations = { $in: orientationArray };
+      filterQuery.orientations = { 
+        $in: orientationArray.map(ori => new RegExp(`^${ori}$`, 'i'))
+      };
     }
 
     if (medium) {
       const mediumArray = medium.split(',').map(m => m.trim());
-      filterQuery.medium = { $in: mediumArray };
+      filterQuery.medium = { 
+        $in: mediumArray.map(med => new RegExp(`^${med}$`, 'i'))
+      };
     }
 
     if (rooms) {
       const roomsArray = rooms.split(',').map(r => r.trim());
-      filterQuery.rooms = { $in: roomsArray };
+      filterQuery.rooms = { 
+        $in: roomsArray.map(room => new RegExp(`^${room}$`, 'i'))
+      };
     }
 
     const products = await Product.find(filterQuery)
@@ -234,6 +245,7 @@ const getAllProducts = async (req, res) => {
       .populate('subFrameTypes', 'name price', null, { strictPopulate: false })
       .populate('sizes', 'name price', null, { strictPopulate: false });
     
+    // Compute total price if needed
     products.forEach(product => {
       const frameTypePrice = product.frameTypes.reduce((sum, frameType) => sum + frameType.price, 0);
       const subFrameTypePrice = product.subFrameTypes.reduce((sum, subFrameType) => sum + subFrameType.price, 0);
@@ -247,6 +259,7 @@ const getAllProducts = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch products', error: err.message });
   }
 };
+
 
 const getProductById = async (req, res) => {
   try {

@@ -3,16 +3,11 @@
   top: 0;
   left: 0;
   width: 100%;
-  background-color: transparent;
-  color: #fff;
-  padding: 1rem 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  background-color: #F2F2F2;
+  padding: 1rem 0 1rem 1rem;
   z-index: 999;
-  padding-top:0;
+  border-radius: 4px;
 }
-
 .secondary-navbar .container {
   margin: 0 auto;
   display: flex;
@@ -21,50 +16,16 @@
   padding: 0 1rem;
   width: 100%;
   gap: 1rem;
-  padding: 0;
-}
-
-.navigation-container {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  gap: 1.5rem;
-  background-color: rgba(47, 35, 31, 0.05);
-  padding: 0.75rem;
-border-radius: 4px;
-}
-
-.all-btn {
-  flex-shrink: 0;
-}
-
-.all-products-btn {
-  background-color: #2F231F;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 500;
-  display: inline-block;
-  transition: all 0.2s ease;
-}
-
-.all-products-btn:hover {
-  background-color: #1a1310;
-  color: #fff;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .breadcrumbs {
+  flex: 1;
   display: flex;
   align-items: center;
   overflow-x: auto;
   white-space: nowrap;
   scrollbar-width: none;
   padding: 0 0.5rem;
-  width: 100%;
 }
 
 .breadcrumbs::-webkit-scrollbar {
@@ -93,13 +54,10 @@ border-radius: 4px;
   align-items: center;
 }
 
-.secondary-navbar .history-button {
-  position: relative;
-}
-
+/* Ensure individual nav button styles */
 .secondary-navbar .history-button button,
-.secondary-navbar .wishlist-button button,
-.secondary-navbar .cart-button button {
+.secondary-navbar .cart-button,
+.secondary-navbar .wishlist-button {
   border: none;
   background: none;
   cursor: pointer;
@@ -108,27 +66,15 @@ border-radius: 4px;
 }
 
 .secondary-navbar .history-button button:hover,
-.secondary-navbar .wishlist-button:hover,
-.secondary-navbar .cart-button:hover {
+.secondary-navbar .cart-button:hover,
+.secondary-navbar .wishlist-button:hover {
   transform: translateY(-2px);
 }
 
-.secondary-navbar .history-dropdown {
-  position: absolute;
-  background-color: #fff;
-  color: #2F231F;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  display: none;
-  z-index: 1000;
-}
-
-.secondary-navbar .history-button:hover .history-dropdown {
-  display: block;
+.cart-button img,
+.wishlist-button img {
+  width: 24px;
+  height: 24px;
 }
 
 .wishlist-button {
@@ -148,14 +94,7 @@ border-radius: 4px;
   text-align: center;
 }
 
-.history-breadcrump {
-  margin: 0;
-  background-color: #E2D9D5;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  width: 100%;
-}
+/* Keep your existing styles for the rest of the navbar as-is... */
 
 /* Responsive styles */
 @media (max-width: 991px) {

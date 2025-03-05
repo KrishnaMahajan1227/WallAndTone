@@ -38,10 +38,6 @@
   transition: transform 0.3s ease;
 }
 
-.product-listing .product-card:hover {
-  transform: translateY(-5px);
-}
-
 .product-listing .product-image-wrapper {
   position: relative;
   overflow: hidden;
@@ -53,10 +49,6 @@
   height: 100%;
   width: 100%;
   transition: transform 0.3s ease;
-}
-
-.product-listing .product-image:hover {
-  transform: scale(1.05);
 }
 
 .product-listing .card-body {
@@ -76,7 +68,11 @@
   text-align: left;
   margin: 10px 0;
   color: #2F231F;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 
 .product-listing .card-text {
   font-size: 14px;

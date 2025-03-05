@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Offcanvas, Accordion, Button, Dropdown, Modal } from 'react-bootstrap';
-import axios from 'axios';
 import HistoryDropdown from '../History/HistoryDropdown';
 import { WishlistContext } from '../Wishlist/WishlistContext';
 import heartIcon from '../../assets/icons/heart-icon.svg';
@@ -120,6 +119,110 @@ const groupedRoomOptions = {
 
 const orientationOptions = ['Portrait', 'Landscape', 'Square'];
 
+// ---------------------- ProductCard Component ----------------------
+// Uses a crossfade effect to show a single random mockup image on hover.
+const ProductCard = ({
+  product,
+  isLarge = false,
+  handleProductClick,
+  wishlist,
+  handleAddToWishlist,
+  handleRemoveFromWishlist
+}) => {
+  const [hovered, setHovered] = useState(false);
+  const transitionDuration = 500; // milliseconds
+
+  const randomMockup = useMemo(() => {
+    if (!product.subFrameImages || product.subFrameImages.length === 0) return null;
+    const mockupImages = product.subFrameImages.filter(imgObj =>
+      imgObj.imageUrl &&
+      typeof imgObj.imageUrl === 'string' &&
+      imgObj.imageUrl.toLowerCase().includes('mockup')
+    );
+    if (mockupImages.length === 0) return null;
+    return mockupImages[Math.floor(Math.random() * mockupImages.length)].imageUrl;
+  }, [product.subFrameImages]);
+
+  return (
+    <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
+      <div
+        className="product-image-wrapper position-relative"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{ overflow: 'hidden' }}
+      >
+        <img
+          src={product.mainImage}
+          className="card-img-top product-image"
+          alt={product.productName}
+          onClick={() => handleProductClick(product._id)}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            transition: `opacity ${transitionDuration}ms ease`,
+            opacity: hovered && randomMockup ? 0 : 1,
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }}
+        />
+        {randomMockup && (
+          <img
+            src={randomMockup}
+            alt={`${product.productName} Mockup`}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transition: `opacity ${transitionDuration}ms ease`,
+              opacity: hovered ? 1 : 0
+            }}
+          />
+        )}
+        <div
+          className="wishlist-icon position-absolute"
+          onClick={(e) => {
+            e.stopPropagation();
+            const isInWishlist = wishlist && wishlist.some(
+              item => item.productId && item.productId._id === product._id
+            );
+            if (isInWishlist) {
+              handleRemoveFromWishlist(product);
+            } else {
+              handleAddToWishlist(product);
+            }
+          }}
+        >
+          <img
+            src={
+              wishlist && wishlist.some(
+                item => item.productId && item.productId._id === product._id
+              )
+                ? heartIconFilled
+                : heartIcon
+            }
+            alt="Heart Icon"
+          />
+        </div>
+      </div>
+      <div className="card-body text-center d-flex flex-column">
+        <h5 className="card-title product-title">{product.productName}</h5>
+        <p className="card-text text-muted">
+          {product.description.slice(0, isLarge ? 150 : 100)}...
+        </p>
+        <p className="card-text text-muted">
+          Starting From Rs {product.startFromPrice}/-
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// ---------------------- ProductListing Component ----------------------
 const ProductListing = () => {
   const apiUrl =
     import.meta.env.VITE_API_URL ||
@@ -137,7 +240,7 @@ const ProductListing = () => {
   const [showFilterOffcanvas, setShowFilterOffcanvas] = useState(false);
   const [sortOption, setSortOption] = useState('');
 
-  // Filter group selections
+  // Local filter state (each value is an array)
   const [selectedColorGroups, setSelectedColorGroups] = useState([]);
   const [selectedCategoryGroups, setSelectedCategoryGroups] = useState([]);
   const [selectedOrientations, setSelectedOrientations] = useState([]);
@@ -148,43 +251,57 @@ const ProductListing = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Sync query parameters for filters (orientation, medium, rooms)
+  // On mount, initialize filter state from URL (for fields that come from URL)
   useEffect(() => {
     const qp = new URLSearchParams(location.search);
-    const orientationParam = qp.get('orientation')
-      ? qp.get('orientation').split(',').map(s => s.trim())
-      : [];
-    setSelectedOrientations(orientationParam);
-
-    const mediumParam = qp.get('medium')
-      ? qp.get('medium').split(',').map(s => s.trim())
-      : [];
-    const mediumGroups = [];
-    Object.keys(groupedMediumOptions).forEach(group => {
-      const groupValues = groupedMediumOptions[group];
-      if (groupValues.some(val => mediumParam.includes(val))) {
-        mediumGroups.push(group);
-      }
-    });
-    setSelectedMediumGroups(mediumGroups);
-
-    const roomsParam = qp.get('rooms')
-      ? qp.get('rooms').split(',').map(s => s.trim())
-      : [];
-    const roomGroups = [];
-    Object.keys(groupedRoomOptions).forEach(group => {
-      const groupValues = groupedRoomOptions[group];
-      if (groupValues.some(val => roomsParam.includes(val))) {
-        roomGroups.push(group);
-      }
-    });
-    setSelectedRoomGroups(roomGroups);
+    if (qp.get('orientation')) {
+      setSelectedOrientations(qp.get('orientation').split(',').map(s => s.trim()));
+    }
+    if (qp.get('medium')) {
+      const medArr = qp.get('medium').split(',').map(s => s.trim());
+      const mediumGroups = [];
+      Object.keys(groupedMediumOptions).forEach(group => {
+        const groupValues = groupedMediumOptions[group];
+        if (groupValues.some(val => medArr.includes(val))) {
+          mediumGroups.push(group);
+        }
+      });
+      setSelectedMediumGroups(mediumGroups);
+    }
+    if (qp.get('rooms')) {
+      const roomArr = qp.get('rooms').split(',').map(s => s.trim());
+      const roomGroups = [];
+      Object.keys(groupedRoomOptions).forEach(group => {
+        const groupValues = groupedRoomOptions[group];
+        if (groupValues.some(val => roomArr.includes(val))) {
+          roomGroups.push(group);
+        }
+      });
+      setSelectedRoomGroups(roomGroups);
+    }
+    // Colors and Categories will be updated only via user interaction.
   }, [location.search]);
 
-  // Fetch products
+  // When "View Result" is clicked, explicitly update the URL based on current filter state.
+  const applyFilters = () => {
+    // Flatten colors and categories.
+    const colors = selectedColorGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
+    const categories = selectedCategoryGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
+    const qp = new URLSearchParams();
+    if (colors.length > 0) qp.set('colors', colors.join(','));
+    if (selectedOrientations.length > 0) qp.set('orientation', selectedOrientations.join(','));
+    if (categories.length > 0) qp.set('categories', categories.join(','));
+    if (selectedMediumGroups.length > 0) qp.set('medium', selectedMediumGroups.join(','));
+    if (selectedRoomGroups.length > 0) qp.set('rooms', selectedRoomGroups.join(','));
+    navigate({ pathname: location.pathname, search: qp.toString() }, { replace: true });
+    setShowFilterOffcanvas(false);
+  };
+
+  // Fetch products based on URL query parameters.
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
         let url = `${apiUrl}/api/products`;
         if (location.search) url += location.search;
         const response = await fetch(url);
@@ -200,7 +317,7 @@ const ProductListing = () => {
     fetchProducts();
   }, [location.search, token, apiUrl]);
 
-  // Fetch wishlist and update context
+  // Fetch wishlist.
   useEffect(() => {
     const fetchWishlist = async () => {
       if (token) {
@@ -224,7 +341,7 @@ const ProductListing = () => {
     fetchWishlist();
   }, [location.search, token, apiUrl, setWishlist]);
 
-  // Update products' inWishlist flag when wishlist changes
+  // Update products' inWishlist flag when wishlist changes.
   useEffect(() => {
     if (products.length > 0) {
       const updatedProducts = products.map(product => ({
@@ -235,7 +352,7 @@ const ProductListing = () => {
     }
   }, [wishlist, products]);
 
-  // Sorting function
+  // Sorting function.
   const sortProducts = (productsArray) => {
     let sorted = [...productsArray];
     if (sortOption === 'alphabetical') {
@@ -250,7 +367,7 @@ const ProductListing = () => {
     return sorted;
   };
 
-  // Authentication popup functions
+  // Authentication popup functions.
   const handleAuthRequired = (action) => {
     setAuthAction(() => action);
     setShowAuthPopup(true);
@@ -264,7 +381,7 @@ const ProductListing = () => {
     navigate('/login');
   };
 
-  // Wishlist actions
+  // Wishlist actions.
   const handleAddToWishlist = async (product) => {
     if (!product || !product._id) return;
     if (!token) {
@@ -300,7 +417,9 @@ const ProductListing = () => {
 
   const handleRemoveFromWishlist = async (product) => {
     if (!product || !product._id) return;
-    const updatedWishlist = wishlist.filter(item => item.productId && item.productId._id !== product._id);
+    const updatedWishlist = wishlist.filter(
+      item => item.productId && item.productId._id !== product._id
+    );
     setWishlist(updatedWishlist);
     try {
       const response = await fetch(`${apiUrl}/api/wishlist/remove/${product._id}`, {
@@ -318,11 +437,11 @@ const ProductListing = () => {
     navigate(`/product/${productId}`);
   };
 
-  // Offcanvas handlers for filters
+  // Offcanvas handlers.
   const handleShowFilterOffcanvas = () => setShowFilterOffcanvas(true);
   const handleCloseFilterOffcanvas = () => setShowFilterOffcanvas(false);
 
-  // Generic checkbox change
+  // Generic checkbox change helper.
   const handleCheckboxChange = (setter, selected, value) => {
     if (selected.includes(value)) {
       setter(selected.filter(item => item !== value));
@@ -331,69 +450,48 @@ const ProductListing = () => {
     }
   };
 
-  // Remove filter value (for filter chips)
+  // When a filter chip is removed.
   const removeFilterValue = (filterType, value) => {
     if (filterType === 'Color') {
-      const newGroups = selectedColorGroups.filter(item => item !== value);
-      setSelectedColorGroups(newGroups);
-      const allColors = newGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
-      const qp = new URLSearchParams(location.search);
-      if (allColors.length > 0) qp.set('colors', allColors.join(','));
-      else qp.delete('colors');
-      navigate({ pathname: location.pathname, search: qp.toString() });
+      setSelectedColorGroups(selectedColorGroups.filter(item => item !== value));
     } else if (filterType === 'Orientation') {
-      const newOris = selectedOrientations.filter(item => item !== value);
-      setSelectedOrientations(newOris);
-      const qp = new URLSearchParams(location.search);
-      if (newOris.length > 0) qp.set('orientation', newOris.join(','));
-      else qp.delete('orientation');
-      navigate({ pathname: location.pathname, search: qp.toString() });
+      setSelectedOrientations(selectedOrientations.filter(item => item !== value));
     } else if (filterType === 'Category') {
-      const newGroups = selectedCategoryGroups.filter(item => item !== value);
-      setSelectedCategoryGroups(newGroups);
-      const allCats = newGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
-      const qp = new URLSearchParams(location.search);
-      if (allCats.length > 0) qp.set('categories', allCats.join(','));
-      else qp.delete('categories');
-      navigate({ pathname: location.pathname, search: qp.toString() });
+      setSelectedCategoryGroups(selectedCategoryGroups.filter(item => item !== value));
     } else if (filterType === 'Medium') {
-      const newGroups = selectedMediumGroups.filter(item => item !== value);
-      setSelectedMediumGroups(newGroups);
-      const allMediums = newGroups.reduce((acc, group) => acc.concat(groupedMediumOptions[group]), []);
-      const qp = new URLSearchParams(location.search);
-      if (allMediums.length > 0) qp.set('medium', allMediums.join(','));
-      else qp.delete('medium');
-      navigate({ pathname: location.pathname, search: qp.toString() });
+      setSelectedMediumGroups(selectedMediumGroups.filter(item => item !== value));
     } else if (filterType === 'Room') {
-      const newGroups = selectedRoomGroups.filter(item => item !== value);
-      setSelectedRoomGroups(newGroups);
-      const allRooms = newGroups.reduce((acc, group) => acc.concat(groupedRoomOptions[group]), []);
-      const qp = new URLSearchParams(location.search);
-      if (allRooms.length > 0) qp.set('rooms', allRooms.join(','));
-      else qp.delete('rooms');
-      navigate({ pathname: location.pathname, search: qp.toString() });
+      setSelectedRoomGroups(selectedRoomGroups.filter(item => item !== value));
     }
+    // The URL will update via the applyFilters button when user clicks "View Result"
   };
 
+  const handleClearSelection = () => {
+    setSelectedColorGroups([]);
+    setSelectedCategoryGroups([]);
+    setSelectedOrientations([]);
+    setSelectedMediumGroups([]);
+    setSelectedRoomGroups([]);
+    // Also update URL to clear filters.
+    navigate({ pathname: location.pathname, search: '' }, { replace: true });
+  };
+
+  // Render filter summary as chips.
   const renderFilterSummary = () => {
-    const qp = new URLSearchParams(location.search);
-    const activeOrientations = qp.get('orientation') ? qp.get('orientation').split(',') : [];
-    const filters = [];
-    selectedColorGroups.forEach(group => filters.push({ type: 'Color', value: group }));
-    activeOrientations.forEach(ori => filters.push({ type: 'Orientation', value: ori }));
-    selectedCategoryGroups.forEach(group => filters.push({ type: 'Category', value: group }));
-    selectedMediumGroups.forEach(group => filters.push({ type: 'Medium', value: group }));
-    selectedRoomGroups.forEach(group => filters.push({ type: 'Room', value: group }));
-    if (filters.length === 0) return null;
+    const chips = [];
+    selectedColorGroups.forEach(group => chips.push({ type: 'Color', value: group }));
+    selectedOrientations.forEach(ori => chips.push({ type: 'Orientation', value: ori }));
+    selectedCategoryGroups.forEach(group => chips.push({ type: 'Category', value: group }));
+    selectedMediumGroups.forEach(group => chips.push({ type: 'Medium', value: group }));
+    selectedRoomGroups.forEach(group => chips.push({ type: 'Room', value: group }));
+
+    if (chips.length === 0) return null;
     return (
       <div className="filter-summary d-flex flex-wrap align-items-center my-3">
-        {filters.map((filter, index) => (
+        {chips.map((chip, index) => (
           <div key={index} className="filter-chip d-flex align-items-center me-2">
-            <span className="filter-chip-label">{filter.value}</span>
-            <button
-              className="filter-chip-remove btn btn-link p-0 ms-1"
-              onClick={() => removeFilterValue(filter.type, filter.value)}
-            >
+            <span className="filter-chip-label">{chip.value}</span>
+            <button className="filter-chip-remove btn btn-link p-0 ms-1" onClick={() => removeFilterValue(chip.type, chip.value)}>
               &times;
             </button>
           </div>
@@ -405,54 +503,7 @@ const ProductListing = () => {
     );
   };
 
-  const handleClearSelection = () => {
-    setSelectedColorGroups([]);
-    setSelectedCategoryGroups([]);
-    setSelectedOrientations([]);
-    setSelectedMediumGroups([]);
-    setSelectedRoomGroups([]);
-    navigate({ pathname: location.pathname, search: '' });
-  };
-
-  // Render a product card
-  const renderProductCard = (product, isLarge = false) => (
-    <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
-      <div className="product-image-wrapper position-relative">
-        <img
-          src={product.mainImage}
-          className="card-img-top product-image"
-          alt={product.productName}
-          onClick={() => handleProductClick(product._id)}
-        />
-        <div
-          className="wishlist-icon position-absolute"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (wishlist && wishlist.some(item => item.productId && item.productId._id === product._id)) {
-              handleRemoveFromWishlist(product);
-            } else {
-              handleAddToWishlist(product);
-            }
-          }}
-        >
-          <img
-            src={
-              wishlist && wishlist.some(item => item.productId && item.productId._id === product._id)
-                ? heartIconFilled
-                : heartIcon
-            }
-            alt="Heart Icon"
-          />
-        </div>
-      </div>
-      <div className="card-body text-center d-flex flex-column">
-        <h5 className="card-title product-title">{product.productName}</h5>
-        <p className="card-text text-muted">{product.description.slice(0, isLarge ? 150 : 100)}...</p>
-        <p className="card-text text-muted">Starting From Rs {product.startFromPrice}/-</p>
-      </div>
-    </div>
-  );
-
+  // Render product rows using the ProductCard component.
   const renderProductRows = () => {
     const sortedProducts = sortProducts(products);
     const rows = [];
@@ -469,25 +520,51 @@ const ProductListing = () => {
                 {regularProducts.map(product =>
                   product && product._id ? (
                     <div key={product._id} className="regular-product-item">
-                      {renderProductCard(product)}
+                      <ProductCard
+                        product={product}
+                        handleProductClick={handleProductClick}
+                        wishlist={wishlist}
+                        handleAddToWishlist={handleAddToWishlist}
+                        handleRemoveFromWishlist={handleRemoveFromWishlist}
+                      />
                     </div>
                   ) : null
                 )}
               </div>
               <div className="featured-product">
-                {renderProductCard(featuredProduct, true)}
+                <ProductCard
+                  product={featuredProduct}
+                  isLarge={true}
+                  handleProductClick={handleProductClick}
+                  wishlist={wishlist}
+                  handleAddToWishlist={handleAddToWishlist}
+                  handleRemoveFromWishlist={handleRemoveFromWishlist}
+                />
               </div>
             </>
           ) : (
             <>
               <div className="featured-product">
-                {renderProductCard(featuredProduct, true)}
+                <ProductCard
+                  product={featuredProduct}
+                  isLarge={true}
+                  handleProductClick={handleProductClick}
+                  wishlist={wishlist}
+                  handleAddToWishlist={handleAddToWishlist}
+                  handleRemoveFromWishlist={handleRemoveFromWishlist}
+                />
               </div>
               <div className="regular-products">
                 {regularProducts.map(product =>
                   product && product._id ? (
                     <div key={product._id} className="regular-product-item">
-                      {renderProductCard(product)}
+                      <ProductCard
+                        product={product}
+                        handleProductClick={handleProductClick}
+                        wishlist={wishlist}
+                        handleAddToWishlist={handleAddToWishlist}
+                        handleRemoveFromWishlist={handleRemoveFromWishlist}
+                      />
                     </div>
                   ) : null
                 )}
@@ -504,7 +581,13 @@ const ProductListing = () => {
           {remainingProducts.map(product =>
             product && product._id ? (
               <div key={product._id} className="remaining-product-item">
-                {renderProductCard(product)}
+                <ProductCard
+                  product={product}
+                  handleProductClick={handleProductClick}
+                  wishlist={wishlist}
+                  handleAddToWishlist={handleAddToWishlist}
+                  handleRemoveFromWishlist={handleRemoveFromWishlist}
+                />
               </div>
             ) : null
           )}
@@ -518,10 +601,7 @@ const ProductListing = () => {
     return (
       <div className="text-center d-flex justify-content-center my-5">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path
-            fill="#2F231F"
-            d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z"
-          >
+          <path fill="#2F231F" d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
             <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12" />
           </path>
         </svg>
@@ -532,17 +612,13 @@ const ProductListing = () => {
   return (
     <div className="product-listing container">
       <ListingSEO />
-      <Offcanvas
-        show={showFilterOffcanvas}
-        onHide={handleCloseFilterOffcanvas}
-        placement="start"
-        className="custom-offcanvas"
-      >
+      <Offcanvas show={showFilterOffcanvas} onHide={handleCloseFilterOffcanvas} placement="start" className="custom-offcanvas">
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Filter Options</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
           <Accordion defaultActiveKey="0" flush>
+            {/* Colors */}
             <Accordion.Item eventKey="0">
               <Accordion.Header>Colors</Accordion.Header>
               <Accordion.Body>
@@ -568,7 +644,7 @@ const ProductListing = () => {
                 </div>
               </Accordion.Body>
             </Accordion.Item>
-
+            {/* Categories */}
             <Accordion.Item eventKey="1">
               <Accordion.Header>Categories</Accordion.Header>
               <Accordion.Body>
@@ -594,7 +670,7 @@ const ProductListing = () => {
                 </div>
               </Accordion.Body>
             </Accordion.Item>
-
+            {/* Orientation */}
             <Accordion.Item eventKey="2">
               <Accordion.Header>Orientation</Accordion.Header>
               <Accordion.Body>
@@ -606,7 +682,9 @@ const ProductListing = () => {
                         id={`orientation-${ori}`}
                         value={ori}
                         checked={selectedOrientations.includes(ori)}
-                        onChange={() => handleCheckboxChange(setSelectedOrientations, selectedOrientations, ori)}
+                        onChange={() =>
+                          handleCheckboxChange(setSelectedOrientations, selectedOrientations, ori)
+                        }
                       />
                       <label htmlFor={`orientation-${ori}`}>{ori}</label>
                     </div>
@@ -614,7 +692,7 @@ const ProductListing = () => {
                 </div>
               </Accordion.Body>
             </Accordion.Item>
-
+            {/* Medium */}
             <Accordion.Item eventKey="3">
               <Accordion.Header>Medium</Accordion.Header>
               <Accordion.Body>
@@ -640,7 +718,7 @@ const ProductListing = () => {
                 </div>
               </Accordion.Body>
             </Accordion.Item>
-
+            {/* Rooms */}
             <Accordion.Item eventKey="4">
               <Accordion.Header>Rooms</Accordion.Header>
               <Accordion.Body>
@@ -672,28 +750,7 @@ const ProductListing = () => {
           <Button variant="secondary" onClick={handleClearSelection}>
             Clear Selection
           </Button>
-          <Button variant="primary" onClick={() => {
-            const qp = new URLSearchParams();
-            if (selectedColorGroups.length > 0) {
-              const allColors = selectedColorGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
-              qp.set('colors', allColors.join(','));
-            }
-            if (selectedOrientations.length > 0) qp.set('orientation', selectedOrientations.join(','));
-            if (selectedCategoryGroups.length > 0) {
-              const allCats = selectedCategoryGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
-              qp.set('categories', allCats.join(','));
-            }
-            if (selectedMediumGroups.length > 0) {
-              const allMediums = selectedMediumGroups.reduce((acc, group) => acc.concat(groupedMediumOptions[group]), []);
-              qp.set('medium', allMediums.join(','));
-            }
-            if (selectedRoomGroups.length > 0) {
-              const allRooms = selectedRoomGroups.reduce((acc, group) => acc.concat(groupedRoomOptions[group]), []);
-              qp.set('rooms', allRooms.join(','));
-            }
-            navigate({ pathname: location.pathname, search: qp.toString() });
-            setShowFilterOffcanvas(false);
-          }} className="ms-2">
+          <Button variant="primary" onClick={applyFilters} className="ms-2">
             View Result
           </Button>
         </div>
@@ -712,14 +769,14 @@ const ProductListing = () => {
               {sortOption === ""
                 ? "Select"
                 : sortOption === "alphabetical"
-                  ? "Alphabetical A-Z"
-                  : sortOption === "priceLowHigh"
-                    ? "Price Low-high"
-                    : sortOption === "priceHighLow"
-                      ? "Price High-Low"
-                      : sortOption === "newArrivals"
-                        ? "New Arrivals"
-                        : ""}
+                ? "Alphabetical A-Z"
+                : sortOption === "priceLowHigh"
+                ? "Price Low-high"
+                : sortOption === "priceHighLow"
+                ? "Price High-Low"
+                : sortOption === "newArrivals"
+                ? "New Arrivals"
+                : ""}
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item onClick={() => setSortOption("alphabetical")}>

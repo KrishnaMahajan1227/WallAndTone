@@ -104,6 +104,8 @@
   line-clamp: 2; /* added for compatibility */
   -webkit-box-orient: vertical;
   box-orient: vertical; /* added for compatibility */
+  text-transform: capitalize;
+
 }
 .freepik-generator__previous-date {
   display: block;
@@ -142,11 +144,11 @@
 
 .freepik-generator__styling {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  justify-content: center;
 }
-
 .freepik-generator__styling-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

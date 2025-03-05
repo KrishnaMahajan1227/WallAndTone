@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { UserContext } from '../../contexts/UserContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Login.css';
@@ -66,11 +66,17 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-left">
-        <form className="login-form" onSubmit={handleSubmit} noValidate>
+        <form 
+          className="login-form" 
+          onSubmit={handleSubmit} 
+          noValidate 
+          autoComplete="on"
+        >
           <div className="form-group">
             <input
               type="email"
               required
+              autoComplete="email"
               className="form-control"
               placeholder="Enter your email"
               value={email}
@@ -86,6 +92,7 @@ const Login = () => {
             <input
               type="password"
               required
+              autoComplete="current-password"
               className="form-control"
               placeholder="Enter your password"
               value={password}
@@ -114,7 +121,10 @@ const Login = () => {
         <p>
           Enhance your walls with high-quality frames, tailored to your style. Wall & Tone offers a unique selection to transform your space.
         </p>
-        <button className="btn explore-btn" onClick={() => navigate('/')}>
+        <button 
+          className="btn explore-btn" 
+          onClick={() => navigate('/')}
+        >
           Explore Now
         </button>
       </div>

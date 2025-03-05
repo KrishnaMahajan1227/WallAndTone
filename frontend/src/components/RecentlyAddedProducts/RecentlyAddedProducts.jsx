@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -6,19 +6,18 @@ import "slick-carousel/slick/slick-theme.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./RecentlyAddedProducts.css";
 import { useNavigate } from "react-router-dom";
-import { Button } from "react-bootstrap";
 
 const RecentlyAddedProducts = () => {
-const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : "https://wallandtone.com");
 
-  const [products, setProducts] = useState([]); // Ensure products is an array
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
-  const handleProductClick = (productId) => {
-    navigate(`/product/${productId}`);
-  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -27,16 +26,16 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         console.log("API Response:", response.data);
 
         if (Array.isArray(response.data)) {
-          const recentProducts = response.data.slice(0, 10); // Get the 10 most recent products
+          const recentProducts = response.data.slice(0, 10);
           setProducts(recentProducts);
         } else {
           console.error("Unexpected API response structure:", response.data);
-          setProducts([]); // Fallback to an empty array
+          setProducts([]);
         }
       } catch (err) {
         console.error("Error fetching products:", err);
         setError(err.message);
-        setProducts([]); // Fallback to an empty array on error
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -61,6 +60,10 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
         breakpoint: 768,
         settings: { slidesToShow: 2 },
       },
+      {
+        breakpoint: 480,
+        settings: { slidesToShow: 1 },
+      },
     ],
   };
 
@@ -72,20 +75,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       {products.length > 0 ? (
         <Slider {...sliderSettings}>
           {products.map((product) => (
-            <div key={product._id} className="recently-added-product-card">
-              <div className="card" onClick={() => handleProductClick(product._id)}>
-                <img
-                  src={product.mainImage}
-                  alt={product.productName}
-                  className="card-img-top"
-                />
-                <div className="card-body">
-                  <h5 className="card-title">{product.productName}</h5>
-                  <p className="card-text">{product.description}</p>
-                  <p className="card-text text-muted">Starting From Rs {product.startFromPrice}/-</p>
-                </div>
-              </div>
-            </div>
+            <ProductCard key={product._id} product={product} navigate={navigate} />
           ))}
         </Slider>
       ) : (
@@ -93,6 +83,94 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
           No recently added products found.
         </p>
       )}
+    </div>
+  );
+};
+
+// ---------------------- Product Card with Hover Effect ----------------------
+const ProductCard = ({ product, navigate }) => {
+  const [hovered, setHovered] = useState(false);
+  const transitionDuration = 400; // Adjust for smoothness
+
+  const randomMockup = useMemo(() => {
+    if (!product.subFrameImages || product.subFrameImages.length === 0) return null;
+    const mockupImages = product.subFrameImages.filter(imgObj =>
+      imgObj.imageUrl &&
+      typeof imgObj.imageUrl === "string" &&
+      imgObj.imageUrl.toLowerCase().includes("mockup")
+    );
+    return mockupImages.length > 0
+      ? mockupImages[Math.floor(Math.random() * mockupImages.length)].imageUrl
+      : null;
+  }, [product.subFrameImages]);
+
+  return (
+    <div className="recently-added-product-card">
+      <div
+        className="card product-card"
+        onClick={() => navigate(`/product/${product._id}`)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          overflow: "hidden",
+          position: "relative",
+          cursor: "pointer",
+        }}
+      >
+        {/* Image Container to Ensure Proper Hover Transition */}
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "250px", // Adjust height based on design
+          }}
+        >
+          {/* Main Product Image */}
+          <img
+            src={product.mainImage}
+            alt={product.productName}
+            className="card-img-top product-image"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: `opacity ${transitionDuration}ms ease`,
+              opacity: hovered && randomMockup ? 0 : 1,
+              position: "absolute",
+              top: 0,
+              left: 0,
+            }}
+          />
+
+          {/* Mockup Image on Hover */}
+          {randomMockup && (
+            <img
+              src={randomMockup}
+              alt={`${product.productName} Mockup`}
+              className="card-img-top product-image"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: `opacity ${transitionDuration}ms ease`,
+                opacity: hovered ? 1 : 0,
+              }}
+            />
+          )}
+        </div>
+
+        {/* Product Details */}
+        <div className="card-body text-center">
+          <h5 className="card-title">{product.productName}</h5>
+          <p className="card-text text-muted">{product.description.slice(0, 80)}...</p>
+          <p className="card-text text-muted">
+            Starting From Rs {product.startFromPrice}/-
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

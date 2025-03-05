@@ -1,3 +1,4 @@
+// frontend/FreepikImageGenerator.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -19,12 +20,11 @@ const FreepikImageGenerator = () => {
   const [userGeneratedImages, setUserGeneratedImages] = useState([]);
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
+
+  // Updated styling state: only size and style.
   const [styling, setStyling] = useState({
     size: 'square_1_1',
-    color: '',
-    framing: '',
-    lightning: '',
-    style: '',
+    style: '', // Allowed options: photo, digital-art, anime, painting, fantasy
   });
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -32,7 +32,7 @@ const FreepikImageGenerator = () => {
   const [remainingPrompts, setRemainingPrompts] = useState(10);
   const [showPromptLimitModal, setShowPromptLimitModal] = useState(false);
 
-  // Helper function to compute orientation based on styling.size
+  // Compute orientation based on styling.size
   const computeOrientation = (size) => {
     switch (size) {
       case 'traditional_3_4':
@@ -115,14 +115,15 @@ const FreepikImageGenerator = () => {
 
     setLoading(true);
     setError(null);
-    
+
     // Compute orientation based on selected styling.size
     const orientation = computeOrientation(styling.size);
 
     try {
+      // Send prompt, styling, and orientation; backend handles generating three images.
       const response = await axios.post(
         `${apiUrl}/api/freepik/generate-image`,
-        { prompt, styling, orientation, num_images: 3 },
+        { prompt, styling, orientation },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data.images && response.data.images.length > 0) {
@@ -203,7 +204,6 @@ const FreepikImageGenerator = () => {
         await fetchUserGeneratedImages();
       }
       if (existingImage) {
-        // Compute orientation for customization page
         const orientation = computeOrientation(styling.size);
         navigate('/customize', {
           state: {
@@ -243,7 +243,6 @@ const FreepikImageGenerator = () => {
       alert('Razorpay SDK failed to load. Are you online?');
       return;
     }
-
     try {
       const orderResponse = await axios.post(
         `${apiUrl}/api/prompt-payment/create-prompt-order`,
@@ -324,9 +323,9 @@ const FreepikImageGenerator = () => {
       <div className="freepik-generator__header">
         <h2>AI Art generator by Wall & Tone</h2>
         <p>Use the power of limitless imagination to curate your own unique art prints!</p>
-        <p className="freepik-generator__prompts">
+        {/* <p className="freepik-generator__prompts">
           Free Prompts Left: {remainingPrompts}
-        </p>
+        </p> */}
       </div>
       <div className="freepik-generator__form">
         <div className="freepik-generator__prompt">
@@ -345,31 +344,15 @@ const FreepikImageGenerator = () => {
               <option value="widescreen_16_9">Landscape</option>
               <option value="square_1_1">Square</option>
             </select>
-            <select name="color" value={styling.color} onChange={handleStylingChange} disabled={loading}>
-              <option value="">Color: None</option>
-              <option value="b&w">B&W</option>
-              <option value="pastel">Pastel</option>
-              <option value="sepia">Sepia</option>
-            </select>
-            <select name="framing" value={styling.framing} onChange={handleStylingChange} disabled={loading}>
-              <option value="">Framing: None</option>
-              <option value="portrait">Portrait</option>
-              <option value="macro">Macro</option>
-              <option value="panoramic">Panoramic</option>
-            </select>
-            <select name="lightning" value={styling.lightning} onChange={handleStylingChange} disabled={loading}>
-              <option value="">Lightning: None</option>
-              <option value="studio">Studio</option>
-              <option value="warm">Warm</option>
-            </select>
           </div>
           <div className="freepik-generator__styling-row">
             <select name="style" value={styling.style} onChange={handleStylingChange} disabled={loading}>
-              <option value="">Style: None</option>
+              <option value="">Select Style (optional)</option>
               <option value="photo">Photo</option>
               <option value="digital-art">Digital Art</option>
-              <option value="illustration">Illustration</option>
-              <option value="vector">Vector</option>
+              <option value="anime">Anime</option>
+              <option value="painting">Painting</option>
+              <option value="fantasy">Fantasy</option>
             </select>
           </div>
         </div>
@@ -459,7 +442,7 @@ const FreepikImageGenerator = () => {
               <div className="freepik-generator-modal-body">
                 <div className="row">
                   {generatedImages.map((image, index) => (
-                    <div className="col-3 mb-4" key={index}>
+                    <div className="col-4 mb-4" key={index}>
                       <div className="card" onClick={() => handleImageSelect(image)}>
                         <img src={image} alt={`Generated art ${index}`} className="card-img-top" />
                       </div>

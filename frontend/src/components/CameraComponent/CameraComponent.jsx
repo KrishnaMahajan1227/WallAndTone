@@ -19,25 +19,24 @@ const CameraComponent = () => {
   // Global states
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
-  // Each product stored here will include an "options" property for its selections
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [productPositions, setProductPositions] = useState([]);
-  const [productDimensions, setProductDimensions] = useState([]); // Default preview dimensions
+  const [productDimensions, setProductDimensions] = useState([]); // Preview dimensions
 
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [cartMessage, setCartMessage] = useState(null);
 
-  // Active product details for the currently active details panel
+  // Active product details
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productDetails, setProductDetails] = useState({});
   const [activeImage, setActiveImage] = useState(null);
 
-  // Option data for the active details panel
+  // Options for details panel
   const [frameTypes, setFrameTypes] = useState([]);
   const [subFrameTypes, setSubFrameTypes] = useState([]);
-  const [sizes, setSizes] = useState([]); // Available sizes from the selected frame type
+  const [sizes, setSizes] = useState([]);
   const [selectedFrameType, setSelectedFrameType] = useState(null);
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -48,23 +47,33 @@ const CameraComponent = () => {
   const [subFrameThumbnails, setSubFrameThumbnails] = useState([]);
   const [loadingSubFrame, setLoadingSubFrame] = useState(false);
 
-  // For the camera, we use react-webcam
+  // Camera and mobile overlay states
   const [showWebcam, setShowWebcam] = useState(false);
-
-  // For mobile: toggle product list overlay
   const [showProductList, setShowProductList] = useState(false);
 
   const webcamRef = useRef(null);
   const fileInputRef = useRef(null);
+  // Ref for the preview container – is used to calculate new dimensions
+  const previewContainerRef = useRef(null);
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+
+  // Utility: Parse the aspect ratio from a string like "6 x 4"
+  const parseAspectRatioFromName = (name) => {
+    if (!name) return 1;
+    const parts = name.split("x");
+    if (parts.length < 2) return 1;
+    const parsedHeight = parseFloat(parts[0].trim());
+    const parsedWidth = parseFloat(parts[1].trim());
+    if (isNaN(parsedHeight) || isNaN(parsedWidth) || parsedWidth === 0) return 1;
+    return parsedHeight / parsedWidth; // height-to-width ratio
+  };
 
   // ------------------- FETCH DATA -------------------
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Always fetch products for both desktop and mobile views
         const productsRes = await fetch(`${apiUrl}/api/products`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -73,7 +82,6 @@ const CameraComponent = () => {
         const productsData = await productsRes.json();
         setProducts(productsData);
 
-        // Fetch wishlist and cart only if token exists
         if (token) {
           const wishlistRes = await fetch(`${apiUrl}/api/wishlist`, {
             method: "GET",
@@ -107,7 +115,7 @@ const CameraComponent = () => {
     fetchData();
   }, [token, apiUrl]);
 
-  // ------------------- CAMERA FUNCTIONS (react-webcam) -------------------
+  // ------------------- CAMERA FUNCTIONS -------------------
   const startCamera = () => {
     setError(null);
     setShowWebcam(true);
@@ -159,7 +167,6 @@ const CameraComponent = () => {
       setCartMessage("Please select your wall first or upload/capture a wall photo");
       return;
     }
-    // Only add product if not already selected
     if (selectedProducts.some((p) => p && p._id === product._id)) return;
     setSelectedProducts((prev) => [...prev, { ...product, options: {} }]);
     setProductPositions((prev) => [...prev, { x: 200, y: 200 }]);
@@ -194,7 +201,6 @@ const CameraComponent = () => {
     }
   };
 
-  // Helper to update options on the currently active product in selectedProducts
   const updateSelectedProductOptions = (newOptions) => {
     if (!selectedProduct) return;
     setSelectedProducts((prev) =>
@@ -212,12 +218,10 @@ const CameraComponent = () => {
       const data = await res.json();
       setFrameTypes(data);
       if (data.length > 0 && !selectedFrameType) {
-        // Default to the first frame type if none is selected
         setSelectedFrameType(data[0]);
         localStorage.setItem("frameType", JSON.stringify(data[0]));
         updateSelectedProductOptions({ frameType: data[0]._id });
         fetchSubFrameTypesByFrameType(data[0]._id);
-        // Update available sizes from frame type's frameSizes
         if (data[0].frameSizes && Array.isArray(data[0].frameSizes)) {
           setSizes(data[0].frameSizes);
         } else {
@@ -247,12 +251,7 @@ const CameraComponent = () => {
   };
 
   const fetchSizes = async (productId) => {
-    try {
-      // Here sizes are derived from the selected frame type and are already embedded in it
-      // So no separate API call is needed. The sizes state is updated in fetchFrameTypes.
-    } catch (err) {
-      console.error("Error fetching sizes:", err);
-    }
+    // Sizes are derived from the selected frame type.
   };
 
   const handleFrameTypeSelect = async (frameType) => {
@@ -265,7 +264,6 @@ const CameraComponent = () => {
       localStorage.setItem("frameType", JSON.stringify(data));
       updateSelectedProductOptions({ frameType: data._id });
       fetchSubFrameTypesByFrameType(data._id);
-      // Update available sizes from the selected frame type's frameSizes
       if (data.frameSizes && Array.isArray(data.frameSizes)) {
         setSizes(data.frameSizes);
       } else {
@@ -274,7 +272,6 @@ const CameraComponent = () => {
       }
     } catch (err) {
       console.error("Error selecting frame type:", err);
-      toast.error("Failed to select frame type");
     }
   };
 
@@ -329,28 +326,71 @@ const CameraComponent = () => {
       console.error("Error fetching subframe image:", err);
       setActiveImage(selectedProduct.mainImage);
       setSubFrameThumbnails(subFrameType.images || []);
-      toast.error("Failed to load subframe images");
     } finally {
       setLoadingSubFrame(false);
     }
   };
 
+  // ------------------- UPDATED SIZE HANDLER -------------------
+  // When user selects a size, we parse its name (e.g. "8 x 12") to get the height-to-width ratio,
+  // then calculate new dimensions using 30% of the preview container's width.
   const handleSizeSelect = (size) => {
+    console.log("Selected Size:", size);
     setSelectedSize(size);
     setProductDetails((prev) => ({ ...prev, size }));
     updateSelectedProductOptions({ size: size._id });
-    // Update preview dimensions to a fixed default since size now has a name and price
+
     const productIndex = selectedProducts.findIndex(
       (p) => p && p._id === selectedProduct._id
     );
-    if (productIndex !== -1) {
-      setProductDimensions((prev) => {
-        const updated = [...prev];
-        updated[productIndex] = { width: 300, height: 300 };
-        return updated;
-      });
+    if (productIndex === -1) {
+      console.error("Selected product not found in selectedProducts");
+      return;
     }
+
+    const containerWidth = previewContainerRef.current
+      ? previewContainerRef.current.offsetWidth
+      : window.innerWidth;
+    const newWidth = containerWidth * 0.3; // 30% of container width
+    const ratio = parseAspectRatioFromName(size.name);
+    const newHeight = newWidth * ratio;
+
+    console.log("New Dimensions:", { newWidth, newHeight });
+
+    setProductDimensions((prev) => {
+      const updated = [...prev];
+      updated[productIndex] = { width: newWidth, height: newHeight };
+      return updated;
+    });
   };
+
+  // ------------------- WINDOW RESIZE LISTENER -------------------
+  useEffect(() => {
+    const handleResize = () => {
+      if (selectedProduct && selectedSize) {
+        const containerWidth = previewContainerRef.current
+          ? previewContainerRef.current.offsetWidth
+          : window.innerWidth;
+        const productIndex = selectedProducts.findIndex(
+          (p) => p && p._id === selectedProduct._id
+        );
+        if (productIndex !== -1) {
+          const newWidth = containerWidth * 0.3;
+          const ratio = parseAspectRatioFromName(selectedSize.name);
+          const newHeight = newWidth * ratio;
+          setProductDimensions((prev) => {
+            const updated = [...prev];
+            updated[productIndex] = { width: newWidth, height: newHeight };
+            return updated;
+          });
+        }
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, [selectedProduct, selectedSize, selectedProducts]);
 
   // ------------------- DRAG & DROP -------------------
   const handleDragStop = (e, data, index) => {
@@ -358,7 +398,6 @@ const CameraComponent = () => {
     updatedPositions[index] = { x: data.x, y: data.y };
     setProductPositions(updatedPositions);
   };
-
 
   const removeProduct = (product, index, e) => {
     e.stopPropagation();
@@ -376,7 +415,6 @@ const CameraComponent = () => {
       setCartMessage("Please log in to add items to your cart.");
       return;
     }
-    // Build items from selectedProducts options
     const itemsToAdd = selectedProducts
       .filter((prod) => prod !== null)
       .map((prod) => {
@@ -481,7 +519,6 @@ const CameraComponent = () => {
           }),
         });
         if (!res.ok) throw new Error("Failed to update quantity");
-        // Update local cart state if needed
       } catch (err) {
         console.error("Failed to update quantity:", err);
       }
@@ -499,7 +536,6 @@ const CameraComponent = () => {
           }
         );
         if (!res.ok) throw new Error("Failed to remove item from cart");
-        // Update local cart state if needed
       } catch (err) {
         console.error("Failed to remove item from cart:", err);
       }
@@ -536,7 +572,6 @@ const CameraComponent = () => {
     ));
   };
 
-  // renderProductCard for listing
   const renderProductCard = (product, isLarge = false) => (
     <div className={`card product-card h-100 ${isLarge ? "large-card" : ""}`}>
       <div className="product-image-wrapper position-relative">
@@ -575,26 +610,6 @@ const CameraComponent = () => {
     </div>
   );
 
-  const renderOrderSummaryItems = () => {
-    return cartItems.map((item, index) => (
-      <div key={index} className="order-item">
-        <div className="order-item-info">
-          <h5>{item.productName || "Custom Artwork"}</h5>
-          <p>Quantity: {item.quantity}</p>
-          {item.frameType && item.subFrameType && item.size && (
-            <p>
-              Options: Frame - {item.frameType.name}, Type - {item.subFrameType.name}, Size - {item.size.name} (₹{item.size.price})
-            </p>
-          )}
-          {item.itemTotal && (
-            <p className="order-item-price">₹ {item.itemTotal}</p>
-          )}
-        </div>
-      </div>
-    ));
-  };
-
-  // Price calculation
   const calculateItemPrice = (item) => {
     if (!item || !item.productId || !item.quantity) return 0;
     const basePrice = parseFloat(item.productId.price) || 0;
@@ -737,7 +752,7 @@ const CameraComponent = () => {
           </div>
         </div>
         <div className="col-12 col-md-9 camera-right-panel">
-          <div className="preview-container">
+          <div className="preview-container" ref={previewContainerRef}>
             {wallImage ? (
               <img src={wallImage} alt="Wall Preview" className="preview-image" />
             ) : showWebcam ? (
@@ -808,7 +823,7 @@ const CameraComponent = () => {
             )}
             {selectedProducts.filter(p => p !== null).map((product, index) => (
               <DraggableCore
-                key={product._id}
+                key={`${product._id}-${productDimensions[index]?.width}-${productDimensions[index]?.height}`}
                 onStop={(e, data) => handleDragStop(e, data, index)}
                 onDrag={(e, data) => {
                   const updatedPositions = [...productPositions];
@@ -830,6 +845,7 @@ const CameraComponent = () => {
                     src={product.mainImage}
                     alt={product.productName}
                     className="product-on-wall"
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
                     onContextMenu={(e) => e.preventDefault()}
                     draggable="false"
                   />

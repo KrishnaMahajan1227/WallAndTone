@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, NavLink  } from "react-router-dom";
 import axios from "axios";
 import { X, Sparkles, Lock, ArrowRight } from "lucide-react";
 import { Helmet } from "react-helmet";  // Import Helmet for SEO
@@ -189,47 +189,60 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       </section>
 
       <section className="homepage-products-section py-5">
-        <div className="container">
-          <ul className="nav nav-tabs">
-            <li className="nav-item">
-              <button
-                className={`nav-link ${activeTab === "recently-added" ? "active" : ""}`}
-                onClick={() => setActiveTab("recently-added")}
-              >
-                New In
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link ${activeTab === "top-reviewed" ? "active" : ""}`}
-                onClick={() => setActiveTab("top-reviewed")}
-              >
-                Best Seller
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link ${activeTab === "top-reviewed" ? "active" : ""}`}
-                onClick={() => setActiveTab("top-reviewed")}
-              >
-                Best Offer
-              </button>
-            </li>
-          </ul>
-          
-          <div className="tab-content">
-            {activeTab === "top-reviewed" ? (
-              <div className="tab-pane fade show active">
-                <TopReviewedProducts />
-              </div>
-            ) : (
-              <div className="tab-pane fade show active">
-                <RecentlyAddedProducts />
-              </div>
-            )}
-          </div>
+  <div className="container">
+    <ul className="nav nav-tabs">
+      <li className="nav-item">
+        <button
+          className={`nav-link ${activeTab === "recently-added" ? "active" : ""}`}
+          onClick={() => setActiveTab("recently-added")}
+        >
+          New In
+        </button>
+      </li>
+
+      {/* 🔹 Best Seller tab is temporarily commented out */}
+      {/* 
+      <li className="nav-item">
+        <button
+          className={`nav-link ${activeTab === "top-reviewed" ? "active" : ""}`}
+          onClick={() => setActiveTab("top-reviewed")}
+        >
+          Best Seller
+        </button>
+      </li>
+      */}
+
+      {/* 🔹 Best Offer tab is temporarily commented out */}
+      {/* 
+      <li className="nav-item">
+        <button
+          className={`nav-link ${activeTab === "top-reviewed" ? "active" : ""}`}
+          onClick={() => setActiveTab("top-reviewed")}
+        >
+          Best Offer
+        </button>
+      </li>
+      */}
+    </ul>
+
+    <div className="tab-content">
+      {/* 🔹 Since Best Seller & Best Offer are commented, show only Recently Added */}
+      <div className="tab-pane fade show active">
+        <RecentlyAddedProducts />
+      </div>
+
+      {/* 🔹 Best Seller & Best Offer content is commented out */}
+      {/* 
+      {activeTab === "top-reviewed" ? (
+        <div className="tab-pane fade show active">
+          <TopReviewedProducts />
         </div>
-      </section>
+      ) : null}
+      */}
+    </div>
+  </div>
+</section>
+
 
       <section className="homepage-Art-Corner">
         <ImageContentComponent
@@ -251,8 +264,9 @@ From sleek modern frames to timeless classics, let’s turn your walls into conv
         </div>
         <div class="overlay-content">
             <h2>Turn Your Favorite Moments into Wall Art</h2>
-            <button class="btn btn-primary">Create Your Wall Art</button>
-        </div>
+            <NavLink to="/Personalize">
+  <button className="btn btn-primary">Create Your Wall Art</button>
+</NavLink>        </div>
     </section>
 
       <section className="homepage-live-preview">

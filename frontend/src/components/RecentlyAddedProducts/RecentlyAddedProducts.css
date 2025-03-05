@@ -1,139 +1,151 @@
+/* 🟢 MAIN CONTAINER */
 .recently-added-products-container {
-    margin-top: 0px;
-    overflow-x: auto; /* Add a horizontal scrollbar */
-    overflow-y: hidden; /* Hide the vertical scrollbar */
-    white-space: nowrap; /* Prevent the cards from wrapping to the next line */
-    width: 100%; /* Set the width of the container to 100% */
-  }
-  
-  .recently-added-products-container .recently-added-product-card {
-    display: inline-block; /* Display the cards as inline-block elements */
-    margin: 20px 10px; /* Add some margin to separate the cards */
-    vertical-align: top; /* Align the cards to the top */
-    position: relative; /* Add relative positioning to the card */
-  }
-  
-  .recently-added-products-container .card {
-    border: none !important;
-    max-width: 275px;
-    height: 550px;
-    background: transparent;
-    box-shadow: none;
-    overflow: hidden;
+  margin-top: 0px;
+  overflow-x: auto; /* Horizontal scroll */
+  overflow-y: hidden; /* No vertical scroll */
+  white-space: nowrap; /* Prevent cards from wrapping */
+  width: 100%;
+}
+
+/* 🟢 CARD STYLES */
+.recently-added-products-container .recently-added-product-card {
+  display: inline-block; /* Ensure cards remain inline */
+  margin: 20px 10px;
+  vertical-align: top;
+  position: relative;
+  cursor: pointer; /* Make the card clickable */
+}
+
+.recently-added-products-container .card {
+  border: none !important;
+  max-width: 275px;
+  height: auto; /* Auto height for responsiveness */
+  background: transparent;
+  box-shadow: none;
 }
 
 .recently-added-products-container .card-img-top {
-    border-radius: 4px;
-    height: 320px;
-    object-fit: cover;
-    width: 100%;
+  border-radius: 4px;
+  height: 320px;
+  object-fit: cover;
+  width: 100%;
 }
 
+/* 🟢 TEXT & TRUNCATION FIX */
 .recently-added-products-container .card-body {
-    padding: 20px 0;
-    overflow: hidden;
+  padding: 20px 0;
 }
 
 .recently-added-products-container .card-title {
-    font-weight: bold;
-    font-size: 18px;
-    margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 8px;
+  text-align: left;
 }
 
 .recently-added-products-container .card-text {
-    font-size: 16px;
-    color: #666;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.4;
-    max-height: calc(1.4em * 2);
+  font-size: 16px;
+  color: #666;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Display only 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  max-height: calc(1.4em * 2);
+  text-align: left;
+  display: block; /* Ensure text behaves properly */
 }
 
-  
-  .recently-added-products-container .recently-added-products-message {
-    font-size: 18px;
-    color: #666;
-  }
-  
-  .recently-added-products-container .overlay {
-    position: absolute; /* Add absolute positioning to the overlay */
-    top: 0; /* Position the overlay at the top of the card */
-    left: 0; /* Position the overlay at the left of the card */
-    width: 100%; /* Set the width of the overlay to 100% */
-    height: 58%; /* Set the height of the overlay to 100% */
-    background-color: rgba(0, 0, 0, 0.5); /* Set the background color of the overlay to black with 50% opacity */
-    display: none; /* Hide the overlay by default */
-    border-radius:8px;
-  }
-  
-  .recently-added-products-container .quick-view-button {
-    position: absolute; /* Add absolute positioning to the quick view button */
-    top: 50%; /* Position the button at the center of the overlay */
-    left: 50%; /* Position the button at the center of the overlay */
-    transform: translate(-50%, -50%); /* Translate the button to the center of the overlay */
-    background-color: #2F231F; /* Set the background color of the button */
-    color: #FFFFFF; /* Set the text color of the button */
-    padding: 5px 10px; /* Add padding to the button */
-    border: none; /* Remove the border from the button */
-    cursor: pointer; /* Add a pointer cursor to the button */
-    width: 60%;
-  }
-  
-  .recently-added-products-container .recently-added-product-card:hover .overlay {
-    display: block; /* Show the overlay on hover */
-  }
-  
-  .recently-added-products-container .recently-added-product-card:hover .quick-view-button {
-    display: block; /* Show the button on hover */
-  }
-  
-  .recently-added-products-container::-webkit-scrollbar {
-    height: 10px; /* Set the height of the scrollbar */
-  }
-  
-  .recently-added-products-container::-webkit-scrollbar-thumb {
-    background-color: #2F231F; /* Set the color of the scrollbar thumb */
-  border-radius: 4px; /* Add a border radius to the scrollbar thumb */
-  }
-  
-  .recently-added-products-container::-webkit-scrollbar-track {
-    background-color: #F7F7F7; /* Set the color of the scrollbar track */
-  border-radius: 4px; /* Add a border radius to the scrollbar track */
-  }
-  @media(max-width:480px){
-    .recently-added-products-container .card {
+/* 🟢 HOVER OVERLAY EFFECT */
+.recently-added-products-container .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 58%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  border-radius: 8px;
+}
+
+/* 🟢 QUICK VIEW BUTTON */
+.recently-added-products-container .quick-view-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #2F231F;
+  color: #FFFFFF;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  width: 60%;
+}
+
+/* 🟢 HOVER EFFECT */
+.recently-added-products-container .recently-added-product-card:hover .overlay {
+  display: block;
+}
+
+.recently-added-products-container .recently-added-product-card:hover .quick-view-button {
+  display: block;
+}
+
+/* 🟢 CUSTOM SCROLLBAR */
+.recently-added-products-container::-webkit-scrollbar {
+  height: 10px;
+}
+
+.recently-added-products-container::-webkit-scrollbar-thumb {
+  background-color: #2F231F;
+  border-radius: 4px;
+}
+
+.recently-added-products-container::-webkit-scrollbar-track {
+  background-color: #F7F7F7;
+  border-radius: 4px;
+}
+.recently-added-products-container .slick-dots {
+  bottom: 0px !important;
+  text-align: center !important;
+  margin: auto !important;
+}
+
+/* 🟢 MOBILE RESPONSIVENESS */
+@media (max-width: 480px) {
+  .recently-added-products-container .card {
       border: none !important;
       max-width: 100%;
       height: 350px;
       background: transparent;
       box-shadow: none;
-      overflow: hidden;
       margin: 0 1rem;
   }
-    .recently-added-products-container .recently-added-product-card {
+
+  .recently-added-products-container .recently-added-product-card {
       width: 100%;
       text-align: center;
-      position: relative;
       margin: 20px auto;
-    }
-      
-    .recently-added-products-container .card-img-top {
+  }
+
+  .recently-added-products-container .card-img-top {
       border-radius: 4px;
       height: 180px;
       object-fit: cover;
-    }
-    .recently-added-products-container .card-title{
+  }
+
+  .recently-added-products-container .card-title {
       font-size: 16px;
-    }
-    .recently-added-products-container .card-text {
+  }
+
+  .recently-added-products-container .card-text {
       font-size: 12px;
   }
+
   .recently-added-products-container .slick-dots {
-    bottom: 0px !important;
-    text-align: center !important;
-    margin: auto !important;
-}
+      bottom: 0px !important;
+      text-align: center !important;
+      margin: auto !important;
   }
+}

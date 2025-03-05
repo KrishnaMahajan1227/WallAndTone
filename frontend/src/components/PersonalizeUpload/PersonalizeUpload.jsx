@@ -57,15 +57,23 @@ const PersonalizeUpload = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (!file) return;
+  
     if (!file.type.startsWith("image/")) {
       setError("Please upload a valid image file (JPG or PNG).");
       return;
     }
+  
+    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+      setError("File size exceeds 50MB. Please upload a smaller image.");
+      return;
+    }
+  
     setSelectedImage(file);
     setPreviewUrl(URL.createObjectURL(file));
     setError(null);
     checkImageQuality(file);
   };
+  
 
   // **🔹 When Crop is Done**
   const onCropComplete = useCallback((_, croppedAreaPixels) => {
@@ -157,34 +165,50 @@ const PersonalizeUpload = () => {
         </p>
 
         <div className="personalize-upload-box">
-          <label className="personalize-upload-label">
-            <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
-            <div className="personalize-upload-content">
-              {previewUrl ? (
-                <div className="personalize-preview-container">
-                  <Cropper
-                    image={previewUrl}
-                    crop={crop}
-                    zoom={zoom}
-                    aspect={orientation === "portrait" ? 3 / 4 : 16 / 9}
-                    onCropChange={setCrop}
-                    onZoomChange={setZoom}
-                    onCropComplete={onCropComplete}
-                  />
-                  <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
-                    <p>{overlayMessage}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="personalize-upload-placeholder">
-                  <Upload size={50} className="upload-icon" />
-                  <p className="upload-text">Upload Photo</p>
-                  <span className="upload-support">Supported: PNG, JPG</span>
-                </div>
-              )}
-            </div>
-          </label>
-        </div>
+  {!previewUrl ? (
+    // 📌 Agar koi image selected nahi hai toh normal upload placeholder dikhao
+    <label className="personalize-upload-label">
+      <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
+      <div className="personalize-upload-placeholder">
+        <Upload size={50} className="upload-icon" />
+        <p className="upload-text">Upload Photo</p>
+        <span className="upload-support">Supported: PNG, JPG</span>
+      </div>
+    </label>
+  ) : (
+    // 📌 Agar image select ho chuki hai toh Cropper dikhana hai
+    <div className="personalize-preview-container">
+      <Cropper
+        image={previewUrl}
+        crop={crop}
+        zoom={zoom}
+        aspect={orientation === "portrait" ? 3 / 4 : 16 / 9}
+        onCropChange={setCrop}
+        onZoomChange={setZoom}
+        onCropComplete={onCropComplete}
+      />
+      <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
+        <p>{overlayMessage}</p>
+      </div>
+
+      {/* 📌 Re-Upload button */}
+      <div className="reupload-btn-container">
+        <button
+          className="btn btn-secondary reupload-btn"
+          onClick={() => {
+            setSelectedImage(null);
+            setPreviewUrl(null);
+            setImageQuality(null);
+            setError(null);
+          }}
+        >
+          Re-Upload Image
+        </button>
+      </div>
+    </div>
+  )}
+</div>
+
 
         {previewUrl && (
           <div className="orientation-selection">

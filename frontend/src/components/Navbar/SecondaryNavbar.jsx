@@ -114,7 +114,6 @@ const SecondaryNavbar = () => {
             headers: { Authorization: `Bearer ${token}` },
           });
           const wishlistData = await wishlistResponse.json();
-          // Ensure items is an array before updating context
           if (wishlistData && Array.isArray(wishlistData.items)) {
             setWishlist(wishlistData.items);
           } else {
@@ -153,7 +152,6 @@ const SecondaryNavbar = () => {
             ))}
           </div>
         </div>
-
         <div className="nav-buttons">
           <div className="history-button" ref={historyRef}>
             <button onClick={() => setShowHistoryDropdown(!showHistoryDropdown)}>
@@ -166,11 +164,9 @@ const SecondaryNavbar = () => {
               />
             )}
           </div>
-
           <Link to="/cart" className="cart-button">
             <img src={cartIconUrl} alt="Cart" className="cart-icon" />
           </Link>
-
           <Link to="/wishlist" className="wishlist-button">
             <img 
               src={wishlistCount > 0 ? wishlistIconUrl : heartIconUrl} 

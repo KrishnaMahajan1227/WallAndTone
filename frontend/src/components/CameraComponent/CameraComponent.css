@@ -34,8 +34,8 @@
   color: #e7e7e7;
 }
 .camera-component .hamburger-menu:hover {
-background-color: transparent;
-color: #e7e7e7;
+  background-color: transparent;
+  color: #e7e7e7;
 }
 .camera-component .mobile-product-list-header button.btn.btn-outline-light {
   max-width: fit-content;
@@ -208,15 +208,19 @@ color: #e7e7e7;
   transform: translateY(0);
 }
 
-/* Draggable Product Preview */
+/* DRAGGABLE PRODUCT PREVIEW (UPDATED) */
 .camera-component .selected-product {
   position: absolute;
   transform: translate(-50%, -50%);
   cursor: move;
   touch-action: none;
   animation: fadeIn 0.3s ease-out;
+  /* Ensure inline width/height from React are used */
+  width: auto !important;
+  height: auto !important;
 }
 .camera-component .product-on-wall {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -238,7 +242,6 @@ color: #e7e7e7;
   cursor: pointer;
   display: none;
 }
-
 .camera-component .selected-product:hover .remove-from-preview {
   display: block;
 }
@@ -264,77 +267,22 @@ color: #e7e7e7;
   transition: background-color 0.3s ease;
   z-index: 10;
 }
-
 .camera-component .product-card .wishlist-icon img {
   width: 16px;
   height: 16px;
 }
-
 .camera-component .product-card .wishlist-icon:hover {
   background-color: rgb(138, 12, 12);
 }
 
+/* RESPONSIVE ADJUSTMENTS */
 @media (max-width: 768px) {
   .camera-component .remove-from-preview {
     display: block !important;
   }
   .camera-component .camera-header .logo-img {
     width: 80px;
-}
-}
-
-/* PRODUCT DETAILS */
-.camera-component .product-details h4 {
-  margin-bottom: 15px;
-}
-.camera-component .product-details label {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-.camera-component .form-select {
-  margin-bottom: 0px;
-}
-
-.camera-component .product-details.p-3 .row.gx-2.gy-3.w-100 {
-  align-items: flex-end;
-}
-/* Controls Bar at Bottom */
-.camera-component .controls {
-  margin-top: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  transition: background-color 0.3s ease;
-}
-.camera-component .controls button {
-  padding: 10px 20px;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-  background: #5a433c;
-  border: none;
-  color: #FFFFFF;
-}
-.camera-component .controls button:hover {
-  padding: 10px 20px;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-  background: #2F231F;
-  border: none;
-  color: #FFFFFF;
-}
-
-/* Toast Notification */
-.camera-component .toast-container {
-  z-index: 1100;
-}
-.camera-component .toast {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
+  }
   .camera-component .camera-left-panel {
     display: none;
   }
@@ -362,5 +310,48 @@ color: #e7e7e7;
     padding: 7px 15px;
     max-width: fit-content;
     border-radius: 4px;
+  }
 }
+
+/* PRODUCT DETAILS */
+.camera-component .product-details h4 {
+  margin-bottom: 15px;
+}
+.camera-component .product-details label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.camera-component .form-select {
+  margin-bottom: 0px;
+}
+.camera-component .product-details.p-3 .row.gx-2.gy-3.w-100 {
+  align-items: flex-end;
+}
+
+/* Controls Bar at Bottom */
+.camera-component .controls {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  transition: background-color 0.3s ease;
+}
+.camera-component .controls button {
+  padding: 10px 20px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  background: #5a433c;
+  border: none;
+  color: #FFFFFF;
+}
+.camera-component .controls button:hover {
+  background: #2F231F;
+}
+.camera-component .toast-container {
+  z-index: 1100;
+}
+.camera-component .toast {
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }

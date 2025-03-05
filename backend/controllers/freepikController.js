@@ -11,53 +11,75 @@ const generateImage = async (req, res) => {
 
   try {
     console.log("Generating images for prompt:", prompt);
+    const images = [];
 
-    const requestPayload = {
-      prompt,
-      negative_prompt: negativePrompt || "b&w, earth, cartoon, ugly",
-      guidance_scale: 2,
-      seed: Math.floor(Math.random() * 100000),
-      num_images: 3, // Generate 3 images
-      image: {
-        size: styling.size || "square_1_1",
-      },
-      styling: {
-        color: styling.color || "",
-        framing: styling.framing || "",
-        lightning: styling.lightning || "",
-        style: styling.style || "",
-      },
-    };
+    // Allowed style options
+    const allowedStyles = ["photo", "digital-art", "anime", "painting", "fantasy"];
 
-    // Remove empty styling options
-    Object.keys(requestPayload.styling).forEach((key) => {
-      if (requestPayload.styling[key] === "") {
-        delete requestPayload.styling[key];
+    // Loop three times for independent image generations.
+    for (let i = 0; i < 3; i++) {
+      // Generate a seed that is less than 1,000,000.
+      const uniqueSeed = Math.floor(Math.random() * 1000000);
+
+      // Validate the style value; if it's not one of the allowed, use an empty string.
+      let styleValue = "";
+      if (styling && styling.style && allowedStyles.includes(styling.style.toLowerCase())) {
+        styleValue = styling.style.toLowerCase();
       }
-    });
 
-    const response = await axios.post(
-      "https://api.freepik.com/v1/ai/text-to-image",
-      requestPayload,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "x-freepik-api-key": apiKey,
+      const requestPayload = {
+        prompt,
+        negative_prompt: negativePrompt || "b&w, earth, cartoon, ugly",
+        guidance_scale: 2,
+        seed: uniqueSeed,
+        num_images: 1,
+        image: {
+          size: styling?.size || "square_1_1",
         },
+        styling: {
+          // Only include style key now.
+          style: styleValue,
+        },
+      };
+
+      // Log the payload for debugging
+      console.log("Request Payload:", JSON.stringify(requestPayload, null, 2));
+
+      try {
+        const response = await axios.post(
+          "https://api.freepik.com/v1/ai/text-to-image",
+          requestPayload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "x-freepik-api-key": apiKey,
+            },
+          }
+        );
+
+        const imagesData = response.data?.data || [];
+        // Filter out NSFW images and select one image.
+        const safeImageData = imagesData.find((imgData) => !imgData.has_nsfw);
+        if (safeImageData) {
+          images.push(`data:image/png;base64,${safeImageData.base64}`);
+        }
+      } catch (innerError) {
+        console.error(
+          "API call failed for iteration",
+          i,
+          innerError.response ? innerError.response.data : innerError.message
+        );
+        return res.status(400).json({
+          message: "Error generating images",
+          error: innerError.response ? innerError.response.data : innerError.message,
+        });
       }
-    );
+    }
 
-    const imagesData = response.data?.data || [];
-
-    // Filter out NSFW images and convert them to base64 URLs
-    const safeImages = imagesData
-      .filter((imgData) => !imgData.has_nsfw)
-      .map((imgData) => `data:image/png;base64,${imgData.base64}`);
-
-    if (safeImages.length > 0) {
+    if (images.length > 0) {
       return res.status(200).json({
         message: "Images generated successfully",
-        images: safeImages, // Return multiple images
+        images,
       });
     }
 

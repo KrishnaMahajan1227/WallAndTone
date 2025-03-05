@@ -5,19 +5,23 @@ const fs = require('fs');
 const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 
-// Configure Cloudinary
+// =================== Cloudinary Configuration ===================
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configure Cloudinary Storage for Images
+// =================== Cloudinary Storage Configurations ===================
+
+// Storage for Products (Images)
 const storageCloudinary = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     const timestamp = Date.now();
-    const fileName = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
+    const fileName = file.originalname
+      .replace(/\.[^/.]+$/, "")
+      .replace(/[^a-zA-Z0-9]/g, "_");
     
     return {
       folder: 'products',
@@ -28,12 +32,14 @@ const storageCloudinary = new CloudinaryStorage({
   }
 });
 
-// Cloudinary Storage for Personalized Images
+// Storage for Personalized Images
 const personalizedStorageCloudinary = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     const timestamp = Date.now();
-    const fileName = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
+    const fileName = file.originalname
+      .replace(/\.[^/.]+$/, "")
+      .replace(/[^a-zA-Z0-9]/g, "_");
 
     return {
       folder: 'personalized_uploads',
@@ -43,7 +49,8 @@ const personalizedStorageCloudinary = new CloudinaryStorage({
     };
   }
 });
-// Local Storage for Excel Files
+
+// =================== Local Storage for Excel Files ===================
 const storageLocal = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(process.cwd(), 'uploads', 'excel');
@@ -57,7 +64,7 @@ const storageLocal = multer.diskStorage({
   },
 });
 
-// File Filters
+// =================== File Filters ===================
 const fileFilterImages = (req, file, cb) => {
   if (!file.mimetype.match(/^image\/(jpeg|png|jpg)$/)) {
     return cb(new Error('Only image files (JPG, PNG) are allowed!'), false);
@@ -72,7 +79,7 @@ const fileFilterExcel = (req, file, cb) => {
   cb(null, true);
 };
 
-// Multer Instances
+// =================== Multer Instances ===================
 const uploadExcel = multer({ 
   storage: storageLocal, 
   fileFilter: fileFilterExcel 
@@ -84,12 +91,27 @@ const uploadImage = multer({
   limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-// Helper function to normalize file path
+// Helper instance: for uploading personalized images
+// Renamed to avoid naming conflicts with any route handlers.
+const uploadPersonalizedImageMulter = multer({ 
+  storage: personalizedStorageCloudinary, 
+  fileFilter: fileFilterImages, 
+  limits: { fileSize: 50 * 1024 * 1024 } 
+});
+
+const uploadReviewImage = multer({
+  storage: storageCloudinary,  // Ensuring images are stored in Cloudinary
+  fileFilter: fileFilterImages,
+  limits: { fileSize: 50 * 1024 * 1024 }
+});
+
+// =================== Helper Functions ===================
+
+// Normalize a file path by checking common locations.
 const normalizePath = (filePath) => {
   try {
     if (!filePath) return null;
 
-    // Clean the path string
     let normalized = filePath
       .trim()
       .replace(/^[a-zA-Z]:/i, '')
@@ -98,17 +120,13 @@ const normalizePath = (filePath) => {
       .replace(/["']/g, '')
       .trim();
 
-    // Extract the filename from the path
     const filename = path.basename(normalized);
-
-    // Look for the file in multiple possible locations
     const possiblePaths = [
       path.join(process.cwd(), 'uploads', filename),
       path.join(process.cwd(), normalized),
       normalized
     ];
 
-    // Find the first path that exists
     for (const testPath of possiblePaths) {
       if (fs.existsSync(testPath)) {
         console.log('Found file at:', testPath);
@@ -124,7 +142,7 @@ const normalizePath = (filePath) => {
   }
 };
 
-// Helper function to upload local image to Cloudinary
+// Upload a local image file to Cloudinary with retries.
 const uploadLocalToCloudinary = async (imagePath, publicId) => {
   try {
     if (!imagePath) {
@@ -134,14 +152,12 @@ const uploadLocalToCloudinary = async (imagePath, publicId) => {
 
     console.log('Attempting to upload:', imagePath);
 
-    // Normalize the path
     const normalizedPath = normalizePath(imagePath);
     if (!normalizedPath) {
       console.error('Failed to normalize path:', imagePath);
       return null;
     }
 
-    // Ensure the file exists and is readable
     try {
       await fs.promises.access(normalizedPath, fs.constants.R_OK);
     } catch (error) {
@@ -149,21 +165,18 @@ const uploadLocalToCloudinary = async (imagePath, publicId) => {
       return null;
     }
 
-    // Validate file type
     const ext = path.extname(normalizedPath).toLowerCase();
     if (!['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
       console.error(`Invalid file type: ${ext}`);
       return null;
     }
 
-    // Read file stats
     const stats = await fs.promises.stat(normalizedPath);
-    if (stats.size > 50 * 1024 * 1024) { // 50MB limit
+    if (stats.size > 50 * 1024 * 1024) {
       console.error(`File too large: ${normalizedPath}`);
       return null;
     }
 
-    // Upload to Cloudinary with retries
     let retries = 3;
     let lastError = null;
 
@@ -200,10 +213,7 @@ const uploadLocalToCloudinary = async (imagePath, publicId) => {
   }
 };
 
-
-const uploadPersonalizedImage = multer({ storage: personalizedStorageCloudinary, fileFilter: fileFilterImages, limits: { fileSize: 50 * 1024 * 1024 } });
-
-// Verify Cloudinary configuration
+// =================== Verify Cloudinary Configuration ===================
 cloudinary.uploader.upload('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', {
   folder: 'test'
 }).then(() => {
@@ -213,17 +223,10 @@ cloudinary.uploader.upload('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAA
   throw error;
 });
 
-const uploadReviewImage = multer({
-  storage: storageCloudinary,  // Ensuring images are stored in Cloudinary
-  fileFilter: fileFilterImages,
-  limits: { fileSize: 50 * 1024 * 1024 }
-});
-
-
 module.exports = { 
   uploadExcel, 
   uploadImage,
   uploadLocalToCloudinary,
   uploadReviewImage,
-  uploadPersonalizedImage,
+  uploadPersonalizedImageMulter,
 };

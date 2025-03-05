@@ -165,50 +165,49 @@ const PersonalizeUpload = () => {
         </p>
 
         <div className="personalize-upload-box">
-  {!previewUrl ? (
-    // 📌 Agar koi image selected nahi hai toh normal upload placeholder dikhao
-    <label className="personalize-upload-label">
-      <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
-      <div className="personalize-upload-placeholder">
-        <Upload size={50} className="upload-icon" />
-        <p className="upload-text">Upload Photo</p>
-        <span className="upload-support">Supported: PNG, JPG</span>
-      </div>
-    </label>
-  ) : (
-    // 📌 Agar image select ho chuki hai toh Cropper dikhana hai
-    <div className="personalize-preview-container">
-      <Cropper
-        image={previewUrl}
-        crop={crop}
-        zoom={zoom}
-        aspect={orientation === "portrait" ? 3 / 4 : 16 / 9}
-        onCropChange={setCrop}
-        onZoomChange={setZoom}
-        onCropComplete={onCropComplete}
-      />
-      <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
-        <p>{overlayMessage}</p>
-      </div>
+          {!previewUrl ? (
+            // Show placeholder if no image is selected
+            <label className="personalize-upload-label">
+              <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
+              <div className="personalize-upload-placeholder">
+                <Upload size={50} className="upload-icon" />
+                <p className="upload-text">Upload Photo</p>
+                <span className="upload-support">Supported: PNG, JPG</span>
+              </div>
+            </label>
+          ) : (
+            // Show Cropper if image is selected
+            <div className="personalize-preview-container">
+              <Cropper
+                image={previewUrl}
+                crop={crop}
+                zoom={zoom}
+                aspect={orientation === "portrait" ? 3 / 4 : 16 / 9}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+              <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
+                <p>{overlayMessage}</p>
+              </div>
 
-      {/* 📌 Re-Upload button */}
-      <div className="reupload-btn-container">
-        <button
-          className="btn btn-secondary reupload-btn"
-          onClick={() => {
-            setSelectedImage(null);
-            setPreviewUrl(null);
-            setImageQuality(null);
-            setError(null);
-          }}
-        >
-          Re-Upload Image
-        </button>
-      </div>
-    </div>
-  )}
-</div>
-
+              {/* Re-Upload button */}
+              <div className="reupload-btn-container">
+                <button
+                  className="btn btn-secondary reupload-btn"
+                  onClick={() => {
+                    setSelectedImage(null);
+                    setPreviewUrl(null);
+                    setImageQuality(null);
+                    setError(null);
+                  }}
+                >
+                  Re-Upload Image
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {previewUrl && (
           <div className="orientation-selection">

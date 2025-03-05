@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Offcanvas, Accordion, Button, Dropdown, Modal } from 'react-bootstrap';
 import HistoryDropdown from '../History/HistoryDropdown';
@@ -124,7 +124,6 @@ const orientationOptions = ['Portrait', 'Landscape', 'Square'];
 const ProductCard = ({
   product,
   isLarge = false,
-  handleProductClick,
   wishlist,
   handleAddToWishlist,
   handleRemoveFromWishlist
@@ -144,81 +143,79 @@ const ProductCard = ({
   }, [product.subFrameImages]);
 
   return (
-    <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
-      <div
-        className="product-image-wrapper position-relative"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{ overflow: 'hidden' }}
-      >
-        <img
-          src={product.mainImage}
-          className="card-img-top product-image"
-          alt={product.productName}
-          onClick={() => handleProductClick(product._id)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            transition: `opacity ${transitionDuration}ms ease`,
-            opacity: hovered && randomMockup ? 0 : 1,
-            position: 'absolute',
-            top: 0,
-            left: 0
-          }}
-        />
-        {randomMockup && (
+    <Link to={`/product/${product._id}`} className="product-card-link">
+      <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
+        <div
+          className="product-image-wrapper position-relative"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{ overflow: 'hidden' }}
+        >
           <img
-            src={randomMockup}
-            alt={`${product.productName} Mockup`}
+            src={product.mainImage}
+            className="card-img-top product-image"
+            alt={product.productName}
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
               width: '100%',
               height: '100%',
               objectFit: 'cover',
               transition: `opacity ${transitionDuration}ms ease`,
-              opacity: hovered ? 1 : 0
+              opacity: hovered && randomMockup ? 0 : 1,
+              position: 'absolute',
+              top: 0,
+              left: 0
             }}
           />
-        )}
-        <div
-          className="wishlist-icon position-absolute"
-          onClick={(e) => {
-            e.stopPropagation();
-            const isInWishlist = wishlist && wishlist.some(
-              item => item.productId && item.productId._id === product._id
-            );
-            if (isInWishlist) {
-              handleRemoveFromWishlist(product);
-            } else {
-              handleAddToWishlist(product);
-            }
-          }}
-        >
-          <img
-            src={
-              wishlist && wishlist.some(
+          {randomMockup && (
+            <img
+              src={randomMockup}
+              alt={`${product.productName} Mockup`}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transition: `opacity ${transitionDuration}ms ease`,
+                opacity: hovered ? 1 : 0
+              }}
+            />
+          )}
+          <div
+            className="wishlist-icon position-absolute"
+            onClick={(e) => {
+              e.preventDefault(); // prevent the link click
+              e.stopPropagation();
+              const isInWishlist = wishlist && wishlist.some(
                 item => item.productId && item.productId._id === product._id
-              )
-                ? heartIconFilled
-                : heartIcon
-            }
-            alt="Heart Icon"
-          />
+              );
+              if (isInWishlist) {
+                handleRemoveFromWishlist(product);
+              } else {
+                handleAddToWishlist(product);
+              }
+            }}
+          >
+            <img
+              src={
+                wishlist && wishlist.some(
+                  item => item.productId && item.productId._id === product._id
+                )
+                  ? heartIconFilled
+                  : heartIcon
+              }
+              alt="Heart Icon"
+            />
+          </div>
+        </div>
+        <div className="card-body text-center d-flex flex-column">
+          <h5 className="card-title product-title">{product.productName}</h5>
+          <p className="card-text text-muted">{product.description.slice(0, isLarge ? 150 : 100)}...</p>
+          <p className="card-text text-muted">Starting From Rs {product.startFromPrice}/-</p>
         </div>
       </div>
-      <div className="card-body text-center d-flex flex-column">
-        <h5 className="card-title product-title">{product.productName}</h5>
-        <p className="card-text text-muted">
-          {product.description.slice(0, isLarge ? 150 : 100)}...
-        </p>
-        <p className="card-text text-muted">
-          Starting From Rs {product.startFromPrice}/-
-        </p>
-      </div>
-    </div>
+    </Link>
   );
 };
 

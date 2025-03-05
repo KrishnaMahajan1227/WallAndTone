@@ -31,6 +31,7 @@ const PersonalizeUpload = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [imageQuality, setImageQuality] = useState(null);
+  const [orientation, setOrientation] = useState(null); // Selected Orientation
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -73,6 +74,7 @@ const PersonalizeUpload = () => {
     checkImageQuality(file);
   };
   
+
   // **🔹 When Crop is Done**
   const onCropComplete = useCallback((_, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -121,6 +123,7 @@ const PersonalizeUpload = () => {
       const croppedFile = await getCroppedImg(previewUrl, croppedAreaPixels);
       const formData = new FormData();
       formData.append("image", croppedFile);
+      // Proceed regardless of login status.
       const headers = { "Content-Type": "multipart/form-data" };
       const token = localStorage.getItem("token");
       if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -129,7 +132,7 @@ const PersonalizeUpload = () => {
       });
       const imageUrl = response.data.image.imageUrl;
       navigate("/PersonalizeCustomization", {
-        state: { image: imageUrl, isCustom: true }
+        state: { image: imageUrl, isCustom: true, orientation },
       });
     } catch (err) {
       console.error("Upload Error:", err.response?.data || err.message);
@@ -162,49 +165,67 @@ const PersonalizeUpload = () => {
         </p>
 
         <div className="personalize-upload-box">
-          {!previewUrl ? (
-            // Show placeholder if no image is selected
-            <label className="personalize-upload-label">
-              <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
-              <div className="personalize-upload-placeholder">
-                <Upload size={50} className="upload-icon" />
-                <p className="upload-text">Upload Photo</p>
-                <span className="upload-support">Supported: PNG, JPG</span>
-              </div>
-            </label>
-          ) : (
-            // Show Cropper if image is selected
-            <div className="personalize-preview-container">
-              <Cropper
-                image={previewUrl}
-                crop={crop}
-                zoom={zoom}
-                aspect={16 / 9} // Fixed aspect ratio
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-              />
-              <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
-                <p>{overlayMessage}</p>
-              </div>
+  {!previewUrl ? (
+    // 📌 Agar koi image selected nahi hai toh normal upload placeholder dikhao
+    <label className="personalize-upload-label">
+      <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
+      <div className="personalize-upload-placeholder">
+        <Upload size={50} className="upload-icon" />
+        <p className="upload-text">Upload Photo</p>
+        <span className="upload-support">Supported: PNG, JPG</span>
+      </div>
+    </label>
+  ) : (
+    // 📌 Agar image select ho chuki hai toh Cropper dikhana hai
+    <div className="personalize-preview-container">
+      <Cropper
+        image={previewUrl}
+        crop={crop}
+        zoom={zoom}
+        aspect={orientation === "portrait" ? 3 / 4 : 16 / 9}
+        onCropChange={setCrop}
+        onZoomChange={setZoom}
+        onCropComplete={onCropComplete}
+      />
+      <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
+        <p>{overlayMessage}</p>
+      </div>
 
-              {/* Re-Upload button */}
-              <div className="reupload-btn-container">
-                <button
-                  className="btn btn-secondary reupload-btn"
-                  onClick={() => {
-                    setSelectedImage(null);
-                    setPreviewUrl(null);
-                    setImageQuality(null);
-                    setError(null);
-                  }}
-                >
-                  Re-Upload Image
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+      {/* 📌 Re-Upload button */}
+      <div className="reupload-btn-container">
+        <button
+          className="btn btn-secondary reupload-btn"
+          onClick={() => {
+            setSelectedImage(null);
+            setPreviewUrl(null);
+            setImageQuality(null);
+            setError(null);
+          }}
+        >
+          Re-Upload Image
+        </button>
+      </div>
+    </div>
+  )}
+</div>
+
+
+        {previewUrl && (
+          <div className="orientation-selection">
+            <label
+              className={`orientation-option ${orientation === "portrait" ? "active" : ""}`}
+              onClick={() => setOrientation("portrait")}
+            >
+              Portrait (3:4)
+            </label>
+            <label
+              className={`orientation-option ${orientation === "landscape" ? "active" : ""}`}
+              onClick={() => setOrientation("landscape")}
+            >
+              Landscape (16:9)
+            </label>
+          </div>
+        )}
 
         {error && <p className="personalize-error-text">{error}</p>}
 

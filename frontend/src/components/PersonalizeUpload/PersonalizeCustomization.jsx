@@ -17,7 +17,7 @@ const PersonalizeCustomization = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const personalizedImage = location.state?.image;
-  // Orientation functionality has been removed
+  const selectedOrientation = location.state?.orientation || "portrait"; // Default: Portrait
   const token = localStorage.getItem("token");
 
   const [loading, setLoading] = useState(true);
@@ -113,7 +113,7 @@ const PersonalizeCustomization = () => {
         size: selectedSize._id,
         isCustom: true,
         image: personalizedImage,
-        // Orientation field removed
+        orientation: selectedOrientation, // Send orientation to backend
       };
 
       if (token) {
@@ -142,7 +142,11 @@ const PersonalizeCustomization = () => {
 
       <div className="customization-details">
         <div className="image-section">
-          <div className="main-image-container">
+          <div
+            className={`main-image-container ${
+              selectedOrientation === "landscape" ? "landscape-mode" : ""
+            }`}
+          >
             {selectedSubFrameType && (
               <img
                 src={frameBackgrounds[selectedSubFrameType.name]}

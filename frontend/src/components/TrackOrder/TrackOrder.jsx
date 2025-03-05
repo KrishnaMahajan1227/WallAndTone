@@ -5,7 +5,8 @@ import "react-toastify/dist/ReactToastify.css";
 import "./TrackOrder.css";
 
 const TrackOrder = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || "https://wallandtone.com";
+  // Set the API URL – update this to your backend URL or use environment variables
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
   
   const [orderIdInput, setOrderIdInput] = useState("");
   const [orderDetails, setOrderDetails] = useState(null);
@@ -18,7 +19,7 @@ const TrackOrder = () => {
     }
     setLoading(true);
     try {
-      // Call your tracking API endpoint; adjust the URL as per your backend
+      // Call the tracking endpoint from the backend
       const response = await axios.get(`${apiUrl}/api/shiprocket/track-order?order_id=${orderIdInput}`);
       if (response.data.success) {
         setOrderDetails(response.data.orderResponse);
@@ -28,7 +29,10 @@ const TrackOrder = () => {
         toast.error(response.data.message || "Failed to fetch order details.");
       }
     } catch (error) {
-      console.error("Tracking error:", error.response ? error.response.data : error.message);
+      console.error(
+        "Tracking error:",
+        error.response ? error.response.data : error.message
+      );
       setOrderDetails(null);
       toast.error("Error fetching tracking details.");
     } finally {

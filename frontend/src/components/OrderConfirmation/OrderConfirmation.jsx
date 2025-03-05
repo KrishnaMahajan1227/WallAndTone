@@ -7,10 +7,11 @@ import "./OrderConfirmation.css";
 const OrderConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  // Expecting the Shiprocket order response in state
+  
+  // Expecting the Shiprocket order response to be passed via location state
   const orderResponse = location.state?.orderResponse || {};
   
-  // We'll use the Shipment ID for tracking
+  // Use the Shipment ID as the tracking ID (or use a different key if needed)
   const shipmentId = orderResponse.shipment_id || "N/A";
 
   return (

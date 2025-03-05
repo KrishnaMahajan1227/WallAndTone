@@ -31,7 +31,6 @@ const PersonalizeUpload = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [imageQuality, setImageQuality] = useState(null);
-  const [orientation, setOrientation] = useState(null); // Selected Orientation
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -74,7 +73,6 @@ const PersonalizeUpload = () => {
     checkImageQuality(file);
   };
   
-
   // **🔹 When Crop is Done**
   const onCropComplete = useCallback((_, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -123,7 +121,6 @@ const PersonalizeUpload = () => {
       const croppedFile = await getCroppedImg(previewUrl, croppedAreaPixels);
       const formData = new FormData();
       formData.append("image", croppedFile);
-      // Proceed regardless of login status.
       const headers = { "Content-Type": "multipart/form-data" };
       const token = localStorage.getItem("token");
       if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -132,7 +129,7 @@ const PersonalizeUpload = () => {
       });
       const imageUrl = response.data.image.imageUrl;
       navigate("/PersonalizeCustomization", {
-        state: { image: imageUrl, isCustom: true, orientation },
+        state: { image: imageUrl, isCustom: true }
       });
     } catch (err) {
       console.error("Upload Error:", err.response?.data || err.message);
@@ -182,7 +179,7 @@ const PersonalizeUpload = () => {
                 image={previewUrl}
                 crop={crop}
                 zoom={zoom}
-                aspect={orientation === "portrait" ? 3 / 4 : 16 / 9}
+                aspect={16 / 9} // Fixed aspect ratio
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
@@ -208,23 +205,6 @@ const PersonalizeUpload = () => {
             </div>
           )}
         </div>
-
-        {previewUrl && (
-          <div className="orientation-selection">
-            <label
-              className={`orientation-option ${orientation === "portrait" ? "active" : ""}`}
-              onClick={() => setOrientation("portrait")}
-            >
-              Portrait (3:4)
-            </label>
-            <label
-              className={`orientation-option ${orientation === "landscape" ? "active" : ""}`}
-              onClick={() => setOrientation("landscape")}
-            >
-              Landscape (16:9)
-            </label>
-          </div>
-        )}
 
         {error && <p className="personalize-error-text">{error}</p>}
 

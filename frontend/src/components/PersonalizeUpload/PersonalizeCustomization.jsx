@@ -17,7 +17,8 @@ const PersonalizeCustomization = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const personalizedImage = location.state?.image;
-  const selectedOrientation = location.state?.orientation || "portrait"; // Default: Portrait
+  // Even though orientation is sent from the previous screen, you can ignore it if needed.
+  const selectedOrientation = location.state?.orientation || "portrait";
   const token = localStorage.getItem("token");
 
   const [loading, setLoading] = useState(true);
@@ -113,7 +114,7 @@ const PersonalizeCustomization = () => {
         size: selectedSize._id,
         isCustom: true,
         image: personalizedImage,
-        orientation: selectedOrientation, // Send orientation to backend
+        orientation: selectedOrientation, // still sending if needed by backend
       };
 
       if (token) {
@@ -157,7 +158,11 @@ const PersonalizeCustomization = () => {
             <img
               src={personalizedImage}
               alt="Uploaded Artwork"
-              className="generated-artwork"
+              className={`generated-artwork ${
+                selectedFrameType?.name?.toLowerCase() === "acrylic"
+                  ? "acrylic-style"
+                  : ""
+              }`}
             />
           </div>
         </div>

@@ -37,7 +37,7 @@ const FreepikImageGenerator = () => {
     switch (size) {
       case 'traditional_3_4':
         return 'portrait';
-      case 'widescreen_16_9':
+      case 'classic_4_3':
         return 'landscape';
       case 'square_1_1':
         return 'square';
@@ -341,7 +341,7 @@ const FreepikImageGenerator = () => {
           <div className="freepik-generator__styling-row">
             <select name="size" value={styling.size} onChange={handleStylingChange} disabled={loading}>
               <option value="traditional_3_4">Portrait</option>
-              <option value="widescreen_16_9">Landscape</option>
+              <option value="classic_4_3">Landscape</option>
               <option value="square_1_1">Square</option>
             </select>
           </div>

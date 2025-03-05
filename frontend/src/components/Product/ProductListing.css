@@ -61,7 +61,9 @@
 .all-products-container {
   margin-top: 50px;
 }
-
+.product-listing a.product-card-link {
+  text-decoration: none !important;
+}
 .product-listing .product-title {
   font-size: 16px;
   font-weight: bold;

@@ -11,6 +11,7 @@ import sorticon from '../../assets/icons/sort-icon.svg';
 import ListingSEO from './ListingSEO';
 import './ProductListing.css';
 
+// Grouped Options
 const groupedColorOptions = {
   "Black & White": ["Black", "White", "Gray / Grey", "Silver"],
   "Blue Tones": ["Blue", "Navy Blue", "Dark Blue", "Teal", "Aqua"],
@@ -119,8 +120,7 @@ const groupedRoomOptions = {
 
 const orientationOptions = ['Portrait', 'Landscape', 'Square'];
 
-// ---------------------- ProductCard Component ----------------------
-// Uses a crossfade effect to show a single random mockup image on hover.
+// ---------- ProductCard Component ----------
 const ProductCard = ({
   product,
   isLarge = false,
@@ -129,7 +129,7 @@ const ProductCard = ({
   handleRemoveFromWishlist
 }) => {
   const [hovered, setHovered] = useState(false);
-  const transitionDuration = 500; // milliseconds
+  const transitionDuration = 500;
 
   const randomMockup = useMemo(() => {
     if (!product.subFrameImages || product.subFrameImages.length === 0) return null;
@@ -185,7 +185,7 @@ const ProductCard = ({
           <div
             className="wishlist-icon position-absolute"
             onClick={(e) => {
-              e.preventDefault(); // prevent the link click
+              e.preventDefault();
               e.stopPropagation();
               const isInWishlist = wishlist && wishlist.some(
                 item => item.productId && item.productId._id === product._id
@@ -211,15 +211,19 @@ const ProductCard = ({
         </div>
         <div className="card-body text-center d-flex flex-column">
           <h5 className="card-title product-title">{product.productName}</h5>
-          <p className="card-text text-muted">{product.description.slice(0, isLarge ? 150 : 100)}...</p>
-          <p className="card-text text-muted">Starting From Rs {product.startFromPrice}/-</p>
+          <p className="card-text text-muted">
+            {product.description.slice(0, isLarge ? 150 : 100)}...
+          </p>
+          <p className="card-text text-muted">
+            Starting From Rs {product.startFromPrice}/-
+          </p>
         </div>
       </div>
     </Link>
   );
 };
 
-// ---------------------- ProductListing Component ----------------------
+// ---------- ProductListing Component ----------
 const ProductListing = () => {
   const apiUrl =
     import.meta.env.VITE_API_URL ||
@@ -237,7 +241,7 @@ const ProductListing = () => {
   const [showFilterOffcanvas, setShowFilterOffcanvas] = useState(false);
   const [sortOption, setSortOption] = useState('');
 
-  // Local filter state (each value is an array)
+  // Filter states
   const [selectedColorGroups, setSelectedColorGroups] = useState([]);
   const [selectedCategoryGroups, setSelectedCategoryGroups] = useState([]);
   const [selectedOrientations, setSelectedOrientations] = useState([]);
@@ -248,7 +252,7 @@ const ProductListing = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // On mount, initialize filter state from URL (for fields that come from URL)
+  // On mount: initialize filter state from URL (only once)
   useEffect(() => {
     const qp = new URLSearchParams(location.search);
     if (qp.get('orientation')) {
@@ -276,45 +280,66 @@ const ProductListing = () => {
       });
       setSelectedRoomGroups(roomGroups);
     }
-    // Colors and Categories will be updated only via user interaction.
+    if (qp.get('colors')) {
+      const colorArr = qp.get('colors').split(',').map(s => s.trim());
+      const colorGroups = [];
+      Object.keys(groupedColorOptions).forEach(group => {
+        const groupValues = groupedColorOptions[group];
+        if (groupValues.some(val => colorArr.includes(val))) {
+          colorGroups.push(group);
+        }
+      });
+      setSelectedColorGroups(colorGroups);
+    }
+    if (qp.get('categories')) {
+      const catArr = qp.get('categories').split(',').map(s => s.trim());
+      const categoryGroups = [];
+      Object.keys(groupedCategoryOptions).forEach(group => {
+        const groupValues = groupedCategoryOptions[group];
+        if (groupValues.some(val => catArr.includes(val))) {
+          categoryGroups.push(group);
+        }
+      });
+      setSelectedCategoryGroups(categoryGroups);
+    }
   }, [location.search]);
 
-  // When "View Result" is clicked, explicitly update the URL based on current filter state.
-  const applyFilters = () => {
-    // Flatten colors and categories.
+  // Compute the filter query string from filter state
+  const filterQuery = useMemo(() => {
     const colors = selectedColorGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
     const categories = selectedCategoryGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
     const qp = new URLSearchParams();
     if (colors.length > 0) qp.set('colors', colors.join(','));
+    // Note: our component uses "orientation" (singular) while the schema uses "orientations"
     if (selectedOrientations.length > 0) qp.set('orientation', selectedOrientations.join(','));
     if (categories.length > 0) qp.set('categories', categories.join(','));
     if (selectedMediumGroups.length > 0) qp.set('medium', selectedMediumGroups.join(','));
     if (selectedRoomGroups.length > 0) qp.set('rooms', selectedRoomGroups.join(','));
-    navigate({ pathname: location.pathname, search: qp.toString() }, { replace: true });
-    setShowFilterOffcanvas(false);
-  };
+    return qp.toString();
+  }, [selectedColorGroups, selectedCategoryGroups, selectedOrientations, selectedMediumGroups, selectedRoomGroups]);
 
-  // Fetch products based on URL query parameters.
+  // When filter state changes, update the URL and immediately fetch products
   useEffect(() => {
+    navigate({ pathname: location.pathname, search: filterQuery }, { replace: true });
     const fetchProducts = async () => {
       try {
         setLoading(true);
         let url = `${apiUrl}/api/products`;
-        if (location.search) url += location.search;
+        if (filterQuery) url += '?' + filterQuery;
         const response = await fetch(url);
         const data = await response.json();
         if (!data || !Array.isArray(data)) throw new Error('Invalid data received');
         setProducts(data);
-      } catch (error) {
-        setError(error.message);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
-  }, [location.search, token, apiUrl]);
+  }, [filterQuery, apiUrl, location.pathname, navigate]);
 
-  // Fetch wishlist.
+  // Fetch wishlist
   useEffect(() => {
     const fetchWishlist = async () => {
       if (token) {
@@ -325,10 +350,9 @@ const ProductListing = () => {
           const wishlistData = await wishlistResponse.json();
           if (!wishlistData || !Array.isArray(wishlistData.items))
             throw new Error('Invalid wishlist data received');
-          const items = wishlistData.items || [];
-          setWishlist(items);
-        } catch (error) {
-          console.error('Error fetching wishlist:', error.message);
+          setWishlist(wishlistData.items || []);
+        } catch (err) {
+          console.error('Error fetching wishlist:', err.message);
           setWishlist([]);
         }
       } else {
@@ -338,7 +362,7 @@ const ProductListing = () => {
     fetchWishlist();
   }, [location.search, token, apiUrl, setWishlist]);
 
-  // Update products' inWishlist flag when wishlist changes.
+  // Update inWishlist flag for products when wishlist changes
   useEffect(() => {
     if (products.length > 0) {
       const updatedProducts = products.map(product => ({
@@ -349,7 +373,6 @@ const ProductListing = () => {
     }
   }, [wishlist, products]);
 
-  // Sorting function.
   const sortProducts = (productsArray) => {
     let sorted = [...productsArray];
     if (sortOption === 'alphabetical') {
@@ -364,7 +387,7 @@ const ProductListing = () => {
     return sorted;
   };
 
-  // Authentication popup functions.
+  // Authentication popup functions
   const handleAuthRequired = (action) => {
     setAuthAction(() => action);
     setShowAuthPopup(true);
@@ -378,7 +401,7 @@ const ProductListing = () => {
     navigate('/login');
   };
 
-  // Wishlist actions.
+  // Wishlist actions
   const handleAddToWishlist = async (product) => {
     if (!product || !product._id) return;
     if (!token) {
@@ -406,8 +429,8 @@ const ProductListing = () => {
         p._id === product._id ? { ...p, inWishlist: true } : p
       );
       setProducts(updatedProducts);
-    } catch (error) {
-      console.error('Error adding product to wishlist:', error);
+    } catch (err) {
+      console.error('Error adding product to wishlist:', err);
       setWishlist(wishlist);
     }
   };
@@ -424,8 +447,8 @@ const ProductListing = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Failed to remove product from wishlist');
-    } catch (error) {
-      console.error('Error removing product from wishlist:', error);
+    } catch (err) {
+      console.error('Error removing product from wishlist:', err);
       setWishlist(wishlist);
     }
   };
@@ -434,11 +457,11 @@ const ProductListing = () => {
     navigate(`/product/${productId}`);
   };
 
-  // Offcanvas handlers.
+  // Offcanvas handlers
   const handleShowFilterOffcanvas = () => setShowFilterOffcanvas(true);
   const handleCloseFilterOffcanvas = () => setShowFilterOffcanvas(false);
 
-  // Generic checkbox change helper.
+  // Generic checkbox change helper
   const handleCheckboxChange = (setter, selected, value) => {
     if (selected.includes(value)) {
       setter(selected.filter(item => item !== value));
@@ -447,20 +470,19 @@ const ProductListing = () => {
     }
   };
 
-  // When a filter chip is removed.
+  // When a filter chip is removed
   const removeFilterValue = (filterType, value) => {
     if (filterType === 'Color') {
-      setSelectedColorGroups(selectedColorGroups.filter(item => item !== value));
+      setSelectedColorGroups(prev => prev.filter(item => item !== value));
     } else if (filterType === 'Orientation') {
-      setSelectedOrientations(selectedOrientations.filter(item => item !== value));
+      setSelectedOrientations(prev => prev.filter(item => item !== value));
     } else if (filterType === 'Category') {
-      setSelectedCategoryGroups(selectedCategoryGroups.filter(item => item !== value));
+      setSelectedCategoryGroups(prev => prev.filter(item => item !== value));
     } else if (filterType === 'Medium') {
-      setSelectedMediumGroups(selectedMediumGroups.filter(item => item !== value));
+      setSelectedMediumGroups(prev => prev.filter(item => item !== value));
     } else if (filterType === 'Room') {
-      setSelectedRoomGroups(selectedRoomGroups.filter(item => item !== value));
+      setSelectedRoomGroups(prev => prev.filter(item => item !== value));
     }
-    // The URL will update via the applyFilters button when user clicks "View Result"
   };
 
   const handleClearSelection = () => {
@@ -469,11 +491,10 @@ const ProductListing = () => {
     setSelectedOrientations([]);
     setSelectedMediumGroups([]);
     setSelectedRoomGroups([]);
-    // Also update URL to clear filters.
     navigate({ pathname: location.pathname, search: '' }, { replace: true });
   };
 
-  // Render filter summary as chips.
+  // Render filter summary as chips
   const renderFilterSummary = () => {
     const chips = [];
     selectedColorGroups.forEach(group => chips.push({ type: 'Color', value: group }));
@@ -488,7 +509,10 @@ const ProductListing = () => {
         {chips.map((chip, index) => (
           <div key={index} className="filter-chip d-flex align-items-center me-2">
             <span className="filter-chip-label">{chip.value}</span>
-            <button className="filter-chip-remove btn btn-link p-0 ms-1" onClick={() => removeFilterValue(chip.type, chip.value)}>
+            <button
+              className="filter-chip-remove btn btn-link p-0 ms-1"
+              onClick={() => removeFilterValue(chip.type, chip.value)}
+            >
               &times;
             </button>
           </div>
@@ -500,7 +524,6 @@ const ProductListing = () => {
     );
   };
 
-  // Render product rows using the ProductCard component.
   const renderProductRows = () => {
     const sortedProducts = sortProducts(products);
     const rows = [];
@@ -606,6 +629,11 @@ const ProductListing = () => {
     );
   if (error) return <div className="alert alert-danger">{error}</div>;
 
+  // applyFilters simply closes the offcanvas (filtering happens immediately)
+  const applyFilters = () => {
+    setShowFilterOffcanvas(false);
+  };
+
   return (
     <div className="product-listing container">
       <ListingSEO />
@@ -629,9 +657,9 @@ const ProductListing = () => {
                         checked={selectedColorGroups.includes(group)}
                         onChange={() => {
                           if (selectedColorGroups.includes(group)) {
-                            setSelectedColorGroups(selectedColorGroups.filter(g => g !== group));
+                            setSelectedColorGroups(prev => prev.filter(g => g !== group));
                           } else {
-                            setSelectedColorGroups([...selectedColorGroups, group]);
+                            setSelectedColorGroups(prev => [...prev, group]);
                           }
                         }}
                       />
@@ -655,9 +683,9 @@ const ProductListing = () => {
                         checked={selectedCategoryGroups.includes(group)}
                         onChange={() => {
                           if (selectedCategoryGroups.includes(group)) {
-                            setSelectedCategoryGroups(selectedCategoryGroups.filter(g => g !== group));
+                            setSelectedCategoryGroups(prev => prev.filter(g => g !== group));
                           } else {
-                            setSelectedCategoryGroups([...selectedCategoryGroups, group]);
+                            setSelectedCategoryGroups(prev => [...prev, group]);
                           }
                         }}
                       />
@@ -703,9 +731,9 @@ const ProductListing = () => {
                         checked={selectedMediumGroups.includes(group)}
                         onChange={() => {
                           if (selectedMediumGroups.includes(group)) {
-                            setSelectedMediumGroups(selectedMediumGroups.filter(g => g !== group));
+                            setSelectedMediumGroups(prev => prev.filter(g => g !== group));
                           } else {
-                            setSelectedMediumGroups([...selectedMediumGroups, group]);
+                            setSelectedMediumGroups(prev => [...prev, group]);
                           }
                         }}
                       />
@@ -729,9 +757,9 @@ const ProductListing = () => {
                         checked={selectedRoomGroups.includes(group)}
                         onChange={() => {
                           if (selectedRoomGroups.includes(group)) {
-                            setSelectedRoomGroups(selectedRoomGroups.filter(g => g !== group));
+                            setSelectedRoomGroups(prev => prev.filter(g => g !== group));
                           } else {
-                            setSelectedRoomGroups([...selectedRoomGroups, group]);
+                            setSelectedRoomGroups(prev => [...prev, group]);
                           }
                         }}
                       />

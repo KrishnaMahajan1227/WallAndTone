@@ -890,7 +890,7 @@ const ProductDetails = () => {
           </div>
         </div>
       )}
-      <div className="review-section">
+      {/* <div className="review-section">
         <h5>Write a Review</h5>
         <form onSubmit={handleReviewSubmit} className="review-form">
           <div className="rating-group">
@@ -949,7 +949,7 @@ const ProductDetails = () => {
             <p className="no-reviews">No reviews yet. Be the first to review!</p>
           )}
         </div>
-      </div>
+      </div> */}
       <ToastContainer position="top-right" autoClose={3000} />
 
       <Modal 

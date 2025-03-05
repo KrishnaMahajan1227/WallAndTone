@@ -19,9 +19,7 @@ const storageCloudinary = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     const timestamp = Date.now();
-    const fileName = file.originalname
-      .replace(/\.[^/.]+$/, "")
-      .replace(/[^a-zA-Z0-9]/g, "_");
+    const fileName = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
     
     return {
       folder: 'products',
@@ -37,9 +35,7 @@ const personalizedStorageCloudinary = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     const timestamp = Date.now();
-    const fileName = file.originalname
-      .replace(/\.[^/.]+$/, "")
-      .replace(/[^a-zA-Z0-9]/g, "_");
+    const fileName = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_");
 
     return {
       folder: 'personalized_uploads',
@@ -91,8 +87,7 @@ const uploadImage = multer({
   limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-// Helper instance: for uploading personalized images
-// Renamed to avoid naming conflicts with any route handlers.
+// Renamed to avoid naming conflicts with route handlers.
 const uploadPersonalizedImageMulter = multer({ 
   storage: personalizedStorageCloudinary, 
   fileFilter: fileFilterImages, 
@@ -100,14 +95,12 @@ const uploadPersonalizedImageMulter = multer({
 });
 
 const uploadReviewImage = multer({
-  storage: storageCloudinary,  // Ensuring images are stored in Cloudinary
+  storage: storageCloudinary,
   fileFilter: fileFilterImages,
   limits: { fileSize: 50 * 1024 * 1024 }
 });
 
 // =================== Helper Functions ===================
-
-// Normalize a file path by checking common locations.
 const normalizePath = (filePath) => {
   try {
     if (!filePath) return null;
@@ -142,7 +135,6 @@ const normalizePath = (filePath) => {
   }
 };
 
-// Upload a local image file to Cloudinary with retries.
 const uploadLocalToCloudinary = async (imagePath, publicId) => {
   try {
     if (!imagePath) {
@@ -200,7 +192,7 @@ const uploadLocalToCloudinary = async (imagePath, publicId) => {
         console.error(`Upload attempt failed (${retries} retries left):`, error);
         retries--;
         if (retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
     }

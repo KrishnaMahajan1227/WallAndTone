@@ -7,7 +7,6 @@ const router = express.Router();
 
 /**
  * Helper function: Send WhatsApp notification using a messaging service (e.g. Twilio)
- * Uncomment and adjust the implementation if you integrate with Twilio.
  */
 async function sendWhatsappNotification(phone, message) {
   // Example using Twilio – ensure you install the twilio package and configure your env vars.
@@ -27,7 +26,7 @@ async function sendEmailNotification(email, subject, message) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT),
-    secure: process.env.SMTP_PORT == 465, // true if using port 465 (SSL)
+    secure: Number(process.env.SMTP_PORT) === 465, // true if using port 465 (SSL)
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -39,7 +38,6 @@ async function sendEmailNotification(email, subject, message) {
     to: email,
     subject: subject,
     text: message,
-    // Optionally, add an HTML version: html: `<p>${message}</p>`
   };
 
   await transporter.sendMail(mailOptions);
@@ -48,19 +46,28 @@ async function sendEmailNotification(email, subject, message) {
 
 /**
  * POST /create-order
- * Creates a Shiprocket order.
+ * Creates a Shiprocket order and sends detailed notification emails
+ * to both the admin and the customer.
  */
 router.post("/create-order", async (req, res) => {
   try {
     const { token, orderData } = req.body;
-    // Validate required billing fields – ensure key names match Shiprocket's documentation.
-    if (!orderData.billing_address || !orderData.billing_city || !orderData.billing_pincode) {
+    // Validate required billing/shipping/user fields.
+    if (
+      !orderData.billing_address ||
+      !orderData.billing_city ||
+      !orderData.billing_pincode ||
+      !orderData.billing_email ||
+      !orderData.billing_phone ||
+      !(orderData.customer_name || orderData.billing_customer_name)
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Billing address is incomplete",
+        message: "Required billing/shipping or user details are incomplete",
       });
     }
 
+    // Create order in Shiprocket.
     const response = await axios.post(
       "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
       orderData,
@@ -72,7 +79,121 @@ router.post("/create-order", async (req, res) => {
       }
     );
 
-    res.json({ success: true, orderResponse: response.data });
+    // Extract response data.
+    const orderResponse = response.data;
+
+    // Build product details string for admin email.
+    // Use orderData.order_items if available; otherwise, use orderData.products.
+    const itemsArr =
+      (orderData.order_items && Array.isArray(orderData.order_items)
+        ? orderData.order_items
+        : orderData.products && Array.isArray(orderData.products)
+          ? orderData.products
+          : []
+      );
+    const productDetails = itemsArr
+      .map(p => {
+        // Use p.quantity or p.units; if missing, fallback to "Not Provided"
+        const qty = (p.quantity || p.units) !== "" ? (p.quantity || p.units) : "Not Provided";
+        const frame = (p.frameType && p.frameType.name) ? p.frameType.name : "Not Provided";
+        const subFrame = (p.subFrameType && p.subFrameType.name) ? p.subFrameType.name : "Not Provided";
+        const size = (p.size && p.size.name) ? p.size.name : "Not Provided";
+        return `Product Name: ${p.name || ""}
+Main Image: ${p.mainImage || ""}
+Quantity: ${qty}
+Frame Type: ${frame}
+SubFrame Type: ${subFrame}
+Size: ${size}`;
+      })
+      .join("\n\n");
+
+    // Use billing_customer_name if available; otherwise, fallback to customer_name.
+    const customerName = orderData.billing_customer_name || orderData.customer_name;
+
+    // Construct the detailed message for admin (includes product details).
+    const adminMessage = `
+New Order Created
+
+--- User Details ---
+Name: ${customerName}
+Email: ${orderData.billing_email}
+Phone: ${orderData.billing_phone}
+
+--- Shipping / Billing Details ---
+Address: ${orderData.billing_address}
+City: ${orderData.billing_city}
+State: ${orderData.billing_state || ""}
+Pincode: ${orderData.billing_pincode}
+Country: ${orderData.billing_country || ""}
+
+--- Order Details ---
+Order ID: ${orderResponse.order_id || ""}
+Order Status: ${orderResponse.status || ""}
+Order Date: ${orderData.order_date || new Date().toISOString().split("T")[0]}
+Payment Method: ${orderData.payment_method || "Prepaid"}
+Sub Total: ${orderData.sub_total || ""}
+
+--- Products Ordered ---
+${productDetails}
+
+Additional Info: ${orderData.additional_info || ""}
+    `.trim();
+
+    // Construct the message for the customer (exclude product details).
+    const customerMessage = `
+New Order Created
+
+--- User Details ---
+Name: ${customerName}
+Email: ${orderData.billing_email}
+Phone: ${orderData.billing_phone}
+
+--- Shipping / Billing Details ---
+Address: ${orderData.billing_address}
+City: ${orderData.billing_city}
+State: ${orderData.billing_state || ""}
+Pincode: ${orderData.billing_pincode}
+Country: ${orderData.billing_country || ""}
+
+--- Order Details ---
+Order ID: ${orderResponse.order_id || ""}
+Order Status: ${orderResponse.status || ""}
+Order Date: ${orderData.order_date || new Date().toISOString().split("T")[0]}
+Payment Method: ${orderData.payment_method || "Prepaid"}
+Sub Total: ${orderData.sub_total || ""}
+
+Additional Info: ${orderData.additional_info || ""}
+    `.trim();
+
+    // Send email to admin.
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      try {
+        const adminSubject = "New Order Created - Detailed Information";
+        await sendEmailNotification(adminEmail, adminSubject, adminMessage);
+        console.log("Admin email notification sent.");
+      } catch (adminErr) {
+        console.error("Error sending admin email notification:", adminErr.message);
+      }
+    } else {
+      console.log("ADMIN_EMAIL is not configured in environment variables.");
+    }
+
+    // Send email to customer.
+    const customerEmail = orderData.billing_email;
+    if (customerEmail) {
+      try {
+        const customerSubject = "Your Order Confirmation and Details";
+        await sendEmailNotification(customerEmail, customerSubject, customerMessage);
+        console.log("Customer email notification sent.");
+      } catch (custErr) {
+        console.error("Error sending customer email notification:", custErr.message);
+      }
+    } else {
+      console.log("Customer email not provided in orderData.");
+    }
+
+    res.json({ success: true, orderResponse });
   } catch (error) {
     console.error(
       "Error creating order in Shiprocket:",
@@ -107,7 +228,6 @@ router.get("/track-order", async (req, res) => {
 
     console.log(`Fetching tracking info for order_id: ${order_id}`);
     
-    // Call Shiprocket's tracking API. Adjust URL/parameters as per documentation.
     const shiprocketResponse = await axios.get(
       `https://apiv2.shiprocket.in/v1/external/shipments/track?order_id=${order_id}`,
       {
@@ -118,59 +238,54 @@ router.get("/track-order", async (req, res) => {
       }
     );
 
-    console.log("Shiprocket API response: ", shiprocketResponse.data);
+    console.log("Shiprocket API response:", shiprocketResponse.data);
     const orderResponse = shiprocketResponse.data;
+    console.log("Parsed orderResponse:", orderResponse);
 
-    // Debug logging: output the parsed orderResponse object
-    console.log("Parsed orderResponse: ", orderResponse);
-
-    // Check if the order is confirmed (adjust condition if needed)
     if (orderResponse.status && orderResponse.status.toLowerCase() === "confirmed") {
-      // Extract customer contact details – adjust these keys as needed.
       const customerPhone = orderResponse.billing_phone || orderResponse.customer_phone;
       const customerEmail = orderResponse.billing_email || orderResponse.customer_email;
-      console.log("Customer phone: ", customerPhone, " Customer email: ", customerEmail);
+      console.log("Customer phone:", customerPhone, "Customer email:", customerEmail);
 
-      // Build the notification message including key order details.
       const notificationMessage = `
 Order Confirmation Details:
-Order ID: ${orderResponse.order_id || "N/A"}
-Shipment ID: ${orderResponse.shipment_id || "N/A"}
-Order Status: ${orderResponse.status || "N/A"}
+Order ID: ${orderResponse.order_id || ""}
+Shipment ID: ${orderResponse.shipment_id || ""}
+Order Status: ${orderResponse.status || ""}
 Products: ${
         orderResponse.products
-          ? orderResponse.products.map(p => `${p.name} (Qty: ${p.quantity})`).join(", ")
-          : "N/A"
+          ? orderResponse.products
+              .map(p => `${p.name} (Qty: ${p.quantity || p.units || "Not Provided"})`)
+              .join(", ")
+          : ""
       }
-Order History: ${orderResponse.order_history || "N/A"}
+Order History: ${orderResponse.order_history || ""}
       `.trim();
 
-      console.log("Notification message: ", notificationMessage);
+      console.log("Notification message:", notificationMessage);
 
-      // Send WhatsApp notification if a valid phone number is available.
       if (customerPhone) {
         try {
           await sendWhatsappNotification(customerPhone, notificationMessage);
           console.log("WhatsApp notification sent.");
         } catch (err) {
-          console.error("Error sending WhatsApp notification: ", err.message);
+          console.error("Error sending WhatsApp notification:", err.message);
         }
       }
 
-      // Send Email notification if a valid email is available.
       if (customerEmail) {
         try {
           const subject = "Your Order Confirmation and Tracking Details";
           await sendEmailNotification(customerEmail, subject, notificationMessage);
-          console.log("Email notification sent.");
+          console.log("Email notification sent to customer.");
         } catch (err) {
-          console.error("Error sending email notification: ", err.message);
+          console.error("Error sending email notification to customer:", err.message);
         }
       } else {
         console.log("No valid customer email found for sending notification.");
       }
     } else {
-      console.log("Order status is not confirmed. Status: ", orderResponse.status);
+      console.log("Order status is not confirmed. Status:", orderResponse.status);
     }
 
     res.json({ success: true, orderResponse });

@@ -22,6 +22,8 @@ const paymentRoutes = require("./routes/payment");
 // Import Shiprocket routes
 const shiprocketAuthRoute = require("./shiprocketAuth");
 const shiprocketOrderRoute = require("./routes/shiprocketOrder");
+const orderRoutes = require("./routes/orderRoutes");
+
 dotenv.config();
 
 const app = express();
@@ -103,13 +105,9 @@ app.post('/api/upload', uploadImage.single('image'), (req, res) => {
 // Cloudinary Routes (if any)
 const cloudinaryRoutes = require("./routes/cloudinaryRoutes");
 app.use("/api", cloudinaryRoutes);
+app.use("/api/orders", orderRoutes);
 
-// Serve React Frontend (for production)
-const frontendPath = path.join(__dirname, '../frontend/dist');
-app.use(express.static(frontendPath));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
-});
+
 
 // Payment Routes
 app.use("/api/payment", paymentRoutes);
@@ -117,6 +115,14 @@ app.use("/api/payment", paymentRoutes);
 // Shiprocket Routes
 app.use("/api/shiprocket", shiprocketAuthRoute);
 app.use("/api/shiprocket", shiprocketOrderRoute);
+
+
+// Serve React Frontend (for production)
+const frontendPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendPath));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 // Start the server
 app.listen(port, () => {

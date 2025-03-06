@@ -131,7 +131,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       heading: "Create Your Own AI-Designed Art",
       subheading: "Design your wall, your way. We help you use AI to craft the perfect piece and make your space truly yours!",
       ctaLink1: "/AiCreation",
-      ctaText1: "Explore Collection",
+      ctaText1: "Create Ai Art",
       onClick: handleAiCreationClick
     },
   ];

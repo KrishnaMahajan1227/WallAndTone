@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,9 +10,33 @@ const OrderConfirmation = () => {
   
   // Expecting the Shiprocket order response to be passed via location state
   const orderResponse = location.state?.orderResponse || {};
-  
-  // Use the Shipment ID as the tracking ID (or use a different key if needed)
   const shipmentId = orderResponse.shipment_id || "N/A";
+  
+  const token = localStorage.getItem("token");
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : "https://wallandtone.com");
+
+  useEffect(() => {
+    // Call an endpoint to clear the cart after order confirmation
+    const clearCart = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/api/cart/clear`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) {
+          console.error("Failed to clear cart:", await response.text());
+        }
+      } catch (error) {
+        console.error("Error clearing cart:", error);
+      }
+    };
+
+    clearCart();
+  }, [apiUrl, token]);
 
   return (
     <div className="order-confirmation">

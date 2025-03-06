@@ -134,13 +134,39 @@ router.delete("/remove/:itemId", protectUser, async (req, res) => {
   }
 });
 
+
+// ✅ Clear Cart (New Endpoint)
+// This endpoint will remove all items from the user's cart.
+// ✅ Clear Cart (New Endpoint)
+// This endpoint will remove all items from the user's cart.
+router.delete("/clear", protectUser, async (req, res) => {
+  try {
+    const cart = await Cart.findOneAndUpdate(
+      { userId: req.user.id },
+      { items: [] },
+      { new: true }
+    );
+    if (!cart) return res.status(404).json({ message: "Cart not found" });
+
+    res.status(200).json({
+      items: [],
+      totalPrice: 0,
+      cartCount: 0,
+      message: "Cart cleared successfully",
+    });
+  } catch (error) {
+    console.error("Clear cart error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // ✅ Helper Function: Populate Cart Data
 async function populateCart(cart) {
   await cart.populate([
     { path: "items.productId", select: "productName price mainImage" },
     { path: "items.frameType", select: "name price" },
     { path: "items.subFrameType", select: "name price" },
-    { path: "items.size", select: "name price" } // Updated to select name and price
+    { path: "items.size", select: "name price" }
   ]);
 }
 

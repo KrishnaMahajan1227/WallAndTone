@@ -38,6 +38,8 @@ import ReturnExchange from './components/Documentation/ReturnExchange';
 import CustomPaymentPage from './components/CheckoutPage/CustomPaymentPage';
 import OrderConfirmation from './components/OrderConfirmation/OrderConfirmation';
 import TrackOrder from './components/TrackOrder/TrackOrder';
+import AdminOrders from './components/AdminOrders/AdminOrders';
+import OrderDetails from './components/AdminOrders/OrderDetails';
 
 
 
@@ -90,6 +92,9 @@ function App() {
               <Route path="/dashboard/FrameTypeManagement" element={<FrameTypeManagement/>} />
               <Route path="/dashboard/CouponAdmin" element={<CouponAdmin/>} />
               <Route path="/dashboard/SizesAdmin" element={<SizesAdmin/>} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/orders/:orderId" element={<OrderDetails />} />
+
             </Routes>
           </div>
           <Footer/>

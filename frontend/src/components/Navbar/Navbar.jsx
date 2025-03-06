@@ -232,7 +232,16 @@ const Navbar = () => {
           Sizes
         </Link>
       </li>
-    </>
+      <li className="nav-item">
+        <Link 
+          to="/admin/orders" 
+          className="nav-link"
+          onClick={() => handleNavigation('/admin/orders', 'Orders')}
+        >
+          Orders
+        </Link>
+      </li>
+      </>
   );
 
   return (

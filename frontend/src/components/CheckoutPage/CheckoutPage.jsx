@@ -7,29 +7,23 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./CheckoutPage.css";
 
 const CheckoutPage = () => {
-  // API URL from env or fallback
   const apiUrl = import.meta.env.VITE_API_URL || "https://wallandtone.com";
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
   const location = useLocation();
-  // The cart items and final price (price to be paid by the user) are passed in state
+
   const cartItems = location.state?.cartItems || [];
   const finalPrice = Number(location.state?.total) || 0;
   const discountAmount = Number(location.state?.discountAmount) || 0;
   const couponApplied = location.state?.couponApplied || false;
   const couponDiscount = Number(location.state?.couponDiscount) || 0;
 
-  // Local state for cart & pricing – using passed data directly
   const [cart, setCart] = useState(cartItems);
   const [totalPrice, setTotalPrice] = useState(finalPrice);
-
-  // Only Online Payment is allowed – COD removed.
   const paymentMethod = "Online";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Shipping Details state with editable fields
   const [shippingDetails, setShippingDetails] = useState({
     name: "",
     email: "",
@@ -45,7 +39,6 @@ const CheckoutPage = () => {
 
   const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
-  // Load Razorpay script on mount
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -53,12 +46,10 @@ const CheckoutPage = () => {
     document.body.appendChild(script);
   }, []);
 
-  // On mount, prefill shipping details & fetch latest user data
   useEffect(() => {
     setTotalPrice(finalPrice);
     fetchUserProfile();
     fetchCartDetails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalPrice]);
 
   const fetchUserProfile = async () => {
@@ -96,14 +87,12 @@ const CheckoutPage = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCart(response.data.items);
-      // Use the final price already computed on previous page
       setTotalPrice(finalPrice);
     } catch (error) {
       console.error("Error fetching cart details:", error);
     }
   };
 
-  // Validate required fields
   const validateFields = () => {
     if (
       !shippingDetails.name ||
@@ -121,17 +110,18 @@ const CheckoutPage = () => {
     return true;
   };
 
-  // Handle online payment via Razorpay
   const handlePayment = async () => {
     if (!validateFields()) return;
     setLoading(true);
     try {
-      // Create an order on your backend (orderResponse contains order details in paise)
-      const orderResponse = await axios.post(`${apiUrl}/api/payment/create-order`, {
-        amount: totalPrice * 100, // Amount in paise
-        currency: "INR",
-        receipt: `order_rcptid_${Date.now()}`
-      });
+      const orderResponse = await axios.post(
+        `${apiUrl}/api/payment/create-order`,
+        {
+          amount: totalPrice * 100,
+          currency: "INR",
+          receipt: `order_rcptid_${Date.now()}`,
+        }
+      );
       const { order } = orderResponse.data;
       const options = {
         key: razorpayKey,
@@ -144,33 +134,26 @@ const CheckoutPage = () => {
           console.log("Payment Successful:", response);
           toast.success("Payment successful!");
 
-          // Aggregate order items so that each SKU is unique
-          const aggregatedItems = cart.reduce((acc, item) => {
-            const sku = item.productId ? item.productId._id : "CUSTOM";
-            const unitPrice =
-              (item.frameType.price || 0) +
-              (item.subFrameType.price || 0) +
-              (item.size.price || 0) +
-              (item.productId?.price || 0);
-            if (acc[sku]) {
-              acc[sku].units += item.quantity;
-            } else {
-              acc[sku] = {
-                name: item.productId?.productName || "Custom Artwork",
-                sku,
-                units: item.quantity,
-                selling_price: unitPrice,
-                discount: 0,
-                tax: 50,
-                hsn: 44140010,
-              };
-            }
-            return acc;
-          }, {});
+          // Map each cart item to an order item with proper fallbacks.
+          const orderItems = cart.map((item, index) => ({
+            sku: (item.productId ? item.productId._id : "CUSTOM") + "-" + index,
+            name: item.productId ? item.productId.productName : "Custom Artwork",
+            mainImage: item.isCustom ? item.image : (item.productId?.mainImage || ""),
+            units: item.quantity || 1,
+            selling_price:
+              (item.productId?.price || 0) +
+              (item.frameType?.price || 0) +
+              (item.subFrameType?.price || 0) +
+              (item.size?.price || 0),
+            discount: 0,
+            tax: 50,
+            hsn: 44140010,
+            // Ensure we always pass an object with a name.
+            frameType: item.frameType ? item.frameType : { name: "Not Provided" },
+            subFrameType: item.subFrameType ? item.subFrameType : { name: "Not Provided" },
+            size: item.size ? item.size : { name: "Not Provided" },
+          }));
 
-          const orderItems = Object.values(aggregatedItems);
-
-          // Prepare orderData for Shiprocket order creation using exact key names
           const orderData = {
             order_id: `WT-${Date.now()}`,
             order_date: new Date().toISOString().split("T")[0],
@@ -195,11 +178,8 @@ const CheckoutPage = () => {
           };
 
           try {
-            // Obtain a Shiprocket token from your backend
             const shiprocketAuth = await axios.post(`${apiUrl}/api/shiprocket/auth`);
             const shiprocketToken = shiprocketAuth.data.token;
-
-            // Create Shiprocket order
             const shiprocketOrderData = { token: shiprocketToken, orderData };
             const shiprocketResponse = await axios.post(
               `${apiUrl}/api/shiprocket/create-order`,
@@ -208,9 +188,8 @@ const CheckoutPage = () => {
 
             if (shiprocketResponse.data.success) {
               console.log("Shiprocket Order Created:", shiprocketResponse.data);
-              // Pass the complete orderResponse for tracking purposes
               navigate("/order-confirmation", {
-                state: { orderResponse: shiprocketResponse.data.orderResponse }
+                state: { orderResponse: shiprocketResponse.data.orderResponse },
               });
             } else {
               console.error("Shiprocket Order Failed:", shiprocketResponse.data);
@@ -242,13 +221,11 @@ const CheckoutPage = () => {
     }
   };
 
-  // Only Online Payment is available; handle submit accordingly
   const handleSubmit = () => {
     setError(null);
     handlePayment();
   };
 
-  // Auto-update billing address if sameAddress is checked
   useEffect(() => {
     if (sameAddress) {
       setShippingDetails((prev) => ({
@@ -258,7 +235,6 @@ const CheckoutPage = () => {
     }
   }, [sameAddress, shippingDetails.shippingAddress]);
 
-  // Render Order Summary Items using updated size info
   const renderOrderSummaryItems = () => {
     return cartItems.map((item, index) => (
       <div key={index} className="order-item">
@@ -283,7 +259,7 @@ const CheckoutPage = () => {
   const subtotal = totalPrice - shippingCost - taxAmount;
 
   const handleProceedToCheckout = () => {
-    const checkoutItems = cartItems.map(item => {
+    const checkoutItems = cartItems.map((item) => {
       if (item.isCustom) {
         return {
           productId: null,
@@ -293,7 +269,7 @@ const CheckoutPage = () => {
           frameType: item.frameType,
           subFrameType: item.subFrameType,
           size: item.size,
-          itemTotal: calculateItemPrice(item)
+          itemTotal: calculateItemPrice(item),
         };
       } else {
         return {
@@ -304,13 +280,13 @@ const CheckoutPage = () => {
           frameType: item.frameType,
           subFrameType: item.subFrameType,
           size: item.size,
-          itemTotal: calculateItemPrice(item)
+          itemTotal: calculateItemPrice(item),
         };
       }
     });
-  
-    navigate("/checkout", { 
-      state: { 
+
+    navigate("/checkout", {
+      state: {
         total: Number(finalTotal.toFixed(2)),
         cartItems: checkoutItems,
         subtotal,
@@ -318,9 +294,17 @@ const CheckoutPage = () => {
         taxAmount,
         discountAmount,
         couponApplied,
-        couponDiscount 
-      } 
+        couponDiscount,
+      },
     });
+  };
+
+  const calculateItemPrice = (item) => {
+    const framePrice = item.frameType?.price || 0;
+    const subFramePrice = item.subFrameType?.price || 0;
+    const sizePrice = item.size?.price || 0;
+    const basePrice = item.isCustom ? 0 : item.productId?.price || 0;
+    return (framePrice + subFramePrice + sizePrice + basePrice) * item.quantity;
   };
 
   if (loading) return <div>Loading...</div>;
@@ -331,7 +315,6 @@ const CheckoutPage = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="checkout-container container mt-5">
         <h2 className="mb-4">Checkout</h2>
-
         {error && <div className="alert alert-danger">{error}</div>}
 
         {/* Shipping Details Form */}
@@ -436,9 +419,7 @@ const CheckoutPage = () => {
         {/* Order Summary */}
         <div className="checkout-card card p-4 mb-4">
           <h4>Order Summary</h4>
-          <div className="order-summary-items">
-            {renderOrderSummaryItems()}
-          </div>
+          <div className="order-summary-items">{renderOrderSummaryItems()}</div>
           <hr />
           <p>Subtotal: {subtotal.toFixed(2)} Rs.</p>
           <p>Shipping Cost: {shippingCost} Rs.</p>
@@ -458,7 +439,11 @@ const CheckoutPage = () => {
         </div>
 
         {/* Submit Button */}
-        <button className="btn btn-success w-100 checkout-btn" onClick={handleSubmit} disabled={loading}>
+        <button
+          className="btn btn-success w-100 checkout-btn"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
           {loading ? "Processing..." : "Pay Now"}
         </button>
       </div>

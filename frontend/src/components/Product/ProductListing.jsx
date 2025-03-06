@@ -212,9 +212,6 @@ const ProductCard = ({
         <div className="card-body text-center d-flex flex-column">
           <h5 className="card-title product-title">{product.productName}</h5>
           <p className="card-text text-muted">
-            {product.description.slice(0, isLarge ? 150 : 100)}...
-          </p>
-          <p className="card-text text-muted">
             Starting From Rs {product.startFromPrice}/-
           </p>
         </div>

@@ -657,7 +657,7 @@ const ProductDetails = () => {
     <div className="product-details-container">
       <ProductSEO product={product} />
       <button className="back-button" onClick={() => navigate('/products')}>
-        <ArrowLeft size={20} /> Back to Products
+        <ArrowLeft size={21} /> Back to Products
       </button>
       <div className="product-details">
         <div className="image-section">
@@ -773,7 +773,7 @@ const ProductDetails = () => {
                       </option>
                       {sizes.map((sz) => (
                         <option key={sz._id} value={sz._id}>
-                          {sz.name} - ₹{sz.price}
+                          {sz.name}
                         </option>
                       ))}
                     </select>
@@ -865,7 +865,7 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
-      {subCartOpen && (
+      {/* {subCartOpen && (
         <div className="sub-cart-popup">
           <div className="sub-cart-overlay" onClick={() => setSubCartOpen(false)} />
           <div className={`sub-cart-body ${subCartOpen ? 'show' : ''}`}>
@@ -889,7 +889,7 @@ const ProductDetails = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
       {/* <div className="review-section">
         <h5>Write a Review</h5>
         <form onSubmit={handleReviewSubmit} className="review-form">

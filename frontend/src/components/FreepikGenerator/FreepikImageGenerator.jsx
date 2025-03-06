@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, X, Sparkles, Lock, ArrowRight } from 'lucide-react';
 import './FreepikImageGenerator.css';
 import { Helmet } from 'react-helmet';
 
@@ -31,6 +31,11 @@ const FreepikImageGenerator = () => {
   const [showImageDetails, setShowImageDetails] = useState(false);
   const [remainingPrompts, setRemainingPrompts] = useState(10);
   const [showPromptLimitModal, setShowPromptLimitModal] = useState(false);
+
+  // State for first-visit welcome modal.
+  const [showWelcomeModal, setShowWelcomeModal] = useState(
+    !localStorage.getItem('visitedFreepik')
+  );
 
   // Compute orientation based on styling.size
   const computeOrientation = (size) => {
@@ -291,6 +296,12 @@ const FreepikImageGenerator = () => {
     setShowPromptLimitModal(false);
   };
 
+  // Handler for closing the welcome modal; set flag in localStorage.
+  const handleCloseWelcomeModal = () => {
+    setShowWelcomeModal(false);
+    localStorage.setItem('visitedFreepik', 'true');
+  };
+
   return (
     <div className="freepik-generator">
       <Helmet>
@@ -320,12 +331,50 @@ const FreepikImageGenerator = () => {
         />
         <meta name="twitter:image" content="https://wallandtone.com/assets/og-freepik.jpg" />
       </Helmet>
+      {/* Welcome Modal */}
+      {showWelcomeModal && (
+        <div className="freepik-generator-welcome-modal">
+          <div className="freepik-generator-welcome-modal-content">
+            <button
+              className="freepik-generator-welcome-modal-close"
+              onClick={handleCloseWelcomeModal}
+              aria-label="Close modal"
+            >
+              <X size={24} />
+            </button>
+            <div className="freepik-generator-welcome-modal-header">
+              <div className="freepik-generator-welcome-modal-icon">
+                <Sparkles size={32} />
+              </div>
+              <h2>Unlock AI Creation Magic!</h2>
+              <div className="freepik-generator-welcome-modal-subheader">
+                <Lock size={16} />
+                <span>Exclusive Feature</span>
+              </div>
+            </div>
+            <div className="freepik-generator-welcome-modal-body">
+              <p>
+                To get the appropriate results please elaborate the details of everything you want to see in your artwork. Please see the example below for reference.
+              </p>
+              <p>
+                A portrait of a middle-aged, Nigerian woman, in profile, who is wearing large gold hoop earrings and a gele headwrap in bright red, yellow, and black colors in a color block illustration style. The woman is strong and intelligent with rosy, pink cheeks and is on a solid red, yellow, and green background in a paintbrush stroke pattern.
+              </p>
+              <p>
+                You have 10 free prompts, you can buy more once the Limit Exceeds!
+              </p>
+            </div>
+            <div className="freepik-generator-welcome-modal-buttons">
+              <button className="freepik-btn-primary" onClick={handleCloseWelcomeModal}>
+                Continue Browsing
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="freepik-generator__header">
         <h2>AI Art generator by Wall & Tone</h2>
         <p>Use the power of limitless imagination to curate your own unique art prints!</p>
-        {/* <p className="freepik-generator__prompts">
-          Free Prompts Left: {remainingPrompts}
-        </p> */}
       </div>
       <div className="freepik-generator__form">
         <div className="freepik-generator__prompt">
@@ -340,9 +389,9 @@ const FreepikImageGenerator = () => {
         <div className="freepik-generator__styling">
           <div className="freepik-generator__styling-row">
             <select name="size" value={styling.size} onChange={handleStylingChange} disabled={loading}>
+              <option value="">Select Orientation</option>
               <option value="traditional_3_4">Portrait</option>
               <option value="classic_4_3">Landscape</option>
-              <option value="square_1_1">Square</option>
             </select>
           </div>
           <div className="freepik-generator__styling-row">

@@ -949,12 +949,14 @@ const processExcelFile = async (req, res) => {
         description: data['Description'],
         quantity: parseInt(data['Quantity'], 10) || 0,
         startFromPrice: parseFloat(data['StartFromPrice']) || 0,
-        frameTypes: data['FrameTypes'] 
-          ? data['FrameTypes'].split(',').map(ft => frameTypeMap[ft.trim]?._id).filter(Boolean)
-          : [],
-        subFrameTypes: data['SubFrameTypes'] 
-          ? data['SubFrameTypes'].split(',').map(sft => subFrameTypeMap[sft.trim]).filter(Boolean)
-          : [],
+        frameTypes: data['FrameTypes']
+        ? data['FrameTypes'].split(',').map(ft => frameTypeMap[ft.trim()]?._id).filter(Boolean)
+        : [],
+      
+        subFrameTypes: data['SubFrameTypes']
+        ? data['SubFrameTypes'].split(',').map(sft => subFrameTypeMap[sft.trim()]).filter(Boolean)
+        : [],
+      
         sizes: derivedSizes,
         colors: data.colors,
         orientations: data.orientations,
@@ -986,6 +988,7 @@ const processExcelFile = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   addFrameType,
   addSubFrameType,

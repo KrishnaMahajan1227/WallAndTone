@@ -95,7 +95,7 @@
 .freepik-generator__previous-prompt {
   margin-top: 0.75rem;
   font-size: 0.875rem;
-  color: #666;
+  color: #756060;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -158,7 +158,7 @@
 .freepik-generator__styling select {
   width: 100%;
   padding: 0.75rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid #D0D0D0;
   border-radius: 0.5rem;
   background: #fff;
   font-size: 0.875rem;
@@ -344,6 +344,98 @@ border-radius: 4px;
   height: 20px;
   color: #FFFFFF;
 }
+/* FreepikImageGenerator.css */
+.freepik-generator {
+  position: relative;
+  padding: 20px;
+}
+/* Welcome Modal Styles */
+.freepik-generator-welcome-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.freepik-generator-welcome-modal-content {
+  background: #fff;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.freepik-generator-welcome-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.freepik-generator-welcome-modal-header {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.freepik-generator-welcome-modal-icon {
+  margin-bottom: 10px;
+}
+
+.freepik-generator-welcome-modal-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.freepik-generator-welcome-modal-subheader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.freepik-generator-welcome-modal-body {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+
+.freepik-generator-welcome-modal-body p {
+  margin-bottom: 10px;
+}
+
+.freepik-generator-welcome-modal-buttons {
+  text-align: center;
+}
+
+.freepik-btn-primary {
+  background-color: #5B2EFF;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.freepik-btn-primary:hover {
+  background-color: #5B2EFF;
+}
+
+/* Other existing styles remain unchanged... */
+
 
 @media (max-width: 1024px) {
   .freepik-generator__previous-grid {

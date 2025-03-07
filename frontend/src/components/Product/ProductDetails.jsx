@@ -236,6 +236,12 @@ const ProductDetails = () => {
     setSelectedSubFrameType(subFrameType);
     setLoadingSubFrame(true);
     try {
+      // NEW CONDITION: If the selected frame type is "Poste", skip fetching images.
+      if (selectedFrameType && selectedFrameType.name === "Poster") {
+        setActiveImage(product.mainImage);
+        setSubFrameThumbnails(subFrameType.images || []);
+        return;
+      }
       let imagesArr = [];
       if (product?.subFrameImages && product.subFrameImages.length > 0) {
         const matchingGroups = product.subFrameImages.filter(
@@ -865,91 +871,6 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
-      {/* {subCartOpen && (
-        <div className="sub-cart-popup">
-          <div className="sub-cart-overlay" onClick={() => setSubCartOpen(false)} />
-          <div className={`sub-cart-body ${subCartOpen ? 'show' : ''}`}>
-            <div className="sub-cart-header">
-              <h2>Shopping Cart</h2>
-              <button className="close-btn" onClick={() => setSubCartOpen(false)}>
-                <X size={24} />
-              </button>
-            </div>
-            <div className="cart-items">{renderCartItems()}</div>
-            <div className="cart-footer">
-              <p className="cart-total">Total: ₹{calculateItemPrice(cart)}</p>
-              <div className="cart-actions">
-                <button className="view-cart" onClick={() => navigate('/cart')}>
-                  View Cart
-                </button>
-                <button className="checkout" onClick={() => navigate('/checkout')}>
-                  Checkout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
-      {/* <div className="review-section">
-        <h5>Write a Review</h5>
-        <form onSubmit={handleReviewSubmit} className="review-form">
-          <div className="rating-group">
-            <label>Rate this product:</label>
-            <div className="rating-stars">
-              {[...Array(5)].map((_, index) => (
-                <Star key={index} className={`star ${newRating > index ? 'active' : ''}`} onClick={() => handleRatingChange(index + 1)} />
-              ))}
-            </div>
-          </div>
-          <div className="review-text-group">
-            <label>Your Review:</label>
-            <textarea rows={3} value={newReview} onChange={(e) => setNewReview(e.target.value)} placeholder="Share your experience with this product..." />
-          </div>
-          <div className="image-upload-group">
-            <label>Add Photos (optional):</label>
-            <input type="file" multiple onChange={handleImageChange} accept="image/*" className="image-upload" />
-          </div>
-          <button type="submit" className="submit-review" disabled={!newRating || !newReview.trim()}>
-            Submit Review
-          </button>
-        </form>
-        <div className="reviews-list">
-          <h5>
-            Customer Reviews
-            {averageRating > 0 && (
-              <span className="average-rating">
-                {averageRating} <Star size={16} className="star-icon" />
-              </span>
-            )}
-          </h5>
-          {Array.isArray(product.reviews) && product.reviews.length > 0 ? (
-            product.reviews
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-              .map((review, index) => (
-                <div key={index} className="review-card">
-                  <div className="review-header">
-                    <strong className="review-author">
-                      {review.user && review.user.firstName ? `${review.user.firstName}` : "Anonymous"}
-                    </strong>
-                    <span className="review-rating">
-                      {review.rating} <Star size={16} className="star-icon" />
-                    </span>
-                  </div>
-                  <p className="review-comment">{review.comment}</p>
-                  {Array.isArray(review.images) && review.images.length > 0 && (
-                    <div className="review-images">
-                      {review.images.map((image, i) => (
-                        <img key={i} src={image} alt={`Review image ${i + 1}`} className="review-image" />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))
-          ) : (
-            <p className="no-reviews">No reviews yet. Be the first to review!</p>
-          )}
-        </div>
-      </div> */}
       <ToastContainer position="top-right" autoClose={3000} />
 
       <Modal 

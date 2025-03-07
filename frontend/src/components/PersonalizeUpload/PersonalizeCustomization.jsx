@@ -4,6 +4,7 @@ import { ArrowLeft, ShoppingCart } from "lucide-react";
 import axios from "axios";
 import { frameBackgrounds } from "../constants/frameImages";
 import { ToastContainer, toast } from "react-toastify";
+import { Helmet } from "react-helmet";
 import "react-toastify/dist/ReactToastify.css";
 import "./PersonalizeCustomization.css"; // Keeps UI Consistency
 
@@ -136,6 +137,26 @@ const PersonalizeCustomization = () => {
 
   return (
     <div className="personalize-customization">
+      <Helmet>
+        <title>Customize Your Artwork | Wall & Tone</title>
+        <meta
+          name="description"
+          content="Customize your uploaded artwork by selecting frame types, sub-frames, and sizes. Create a masterpiece that reflects your unique style with Wall & Tone."
+        />
+        <meta
+          name="keywords"
+          content="Customize Artwork, Personalize Wall Art, Custom Frame, Wall & Tone, Frame Customization, Art Customization"
+        />
+        <link rel="canonical" href="https://wallandtone.com/personalize-customization" />
+        <meta property="og:title" content="Customize Your Artwork | Wall & Tone" />
+        <meta
+          property="og:description"
+          content="Create a personalized masterpiece by choosing from a range of frames and sizes. Transform your uploaded image into unique wall art with Wall & Tone."
+        />
+        <meta property="og:image" content="https://wallandtone.com/path-to-your-default-og-image.jpg" />
+        <meta property="og:url" content="https://wallandtone.com/personalize-customization" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
       <ToastContainer />
       <button className="back-button" onClick={() => navigate(-1)}>
         <ArrowLeft size={20} /> Back

@@ -11,6 +11,7 @@ import CouponUser from "../Coupon/CouponUser";
 /* ======= NEW IMPORTS FOR TOASTS ======= */
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Helmet } from "react-helmet";
 
 const CartComponent = () => {
   const apiUrl =
@@ -44,9 +45,10 @@ const CartComponent = () => {
     0
   );
 
-  const shippingCost = 300; // Flat rate shipping
-  const taxAmount = 50; // Fixed tax
-  const preDiscountTotal = subtotal + shippingCost + taxAmount;
+  // Removed shipping cost and tax
+  const shippingCost = 0;
+  const taxAmount = 0;
+  const preDiscountTotal = subtotal; // equals subtotal
   const discountAmount = couponApplied
     ? (preDiscountTotal * couponDiscount) / 100
     : 0;
@@ -247,7 +249,6 @@ const CartComponent = () => {
   const handleRemoveItem = async (item) => {
     if (token) {
       try {
-        const oldItems = [...cart.items];
         setCart((prevCart) => {
           const filtered = prevCart.items.filter(
             (cartItem) => cartItem._id !== item._id
@@ -311,8 +312,8 @@ const CartComponent = () => {
         total: Number(finalTotal.toFixed(2)),
         cartItems: checkoutItems,
         subtotal,
-        shippingCost,
-        taxAmount,
+        shippingCost: 0,
+        taxAmount: 0,
         discountAmount,
         couponApplied,
         couponDiscount,
@@ -325,6 +326,33 @@ const CartComponent = () => {
 
   return (
     <div className="cart-container">
+      <Helmet>
+        <title>My Cart | Wall & Tone</title>
+        <meta
+          name="description"
+          content="Review and manage your cart items at Wall & Tone. Enjoy a seamless shopping experience for custom and curated wall art with exclusive discounts and offers."
+        />
+        <meta
+          name="keywords"
+          content="cart, wall art, custom art, buy art, Wall & Tone, shopping cart, art discounts"
+        />
+        <link rel="canonical" href="https://wallandtone.com/cart" />
+        <meta property="og:title" content="My Cart | Wall & Tone" />
+        <meta
+          property="og:description"
+          content="Review and manage your cart items at Wall & Tone. Shop for custom and curated wall art with exclusive offers."
+        />
+        <meta property="og:image" content="https://wallandtone.com/assets/og-cart.jpg" />
+        <meta property="og:url" content="https://wallandtone.com/cart" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="My Cart | Wall & Tone" />
+        <meta
+          name="twitter:description"
+          content="Review and manage your cart items at Wall & Tone."
+        />
+        <meta name="twitter:image" content="https://wallandtone.com/assets/og-cart.jpg" />
+      </Helmet>
       <ToastContainer position="top-right" autoClose={3000} />
       <h1 className="cart-header">My Cart</h1>
       {alertMessage && (
@@ -352,16 +380,9 @@ const CartComponent = () => {
                   <h3 className="item-title">
                     {item.isCustom ? "Custom Artwork" : item.productId?.productName}
                   </h3>
-                  <p className="item-size">
-                    Size: {item.size?.name}
-                  </p>
-                  
-                  <p className="item-frameType">
-                    Frame Type: {item.frameType?.name || "N/A"}
-                  </p>
-                  <p className="item-subFrameType">
-                    Sub Frame Type: {item.subFrameType?.name || "N/A"}
-                  </p>
+                  <p className="item-size">Size: {item.size?.name}</p>
+                  <p className="item-frameType">Frame Type: {item.frameType?.name || "N/A"}</p>
+                  <p className="item-subFrameType">Sub Frame Type: {item.subFrameType?.name || "N/A"}</p>
                   <div className="item-actions">
                     <div className="quantity-controls">
                       <button
@@ -407,49 +428,43 @@ const CartComponent = () => {
                 </div>
                 <div className="item-details-2 d-flex">
                   <div className="item-pricing">
-                  <p className="item-price">
-                  MRP INR ₹{item.size?.price}
-                  </p>
+                    <p className="item-price">MRP INR ₹{item.size?.price}</p>
                   </div>
                   <div className="wishlisht-button">
-  {!item.isCustom && item.productId && (
-    <button
-      type="button"
-      className="wishlist-btn"
-      onClick={(e) => {
-        const isInWishlist = wishlist.some(
-          (wishItem) =>
-            wishItem.productId?._id === item.productId._id
-        );
-        if (isInWishlist) {
-          handleRemoveFromWishlist(e, item.productId);
-        } else {
-          handleAddToWishlist(e, item.productId);
-        }
-      }}
-    >
-      {wishlist.some((wishItem) => wishItem.productId?._id === item.productId._id)
-        ? "Remove from Favourites"
-        : "Move to Favourites"}
-    </button>
-  )}
-</div>
-
+                    {!item.isCustom && item.productId && (
+                      <button
+                        type="button"
+                        className="wishlist-btn"
+                        onClick={(e) => {
+                          const isInWishlist = wishlist.some(
+                            (wishItem) =>
+                              wishItem.productId?._id === item.productId._id
+                          );
+                          if (isInWishlist) {
+                            handleRemoveFromWishlist(e, item.productId);
+                          } else {
+                            handleAddToWishlist(e, item.productId);
+                          }
+                        }}
+                      >
+                        {wishlist.some(
+                          (wishItem) => wishItem.productId?._id === item.productId._id
+                        )
+                          ? "Remove from Favourites"
+                          : "Move to Favourites"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-              
             ))}
-                <hr className="cart-item-separator"></hr>
-             
-
+            <hr className="cart-item-separator" />
           </div>
 
           <div className="cart-summary">
             <h2>Order Summary</h2>
             <div className="summary-details">
               <p>Subtotal: {subtotal.toFixed(2)} Rs.</p>
-              <p>Shipping Cost: {shippingCost} Rs.</p>
-              <p>Tax: {taxAmount} Rs.</p>
               <CouponUser onApplyCoupon={handleApplyCoupon} />
               {couponApplied && (
                 <>
@@ -482,7 +497,6 @@ const CartComponent = () => {
         </div>
       )}
       <ToastContainer position="top-right" autoClose={3000} />
-
     </div>
   );
 };

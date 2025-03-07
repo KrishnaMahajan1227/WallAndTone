@@ -11,14 +11,12 @@
   border-radius: 4px;
   }
   
-  .apply-coupon-btn {
-    background: #28a745;
-    color: white;
-    padding: 10px;
-    border: none;
-    cursor: pointer;
-  border-radius: 4px;
-  }
+  button.apply-coupon-btn {
+    background-color: #000;
+    color: #FFFFFF;
+    padding: 4px 6px;
+    border-radius: 4px;
+}
   
   .apply-coupon-btn:hover {
     background: #218838;

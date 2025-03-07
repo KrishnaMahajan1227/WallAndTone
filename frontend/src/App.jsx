@@ -69,11 +69,11 @@ function App() {
               <Route path="/Wishlist" element={<WishlistComponent />} />
               <Route path="/product/:productId" element={<ProductDetails/>} />
               <Route path="/profile" element={<UserProfile/>} />
-              <Route path="/AiCreation" element={<FreepikGenerator/>} />
+              <Route path="/Ai Creation" element={<FreepikGenerator/>} />
               <Route path="/livePreview" element={<CameraComponent/>} />
               <Route path="/customize" element={<FreepikCustomization />} />
-              <Route path="/aboutus/*" element={<AboutUs/>} />
-              <Route path="/forbusiness" element={<BusinessSection/>} />
+              <Route path="/about us/*" element={<AboutUs/>} />
+              <Route path="/for business" element={<BusinessSection/>} />
               <Route path="/Personalize" element={<PersonalizeUpload/>} />
               <Route path="/PersonalizeCustomization" element={<PersonalizeCustomization/>} />
               <Route path="/FAQ" element={<FAQ/>} />

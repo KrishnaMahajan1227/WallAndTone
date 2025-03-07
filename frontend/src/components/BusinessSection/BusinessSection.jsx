@@ -9,7 +9,6 @@ import ForBusinessbanner from '../../assets/forBusiness/For-Business-banner.png'
 import ForBusinessemail from '../../assets/forBusiness/For-Business-email.png';
 import ForBusinessshortlist from '../../assets/forBusiness/For-Business-shortlist.png';
 import ForBusinesswhatsappreach from '../../assets/forBusiness/For-Business-whatsapp-reach.png';
-import Footer from '../Footer/Footer';
 
 const BusinessSection = () => {
   const [showThankYou, setShowThankYou] = useState(false);
@@ -88,6 +87,13 @@ const BusinessSection = () => {
     </div>
   );
 
+  // Scroll to the contact form when "Try Now" is clicked
+  const scrollToForm = () => {
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="business-section">
       {/* SEO Meta Tags for Business Section */}
@@ -126,7 +132,7 @@ const BusinessSection = () => {
         <div className="business-content">
           <h1>Custom Wall Art for Businesses.</h1>
           <p>We Deliver Wall Art Solutions for Businesses That Require Wall Frames to Add Art to Their Space.</p>
-          <button className="try-now">Try Now</button>
+          <button className="try-now" onClick={scrollToForm}>Try Now</button>
         </div>
       </div>
 
@@ -301,7 +307,7 @@ const BusinessSection = () => {
           </form>
         </div>
       </div>
-      
+
     </div>
   );
 };

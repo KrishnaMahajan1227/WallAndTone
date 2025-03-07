@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Offcanvas, Accordion, Button, Dropdown, Modal } from 'react-bootstrap';
+import { Offcanvas, Accordion, Button, Dropdown, Modal, Pagination } from 'react-bootstrap';
 import HistoryDropdown from '../History/HistoryDropdown';
 import { WishlistContext } from '../Wishlist/WishlistContext';
 import heartIcon from '../../assets/icons/heart-icon.svg';
@@ -121,7 +121,7 @@ const groupedRoomOptions = {
 const orientationOptions = ['Portrait', 'Landscape', 'Square'];
 
 // ---------- ProductCard Component ----------
-const ProductCard = ({
+const ProductCard = React.memo(({
   product,
   isLarge = false,
   wishlist,
@@ -149,10 +149,14 @@ const ProductCard = ({
           className="product-image-wrapper position-relative"
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          style={{ overflow: 'hidden' }}
+          style={{
+            overflow: 'hidden',
+            willChange: 'opacity, transform'
+          }}
         >
           <img
             src={product.mainImage}
+            loading="lazy"
             className="card-img-top product-image"
             alt={product.productName}
             style={{
@@ -169,6 +173,7 @@ const ProductCard = ({
           {randomMockup && (
             <img
               src={randomMockup}
+              loading="lazy"
               alt={`${product.productName} Mockup`}
               style={{
                 position: 'absolute',
@@ -218,7 +223,7 @@ const ProductCard = ({
       </div>
     </Link>
   );
-};
+});
 
 // ---------- ProductListing Component ----------
 const ProductListing = () => {
@@ -237,6 +242,10 @@ const ProductListing = () => {
   const [authAction, setAuthAction] = useState(null);
   const [showFilterOffcanvas, setShowFilterOffcanvas] = useState(false);
   const [sortOption, setSortOption] = useState('');
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 50;
 
   // Filter states
   const [selectedColorGroups, setSelectedColorGroups] = useState([]);
@@ -317,6 +326,7 @@ const ProductListing = () => {
 
   // When filter state changes, update the URL and immediately fetch products
   useEffect(() => {
+    setCurrentPage(1); // Reset to first page on filter change
     navigate({ pathname: location.pathname, search: filterQuery }, { replace: true });
     const fetchProducts = async () => {
       try {
@@ -521,10 +531,10 @@ const ProductListing = () => {
     );
   };
 
-  const renderProductRows = () => {
-    const sortedProducts = sortProducts(products);
+  // New renderProductRows now accepts a productList parameter (assumed sorted and paginated)
+  const renderProductRows = (productList) => {
     const rows = [];
-    let remainingProducts = [...sortedProducts];
+    let remainingProducts = [...productList];
     while (remainingProducts.length >= 7) {
       const regularProducts = remainingProducts.slice(0, 6);
       const featuredProduct = remainingProducts[6];
@@ -629,6 +639,31 @@ const ProductListing = () => {
   // applyFilters simply closes the offcanvas (filtering happens immediately)
   const applyFilters = () => {
     setShowFilterOffcanvas(false);
+  };
+
+  // First, sort the products and then slice for the current page
+  const sortedProducts = sortProducts(products);
+  const totalProducts = sortedProducts.length;
+  const totalPages = Math.ceil(totalProducts / productsPerPage);
+  const displayedProducts = sortedProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
+
+  // Pagination controls
+  const renderPagination = () => {
+    let items = [];
+    for (let number = 1; number <= totalPages; number++) {
+      items.push(
+        <Pagination.Item key={number} active={number === currentPage} onClick={() => setCurrentPage(number)}>
+          {number}
+        </Pagination.Item>
+      );
+    }
+    return (
+      <Pagination className="justify-content-center my-4">
+        <Pagination.Prev disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)} />
+        {items}
+        <Pagination.Next disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)} />
+      </Pagination>
+    );
   };
 
   return (
@@ -821,7 +856,10 @@ const ProductListing = () => {
       {renderFilterSummary()}
 
       {products && products.length > 0 ? (
-        <div className="all-products-container">{renderProductRows()}</div>
+        <>
+          <div className="all-products-container">{renderProductRows(displayedProducts)}</div>
+          {totalPages > 1 && renderPagination()}
+        </>
       ) : (
         <div className="text-center my-5">No products found.</div>
       )}

@@ -45,7 +45,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       setShowLoginModal(true);
       return false;
     }
-    navigate('/AiCreation');
+    navigate('/Ai Creation');
     return true;
   };
 
@@ -130,7 +130,7 @@ const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'lo
       alt: "Home-Banner-AI-Art",
       heading: "Create Your Own AI-Designed Art",
       subheading: "Design your wall, your way. We help you use AI to craft the perfect piece and make your space truly yours!",
-      ctaLink1: "/AiCreation",
+      ctaLink1: "/Ai Creation",
       ctaText1: "Create Ai Art",
       onClick: handleAiCreationClick
     },
@@ -257,12 +257,12 @@ From sleek modern frames to timeless classics, let’s turn your walls into conv
         />
       </section>
 
-      <section class="home-create-your-Wall-art">
-        <img src={CreateYourWallArt} alt="Create-Your-Wall-Art" class="background-image" />
-        <div class="image-frame">
+      <section className="home-create-your-Wall-art">
+        <img src={CreateYourWallArt} alt="Create-Your-Wall-Art" className="background-image" />
+        <div className="image-frame">
             <img src={createyouwallartframehome} alt="create-your-wall-art-frame-home" />
         </div>
-        <div class="overlay-content">
+        <div className="overlay-content">
             <h2>Turn Your Favorite Moments into Wall Art</h2>
             <NavLink to="/Personalize">
   <button className="btn btn-primary">Create Your Wall Art</button>
@@ -274,8 +274,8 @@ From sleek modern frames to timeless classics, let’s turn your walls into conv
           image={LivePreviewHome}
           heading="See the Perfect Fit Before You Commit"
           description="No more guessing if that piece of art will look good in your room. Upload a photo of your wall, select your favorite frame, and see how the art transforms your space. It's the simplest way to ensure your new piece fits perfectly in your home, office, or business."
-          ctaText="Preview Your Art"
-          ctaLink="/livePreview"
+          ctaText="Comming Soon !"
+          ctaLink="#"
           reverse="yes"
         />
       </section>
@@ -286,7 +286,7 @@ From sleek modern frames to timeless classics, let’s turn your walls into conv
           heading="AI-Powered Art Creation"
           description="Discover the art of personalization with our AI-powered design tool. Whether you're looking for the perfect frame or canvas, our intelligent system helps you craft a masterpiece that complements your style and space effortlessly. Choose from a variety of sizes, materials, and finishes to bring your vision to life—all in just a few clicks!"
           ctaText="Create with AI"
-          ctaLink="/AiCreation"
+          ctaLink="/Ai Creation"
         />
       </section>
 

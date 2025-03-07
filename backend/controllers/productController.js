@@ -692,10 +692,10 @@ const processExcelFile = async (req, res) => {
     // Valid value arrays
     const validColors = [
       'Black', 'White', 'Gold', 'Gray', 'Pink', 'Green', 'Orange', 'Red', 'Blue',
-      'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels',
-      'Earth Tones', 'Muted Tones', 'Cool Tones', 'Fiery Orange', 'Deep Blue',
-      'Silver', 'Peach', 'Coral', 'Lavender', 'Dark Green', 'Light Brown',
-      'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
+          'Beige', 'Brown', 'Yellow', 'Purple', 'Neon Green', 'Soft Pastels',
+          'Earth Tones', 'Muted Tones', 'Cool Tones', 'Fiery Orange', 'Deep Blue',
+          'Silver', 'Peach', 'Coral', 'Lavender', 'Dark Green', 'Light Brown',
+          'Terracotta', 'Navy', 'Dusty Rose', 'Indigo', 'Sepia', 'Red Chalk'
     ];
     const validOrientations = ['Portrait', 'Landscape', 'Square'];
     const validCategories = [        
@@ -714,21 +714,59 @@ const processExcelFile = async (req, res) => {
       'Love & Romance', 'Seasonal Art', 'Nautical'
     ];
     const validMediumArray = [
-      "Acrylic Painting", "Oil Painting", "Watercolor Painting", "Cubist Painting", "Fresco",
-      "Ink Drawing / Illustration / Sketch", "Charcoal Drawing", "Chalk Drawing",
-      "Pencil Drawing / Sketch", "Hand-Drawn Illustration", "Digital Painting",
-      "Digital Illustration / Drawing", "Digital Mixed Media", "3D Digital Art / Illustration",
-      "Digital Photography", "Digital Print", "Photography / Photography Print",
-      "Woodblock Print / Woodcut Print", "Printmaking", "Printed Art", "Mixed Media",
-      "Ink & Watercolor", "Painting (Oil or Acrylic)", "Sketch & Mixed Media"
+      "Acrylic Painting",
+          "Oil Painting",
+          "Watercolor Painting",
+          "Cubist Painting",
+          "Fresco",
+          "Ink Drawing",
+          "Illustration",
+          "Sketch",
+          "Charcoal Drawing",
+          "Chalk Drawing",
+          "Pencil Drawing",
+          "Hand-Drawn Illustration",
+          "Digital Painting",
+          "Digital Illustration",
+          "Digital Mixed Media",
+          "3D Digital Art",
+          "Digital Photography",
+          "Digital Print",
+          "Photography",
+          "Woodblock Print",
+          "Printmaking",
+          "Printed Art",
+          "Mixed Media",
+          "Ink & Watercolor",
+          "Painting (Oil or Acrylic)",
+          "Sketch & Mixed Media"
     ];
     const validRoomsArray = [
-      "Living Room", "Cozy Living Room", "Luxury Living Room", "Lounge", "Bedroom",
-      "Contemporary Bedroom", "Cozy Bedroom", "Tranquil Bedroom", "Nursery",
-      "Office / Workspace", "Art Studio", "Creative Studio", "Library & Study Room",
-      "Music Room", "Dining Room", "Kitchen", "Café & Coffee Shop", "Bar & Lounge",
-      "Hotel & Lobby", "Yoga & Meditation Room", "Spa & Relaxation Space", "Gym",
-      "Zen Garden", "Outdoor & Nature-Inspired Spaces"
+      "Living Room",
+          "Cozy Living Room",
+          "Luxury Living Room",
+          "Lounge",
+          "Bedroom",
+          "Contemporary Bedroom",
+          "Cozy Bedroom",
+          "Tranquil Bedroom",
+          "Nursery",
+          "Office",
+          "Workspace",
+          "Art Studio",
+          "Creative Studio",
+          "Library & Study Room",
+          "Music Room",
+          "Dining Room",
+          "Kitchen",
+          "Café & Coffee Shop",
+          "Bar & Lounge",
+          "Hotel & Lobby",
+          "Yoga & Meditation Room",
+          "Spa & Relaxation Space",
+          "Gym",
+          "Zen Garden",
+          "Outdoor"
     ];
 
     // Process each row from the Excel file

@@ -305,29 +305,29 @@ const FreepikImageGenerator = () => {
   return (
     <div className="freepik-generator">
       <Helmet>
-        <title>Freepik Image Generator | Wall & Tone</title>
+        <title>AI Image Generator | Wall & Tone</title>
         <meta
           name="description"
-          content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
+          content="Create unique AI-generated art with Wall & Tone's AI Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
         />
         <meta
           name="keywords"
-          content="Freepik image generator, AI art, wall art, custom art, art generator, Wall & Tone"
+          content="AI image generator, AI art, wall art, custom art, art generator, Wall & Tone"
         />
         <link rel="canonical" href="https://wallandtone.com/freepik-generator" />
-        <meta property="og:title" content="Freepik Image Generator | Wall & Tone" />
+        <meta property="og:title" content="AImage Generator | Wall & Tone" />
         <meta
           property="og:description"
-          content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
+          content="Create unique AI-generated art with Wall & Tone's AI Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
         />
         <meta property="og:image" content="https://wallandtone.com/assets/og-freepik.jpg" />
-        <meta property="og:url" content="https://wallandtone.com/freepik-generator" />
+        <meta property="og:url" content="https://wallandtone.com/Ai Creation" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Freepik Image Generator | Wall & Tone" />
+        <meta name="twitter:title" content="AI Image Generator | Wall & Tone" />
         <meta
           name="twitter:description"
-          content="Create unique AI-generated art with Wall & Tone's Freepik Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
+          content="Create unique AI-generated art with Wall & Tone's AI Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
         />
         <meta name="twitter:image" content="https://wallandtone.com/assets/og-freepik.jpg" />
       </Helmet>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cropper from "react-easy-crop";
 import { Upload } from "lucide-react";
+import { Helmet } from "react-helmet";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./PersonalizeUpload.css";
 
@@ -57,23 +58,22 @@ const PersonalizeUpload = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (!file) return;
-  
+
     if (!file.type.startsWith("image/")) {
       setError("Please upload a valid image file (JPG or PNG).");
       return;
     }
-  
+
     if (file.size > 50 * 1024 * 1024) { // 50MB limit
       setError("File size exceeds 50MB. Please upload a smaller image.");
       return;
     }
-  
+
     setSelectedImage(file);
     setPreviewUrl(URL.createObjectURL(file));
     setError(null);
     checkImageQuality(file);
   };
-  
 
   // **🔹 When Crop is Done**
   const onCropComplete = useCallback((_, croppedAreaPixels) => {
@@ -158,6 +158,26 @@ const PersonalizeUpload = () => {
 
   return (
     <div className="personalize-upload-container">
+      <Helmet>
+        <title>Personalize Your Wall Art | Wall & Tone</title>
+        <meta
+          name="description"
+          content="Upload and customize your favorite photo to transform it into a unique work of art. Personalize your wall art with quality and style."
+        />
+        <meta
+          name="keywords"
+          content="Personalize, Upload, Wall Art, Custom Art, Photo Customization, Wall & Tone, Art Print"
+        />
+        <link rel="canonical" href="https://wallandtone.com/personalize-upload" />
+        <meta property="og:title" content="Personalize Your Wall Art | Wall & Tone" />
+        <meta
+          property="og:description"
+          content="Upload and customize your favorite photo to transform it into a unique work of art. Let your creativity shine with Wall & Tone."
+        />
+        <meta property="og:image" content="https://wallandtone.com/path-to-your-default-og-image.jpg" />
+        <meta property="og:url" content="https://wallandtone.com/personalize-upload" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
       <div className="personalize-upload-card">
         <h2 className="text-center personalize-title">Personalized by You</h2>
         <p className="text-center personalize-subtitle">
@@ -165,50 +185,49 @@ const PersonalizeUpload = () => {
         </p>
 
         <div className="personalize-upload-box">
-  {!previewUrl ? (
-    // 📌 Agar koi image selected nahi hai toh normal upload placeholder dikhao
-    <label className="personalize-upload-label">
-      <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
-      <div className="personalize-upload-placeholder">
-        <Upload size={50} className="upload-icon" />
-        <p className="upload-text">Upload Photo</p>
-        <span className="upload-support">Supported: PNG, JPG</span>
-      </div>
-    </label>
-  ) : (
-    // 📌 Agar image select ho chuki hai toh Cropper dikhana hai
-    <div className="personalize-preview-container">
-      <Cropper
-        image={previewUrl}
-        crop={crop}
-        zoom={zoom}
-        aspect={orientation === "portrait" ? 3 / 4 : 4 / 3}
-        onCropChange={setCrop}
-        onZoomChange={setZoom}
-        onCropComplete={onCropComplete}
-      />
-      <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
-        <p>{overlayMessage}</p>
-      </div>
+          {!previewUrl ? (
+            // If no image is selected, show the normal upload placeholder
+            <label className="personalize-upload-label">
+              <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
+              <div className="personalize-upload-placeholder">
+                <Upload size={50} className="upload-icon" />
+                <p className="upload-text">Upload Photo</p>
+                <span className="upload-support">Supported: PNG, JPG</span>
+              </div>
+            </label>
+          ) : (
+            // When an image is selected, show the Cropper component
+            <div className="personalize-preview-container">
+              <Cropper
+                image={previewUrl}
+                crop={crop}
+                zoom={zoom}
+                aspect={orientation === "portrait" ? 3 / 4 : 4 / 3}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+              <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
+                <p>{overlayMessage}</p>
+              </div>
 
-      {/* 📌 Re-Upload button */}
-      <div className="reupload-btn-container">
-        <button
-          className="btn btn-secondary reupload-btn"
-          onClick={() => {
-            setSelectedImage(null);
-            setPreviewUrl(null);
-            setImageQuality(null);
-            setError(null);
-          }}
-        >
-          Re-Upload Image
-        </button>
-      </div>
-    </div>
-  )}
-</div>
-
+              {/* Re-Upload button */}
+              <div className="reupload-btn-container">
+                <button
+                  className="btn btn-secondary reupload-btn"
+                  onClick={() => {
+                    setSelectedImage(null);
+                    setPreviewUrl(null);
+                    setImageQuality(null);
+                    setError(null);
+                  }}
+                >
+                  Re-Upload Image
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {previewUrl && (
           <div className="orientation-selection">

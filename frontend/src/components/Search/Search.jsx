@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Helmet } from 'react-helmet'; // Import Helmet
-
+import { Helmet } from 'react-helmet';
 import SearchSuggestions from './SearchSuggestions';
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
 import './search.css';
@@ -10,7 +9,7 @@ import ForBusinessesBulkOrdersB2B from '../../assets/searchPage/For-Businesses-B
 import ForHomePersonalSpacesB2C from '../../assets/searchPage/For-Home-Personal-Spaces-B2C.png';
 import { useMediaQuery } from "react-responsive";
 
-// Grouped Category Options (same as in ProductListing)
+// Grouped Category Options
 const groupedCategoryOptions = {
   "Abstract & Conceptual": ["Abstract Art", "Surrealism", "Expressionism", "Minimalist", "Fluid Art", "Optical Art"],
   "Nature & Landscape": ["Nature Art", "Botanical", "Seascape", "Wildlife", "Scenic", "Marine Art"],
@@ -30,45 +29,48 @@ const groupedCategoryOptions = {
 };
 
 const Search = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
+  const apiUrl = import.meta.env.VITE_API_URL || 
+    (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [productSuggestions, setProductSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [categorySuggestions, setCategorySuggestions] = useState([]);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
+  // Fetch suggestions whenever the search query changes
   useEffect(() => {
-    const handleSearchInput = async (e) => {
-      const query = e.target.value;
-      setSearchQuery(query);
+    if (searchQuery.length >= 2) {
+      axios.get(`${apiUrl}/api/search/suggestions?q=${searchQuery}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      .then(response => {
+        // Randomize and slice suggestions to 10
+        const shuffled = [...response.data].sort(() => Math.random() - 0.5);
+        setProductSuggestions(shuffled.slice(0, 10));
+        setShowSuggestions(true);
+      })
+      .catch(error => {
+        console.error('Error fetching suggestions:', error);
+      });
 
-      if (query.length >= 2) {
-        try {
-          const response = await axios.get(`${apiUrl}/api/search/suggestions?q=${query}`, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          });
-          setSearchResults(response.data);
-          setShowSuggestions(true);
-        } catch (error) {
-          console.error('Error fetching suggestions:', error);
-        }
-      } else {
-        setSearchResults([]);
-        setShowSuggestions(false);
-      }
-    };
-
-    const inputElement = document.querySelector('.search-input');
-    inputElement.addEventListener('input', handleSearchInput);
-
-    return () => {
-      inputElement.removeEventListener('input', handleSearchInput);
-    };
-  }, [token]);
+      // Filter category keys that include the search term (case-insensitive)
+      const matchingCategories = Object.keys(groupedCategoryOptions).filter(group =>
+        group.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setCategorySuggestions(matchingCategories.slice(0, 10));
+    } else {
+      setProductSuggestions([]);
+      setCategorySuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchQuery, token, apiUrl]);
 
   const handleSearch = (e) => {
     e.preventDefault();
+    // Navigate to products page with search query as parameter
     navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
     setShowSuggestions(false);
     setSearchQuery('');
@@ -80,15 +82,15 @@ const Search = () => {
     navigate(`/product/${product._id}`);
   };
 
-  // When a grouped category is clicked, build the query string from the group's categories
-  const handleCategoryClick = (group) => {
+  // When a category suggestion is clicked, navigate to products with that category filter
+  const handleCategorySelect = (group) => {
     const categories = groupedCategoryOptions[group];
     const queryParams = new URLSearchParams();
     queryParams.set('categories', categories.join(','));
     navigate(`/products?${queryParams.toString()}`);
+    setShowSuggestions(false);
+    setSearchQuery('');
   };
-
-  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   return (
     <div className="search-container">
@@ -135,18 +137,26 @@ const Search = () => {
         {Object.keys(groupedCategoryOptions).map((group) => (
           <button 
             key={group}
-            onClick={() => handleCategoryClick(group)}
+            onClick={() => {
+              // Use existing handleCategoryClick logic
+              const categories = groupedCategoryOptions[group];
+              const queryParams = new URLSearchParams();
+              queryParams.set('categories', categories.join(','));
+              navigate(`/products?${queryParams.toString()}`);
+            }}
             className="grouped-category-button search-page"
           >
             {group}
           </button>
         ))}
       </div>
-      {showSuggestions && searchResults.length > 0 && (
+      {showSuggestions && (productSuggestions.length > 0 || categorySuggestions.length > 0) && (
         <div className="search-suggestions">
-          <SearchSuggestions
-            suggestions={searchResults}
-            onSelect={handleSuggestionSelect}
+          <SearchSuggestions 
+            productSuggestions={productSuggestions}
+            categorySuggestions={categorySuggestions}
+            onSelectProduct={handleSuggestionSelect}
+            onSelectCategory={handleCategorySelect}
           />
         </div>
       )}
@@ -184,7 +194,7 @@ const Search = () => {
           Need custom sizes, bulk orders, or exclusive designs? We’ve got you covered. We get you the best prices and make your space stand out!"
           ctaText="Discover More"
           ctaLink="#"
-          reverse={!isMobile ? "yes" : 'yes'} // ✅ Remove reverse on mobile
+          reverse={!isMobile ? "yes" : "yes"}
         />
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import aboutturningcanvases from '../../assets/about/About-Turning-Canvases.png';
 import AboutDiscoverCollection from '../../assets/about/About-Discover-Collection.png';
 import Empoweringchange from '../../assets/about/Empowering-change.png';
@@ -13,32 +14,27 @@ import PaperMatters from '../../assets/about/Paper-Matters.png';
 import InHousePrinting from '../../assets/about/In-House-Printing.png';
 import FramesDefineSpaces from '../../assets/about/Frames-Define-Spaces.png';
 
-
-import './AboutUs.css';
+import './aboutus.css';
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
-import Footer from '../Footer/Footer';
 
 const AboutContent = () => (
   <>
-  
     <section className="aboutus-hero">
       <div className="aboutus-container">
         <div className="abt-sec1-content">
-            <div className="content">
+          <div className="content">
             <h2>Turning Walls Into Canvases</h2>
-        {/* <p className="aboutus-hero-text">
-        At Wall & Tone, we believe in the power of art to transform spaces and evoke emotions. 
-        Our mission is to offer art that speaks to you—pieces that inspire, uplift, and make a statement. Born from a legacy of artists, and with a focus on craftsmanship, quality, and innovative designs, we ensure every piece is not just a decoration, but a piece of emotion, history, and personal connection.
-        </p> */}
-        <p className="aboutus-hero-subtext">
-        At Wall & Tone, we believe in the power of art to transform spaces and evoke emotions. 
-        Our mission is to offer art that speaks to you—pieces that inspire, uplift, and make a statement. Born from a legacy of artists, and with a focus on craftsmanship, quality, and innovative designs, we ensure every piece is not just a decoration, but a piece of emotion, history, and personal connection.
-        </p>
-        <button className="aboutus-primary-button">Explore Collection</button>
-            </div>
-            <div className="img-sec">
-                <img src={aboutturningcanvases} alt="about-turning-canvases" />
-            </div>
+            <p className="aboutus-hero-subtext">
+              At Wall & Tone, we believe in the power of art to transform spaces and evoke emotions.
+              Our mission is to offer art that speaks to you—pieces that inspire, uplift, and make a statement.
+              Born from a legacy of artists, and with a focus on craftsmanship, quality, and innovative designs,
+              we ensure every piece is not just a decoration, but a piece of emotion, history, and personal connection.
+            </p>
+            <button className="aboutus-primary-button">Explore Collection</button>
+          </div>
+          <div className="img-sec">
+            <img src={aboutturningcanvases} alt="about-turning-canvases" />
+          </div>
         </div>
       </div>
     </section>
@@ -106,41 +102,38 @@ const AboutContent = () => (
               </p>
             </div>
             <button className="aboutus-primary-button">Explore Collection</button>
-
           </div>
         </div>
       </div>
     </section>
     <section className="aboutus-impact-section">
-        <div className="aboutus-container">
-          <div className="aboutus-impact-image-container">
-            <div className="aboutus-impact-content">
-              <h2>Empowering change, One wall at a Time</h2>
-              <p>
-                With every sector you buy, we donate to support children's
-                education and welfare through art.org
-              </p>
-            </div>
-            <img 
-              src={Empoweringchange}
-              alt="Happy children learning"
-              className="aboutus-impact-image"
-            />
+      <div className="aboutus-container">
+        <div className="aboutus-impact-image-container">
+          <div className="aboutus-impact-content">
+            <h2>Empowering change, One wall at a Time</h2>
+            <p>
+              With every sector you buy, we donate to support children's
+              education and welfare through art.org
+            </p>
           </div>
+          <img 
+            src={Empoweringchange}
+            alt="Happy children learning"
+            className="aboutus-impact-image"
+          />
         </div>
-      </section>
+      </div>
+    </section>
   </>
 );
 
 const ProductionContent = () => {
-  const isMobile = useMediaQuery({ maxWidth: 768 }); // ✅ Define `isMobile`
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   return (
     <section className="aboutus-production">
       <div className="aboutus-container">
         <div className="aboutus-production-content">
-
-          {/* Precision, Quality, and Craftsmanship */}
           <div className="aboutus-production-content-Precision">
             <ImageContentComponent
               image={PrecisionQualityCraftsmanship}
@@ -155,12 +148,9 @@ const ProductionContent = () => {
                   </p>
                 </>
               }
-              reverse="yes" // ✅ Fix reverse logic
-
+              reverse="yes"
             />
           </div>
-
-          {/* Frames That Define Spaces */}
           <div className="aboutus-production-content-Frames-Spaces">
             <ImageContentComponent
               image={FramesDefineSpaces}
@@ -180,8 +170,6 @@ const ProductionContent = () => {
               }
             />
           </div>
-
-          {/* Paper Matters */}
           <div className="aboutus-production-content-Paper-Matters">
             <ImageContentComponent
               image={PaperMatters}
@@ -198,11 +186,9 @@ const ProductionContent = () => {
                   </ul>
                 </>
               }
-              reverse={!isMobile ? "yes" : undefined} // ✅ Remove reverse on mobile
+              reverse={!isMobile ? "yes" : undefined}
             />
           </div>
-
-          {/* Impact Image Section */}
           <div className="aboutus-impact-image-container">
             <div className="aboutus-impact-content">
               <h2>In-House Production for Premium Wall-Art</h2>
@@ -210,12 +196,10 @@ const ProductionContent = () => {
             </div>
             <img 
               src={InHouseProduction}
-              alt="Happy children learning"
+              alt="In-House Production"
               className="aboutus-impact-image"
             />
           </div>
-
-          {/* In-House Printing */}
           <div className="aboutus-production-content-In-House-Printing">
             <ImageContentComponent
               image={InHousePrinting}
@@ -233,11 +217,9 @@ const ProductionContent = () => {
                   </p>
                 </>
               }
-              reverse={!isMobile ? "yes" : undefined} // ✅ Remove reverse on mobile
+              reverse={!isMobile ? "yes" : undefined}
             />
           </div>
-
-          {/* Made in India */}
           <div className="aboutus-production-content-Proudly-Made-INDIA">
             <ImageContentComponent
               image={MadeInIndia}
@@ -250,7 +232,6 @@ const ProductionContent = () => {
               }
             />
           </div>
-
         </div>
       </div>
     </section>
@@ -258,13 +239,32 @@ const ProductionContent = () => {
 };
 
 function AboutUs() {
-
   return (
     <div className="aboutus-page">
+      <Helmet>
+        <title>About Us | Wall & Tone</title>
+        <meta 
+          name="description" 
+          content="Discover the story behind Wall & Tone—where walls become canvases. Learn about our passion, our production excellence, and our commitment to transforming spaces with art." 
+        />
+        <meta 
+          name="keywords" 
+          content="About Us, Wall Art, Canvas, Production, Made in India, Quality Craftsmanship, Wall & Tone, Art Collection" 
+        />
+        <link rel="canonical" href="https://wallandtone.com/about-us" />
+        <meta property="og:title" content="About Us | Wall & Tone" />
+        <meta 
+          property="og:description" 
+          content="Discover the story behind Wall & Tone—where walls become canvases. Our innovative production and quality craftsmanship transform your spaces into art." 
+        />
+        <meta property="og:image" content={aboutturningcanvases} />
+        <meta property="og:url" content="https://wallandtone.com/about-us" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
       <div className="aboutus-tabs-container">
         <div className="aboutus-tabs">
           <NavLink 
-            to="/aboutus/about"
+            to="/about us/about"
             className={({ isActive }) => 
               `aboutus-tab-button ${isActive ? 'active' : ''}`
             }
@@ -273,7 +273,7 @@ function AboutUs() {
           </NavLink>
           <div className="aboutus-tab-divider"></div>
           <NavLink 
-            to="/aboutus/production"
+            to="/about us/production"
             className={({ isActive }) => 
               `aboutus-tab-button ${isActive ? 'active' : ''}`
             }
@@ -288,8 +288,6 @@ function AboutUs() {
         <Route path="about" element={<AboutContent />} />
         <Route path="production" element={<ProductionContent />} />
       </Routes>
-
-      
     </div>
   );
 }

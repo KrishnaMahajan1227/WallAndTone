@@ -38,7 +38,7 @@ const Navbar = () => {
       setShowLoginModal(true);
       return;
     }
-    navigate('/AiCreation');
+    navigate('/Ai Creation');
     setIsNavOpen(false);
   };
 
@@ -126,20 +126,20 @@ const Navbar = () => {
       </li>
       <li className="nav-item">
         <Link 
-          to="/aboutus" 
+          to="/about us" 
           className="nav-link"
-          onClick={() => handleNavigation('aboutus', 'About Us')}
+          onClick={() => handleNavigation('about us', 'About Us')}
         >
           About Us
         </Link>
       </li>
       <li className="nav-item">
   <Link 
-    to="/AiCreation" 
+    to="/Ai Creation" 
     className="nav-link"
     onClick={(event) => {
       handleAiCreationClick(event);  // Keep the existing function
-      handleNavigation('AiCreation', 'Create With AI');  // Add new function
+      handleNavigation('Ai Creation', 'Create With AI');  // Add new function
     }}
   >
     Create With AI
@@ -148,9 +148,9 @@ const Navbar = () => {
 
       <li className="nav-item">
         <Link 
-          to="/forbusiness" 
+          to="/for business" 
           className="nav-link"
-          onClick={() => handleNavigation('forbusiness', 'For Business')}
+          onClick={() => handleNavigation('for business', 'For Business')}
         >
           For Business
         </Link>

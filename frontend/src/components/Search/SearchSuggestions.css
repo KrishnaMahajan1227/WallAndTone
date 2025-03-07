@@ -1,63 +1,110 @@
 /* SearchSuggestions.css */
 .search-suggestions-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.suggestion-item {
-  padding: 10px;
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  border-bottom: 1px solid #ccc;
-  justify-content: flex-start;
-  width: 100%;
-}
-
-.suggestion-item:hover {
-  background-color: #f5f5f5;
-}
-
-.suggestion-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.suggestion-image {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.suggestion-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.suggestion-name {
-  font-weight: 500;
-  color: #2D2D2D;
-}
-.suggestion-item:last-child {
-  border-bottom: none;
-}
-
-.search-suggestions {
-  position: absolute;
-  top: 3.7%;
-  left: 0%;
-  width: 100%;
   background-color: #fff;
-  border: none;
+  border: 1px solid #ccc;
   border-radius: 4px;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
   padding: 10px;
   max-height: 400px;
   overflow-y: auto;
   z-index: 9999;
+  position: absolute;
+  top: 5%;
+  right: 0;
+  width: 100%;
   box-sizing: border-box;
+}
+
+/* Grid layout for product suggestions: 3 columns on desktop */
+.product-suggestions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.suggestion-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background-color: #fafafa;
+  transition: transform 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background-color: #f5f5f5;
+  transform: scale(1.02);
+}
+
+.suggestion-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+
+.suggestion-details {
+  text-align: center;
+}
+
+.suggestion-name {
+  font-weight: 500;
+  color: #2D2D2D;
+}
+
+/* Category suggestions section */
+.category-suggestions {
+  margin-top: 10px;
+}
+
+.category-suggestions .suggestion-heading {
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.category-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.category-suggestion-button {
+  background-color: #2F231F;
+  color: #fff;
+  border: none;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.category-suggestion-button:hover {
+  background-color: #000;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .product-suggestions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .product-suggestions-grid {
+    grid-template-columns: 1fr;
+  }
+  .search-suggestions-container {
+    top: 10%;
+    padding: 5px;
+  }
+  .category-suggestion-button {
+    padding: 6px;
+    font-size: 0.9rem;
+  }
 }

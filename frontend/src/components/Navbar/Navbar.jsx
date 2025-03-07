@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import { WishlistContext } from '../Wishlist/WishlistContext';
-import { X, Sparkles, Lock, ArrowRight } from "lucide-react";
+import { X, Sparkles, Lock, ArrowRight, Heart } from "lucide-react";
 import whiteLogo from '../../assets/logo/wall-n-tone-white.png';
 import cartIconUrl from '../../assets/icons/cart-icon.svg';
 import heartIconUrl from '../../assets/icons/heart-icon.svg';
@@ -11,11 +11,13 @@ import './Navbar.css';
 
 const Navbar = () => {
   const { user, logout } = useContext(UserContext);
+  const { wishlistCount } = useContext(WishlistContext);
   const navigate = useNavigate();
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const { wishlistCount } = useContext(WishlistContext);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  
+  // Separate modal states for AI and Personalize
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [showPersonalizeModal, setShowPersonalizeModal] = useState(false);
+
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -32,76 +34,379 @@ const Navbar = () => {
     setIsNavOpen(false);
   };
 
+  // Handler for AI Creation – if not logged in, show AI modal
   const handleAiCreationClick = (e) => {
     e.preventDefault();
     if (!user) {
-      setShowLoginModal(true);
+      setShowAiModal(true);
       return;
     }
     navigate('/Ai Creation');
     setIsNavOpen(false);
   };
 
-  const LoginModal = () => (
-    <div className="homepage-login-modal">
-      <div className="homepage-modal-content">
-        <button 
-          className="homepage-modal-close" 
-          onClick={() => setShowLoginModal(false)}
-          aria-label="Close modal"
+  // Handler for Personalize – if not logged in, show Personalize modal
+  const handlePersonalizeClick = (e) => {
+    e.preventDefault();
+    if (!user) {
+      setShowPersonalizeModal(true);
+      return;
+    }
+    navigate('/Personalize');
+    setIsNavOpen(false);
+  };
+
+  // Smooth fade-in animation styles
+  const modalAnimationStyles = (
+    <style>
+      {`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-fade-in {
+          animation: fadeIn 0.5s ease-out;
+        }
+      `}
+    </style>
+  );
+
+  // AI Creation Login Modal Component
+  const AiLoginModal = () => (
+    <>
+      {modalAnimationStyles}
+      <div
+        className="homepage-login-modal modal-fade-in"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 9999,
+          padding: "1rem",
+        }}
+      >
+        <div
+          className="homepage-modal-content"
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: "8px",
+            padding: "2rem",
+            maxWidth: "500px",
+            width: "100%",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            position: "relative",
+          }}
         >
-          <X size={24} />
-        </button>
-        
-        <div className="homepage-modal-header">
-          <div className="homepage-modal-icon">
-            <Sparkles className="sparkle-icon" size={32} />
-          </div>
-          <h2>Unlock AI Creation Magic!</h2>
-          <div className="homepage-modal-subheader">
-            <Lock size={16} />
-            <span>Exclusive Feature</span>
-          </div>
-        </div>
-
-        <div className="homepage-modal-body">
-          <p>Transform your ideas into stunning wall art with our AI-powered creation tools.</p>
-          <ul className="homepage-modal-features">
-            <li>
-              <Sparkles size={16} />
-              <span>Create unique, personalized designs</span>
-            </li>
-            <li>
-              <Sparkles size={16} />
-              <span>Access exclusive AI art styles</span>
-            </li>
-            <li>
-              <Sparkles size={16} />
-              <span>Save and modify your creations</span>
-            </li>
-          </ul>
-        </div>
-
-        <div className="homepage-modal-buttons">
-          <button 
-            className="homepage-btn-primary" 
-            onClick={() => {
-              setShowLoginModal(false);
-              navigate('/login');
+          <button
+            className="homepage-modal-close"
+            onClick={() => setShowAiModal(false)}
+            aria-label="Close modal"
+            style={{
+              position: "absolute",
+              top: "1rem",
+              right: "1rem",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
             }}
           >
-            <span>Login Now</span>
-            <ArrowRight size={16} />
+            <X size={24} />
           </button>
-          <button 
-            className="homepage-btn-secondary" 
-            onClick={() => setShowLoginModal(false)}
+
+          <div
+            className="homepage-modal-header"
+            style={{ textAlign: "center", marginBottom: "1rem" }}
           >
-            Continue Browsing
-          </button>
+            <div
+              className="homepage-modal-icon"
+              style={{ marginBottom: "0.5rem" }}
+            >
+              <Sparkles className="sparkle-icon" size={32} style={{ color: "#5B2EFF" }} />
+            </div>
+            <h2>Unlock AI Creation Magic!</h2>
+            <div
+              className="homepage-modal-subheader"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: "0.5rem",
+                gap: "0.5rem",
+                color: "#555",
+              }}
+            >
+              <Lock size={16} />
+              <span>Exclusive AI Feature</span>
+            </div>
+          </div>
+
+          <div
+            className="homepage-modal-body"
+            style={{ textAlign: "center", marginBottom: "1.5rem" }}
+          >
+            <p>
+              Transform your ideas into stunning wall art with our AI-powered creation tools.
+            </p>
+            <ul
+              className="homepage-modal-features"
+              style={{ listStyle: "none", padding: 0 }}
+            >
+              <li
+                style={{
+                  marginBottom: "0.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <Sparkles size={16} />
+                <span>Create unique, personalized designs</span>
+              </li>
+              <li
+                style={{
+                  marginBottom: "0.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <Sparkles size={16} />
+                <span>Access exclusive AI art styles</span>
+              </li>
+              <li
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <Sparkles size={16} />
+                <span>Save and modify your creations</span>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            className="homepage-modal-buttons"
+            style={{ display: "flex", justifyContent: "space-around" }}
+          >
+            <button
+              className="homepage-btn-primary"
+              onClick={() => {
+                setShowAiModal(false);
+                navigate("/login");
+              }}
+              style={{
+                backgroundColor: "#5B2EFF",
+                color: "#fff",
+                border: "none",
+                padding: "0.75rem 1.5rem",
+                borderRadius: "4px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+              }}
+            >
+              <span>Login Now</span>
+              <ArrowRight size={16} />
+            </button>
+            <button
+              className="homepage-btn-secondary"
+              onClick={() => setShowAiModal(false)}
+              style={{
+                backgroundColor: "#fff",
+                color: "#5B2EFF",
+                border: "2px solid #5B2EFF",
+                padding: "0.75rem 1.5rem",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Continue Browsing
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  // Personalize Login Modal Component – using the provided personalize popup design
+  const PersonalizeLoginModal = () => (
+    <>
+      {modalAnimationStyles}
+      <div
+        className="homepage-login-modal modal-fade-in"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 9999,
+          padding: "1rem",
+        }}
+      >
+        <div
+          className="homepage-modal-content"
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: "8px",
+            padding: "2rem",
+            maxWidth: "500px",
+            width: "100%",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            position: "relative",
+          }}
+        >
+          <button
+            className="homepage-modal-close"
+            onClick={() => setShowPersonalizeModal(false)}
+            aria-label="Close modal"
+            style={{
+              position: "absolute",
+              top: "1rem",
+              right: "1rem",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            <X size={24} />
+          </button>
+
+          <div
+            className="homepage-modal-header"
+            style={{ textAlign: "center", marginBottom: "1rem" }}
+          >
+            <div
+              className="homepage-modal-icon"
+              style={{ marginBottom: "0.5rem" }}
+            >
+              <Heart className="heart-icon" size={32} style={{ color: "#E63946" }} />
+            </div>
+            <h2>Personalize Your Wall Art!</h2>
+            <div
+              className="homepage-modal-subheader"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: "0.5rem",
+                gap: "0.5rem",
+                color: "#555",
+              }}
+            >
+              <Lock size={16} />
+              <span>Exclusive Personalization</span>
+            </div>
+          </div>
+
+          <div
+            className="homepage-modal-body"
+            style={{ textAlign: "center", marginBottom: "1.5rem" }}
+          >
+            <p>
+              Bring your own inspiration or memories and let our experts create a unique wall art piece just for you.
+            </p>
+            <ul
+              className="homepage-modal-features"
+              style={{ listStyle: "none", padding: 0 }}
+            >
+              <li
+                style={{
+                  marginBottom: "0.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <Heart size={16} style={{ color: "#E63946" }} />
+                <span>Craft personalized designs</span>
+              </li>
+              <li
+                style={{
+                  marginBottom: "0.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <Heart size={16} style={{ color: "#E63946" }} />
+                <span>Access custom art styles</span>
+              </li>
+              <li
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <Heart size={16} style={{ color: "#E63946" }} />
+                <span>Save your unique creation</span>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            className="homepage-modal-buttons"
+            style={{ display: "flex", justifyContent: "space-around" }}
+          >
+            <button
+              className="homepage-btn-primary"
+              onClick={() => {
+                setShowPersonalizeModal(false);
+                navigate("/login");
+              }}
+              style={{
+                backgroundColor: "#E63946",
+                color: "#fff",
+                border: "none",
+                padding: "0.75rem 1.5rem",
+                borderRadius: "4px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+              }}
+            >
+              <span>Login Now</span>
+              <ArrowRight size={16} />
+            </button>
+            <button
+              className="homepage-btn-secondary"
+              onClick={() => setShowPersonalizeModal(false)}
+              style={{
+                backgroundColor: "#fff",
+                color: "#E63946",
+                border: "2px solid #E63946",
+                padding: "0.75rem 1.5rem",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Continue Browsing
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 
   const userLinks = (
@@ -134,18 +439,17 @@ const Navbar = () => {
         </Link>
       </li>
       <li className="nav-item">
-  <Link 
-    to="/Ai Creation" 
-    className="nav-link"
-    onClick={(event) => {
-      handleAiCreationClick(event);  // Keep the existing function
-      handleNavigation('Ai Creation', 'Create With AI');  // Add new function
-    }}
-  >
-    Create With AI
-  </Link>
-</li>
-
+        <Link 
+          to="/Ai Creation" 
+          className="nav-link"
+          onClick={(e) => {
+            handleAiCreationClick(e);
+            handleNavigation('Ai Creation', 'Create With AI');
+          }}
+        >
+          Create With AI
+        </Link>
+      </li>
       <li className="nav-item">
         <Link 
           to="/for business" 
@@ -159,7 +463,11 @@ const Navbar = () => {
         <Link 
           to="/Personalize" 
           className="nav-link"
-          onClick={() => handleNavigation('Personalize', 'Personalize')}
+          onClick={(e) => {
+            e.preventDefault();
+            handlePersonalizeClick(e);
+            handleNavigation('Personalize', 'Personalize');
+          }}
         >
           Personalize
         </Link>
@@ -241,23 +549,23 @@ const Navbar = () => {
           Orders
         </Link>
       </li>
-      </>
+    </>
   );
 
   return (
     <>
       <div className={`main-navbar-overlay ${isNavOpen ? 'show' : ''}`} onClick={() => setIsNavOpen(false)} />
       <nav className={`main-navbar ${isNavOpen ? 'show' : ''}`}>
-        {showLoginModal && <LoginModal />}
+        {/* Render both modals if needed */}
+        {showAiModal && <AiLoginModal />}
+        {showPersonalizeModal && <PersonalizeLoginModal />}
         <div className="navbar-container">
           <div className="navbar-header">
-          <div className="logo-container">
-  <Link to="/" onClick={() => handleNavigation('', 'Home')}>
-    <img src={whiteLogo} alt="Logo" className="logo" />
-  </Link>
-</div>
-
-
+            <div className="logo-container">
+              <Link to="/" onClick={() => handleNavigation('', 'Home')}>
+                <img src={whiteLogo} alt="Logo" className="logo" />
+              </Link>
+            </div>
             <button 
               className="navbar-toggler" 
               type="button" 

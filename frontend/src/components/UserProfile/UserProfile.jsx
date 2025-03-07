@@ -32,7 +32,7 @@ const UserProfile = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  // Extract fetchUserProfile so it can be called on mount and after updates.
+  // Fetch user profile
   const fetchUserProfile = async () => {
     try {
       if (!token) throw new Error("User not authenticated");
@@ -54,7 +54,6 @@ const UserProfile = () => {
         country: userData.shippingDetails?.[0]?.country || "India",
       });
       
-      // If shipping and billing addresses are identical, mark the checkbox
       if (
         userData.shippingDetails?.[0]?.shippingAddress ===
         userData.shippingDetails?.[0]?.billingAddress
@@ -102,9 +101,10 @@ const UserProfile = () => {
       const fetchOrders = async () => {
         try {
           if (!token) throw new Error("User not authenticated");
-          const response = await axios.get(`${apiUrl}/api/orders`, {
+          const response = await axios.get(`${apiUrl}/api/orders/myorders`, {
             headers: { Authorization: `Bearer ${token}` },
           });
+          // Adjust response structure if needed
           setOrders(response.data.orders || []);
         } catch (error) {
           console.error("Error fetching orders:", error);
@@ -154,7 +154,6 @@ const UserProfile = () => {
       toast.success(response.data.message);
       setIsEditing(false);
       setShowPasswordFields(false);
-      // Re-fetch the profile to ensure the form reflects the latest data from the DB.
       await fetchUserProfile();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -216,14 +215,14 @@ const UserProfile = () => {
             Profile
           </button>
         </li>
-        <li className="nav-item">
+        {/* <li className="nav-item">
           <button
             className={`nav-link ${activeTab === "orderHistory" ? "active" : ""}`}
             onClick={() => setActiveTab("orderHistory")}
           >
             Order History
           </button>
-        </li>
+        </li> */}
         <li className="nav-item">
           <button
             className={`nav-link ${activeTab === "myRoom" ? "active" : ""}`}
@@ -414,17 +413,19 @@ const UserProfile = () => {
               <p>No orders found.</p>
             ) : (
               orders.map((order) => (
-                <div key={order.order_id} className="order-card card p-3 mb-3">
-                  <div className="d-flex justify-content-between">
+                <div key={order.order_id || order._id} className="order-card card p-3 mb-3">
+                  <div className="d-flex flex-wrap justify-content-between align-items-center">
                     <div>
-                      <h5>Order ID: {order.channel_order_id || order.order_id}</h5>
-                      <p className="text-muted">{order.order_date}</p>
+                      <h5 className="order-card__id">Order ID: {order.channel_order_id || order.order_id}</h5>
+                      <p className="order-card__date text-muted">{order.order_date || new Date(order.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div>
-                      <span>Status: {order.status}</span>
+                      <span className="order-card__status badge bg-primary">
+                        {order.status || order.orderStatus}
+                      </span>
                     </div>
                   </div>
-                  <div className="mt-2">
+                  <div className="order-card__details mt-2">
                     <p>
                       <strong>Amount Paid:</strong> ₹ {(order.sub_total + 300 + 50).toFixed(2)}
                     </p>
@@ -432,17 +433,17 @@ const UserProfile = () => {
                       <strong>Payment Method:</strong> {order.payment_method}
                     </p>
                     {order.order_items && order.order_items.length > 0 && (
-                      <div>
+                      <div className="order-card__items mt-2">
                         <h6>Items Ordered:</h6>
                         {order.order_items.map((item, idx) => (
-                          <p key={idx}>
+                          <p key={idx} className="mb-1">
                             <strong>{item.name}</strong> (x{item.units}) – ₹ {item.selling_price} each
                           </p>
                         ))}
                       </div>
                     )}
                   </div>
-                  <div className="text-end mt-2">
+                  <div className="text-end mt-3">
                     <button
                       className="btn btn-primary"
                       onClick={() =>
@@ -512,26 +513,6 @@ const UserProfile = () => {
                 <p>No generated images found.</p>
               )}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ADDRESSES TAB (Placeholder) */}
-      {activeTab === "addresses" && (
-        <div className="my-profile-page__card card mt-4">
-          <div className="card-body">
-            <h4 className="my-profile-page__title">Addresses</h4>
-            <p>Here you can manage your addresses (placeholder).</p>
-          </div>
-        </div>
-      )}
-
-      {/* WISH LIST TAB (Placeholder) */}
-      {activeTab === "wishlist" && (
-        <div className="my-profile-page__card card mt-4">
-          <div className="card-body">
-            <h4 className="my-profile-page__title">Wish List</h4>
-            <p>Here you can manage your wish list (placeholder).</p>
           </div>
         </div>
       )}

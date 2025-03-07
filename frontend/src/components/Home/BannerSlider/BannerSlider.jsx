@@ -1,13 +1,12 @@
 import React from 'react';
 import Slider from 'react-slick';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./BannerSlider.css";
 
 const BannerSlider = ({ BannerImages, isLoggedIn }) => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
-
+  const navigate = useNavigate();
   const settings = {
     dots: true,
     infinite: true,
@@ -33,16 +32,6 @@ const BannerSlider = ({ BannerImages, isLoggedIn }) => {
     ),
   };
 
-  const handleClick = (e, image) => {
-    if (image.ctaLink1 === "/AiCreation") {
-      e.preventDefault();
-      if (!isLoggedIn && image.onClick) {
-        image.onClick(e);
-        return;
-      }
-    }
-  };
-
   return (
     <div className="banner-slider-container">
       <Slider {...settings}>
@@ -51,17 +40,29 @@ const BannerSlider = ({ BannerImages, isLoggedIn }) => {
             <img src={image.src} alt={image.alt} className="slider-image" />
             <div className="slider-cta-container">
               <div className="slider-content">
-                <p className="slider-caption">{image.caption}</p>
+                {image.caption && (
+                  <p className="slider-caption">{image.caption}</p>
+                )}
                 <h2 className="slider-heading">{image.heading}</h2>
                 <p className="slider-subheading">{image.subheading}</p>
                 <div className="cta-buttons">
-                  <Link
-                    to={image.ctaLink1}
-                    className="cta-button"
-                    onClick={(e) => handleClick(e, image)}
-                  >
-                    {image.ctaText1}
-                  </Link>
+                  {image.onClick ? (
+                    // If onClick exists, render a button that calls the provided handler.
+                    <button
+                      className="cta-button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        image.onClick(e);
+                      }}
+                    >
+                      {image.ctaText1}
+                    </button>
+                  ) : (
+                    // Otherwise render a Link with normal navigation.
+                    <Link to={image.ctaLink1} className="cta-button">
+                      {image.ctaText1}
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>

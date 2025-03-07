@@ -76,13 +76,6 @@ const BusinessSection = () => {
             <li>Expect a response within 24-48 business hours</li>
           </ul>
         </div>
-        
-        <button 
-          className="close-modal-button"
-          onClick={() => setShowThankYou(false)}
-        >
-          Continue Browsing
-        </button>
       </div>
     </div>
   );

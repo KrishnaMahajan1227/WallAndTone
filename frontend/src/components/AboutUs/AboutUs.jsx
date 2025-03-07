@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import aboutturningcanvases from '../../assets/about/About-Turning-Canvases.png';
 import AboutDiscoverCollection from '../../assets/about/About-Discover-Collection.png';
@@ -16,116 +16,395 @@ import FramesDefineSpaces from '../../assets/about/Frames-Define-Spaces.png';
 
 import './aboutus.css';
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
+import { X, Sparkles, Lock, ArrowRight, Heart } from 'lucide-react';
 
-const AboutContent = () => (
-  <>
-    <section className="aboutus-hero">
-      <div className="aboutus-container">
-        <div className="abt-sec1-content">
-          <div className="content">
-            <h2>Turning Walls Into Canvases</h2>
-            <p className="aboutus-hero-subtext">
-              At Wall & Tone, we believe in the power of art to transform spaces and evoke emotions.
-              Our mission is to offer art that speaks to you—pieces that inspire, uplift, and make a statement.
-              Born from a legacy of artists, and with a focus on craftsmanship, quality, and innovative designs,
-              we ensure every piece is not just a decoration, but a piece of emotion, history, and personal connection.
-            </p>
-            <button className="aboutus-primary-button">Explore Collection</button>
-          </div>
-          <div className="img-sec">
-            <img src={aboutturningcanvases} alt="about-turning-canvases" />
+const AboutContent = () => {
+  const navigate = useNavigate();
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [showPersonalizeModal, setShowPersonalizeModal] = useState(false);
+
+  // Separate functions for each offering
+  const handleAiCreationClick = (route) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate(route);
+    } else {
+      setShowAiModal(true);
+    }
+  };
+
+  const handlePersonalizeClick = (route) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate(route);
+    } else {
+      setShowPersonalizeModal(true);
+    }
+  };
+
+  return (
+    <>
+      {/* Define keyframes for fadeIn animation */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .modal-fade-in {
+            animation: fadeIn 0.5s ease-out;
+          }
+        `}
+      </style>
+
+      <section className="aboutus-hero">
+        <div className="aboutus-container">
+          <div className="abt-sec1-content">
+            <div className="content">
+              <h2>Turning Walls Into Canvases</h2>
+              <p className="aboutus-hero-subtext">
+                At Wall & Tone, we believe in the power of art to transform spaces and evoke emotions.
+                Our mission is to offer art that speaks to you—pieces that inspire, uplift, and make a statement.
+                Born from a legacy of artists, and with a focus on craftsmanship, quality, and innovative designs,
+                we ensure every piece is not just a decoration, but a piece of emotion, history, and personal connection.
+              </p>
+              <button className="aboutus-primary-button">Explore Collection</button>
+            </div>
+            <div className="img-sec">
+              <img src={aboutturningcanvases} alt="about-turning-canvases" />
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section className="aboutus-collection-section">
-      <div className="aboutus-container">
-        <div className="aboutus-collection-grid">
-          <div className="aboutus-collection-image">
+      <section className="aboutus-collection-section">
+        <div className="aboutus-container">
+          <div className="aboutus-collection-grid">
+            <div className="aboutus-collection-image">
+              <img 
+                src={AboutDiscoverCollection} 
+                alt="About-Discover-Collection"
+                className="aboutus-gallery-image"
+              />
+            </div>
+            <div className="aboutus-collection-text">
+              <h2>Discover the Wall & Tone Collection & Offerings</h2>
+              <p>
+                We've handpicked a diverse mix of wall art to suit every style,
+                mood, and space. Whether you're into bold statements or subtle
+                elegance, we've got something for you:
+              </p>
+              
+              <div className="aboutus-collections-container">
+                <div className="aboutus-collection-list">
+                  <h3>Collection:</h3>
+                  <ul>
+                    <li>Pop Art</li>
+                    <li>Monochrome</li>
+                    <li>Abstract</li>
+                    <li>Architects</li>
+                    <li>Chinese Prints</li>
+                    <li>European Style</li>
+                    <li>Expressionist Art</li>
+                  </ul>
+                </div>
+                <div className="aboutus-collection-list">
+                  <h3>Also Featured:</h3>
+                  <ul>
+                    <li>Sci-Fi</li>
+                    <li>Artprints</li>
+                    <li>Nature & 3D Illusions</li>
+                    <li>Anime & Movie Posters</li>
+                    <li>Indian Art</li>
+                    <li>Famous World Paintings</li>
+                    <li>Japanese Art</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="aboutus-offerings">
+                <h3>Offerings:</h3>
+                <ul>
+                  <li>
+                    <span 
+                      style={{ color: "#5B2EFF", cursor: "pointer" }}
+                      onClick={() => handleAiCreationClick('/Ai Creation')}
+                    >
+                      Create your Own wall art using AI
+                    </span>
+                  </li>
+                  <li>
+                    <span 
+                      style={{ color: "#5B2EFF", cursor: "pointer" }}
+                      onClick={() => handlePersonalizeClick('/Personalize')}
+                    >
+                      Bring your own inspiration/memories and we create it for you
+                    </span>
+                  </li>
+                </ul>
+                <p className="aboutus-offerings-note">
+                  Each print comes in your choice of high-quality paper finishes.
+                  Including through grade options, gloss, and matte finishes. Pair
+                  them with modern, classic, or vintage-style frames to match your
+                  vibe.
+                </p>
+                <p className="aboutus-brand-promise">
+                  At Wall & Tone, your walls do the talking—let's make them say
+                  something unforgettable!
+                </p>
+              </div>
+              <button className="aboutus-primary-button">Explore Collection</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="aboutus-impact-section">
+        <div className="aboutus-container">
+          <div className="aboutus-impact-image-container">
+            <div className="aboutus-impact-content">
+              <h2>Empowering change, One wall at a Time</h2>
+              <p>
+                With every sector you buy, we donate to support children's
+                education and welfare through art.org
+              </p>
+            </div>
             <img 
-              src={AboutDiscoverCollection} 
-              alt="About-Discover-Collection"
-              className="aboutus-gallery-image"
+              src={Empoweringchange}
+              alt="Happy children learning"
+              className="aboutus-impact-image"
             />
           </div>
-          <div className="aboutus-collection-text">
-            <h2>Discover the Wall & Tone Collection & Offerings</h2>
-            <p>
-              We've handpicked a diverse mix of wall art to suit every style,
-              mood, and space. Whether you're into bold statements or subtle
-              elegance, we've got something for you:
-            </p>
+        </div>
+      </section>
+
+      {/* AI Creation Login Popup */}
+      {showAiModal && (
+        <div 
+          className="aboutus-login-modal modal-fade-in"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+            padding: "1rem"
+          }}
+        >
+          <div 
+            className="aboutus-modal-content"
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "8px",
+              padding: "2rem",
+              maxWidth: "500px",
+              width: "100%",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              position: "relative"
+            }}
+          >
+            <button 
+              className="aboutus-modal-close" 
+              onClick={() => setShowAiModal(false)}
+              aria-label="Close modal"
+              style={{
+                position: "absolute",
+                top: "1rem",
+                right: "1rem",
+                background: "none",
+                border: "none",
+                cursor: "pointer"
+              }}
+            >
+              <X size={24} />
+            </button>
             
-            <div className="aboutus-collections-container">
-              <div className="aboutus-collection-list">
-                <h3>Collection:</h3>
-                <ul>
-                  <li>Pop Art</li>
-                  <li>Monochrome</li>
-                  <li>Abstract</li>
-                  <li>Architects</li>
-                  <li>Chinese Prints</li>
-                  <li>European Style</li>
-                  <li>Expressionist Art</li>
-                </ul>
+            <div className="aboutus-modal-header" style={{ textAlign: "center", marginBottom: "1rem" }}>
+              <div className="aboutus-modal-icon" style={{ marginBottom: "0.5rem" }}>
+                <Sparkles className="sparkle-icon" size={32} style={{ color: "#5B2EFF" }} />
               </div>
-              <div className="aboutus-collection-list">
-                <h3>Also Featured:</h3>
-                <ul>
-                  <li>Sci-Fi</li>
-                  <li>Artprints</li>
-                  <li>Nature & 3D Illusions</li>
-                  <li>Anime & Movie Posters</li>
-                  <li>Indian Art</li>
-                  <li>Famous World Paintings</li>
-                  <li>Japanese Art</li>
-                </ul>
+              <h2 style={{ margin: 0 }}>Unlock AI Creation Magic!</h2>
+              <div className="aboutus-modal-subheader" style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "0.5rem", gap: "0.5rem", color: "#555" }}>
+                <Lock size={16} />
+                <span>Exclusive AI Feature</span>
               </div>
             </div>
 
-            <div className="aboutus-offerings">
-              <h3>Offerings:</h3>
-              <ul>
-                <li>Create your Own wall art using AI</li>
-                <li>Bring your own inspiration/memories and we create it for you</li>
+            <div className="aboutus-modal-body" style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+              <p>Transform your ideas into stunning wall art using our AI-powered creation tools.</p>
+              <ul className="aboutus-modal-features" style={{ listStyle: "none", padding: 0 }}>
+                <li style={{ marginBottom: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                  <Sparkles size={16} style={{ color: "#5B2EFF" }} />
+                  <span>Create unique, personalized designs</span>
+                </li>
+                <li style={{ marginBottom: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                  <Sparkles size={16} style={{ color: "#5B2EFF" }} />
+                  <span>Access exclusive AI art styles</span>
+                </li>
+                <li style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                  <Sparkles size={16} style={{ color: "#5B2EFF" }} />
+                  <span>Save and modify your creations</span>
+                </li>
               </ul>
-              <p className="aboutus-offerings-note">
-                Each print comes in your choice of high-quality paper finishes.
-                Including through grade options, gloss, and matte finishes. Pair
-                them with modern, classic, or vintage-style frames to match your
-                vibe.
-              </p>
-              <p className="aboutus-brand-promise">
-                At Wall & Tone, your walls do the talking—let's make them say
-                something unforgettable!
-              </p>
             </div>
-            <button className="aboutus-primary-button">Explore Collection</button>
+
+            <div className="aboutus-modal-buttons" style={{ display: "flex", justifyContent: "space-around" }}>
+              <button 
+                className="aboutus-btn-primary" 
+                onClick={() => { setShowAiModal(false); navigate('/login'); }}
+                style={{
+                  backgroundColor: "#5B2EFF",
+                  color: "#fff",
+                  border: "none",
+                  padding: "0.75rem 1.5rem",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem"
+                }}
+              >
+                <span>Login Now</span>
+                <ArrowRight size={16} />
+              </button>
+              <button 
+                className="aboutus-btn-secondary" 
+                onClick={() => setShowAiModal(false)}
+                style={{
+                  backgroundColor: "#fff",
+                  color: "#5B2EFF",
+                  border: "2px solid #5B2EFF",
+                  padding: "0.75rem 1.5rem",
+                  borderRadius: "4px",
+                  cursor: "pointer"
+                }}
+              >
+                Continue Browsing
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-    <section className="aboutus-impact-section">
-      <div className="aboutus-container">
-        <div className="aboutus-impact-image-container">
-          <div className="aboutus-impact-content">
-            <h2>Empowering change, One wall at a Time</h2>
-            <p>
-              With every sector you buy, we donate to support children's
-              education and welfare through art.org
-            </p>
+      )}
+
+      {/* Personalize Login Popup */}
+      {showPersonalizeModal && (
+        <div 
+          className="aboutus-login-modal modal-fade-in"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+            padding: "1rem"
+          }}
+        >
+          <div 
+            className="aboutus-modal-content"
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "8px",
+              padding: "2rem",
+              maxWidth: "500px",
+              width: "100%",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              position: "relative"
+            }}
+          >
+            <button 
+              className="aboutus-modal-close" 
+              onClick={() => setShowPersonalizeModal(false)}
+              aria-label="Close modal"
+              style={{
+                position: "absolute",
+                top: "1rem",
+                right: "1rem",
+                background: "none",
+                border: "none",
+                cursor: "pointer"
+              }}
+            >
+              <X size={24} />
+            </button>
+            
+            <div className="aboutus-modal-header" style={{ textAlign: "center", marginBottom: "1rem" }}>
+              <div className="aboutus-modal-icon" style={{ marginBottom: "0.5rem" }}>
+                <Heart className="heart-icon" size={32} style={{ color: "#E63946" }} />
+              </div>
+              <h2 style={{ margin: 0 }}>Personalize Your Wall Art!</h2>
+              <div className="aboutus-modal-subheader" style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "0.5rem", gap: "0.5rem", color: "#555" }}>
+                <Lock size={16} />
+                <span>Exclusive Personalization</span>
+              </div>
+            </div>
+
+            <div className="aboutus-modal-body" style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+              <p>Bring your own inspiration or memories and let our experts create a unique wall art piece just for you.</p>
+              <ul className="aboutus-modal-features" style={{ listStyle: "none", padding: 0 }}>
+                <li style={{ marginBottom: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                  <Heart size={16} style={{ color: "#E63946" }} />
+                  <span>Craft personalized designs</span>
+                </li>
+                <li style={{ marginBottom: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                  <Heart size={16} style={{ color: "#E63946" }} />
+                  <span>Access custom art styles</span>
+                </li>
+                <li style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                  <Heart size={16} style={{ color: "#E63946" }} />
+                  <span>Save your unique creation</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="aboutus-modal-buttons" style={{ display: "flex", justifyContent: "space-around" }}>
+              <button 
+                className="aboutus-btn-primary" 
+                onClick={() => { setShowPersonalizeModal(false); navigate('/login'); }}
+                style={{
+                  backgroundColor: "#E63946",
+                  color: "#fff",
+                  border: "none",
+                  padding: "0.75rem 1.5rem",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem"
+                }}
+              >
+                <span>Login Now</span>
+                <ArrowRight size={16} />
+              </button>
+              <button 
+                className="aboutus-btn-secondary" 
+                onClick={() => setShowPersonalizeModal(false)}
+                style={{
+                  backgroundColor: "#fff",
+                  color: "#E63946",
+                  border: "2px solid #E63946",
+                  padding: "0.75rem 1.5rem",
+                  borderRadius: "4px",
+                  cursor: "pointer"
+                }}
+              >
+                Continue Browsing
+              </button>
+            </div>
           </div>
-          <img 
-            src={Empoweringchange}
-            alt="Happy children learning"
-            className="aboutus-impact-image"
-          />
         </div>
-      </div>
-    </section>
-  </>
-);
+      )}
+    </>
+  );
+};
 
 const ProductionContent = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });

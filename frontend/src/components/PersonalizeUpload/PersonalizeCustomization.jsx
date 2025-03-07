@@ -147,14 +147,26 @@ const PersonalizeCustomization = () => {
           name="keywords"
           content="Customize Artwork, Personalize Wall Art, Custom Frame, Wall & Tone, Frame Customization, Art Customization"
         />
-        <link rel="canonical" href="https://wallandtone.com/personalize-customization" />
-        <meta property="og:title" content="Customize Your Artwork | Wall & Tone" />
+        <link
+          rel="canonical"
+          href="https://wallandtone.com/personalize-customization"
+        />
+        <meta
+          property="og:title"
+          content="Customize Your Artwork | Wall & Tone"
+        />
         <meta
           property="og:description"
           content="Create a personalized masterpiece by choosing from a range of frames and sizes. Transform your uploaded image into unique wall art with Wall & Tone."
         />
-        <meta property="og:image" content="https://wallandtone.com/path-to-your-default-og-image.jpg" />
-        <meta property="og:url" content="https://wallandtone.com/personalize-customization" />
+        <meta
+          property="og:image"
+          content="https://wallandtone.com/path-to-your-default-og-image.jpg"
+        />
+        <meta
+          property="og:url"
+          content="https://wallandtone.com/personalize-customization"
+        />
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
       <ToastContainer />
@@ -169,13 +181,18 @@ const PersonalizeCustomization = () => {
               selectedOrientation === "landscape" ? "landscape-mode" : ""
             }`}
           >
-            {selectedSubFrameType && (
-              <img
-                src={frameBackgrounds[selectedSubFrameType.name]}
-                alt="Frame background"
-                className="frame-background"
-              />
-            )}
+            {/* Render background only if frame type is not Canvas or Poster */}
+            {selectedSubFrameType &&
+              selectedFrameType &&
+              !["canvas", "poster"].includes(
+                selectedFrameType.name.toLowerCase()
+              ) && (
+                <img
+                  src={frameBackgrounds[selectedSubFrameType.name]}
+                  alt="Frame background"
+                  className="frame-background"
+                />
+              )}
             <img
               src={personalizedImage}
               alt="Uploaded Artwork"
@@ -191,7 +208,6 @@ const PersonalizeCustomization = () => {
         <div className="info-section">
           <h3 className="product-title">Customize Your Artwork</h3>
           <div className="options-section">
-            <h4>Select Frame Type</h4>
             <div className="frame-type-buttons">
               {frameTypes.map((frameType) => (
                 <button
@@ -206,7 +222,6 @@ const PersonalizeCustomization = () => {
               ))}
             </div>
 
-            <h4>Select Sub-Frame</h4>
             <div className="sub-frame-type-buttons">
               {subFrameTypes.map((subFrameType) => (
                 <button
@@ -221,7 +236,6 @@ const PersonalizeCustomization = () => {
               ))}
             </div>
 
-            <h4>Select Size</h4>
             <div className="size-buttons">
               {sizes.map((size) => (
                 <button

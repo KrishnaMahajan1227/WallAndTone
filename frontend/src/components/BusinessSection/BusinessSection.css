@@ -462,21 +462,6 @@
     color: #10B981;
   }
   
-  .thank-you-content .close-modal-button {
-    background: #5B2EFF;
-    color: white;
-    padding: 1rem 2rem;
-    border: none;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  
-  .thank-you-content .close-modal-button:hover {
-    background: #4a25cc;
-    transform: translateY(-2px);
-  }
   
   /* Loading state for submit button */
   .submit-btn.loading {

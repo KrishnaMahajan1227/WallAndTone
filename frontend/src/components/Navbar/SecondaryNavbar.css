@@ -71,12 +71,15 @@
   transform: translateY(-2px);
 }
 
-.cart-button img,
-.wishlist-button img {
+.cart-button img{
   width: 24px;
   height: 24px;
+  margin-left: 2.5px;
 }
-
+.wishlist-button img {
+  width: 30px;
+  height: 30px;
+}
 .wishlist-button {
   position: relative;
 }

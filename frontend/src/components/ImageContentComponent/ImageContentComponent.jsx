@@ -1,6 +1,6 @@
-// ImageContentComponent.js
-import React, { useState } from 'react';
-import './ImageContentComponent.css';
+import React from "react";
+import { NavLink } from "react-router-dom";
+import "./ImageContentComponent.css";
 
 const ImageContentComponent = ({
   image,
@@ -10,78 +10,55 @@ const ImageContentComponent = ({
   ctaLink,
   reverse,
   openInPopup,
-  popupComponent,
+  onClick, // expecting a function from parent
 }) => {
-  const [showPopup, setShowPopup] = useState(false);
-
-  const handleCTAClick = (e) => {
-    if (openInPopup) {
-      e.preventDefault();
-      setShowPopup(true);
-    }
-  };
-
-  const handleClosePopup = () => {
-    setShowPopup(false);
-  };
-
   return (
-    <div className={`image-content-component ${reverse ? 'reverse' : ''}`}>
+    <div className={`image-content-component ${reverse ? "reverse" : ""}`}>
       <div className="row">
         {reverse ? (
-          <div className="col-md-6">
-            <div className="content">
-              <h2 className="heading">{heading}</h2>
-              <p className="description">{description}</p>
-              {openInPopup ? (
-                <button onClick={handleCTAClick} className="cta-button">
-                  {ctaText}
-                </button>
-              ) : (
-                <a href={ctaLink} className="cta-button">
-                  {ctaText}
-                </a>
-              )}
+          <>
+            <div className="col-md-6">
+              <div className="content">
+                <h2 className="heading">{heading}</h2>
+                <p className="description">{description}</p>
+                {openInPopup ? (
+                  <button onClick={(e) => { e.preventDefault(); onClick(e); }} className="cta-button">
+                    {ctaText}
+                  </button>
+                ) : (
+                  <NavLink to={ctaLink} className="cta-button">
+                    {ctaText}
+                  </NavLink>
+                )}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="col-md-6 sec-image">
-            <img src={image} alt={heading} className="image" />
-          </div>
-        )}
-        {reverse ? (
-          <div className="col-md-6 sec-image">
-            <img src={image} alt={heading} className="image" />
-          </div>
-        ) : (
-          <div className="col-md-6">
-            <div className="content">
-              <h2 className="heading">{heading}</h2>
-              <p className="description">{description}</p>
-              {openInPopup ? (
-                <button onClick={handleCTAClick} className="cta-button">
-                  {ctaText}
-                </button>
-              ) : (
-                <a href={ctaLink} className="cta-button">
-                  {ctaText}
-                </a>
-              )}
+            <div className="col-md-6 sec-image">
+              <img src={image} alt={heading} className="image" />
             </div>
-          </div>
+          </>
+        ) : (
+          <>
+            <div className="col-md-6 sec-image">
+              <img src={image} alt={heading} className="image" />
+            </div>
+            <div className="col-md-6">
+              <div className="content">
+                <h2 className="heading">{heading}</h2>
+                <p className="description">{description}</p>
+                {openInPopup ? (
+                  <button onClick={(e) => { e.preventDefault(); onClick(e); }} className="cta-button">
+                    {ctaText}
+                  </button>
+                ) : (
+                  <NavLink to={ctaLink} className="cta-button">
+                    {ctaText}
+                  </NavLink>
+                )}
+              </div>
+            </div>
+          </>
         )}
       </div>
-
-      {showPopup && (
-        <div className="popup">
-          <div className="popup-content">
-            <span className="close" onClick={handleClosePopup}>
-              &times;
-            </span>
-            {popupComponent}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

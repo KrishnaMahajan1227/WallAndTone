@@ -24,8 +24,8 @@
   
   .main-footer .footer-heading {
     color: #ffffff;
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 24px;
+    font-weight: 400;
     margin: 0 0 20px 0;
   }
   
@@ -48,21 +48,28 @@
     text-decoration: none;
     font-size: 14px;
     transition: color 0.2s ease;
+    font-weight: 300;
   }
   
   .main-footer .footer-links a:hover {
     color: #5B2EFF;
   }
-  
-  .main-footer .footer-label {
-    font-weight: 500;
-    margin-right: 8px;
+  .main-footer .footer-links p{
+    margin: 0;
+  }
+  span.footer-label{
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease;
+    font-weight: 300;
   }
   
   .main-footer address {
     font-style: normal;
     font-size: 14px;
     line-height: 1.5;
+    font-weight: 300;
   }
   
   .main-footer .social-links {
@@ -78,9 +85,7 @@
   .main-footer .social-link:hover {
     color: #5B2EFF;
   }
-  .pintrest-logo{
-    background-color: #FFFFFF;
-  }
+
   /* Responsive Styles */
   @media (max-width: 991px) {
     .main-footer .footer-container {

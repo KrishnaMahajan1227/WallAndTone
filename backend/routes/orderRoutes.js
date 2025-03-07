@@ -3,7 +3,9 @@ const router = express.Router();
 const Order = require("../models/Order");
 const { protectUser, protectAdmin } = require("../middleware/authMiddleware");
 
-// @desc    Create an Order (after successful order confirmation)
+// ----------------------------------------------------------------------
+// Create an Order (after successful order confirmation)
+// ----------------------------------------------------------------------
 // @route   POST /api/orders/create
 router.post("/create", protectUser, async (req, res) => {
   try {
@@ -42,14 +44,36 @@ router.post("/create", protectUser, async (req, res) => {
     });
 
     const createdOrder = await order.save();
-    res.status(201).json({ order: createdOrder, message: "Order created successfully" });
+    res
+      .status(201)
+      .json({ order: createdOrder, message: "Order created successfully" });
   } catch (error) {
     console.error("Create order error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// @desc    Get all orders (Admin only)
+// ----------------------------------------------------------------------
+// Get Orders for Logged-in User (Non-Admin)
+// ----------------------------------------------------------------------
+// @route   GET /api/orders/myorders
+router.get("/myorders", protectUser, async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.user.id })
+      .populate("orderItems.productId", "productName mainImage")
+      .populate("orderItems.frameType", "name")
+      .populate("orderItems.subFrameType", "name")
+      .populate("orderItems.size", "name");
+    res.status(200).json({ orders });
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ----------------------------------------------------------------------
+// Get All Orders (Admin Only)
+// ----------------------------------------------------------------------
 // @route   GET /api/orders
 router.get("/", protectUser, protectAdmin, async (req, res) => {
   try {
@@ -66,7 +90,9 @@ router.get("/", protectUser, protectAdmin, async (req, res) => {
   }
 });
 
-// @desc    Get order details by ID (Admin only)
+// ----------------------------------------------------------------------
+// Get Order Details by ID (Admin Only)
+// ----------------------------------------------------------------------
 // @route   GET /api/orders/:orderId
 router.get("/:orderId", protectUser, protectAdmin, async (req, res) => {
   try {
@@ -87,7 +113,9 @@ router.get("/:orderId", protectUser, protectAdmin, async (req, res) => {
   }
 });
 
-// @desc    Update order status (Admin only)
+// ----------------------------------------------------------------------
+// Update Order Status (Admin Only)
+// ----------------------------------------------------------------------
 // @route   PUT /api/orders/:orderId/status
 router.put("/:orderId/status", protectUser, protectAdmin, async (req, res) => {
   try {

@@ -21,7 +21,9 @@
   z-index: 1000;
   animation: modalFadeIn 0.3s ease-out;
 }
-
+.slick-dots ul {
+  padding: 0;
+}
 @keyframes modalFadeIn {
   from {
     opacity: 0;
@@ -427,5 +429,9 @@ display: none;
 .homepage .image-content-component .col-md-6 {
   order: 2;
 }
-
+.homepage .slick-dots {
+  bottom: 0 !important;
+  text-align: center !important;
+  margin: auto !important;
+}
 }

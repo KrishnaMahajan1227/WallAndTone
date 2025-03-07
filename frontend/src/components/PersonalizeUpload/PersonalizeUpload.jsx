@@ -211,8 +211,31 @@ const PersonalizeUpload = () => {
                 <p>{overlayMessage}</p>
               </div>
 
-              {/* Re-Upload button */}
-              <div className="reupload-btn-container">
+            </div>
+          )}
+        </div>
+
+        {previewUrl && (
+          <div className="orientation-selection">
+            <label
+              className={`orientation-option ${orientation === "portrait" ? "active" : ""}`}
+              onClick={() => setOrientation("portrait")}
+            >
+              Portrait
+            </label>
+            <label
+              className={`orientation-option ${orientation === "landscape" ? "active" : ""}`}
+              onClick={() => setOrientation("landscape")}
+            >
+              Landscape
+            </label>
+          </div>
+        )}
+
+        {error && <p className="personalize-error-text">{error}</p>}
+
+{/* Re-Upload button */}
+<div className="reupload-btn-container">
                 <button
                   className="btn btn-secondary reupload-btn"
                   onClick={() => {
@@ -225,28 +248,6 @@ const PersonalizeUpload = () => {
                   Re-Upload Image
                 </button>
               </div>
-            </div>
-          )}
-        </div>
-
-        {previewUrl && (
-          <div className="orientation-selection">
-            <label
-              className={`orientation-option ${orientation === "portrait" ? "active" : ""}`}
-              onClick={() => setOrientation("portrait")}
-            >
-              Portrait (3:4)
-            </label>
-            <label
-              className={`orientation-option ${orientation === "landscape" ? "active" : ""}`}
-              onClick={() => setOrientation("landscape")}
-            >
-              Landscape (16:9)
-            </label>
-          </div>
-        )}
-
-        {error && <p className="personalize-error-text">{error}</p>}
 
         <button
           className="btn btn-primary personalize-upload-btn"

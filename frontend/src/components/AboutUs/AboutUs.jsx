@@ -14,7 +14,7 @@ import PaperMatters from '../../assets/about/Paper-Matters.png';
 import InHousePrinting from '../../assets/about/In-House-Printing.png';
 import FramesDefineSpaces from '../../assets/about/Frames-Define-Spaces.png';
 
-import './aboutus.css';
+import './AboutUs.css';
 import ImageContentComponent from '../ImageContentComponent/ImageContentComponent';
 import { X, Sparkles, Lock, ArrowRight, Heart } from 'lucide-react';
 

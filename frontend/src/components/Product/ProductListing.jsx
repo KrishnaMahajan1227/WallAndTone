@@ -10,6 +10,7 @@ import filtericon from '../../assets/icons/filter-icon.png';
 import sorticon from '../../assets/icons/sort-icon.svg';
 import ListingSEO from './ListingSEO';
 import './ProductListing.css';
+import { X, Sparkles, Lock, ArrowRight, Heart } from "lucide-react";
 
 // Grouped Options
 const groupedColorOptions = {
@@ -638,8 +639,8 @@ const ProductListing = () => {
 
   if (loading)
     return (
-      <div className="text-center d-flex justify-content-center my-5">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <div className="loader text-center d-flex justify-content-center my-5 h-100vh">
+        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24">
           <path fill="#2F231F" d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
             <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12" />
           </path>
@@ -875,22 +876,74 @@ const ProductListing = () => {
         <div className="text-center my-5">No products found.</div>
       )}
 
-      <Modal show={showAuthPopup} onHide={handleAuthPopupClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Login Required</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Please login to perform this action.</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleAuthLogin}>
-            Login
-          </Button>
-          <Button variant="secondary" onClick={handleAuthPopupClose}>
-            Cancel
-          </Button>
-        </Modal.Footer>
-      </Modal>
+<Modal
+  show={showAuthPopup}
+  onHide={handleAuthPopupClose}
+  centered
+  style={{
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    padding: "1rem",
+  }}
+>
+  <Modal.Header
+    closeButton
+    style={{
+      border: "none",
+      backgroundColor: "transparent",
+      justifyContent: "center",
+      position: "relative",
+    }}
+  >
+    <Modal.Title style={{ textAlign: "center", width: "100%" }}>
+      Login Required
+    </Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <p style={{ textAlign: "center" }}>
+      Please login to continue.
+    </p>
+  </Modal.Body>
+  <Modal.Footer
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      gap: "1rem",
+      border: "none",
+      backgroundColor: "transparent",
+    }}
+  >
+    <Button
+      variant="primary"
+      onClick={handleAuthLogin}
+      style={{
+        backgroundColor: "#5B2EFF",
+        color: "#fff",
+        border: "none",
+        padding: "0.75rem 1.5rem",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }}
+    >
+      Login
+    </Button>
+    <Button
+      variant="secondary"
+      onClick={handleAuthPopupClose}
+      style={{
+        backgroundColor: "#fff",
+        color: "#5B2EFF",
+        border: "2px solid #5B2EFF",
+        padding: "0.75rem 1.5rem",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }}
+    >
+      Cancel
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
     </div>
   );
 };

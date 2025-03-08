@@ -645,7 +645,7 @@ const ProductDetails = () => {
 
   if (loading)
     return (
-      <div className="text-center d-flex justify-content-center my-5 ">
+      <div className="loader text-center d-flex justify-content-center my-5 ">
         <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24">
           <path
             fill="#2F231F"

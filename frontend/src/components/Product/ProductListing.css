@@ -347,6 +347,13 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
   border-color: #2F231F;
 }
 
+.loader{
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Responsive adjustments */
 @media (max-width: 576px) {
   .product-listing .pagination .page-link {

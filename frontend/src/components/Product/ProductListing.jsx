@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Offcanvas, Accordion, Button, Dropdown, Modal, Pagination } from 'react-bootstrap';
@@ -131,7 +131,7 @@ const ProductCard = React.memo(({
   const [hovered, setHovered] = useState(false);
   const transitionDuration = 500;
 
-  const randomMockup = useMemo(() => {
+  const randomMockup = React.useMemo(() => {
     if (!product.subFrameImages || product.subFrameImages.length === 0) return null;
     const mockupImages = product.subFrameImages.filter(imgObj =>
       imgObj.imageUrl &&
@@ -235,6 +235,7 @@ const ProductListing = () => {
 
   const { wishlist, setWishlist } = useContext(WishlistContext);
   const [products, setProducts] = useState([]);
+  const [randomizedProducts, setRandomizedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [wishlistAlert, setWishlistAlert] = useState(false);
@@ -311,18 +312,17 @@ const ProductListing = () => {
   }, [location.search]);
 
   // Compute the filter query string from filter state
-  const filterQuery = useMemo(() => {
+  const filterQuery = (() => {
     const colors = selectedColorGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
     const categories = selectedCategoryGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
     const qp = new URLSearchParams();
     if (colors.length > 0) qp.set('colors', colors.join(','));
-    // Note: our component uses "orientation" (singular) while the schema uses "orientations"
     if (selectedOrientations.length > 0) qp.set('orientation', selectedOrientations.join(','));
     if (categories.length > 0) qp.set('categories', categories.join(','));
     if (selectedMediumGroups.length > 0) qp.set('medium', selectedMediumGroups.join(','));
     if (selectedRoomGroups.length > 0) qp.set('rooms', selectedRoomGroups.join(','));
     return qp.toString();
-  }, [selectedColorGroups, selectedCategoryGroups, selectedOrientations, selectedMediumGroups, selectedRoomGroups]);
+  })();
 
   // When filter state changes, update the URL and immediately fetch products
   useEffect(() => {
@@ -337,6 +337,8 @@ const ProductListing = () => {
         const data = await response.json();
         if (!data || !Array.isArray(data)) throw new Error('Invalid data received');
         setProducts(data);
+        // Shuffle only once per fetch to retain the same random order thereafter
+        setRandomizedProducts(shuffleArray(sortProducts(data)));
       } catch (err) {
         setError(err.message);
       } finally {
@@ -392,6 +394,16 @@ const ProductListing = () => {
       sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
     return sorted;
+  };
+
+  // Shuffle function using Fisher-Yates algorithm
+  const shuffleArray = (array) => {
+    let arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   };
 
   // Authentication popup functions
@@ -641,11 +653,10 @@ const ProductListing = () => {
     setShowFilterOffcanvas(false);
   };
 
-  // First, sort the products and then slice for the current page
-  const sortedProducts = sortProducts(products);
-  const totalProducts = sortedProducts.length;
+  // Pagination logic with randomized products stored in state
+  const totalProducts = randomizedProducts.length;
   const totalPages = Math.ceil(totalProducts / productsPerPage);
-  const displayedProducts = sortedProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
+  const displayedProducts = randomizedProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
 
   // Pagination controls
   const renderPagination = () => {

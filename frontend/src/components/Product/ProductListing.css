@@ -1,7 +1,7 @@
 /* Parent Class for Product Listing */
 .product-listing.container {
   margin-top: 35px;
-  padding: 0px;
+  padding: 0px !important;
   overflow: hidden;
 }
 
@@ -10,24 +10,26 @@
   margin: 0;
   width: 100%;
   padding: 0;
+  gap:1.5rem;
+  justify-content: space-between;
 }
 
 .product-listing .regular-products {
-  flex: 0 0 66%;
+  flex: 0 0 68%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
-  padding: 0 15px;
+  padding: 0;
 }
 
 .product-listing .featured-product {
-  flex: 0 0 34%;
-  padding: 0 15px;
+  flex: 0 0 30%;
+  padding: 0;
 }
 
 .product-listing .product-card {
   width: 100%;
-  max-width: 238px;
+  max-width: 258px;
   display: flex;
   flex-direction: column;
   height: 100%;

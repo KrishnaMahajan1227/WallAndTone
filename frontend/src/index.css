@@ -17,6 +17,13 @@ html, body {
   padding-left: 0;
   padding-right: 1rem;
 }
+.loader{
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media(max-width:844px){
     .Main-app {
         display: block;

@@ -126,7 +126,7 @@ const ProductCard = ({ product, navigate }) => {
             height: "250px",       // All cards share the same height
             background: "#e7e7e7", // Light-gray background
             overflow: "hidden",
-            borderRadius:'4px',
+            borderRadius: "4px",
           }}
         >
           {/* Main (smaller) image centered in the container */}
@@ -167,7 +167,7 @@ const ProductCard = ({ product, navigate }) => {
 
         {/* Product Details */}
         <div className="card-body text-center">
-          <h5 className="card-title">{product.productName}</h5>
+          <h5 className="card-title product-title">{product.productName}</h5>
           <p className="card-text text-muted">
             Starting From Rs {product.startFromPrice}/-
           </p>
@@ -176,7 +176,5 @@ const ProductCard = ({ product, navigate }) => {
     </div>
   );
 };
-
-
 
 export default RecentlyAddedProducts;

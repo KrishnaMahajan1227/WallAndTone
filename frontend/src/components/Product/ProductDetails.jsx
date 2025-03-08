@@ -237,12 +237,15 @@ const ProductDetails = () => {
     setSelectedSubFrameType(subFrameType);
     setLoadingSubFrame(true);
     try {
-      // NEW CONDITION: If the selected frame type is "Poste", skip fetching images.
-      if (selectedFrameType && selectedFrameType.name === "Poster") {
+      // If the selected frame type is "Poster", also include the product's main image in the thumbnails.
+      if (selectedFrameType && selectedFrameType.name.toLowerCase() === "poster") {
+        // Combine main image + any subFrame images
+        const posterThumbnails = [product.mainImage, ...(subFrameType.images || [])];
         setActiveImage(product.mainImage);
-        setSubFrameThumbnails(subFrameType.images || []);
-        return;
+        setSubFrameThumbnails(posterThumbnails);
+        return; // Skip the rest of the logic
       }
+  
       let imagesArr = [];
       if (product?.subFrameImages && product.subFrameImages.length > 0) {
         const matchingGroups = product.subFrameImages.filter(
@@ -258,6 +261,8 @@ const ProductDetails = () => {
           }
         });
       }
+  
+      // If no images found in the product data, fetch from the server
       if (imagesArr.length === 0) {
         const response = await fetch(
           `${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`
@@ -273,9 +278,13 @@ const ProductDetails = () => {
           imagesArr.push(data.imageUrl);
         }
       }
+  
+      // Remove duplicates if any
       imagesArr = [...new Set(imagesArr)];
+      // Also include any constant images defined on the subFrameType
       const constantSubFrameImages = subFrameType.images || [];
       const updatedThumbnails = [...imagesArr, ...constantSubFrameImages];
+  
       if (updatedThumbnails.length > 0) {
         setActiveImage(updatedThumbnails[0]);
       } else {
@@ -291,6 +300,7 @@ const ProductDetails = () => {
       setLoadingSubFrame(false);
     }
   };
+  
 
   const handleSizeSelect = (size) => {
     setSelectedSize(size);

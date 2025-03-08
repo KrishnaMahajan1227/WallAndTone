@@ -42,6 +42,11 @@
   font-size: 18px;
   margin-bottom: 8px;
   text-align: left;
+  display: inline-block;       /* or block, but inline-block works well here */
+  max-width: 100%;             /* ensures it doesn't exceed its parent's width */
+  white-space: nowrap;         /* single line only */
+  overflow: hidden;            /* hide excess text */
+  text-overflow: ellipsis;
 }
 
 .recently-added-products-container .card-text {

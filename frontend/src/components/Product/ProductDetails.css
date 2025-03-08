@@ -613,7 +613,9 @@
   border-top: none !important;
 }
 
-
+.product-details-container .recently-added-products-container .recently-added-product-card {
+  width: 100%;
+}
 
 /* Responsive Design */
 @media (max-width: 1400px) {

@@ -26,8 +26,11 @@ const RecentlyAddedProducts = () => {
         console.log("API Response:", response.data);
 
         if (Array.isArray(response.data)) {
-          const recentProducts = response.data.slice(0, 10);
-          setProducts(recentProducts);
+          // Shuffle the products array randomly
+          const shuffledProducts = response.data.sort(() => Math.random() - 0.5);
+          // Take 10 random products
+          const randomProducts = shuffledProducts.slice(0, 10);
+          setProducts(randomProducts);
         } else {
           console.error("Unexpected API response structure:", response.data);
           setProducts([]);
@@ -80,7 +83,7 @@ const RecentlyAddedProducts = () => {
         </Slider>
       ) : (
         <p className="text-center recently-added-products-message">
-          No recently added products found.
+          No products found.
         </p>
       )}
     </div>
@@ -165,7 +168,6 @@ const ProductCard = ({ product, navigate }) => {
         {/* Product Details */}
         <div className="card-body text-center">
           <h5 className="card-title">{product.productName}</h5>
-          <p className="card-text text-muted">{product.description.slice(0, 80)}...</p>
           <p className="card-text text-muted">
             Starting From Rs {product.startFromPrice}/-
           </p>

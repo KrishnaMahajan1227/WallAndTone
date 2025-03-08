@@ -9,6 +9,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './ProductDetails.css';
+import RecentlyAddedProducts from '../RecentlyAddedProducts/RecentlyAddedProducts';
 
 const ProductDetails = () => {
   const apiUrl =
@@ -871,6 +872,12 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+<hr className='productDetails-spacing my-5'/>
+            <div className="recomendations mb-5">
+              <h2>Recomendations</h2>
+              <RecentlyAddedProducts/>
+            </div>
+
       <ToastContainer position="top-right" autoClose={3000} />
 
       <Modal 

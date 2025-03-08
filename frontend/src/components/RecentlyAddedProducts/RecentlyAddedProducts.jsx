@@ -65,7 +65,7 @@ const RecentlyAddedProducts = () => {
       },
       {
         breakpoint: 480,
-        settings: { slidesToShow: 1 },
+        settings: { slidesToShow: 2 },
       },
     ],
   };
@@ -115,49 +115,49 @@ const ProductCard = ({ product, navigate }) => {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
-          overflow: "hidden",
-          position: "relative",
           cursor: "pointer",
         }}
       >
-        {/* Image Container to Ensure Proper Hover Transition */}
+        {/* Container with a fixed height, background color, and overflow hidden */}
         <div
           style={{
             position: "relative",
             width: "100%",
-            height: "250px", // Adjust height based on design
+            height: "250px",       // All cards share the same height
+            background: "#e7e7e7", // Light-gray background
+            overflow: "hidden",
+            borderRadius:'4px',
           }}
         >
-          {/* Main Product Image */}
+          {/* Main (smaller) image centered in the container */}
           <img
             src={product.mainImage}
             alt={product.productName}
-            className="card-img-top product-image"
             style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              maxWidth: "80%",           // Smaller scale
+              maxHeight: "80%",          // Keep within container
+              objectFit: "contain",      // Prevent cropping/distortion
               transition: `opacity ${transitionDuration}ms ease`,
               opacity: hovered && randomMockup ? 0 : 1,
-              position: "absolute",
-              top: 0,
-              left: 0,
             }}
           />
 
-          {/* Mockup Image on Hover */}
+          {/* Mockup image on hover, covering entire container */}
           {randomMockup && (
             <img
               src={randomMockup}
               alt={`${product.productName} Mockup`}
-              className="card-img-top product-image"
               style={{
                 position: "absolute",
                 top: 0,
                 left: 0,
                 width: "100%",
                 height: "100%",
-                objectFit: "cover",
+                objectFit: "cover", // Full coverage on hover
                 transition: `opacity ${transitionDuration}ms ease`,
                 opacity: hovered ? 1 : 0,
               }}
@@ -176,5 +176,7 @@ const ProductCard = ({ product, navigate }) => {
     </div>
   );
 };
+
+
 
 export default RecentlyAddedProducts;

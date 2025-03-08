@@ -21,6 +21,7 @@ async function sendWhatsappNotification(phone, message) {
 
 /**
  * Helper function: Send Email notification using nodemailer.
+ * Updated to send HTML content.
  */
 async function sendEmailNotification(email, subject, message) {
   const transporter = nodemailer.createTransport({
@@ -37,7 +38,8 @@ async function sendEmailNotification(email, subject, message) {
     from: process.env.EMAIL_FROM, // e.g., "no-reply@yourdomain.com"
     to: email,
     subject: subject,
-    text: message,
+    // Use html property to send the HTML template.
+    html: message,
   };
 
   await transporter.sendMail(mailOptions);
@@ -139,32 +141,168 @@ ${productDetails}
 Additional Info: ${orderData.additional_info || ""}
     `.trim();
 
-    // Construct the message for the customer (exclude product details).
     const customerMessage = `
-New Order Created
-
---- User Details ---
-Name: ${customerName}
-Email: ${orderData.billing_email}
-Phone: ${orderData.billing_phone}
-
---- Shipping / Billing Details ---
-Address: ${orderData.billing_address}
-City: ${orderData.billing_city}
-State: ${orderData.billing_state || ""}
-Pincode: ${orderData.billing_pincode}
-Country: ${orderData.billing_country || ""}
-
---- Order Details ---
-Order ID: ${orderResponse.order_id || ""}
-Order Status: ${orderResponse.status || ""}
-Order Date: ${orderData.order_date || new Date().toISOString().split("T")[0]}
-Payment Method: ${orderData.payment_method || "Prepaid"}
-Sub Total: ${orderData.sub_total || ""}
-
-Additional Info: ${orderData.additional_info || ""}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>New Order Confirmation</title>
+      <style>
+        /* Reset some defaults */
+        body, html {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+        }
+        /* Overall background and font */
+        body {
+          background-color: #f8f8f8;
+          font-family: "Lexend Deca", sans-serif;
+          color: #555;
+          line-height: 1.6;
+        }
+        /* Main container styling */
+        .container {
+          max-width: 100%;
+          margin: 30px auto;
+          background: #fff;
+          border: 1px solid #ddd;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+          overflow: hidden;
+        }
+        /* Banner image styling */
+        .banner {
+          width: 100%;
+          display: block;
+          height: auto;
+        }
+        /* Header text styling */
+        .header {
+          text-align: center;
+          padding: 20px;
+          background: #5B2EFF;
+          color: #fff;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 28px;
+          letter-spacing: 1px;
+        }
+        /* Content section styling */
+        .content {
+          padding: 25px 20px;
+        }
+        .section {
+          margin-bottom: 25px;
+        }
+        .section h2 {
+          font-size: 20px;
+          color: #5B2EFF;
+          margin-bottom: 12px;
+          border-bottom: 2px solid #eee;
+          padding-bottom: 5px;
+        }
+        .section p {
+          margin: 8px 0;
+          font-size: 15px;
+        }
+        .section p strong {
+          color: #333;
+        }
+        /* Footer styling with image */
+        .footer {
+          text-align: center;
+          background: #f0f0f0;
+          padding: 15px 20px;
+          border-top: 1px solid #ddd;
+        }
+        .footer img {
+          max-width: 100%;
+          height: auto;
+          display: block;
+          margin: 0 auto 10px;
+        }
+        .footer p {
+          font-size: 12px;
+          color: #999;
+          margin: 0;
+        }
+        /* Responsive adjustments */
+        @media only screen and (max-width: 600px) {
+          .container {
+            margin: 15px;
+          }
+          .content {
+            padding: 20px;
+          }
+          .header h1 {
+            font-size: 24px;
+          }
+          .section h2 {
+            font-size: 18px;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <!-- Banner Image -->
+        <img src="https://res.cloudinary.com/dxpf8q672/image/upload/v1741429839/Email-ThankYou-Banner_ho2mmd.jpg" alt="Thank You Banner" class="banner" />
+        
+        <!-- Header Section -->
+        <div class="header">
+          <h1>New Order Created</h1>
+        </div>
+        
+        <!-- Content Section -->
+        <div class="content">
+          <!-- User Details Section -->
+          <div class="section">
+            <h2>User Details</h2>
+            <p><strong>Name:</strong> ${customerName}</p>
+            <p><strong>Email:</strong> ${orderData.billing_email}</p>
+            <p><strong>Phone:</strong> ${orderData.billing_phone}</p>
+          </div>
+          
+          <!-- Shipping / Billing Details Section -->
+          <div class="section">
+            <h2>Shipping / Billing Details</h2>
+            <p><strong>Address:</strong> ${orderData.billing_address}</p>
+            <p><strong>City:</strong> ${orderData.billing_city}</p>
+            <p><strong>State:</strong> ${orderData.billing_state || "N/A"}</p>
+            <p><strong>Pincode:</strong> ${orderData.billing_pincode}</p>
+            <p><strong>Country:</strong> ${orderData.billing_country || "N/A"}</p>
+          </div>
+          
+          <!-- Order Details Section -->
+          <div class="section">
+            <h2>Order Details</h2>
+            <p><strong>Order ID:</strong> ${orderResponse.order_id || ""}</p>
+            <p><strong>Order Status:</strong> ${orderResponse.status || ""}</p>
+            <p><strong>Order Date:</strong> ${orderData.order_date || new Date().toISOString().split("T")[0]}</p>
+            <p><strong>Payment Method:</strong> ${orderData.payment_method || "Prepaid"}</p>
+            <p><strong>Sub Total:</strong> Rs ${orderData.sub_total || ""}</p>
+          </div>
+          
+          <!-- Additional Info Section -->
+          <div class="section">
+            <h2>Additional Info</h2>
+            <p>${orderData.additional_info || "N/A"}</p>
+          </div>
+        </div>
+        
+        <!-- Footer Section -->
+        <div class="footer">
+          <img src="https://res.cloudinary.com/dxpf8q672/image/upload/v1741429840/Email-ThankYou-Footer_err0xo.png" alt="Footer Decoration" />
+          <p>Thank you for your order.</p>
+          <p>&copy; ${new Date().getFullYear()} Wall & Tone. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
     `.trim();
-
+    
+    
     // Send email to admin.
     const adminEmail = process.env.ADMIN_EMAIL;
     if (adminEmail) {

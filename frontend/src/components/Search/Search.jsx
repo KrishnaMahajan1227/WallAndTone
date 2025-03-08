@@ -184,7 +184,7 @@ const Search = () => {
           heading="For Home & Personal Spaces (B2C)"
           description="Your walls deserve personality! Whether it’s your cozy living room, a sleek workspace, or a dreamy bedroom, we make finding the right art effortless. Browse, pick, and get it delivered—hassle-free. Need help? Our art experts are just a message away!"
           ctaText="Explore our Collection"
-          ctaLink="#"
+          ctaLink="/products"
         />
 
         <ImageContentComponent
@@ -193,7 +193,7 @@ const Search = () => {
           description="Interior Designers, Architects, builders, hotels, offices, retail spaces and more—we help businesses create unforgettable atmospheres with curated art collections. 
           Need custom sizes, bulk orders, or exclusive designs? We’ve got you covered. We get you the best prices and make your space stand out!"
           ctaText="Discover More"
-          ctaLink="#"
+          ctaLink="/products"
           reverse={!isMobile ? "yes" : "yes"}
         />
       </div>

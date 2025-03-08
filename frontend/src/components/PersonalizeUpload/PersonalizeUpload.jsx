@@ -234,7 +234,8 @@ const PersonalizeUpload = () => {
 
         {error && <p className="personalize-error-text">{error}</p>}
 
-{/* Re-Upload button */}
+<div className="personalize-action-btn">
+  {/* Re-Upload button */}
 <div className="reupload-btn-container">
                 <button
                   className="btn btn-secondary reupload-btn"
@@ -256,6 +257,7 @@ const PersonalizeUpload = () => {
         >
           {uploading ? "Uploading..." : "Confirm & Customize"}
         </button>
+</div>
       </div>
     </div>
   );

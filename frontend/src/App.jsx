@@ -1,6 +1,5 @@
-import React from 'react';
-import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
 import HomePage from './components/Home/HomePage';
@@ -26,7 +25,6 @@ import FreepikCustomization from './components/FreepikCustomization/FreepikCusto
 import AboutUs from './components/AboutUs/AboutUs';
 import BusinessSection from './components/BusinessSection/BusinessSection';
 import Footer from './components/Footer/Footer';
-import { useLocation } from "react-router-dom";
 import PersonalizeUpload from './components/PersonalizeUpload/PersonalizeUpload';
 import PersonalizeCustomization from './components/PersonalizeUpload/PersonalizeCustomization';
 import FAQ from './components/Faq/Faq';
@@ -40,69 +38,69 @@ import OrderConfirmation from './components/OrderConfirmation/OrderConfirmation'
 import TrackOrder from './components/TrackOrder/TrackOrder';
 import AdminOrders from './components/AdminOrders/AdminOrders';
 import OrderDetails from './components/AdminOrders/OrderDetails';
-
-
+import ScrollToTop from './components/ScrollToTop/ScrollToTop'; // Import your new ScrollToTop component
 
 function App() {
-  const location = useLocation(); // ✅ Now it's inside a Router
+  const location = useLocation();
   const [isLivePreview, setIsLivePreview] = useState(false);
 
   useEffect(() => {
     setIsLivePreview(location.pathname === "/livePreview");
   }, [location.pathname]);
+
   return (
-    <UserProvider>
-      <WishlistProvider>
-        <div className="Main-app">
-          {location.pathname !== '/livePreview' && <Navbar />}
-          <div className={`Main-content container-fluid ${isLivePreview ? "livePreview-active" : ""}`}>
-          <div className="container">
-          {location.pathname !== '/livePreview' && <SecondaryNavbar className="secondary-navbar-container"/>}
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/search" element={<Search />} />
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/products" element={<ProductListing />} />
-              <Route path="/Cart" element={<CartComponent />} />
-              <Route path="/Wishlist" element={<WishlistComponent />} />
-              <Route path="/product/:productId" element={<ProductDetails/>} />
-              <Route path="/profile" element={<UserProfile/>} />
-              <Route path="/Ai Creation" element={<FreepikGenerator/>} />
-              <Route path="/livePreview" element={<CameraComponent/>} />
-              <Route path="/customize" element={<FreepikCustomization />} />
-              <Route path="/about us/*" element={<AboutUs/>} />
-              <Route path="/for business" element={<BusinessSection/>} />
-              <Route path="/Personalize" element={<PersonalizeUpload/>} />
-              <Route path="/PersonalizeCustomization" element={<PersonalizeCustomization/>} />
-              <Route path="/FAQ" element={<FAQ/>} />
-              <Route path="/checkout" element={<CheckoutPage/>} />
-              <Route path="/Privacy&Policy" element={<PrivacyPolicy/>} />
-              <Route path="/Terms&Conditions" element={<TermsConditions/>} />
-              <Route path="/Shipping&Delivery" element={<ShippingDelivery/>} />
-              <Route path="/Return&Exchange" element={<ReturnExchange/>} />
-              <Route path="/custom-payment" element={<CustomPaymentPage />} />
-              <Route path="/order-confirmation" element={<OrderConfirmation />} />
-              <Route path="/track-order" element={<TrackOrder />} />
-
-              
-              {/* Admin Routes */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/dashboard/manageProducts" element={<ProductManager />} />
-              <Route path="/dashboard/FrameTypeManagement" element={<FrameTypeManagement/>} />
-              <Route path="/dashboard/CouponAdmin" element={<CouponAdmin/>} />
-              <Route path="/dashboard/SizesAdmin" element={<SizesAdmin/>} />
-              <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="/admin/orders/:orderId" element={<OrderDetails />} />
-
-            </Routes>
+    <>
+      <ScrollToTop /> {/* This resets scroll position on route change */}
+      <UserProvider>
+        <WishlistProvider>
+          <div className="Main-app">
+            {location.pathname !== '/livePreview' && <Navbar />}
+            <div className={`Main-content container-fluid ${isLivePreview ? "livePreview-active" : ""}`}>
+              <div className="container">
+                {location.pathname !== '/livePreview' && <SecondaryNavbar className="secondary-navbar-container" />}
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/search" element={<Search />} />
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/products" element={<ProductListing />} />
+                  <Route path="/Cart" element={<CartComponent />} />
+                  <Route path="/Wishlist" element={<WishlistComponent />} />
+                  <Route path="/product/:productId" element={<ProductDetails />} />
+                  <Route path="/profile" element={<UserProfile />} />
+                  <Route path="/Ai Creation" element={<FreepikGenerator />} />
+                  <Route path="/livePreview" element={<CameraComponent />} />
+                  <Route path="/customize" element={<FreepikCustomization />} />
+                  <Route path="/about us/*" element={<AboutUs />} />
+                  <Route path="/for business" element={<BusinessSection />} />
+                  <Route path="/Personalize" element={<PersonalizeUpload />} />
+                  <Route path="/PersonalizeCustomization" element={<PersonalizeCustomization />} />
+                  <Route path="/FAQ" element={<FAQ />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/Privacy&Policy" element={<PrivacyPolicy />} />
+                  <Route path="/Terms&Conditions" element={<TermsConditions />} />
+                  <Route path="/Shipping&Delivery" element={<ShippingDelivery />} />
+                  <Route path="/Return&Exchange" element={<ReturnExchange />} />
+                  <Route path="/custom-payment" element={<CustomPaymentPage />} />
+                  <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                  <Route path="/track-order" element={<TrackOrder />} />
+                  {/* Admin Routes */}
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/dashboard/manageProducts" element={<ProductManager />} />
+                  <Route path="/dashboard/FrameTypeManagement" element={<FrameTypeManagement />} />
+                  <Route path="/dashboard/CouponAdmin" element={<CouponAdmin />} />
+                  <Route path="/dashboard/SizesAdmin" element={<SizesAdmin />} />
+                  <Route path="/admin/orders" element={<AdminOrders />} />
+                  <Route path="/admin/orders/:orderId" element={<OrderDetails />} />
+                </Routes>
+              </div>
+              <Footer />
+            </div>
           </div>
-          <Footer/>
-          </div>
-        </div>
-      </WishlistProvider>
-    </UserProvider>
+        </WishlistProvider>
+      </UserProvider>
+    </>
   );
 }
 

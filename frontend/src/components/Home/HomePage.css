@@ -268,12 +268,15 @@ border-radius: 4px;
 }
 
 .home-create-your-Wall-art .overlay-content .btn-primary {
-  background-color: #6c4ad3;
+  background-color: #5B2EFF;
   border: none;
   padding: 8px 15px;
   border-radius: 4px;
   font-size: 14px;
   margin-top: 20px;
+}
+.home-create-your-Wall-art .overlay-content .btn-primary:hover {
+  background-color: #4e28d6;
 }
 
 .home-create-your-Wall-art .image-frame {

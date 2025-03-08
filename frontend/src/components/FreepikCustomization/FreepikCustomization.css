@@ -115,12 +115,26 @@
   top: 50%;
   left: 50%;
   right: 0;
-  width: 68%;
-  height: 68%;
+  width: 67%;
+  height: 67%;
   object-fit: contain;
   transform: translate(-50%, -50%);
   z-index: 0;
   bottom: 0;
+}
+
+.freepik-customization  .generated-artwork.acrylic-style {
+  position: relative;
+  width: 63%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 0;
+  margin: auto;
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 /* Acrylic-specific styling */
@@ -159,9 +173,7 @@
   cursor: pointer;
 }
 .freepik-customization .option-button.active {
-  background-color: #2563eb;
   color: white;
-  border-color: #2563eb;
 }
 .freepik-customization .option-button:hover:not(.active) {
   background-color: #e5e7eb;
@@ -202,6 +214,7 @@
 .freepik-customization .price-section h3 {
   font-size: 1.25rem;
   font-weight: 600;
+  margin: 0;
 }
 
 /* Action Buttons */
@@ -225,11 +238,11 @@
   cursor: pointer;
 }
 .freepik-customization .add-to-cart {
-  background-color: #2563eb;
+  background-color: #2F2320 !important;
   color: white;
 }
 .freepik-customization .add-to-cart:hover:not(:disabled) {
-  background-color: #1d4ed8;
+  background-color: #2F2320 !important;
 }
 .freepik-customization .add-to-wishlist {
   background-color: #f3f4f6;
@@ -305,11 +318,12 @@
   }
   .freepik-customization .options-section {
     flex-direction: column;
+    gap: 0.5rem;
   }
   .freepik-customization .product-details {
-    justify-content: center;
-    align-items: center;
-  }
+    justify-content: flex-start;
+    align-items: flex-start;
+}
   .freepik-customization .product-title {
     font-size: 20px;
     text-transform: capitalize;
@@ -332,4 +346,21 @@
 .freepik-customization .main-image-container.wooden .generated-artwork  {
   padding: 7px;
 }
+.freepik-customization .info-section {
+  flex: 2;
+  max-width: 700px;
+  margin-top: 0px;
 }
+}
+@media(max-width:500px){
+  .freepik-customization .info-section {
+    margin-top: 20px;
+  }
+  .freepik-customization .product-title {
+    font-size: 20px;
+    text-transform: capitalize;
+    margin: 20px 0;
+}
+}
+
+

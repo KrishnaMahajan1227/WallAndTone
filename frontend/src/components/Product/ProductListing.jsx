@@ -325,7 +325,6 @@ const ProductListing = () => {
     return qp.toString();
   })();
 
-  // When filter state changes, update the URL and immediately fetch products
   useEffect(() => {
     setCurrentPage(1); // Reset to first page on filter change
     navigate({ pathname: location.pathname, search: filterQuery }, { replace: true });
@@ -338,8 +337,30 @@ const ProductListing = () => {
         const data = await response.json();
         if (!data || !Array.isArray(data)) throw new Error('Invalid data received');
         setProducts(data);
-        // Shuffle only once per fetch to retain the same random order thereafter
-        setRandomizedProducts(shuffleArray(sortProducts(data)));
+        
+        // Check if a randomized order is already stored (only for the default filter, for example)
+        if (!filterQuery) {
+          let storedOrder = localStorage.getItem('randomizedProductOrder');
+          if (storedOrder) {
+            storedOrder = JSON.parse(storedOrder);
+            // Reorder data based on stored order (filter out any missing products)
+            const orderedData = storedOrder
+              .map(id => data.find(product => product._id === id))
+              .filter(product => product);
+            setRandomizedProducts(orderedData);
+          } else {
+            // Shuffle once and store the order (list of product IDs)
+            const randomized = shuffleArray(sortProducts(data));
+            setRandomizedProducts(randomized);
+            localStorage.setItem(
+              'randomizedProductOrder',
+              JSON.stringify(randomized.map(product => product._id))
+            );
+          }
+        } else {
+          // If filters are applied, simply sort (or shuffle) without storing
+          setRandomizedProducts(shuffleArray(sortProducts(data)));
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -348,6 +369,7 @@ const ProductListing = () => {
     };
     fetchProducts();
   }, [filterQuery, apiUrl, location.pathname, navigate]);
+  
 
   // Fetch wishlist
   useEffect(() => {

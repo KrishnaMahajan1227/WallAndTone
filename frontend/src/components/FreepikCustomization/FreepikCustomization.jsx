@@ -130,11 +130,10 @@ const FreepikCustomization = () => {
   }, [selectedFrameType, selectedSubFrameType, selectedSize]);
 
   const calculateTotalPrice = () => {
-    if (!selectedFrameType || !selectedSubFrameType || !selectedSize) return 0;
-    let total =
-      parseFloat(selectedFrameType.price) +
-      parseFloat(selectedSubFrameType.price) +
-      parseFloat(selectedSize.price);
+    const framePrice = parseFloat(selectedFrameType?.price) || 0;
+    const subFramePrice = parseFloat(selectedSubFrameType?.price) || 0;
+    const sizePrice = parseFloat(selectedSize?.price) || 0;
+    const total = framePrice + subFramePrice + sizePrice;
     return (total * quantity).toFixed(2);
   };
 
@@ -276,18 +275,22 @@ const FreepikCustomization = () => {
               (passedOrientation || "portrait") === "landscape" ? "landscape-mode" : ""
             }`}
           >
-            {selectedSubFrameType && (
+            {selectedSubFrameType && selectedFrameType && 
+              !["canvas", "poster"].includes(selectedFrameType.name.toLowerCase()) && (
               <img
                 src={frameBackgrounds[selectedSubFrameType.name]}
                 alt="Frame background"
                 className={`frame-background ${(passedOrientation || "portrait")}`}
               />
             )}
-            <img
-              src={activeImage || generatedImage}
-              alt="Generated artwork"
-              className={`generated-artwork ${(passedOrientation || "portrait")}`}
-            />
+<img
+  src={activeImage || generatedImage}
+  alt="Generated artwork"
+  className={`generated-artwork ${(passedOrientation || "portrait")} ${
+    selectedFrameType?.name?.toLowerCase() === "acrylic" ? "acrylic-style" : ""
+  }`}
+/>
+
           </div>
         </div>
 

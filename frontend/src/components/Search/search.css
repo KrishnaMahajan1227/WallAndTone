@@ -37,12 +37,13 @@
     font-size: 16px;
     border: none;
   border-radius: 4px;
-    color: #000000;
+    color: #FFFFFF;
+    background-color: #5B2EFF;
     cursor: pointer;
   }
   
   .search-button:hover {
-    background-color: #E2D9D5;
+    background-color: #5229e4;
   }
   
   

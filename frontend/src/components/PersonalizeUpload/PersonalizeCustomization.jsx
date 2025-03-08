@@ -93,13 +93,13 @@ const PersonalizeCustomization = () => {
   }, [selectedFrameType, apiUrl]);
 
   const calculateTotalPrice = () => {
-    if (!selectedFrameType || !selectedSubFrameType || !selectedSize) return 0;
-    let total =
-      parseFloat(selectedFrameType.price) +
-      parseFloat(selectedSubFrameType.price) +
-      parseFloat(selectedSize.price);
+    const framePrice = parseFloat(selectedFrameType?.price) || 0;
+    const subFramePrice = parseFloat(selectedSubFrameType?.price) || 0;
+    const sizePrice = parseFloat(selectedSize?.price) || 0;
+    const total = framePrice + subFramePrice + sizePrice;
     return (total * quantity).toFixed(2);
   };
+  
 
   const handleAddToCart = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {

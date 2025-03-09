@@ -582,20 +582,22 @@ const Navbar = () => {
             </ul>
 
             <div className="mobile-secondary-nav">
-              <Link to="/products" className="all-products-btn">
-                All Products
-              </Link>
               <div className="nav-buttons">
                 <Link to="/cart" className="nav-button">
-                  <img src={cartIconUrl} alt="Cart" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 512 512"><path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M80 176a16 16 0 0 0-16 16v216c0 30.24 25.76 56 56 56h272c30.24 0 56-24.51 56-54.75V192a16 16 0 0 0-16-16Zm80 0v-32a96 96 0 0 1 96-96h0a96 96 0 0 1 96 96v32"/></svg>
                 </Link>
                 <Link to="/wishlist" className="nav-button">
-                  <img 
-                    src={wishlistCount > 0 ? wishlistIconUrl : heartIconUrl} 
-                    alt="Wishlist"
-                  />
-                  {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
-                </Link>
+  {wishlistCount > 0 ? (
+    <img 
+      src={wishlistIconUrl} 
+      alt="Wishlist" 
+    />
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512"><path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81c-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0 0 18 0c96.26-65.34 184.09-143.09 183-252.42c-.54-52.67-42.32-96.81-95.08-96.81"/></svg>
+  )}
+  {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
+</Link>
+
               </div>
             </div>
 

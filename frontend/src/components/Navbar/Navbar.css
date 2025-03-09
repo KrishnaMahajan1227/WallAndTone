@@ -182,8 +182,8 @@
 
 .mobile-secondary-nav .nav-buttons {
   display: flex;
-  gap: 20px;
-  justify-content: center;
+  gap: 0px;
+  justify-content: flex-start;
   align-items: center;
 }
 
@@ -199,7 +199,6 @@
 .mobile-secondary-nav .nav-button img {
   width: 24px;
   height: 24px;
-  filter: invert(1);
 }
 
 .mobile-secondary-nav .badge {

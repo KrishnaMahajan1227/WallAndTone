@@ -353,7 +353,9 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
   align-items: center;
   justify-content: center;
 }
-
+.product-details .add-to-cart svg, .product-details .add-to-wishlist svg {
+  margin-right: 10px;
+}
 /* Responsive adjustments */
 @media (max-width: 576px) {
   .product-listing .pagination .page-link {

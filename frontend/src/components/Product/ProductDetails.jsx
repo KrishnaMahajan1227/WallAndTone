@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Star, ShoppingCart, Heart, X } from 'lucide-react';
 import { Modal, Button } from 'react-bootstrap';
 import heartIcon from '../../assets/icons/heart-icon.svg';
@@ -60,6 +60,9 @@ const ProductDetails = () => {
   // Guest mode storage
   const guestWishlist = JSON.parse(localStorage.getItem('guestWishlist')) || [];
   const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+
+  // Computed wishlist count (use this in your header or nav component)
+  const wishlistCount = wishlist.length;
 
   // Utility functions
   const calculateAverageRating = (reviews) => {
@@ -204,7 +207,7 @@ const ProductDetails = () => {
     setSelectedSize(null);
     setSizes([]);
     setSubFrameThumbnails([]);
-    setActiveImage(''); // This will be set in fetchProduct after the new product loads
+    setActiveImage(''); // Will be updated in fetchProduct
     setInputQuantity("1");
     setQuantity(1);
   }, [productId]);
@@ -576,134 +579,17 @@ const ProductDetails = () => {
     }
   };
 
-  const renderCartItems = () => {
-    if (!Array.isArray(cart) || cart.length === 0) {
-      return <p>Your cart is empty</p>;
-    }
-    return cart.map((item, index) => (
-      <div key={index} className="cart-item">
-        <img
-          src={item.productId.mainImage}
-          alt={item.productId.productName}
-          className="cart-item-image"
-        />
-        <div className="cart-item-details">
-          <h3>{item.productId.productName}</h3>
-          <p>Frame: {item.frameTypeName}</p>
-          <p>Type: {item.subFrameTypeName}</p>
-          <p>Size: {item.sizeName}</p>
-          <div className="quantity-controls">
-            <button onClick={() => handleUpdateQuantity(item, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
-            <span>{item.quantity}</span>
-            <button onClick={() => handleUpdateQuantity(item, item.quantity + 1)}>+</button>
-          </div>
-          <p>Price: ₹{calculateItemPrice(item)}</p>
-        </div>
-        <button className="remove-item" onClick={() => handleRemoveFromCart(item)}>
-          <X size={20} />
-        </button>
-      </div>
-    ));
-  };
-
-  const renderProductCard = (prod, isLarge = false) => (
-    <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
-      <div className="product-image-wrapper position-relative">
-        <img
-          src={prod.mainImage}
-          className="card-img-top product-image"
-          alt={prod.productName}
-          onClick={() => navigate(`/product/${prod._id}`)}
-        />
-        <div
-          className="wishlist-icon position-absolute"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (wishlist && wishlist.some(item => item.productId && item.productId._id === prod._id)) {
-              handleRemoveFromWishlist(prod);
-            } else {
-              handleAddToWishlist(prod);
-            }
-          }}
-        >
-          <img
-            src={
-              wishlist && wishlist.some(item => item.productId && item.productId._id === prod._id)
-                ? heartIconFilled
-                : heartIcon
-            }
-            alt="Heart Icon"
-          />
-        </div>
-      </div>
-      <div className="card-body text-center d-flex flex-column">
-        <h5 className="card-title product-title">{prod.productName}</h5>
-        <p className="card-text text-muted">{prod.description.slice(0, isLarge ? 150 : 100)}...</p>
-        <p className="card-text text-muted">Starting From Rs {prod.startFromPrice}/-</p>
-      </div>
-    </div>
-  );
-
-  const renderProductRows = () => {
-    const sortedProducts = products;
-    const rows = [];
-    let remainingProducts = [...sortedProducts];
-    while (remainingProducts.length >= 7) {
-      const regularProducts = remainingProducts.slice(0, 6);
-      const featuredProduct = remainingProducts[6];
-      const isEvenRow = rows.length % 2 === 0;
-      rows.push(
-        <div key={rows.length} className={`products-container mb-4 ${isEvenRow ? 'featured-right' : 'featured-left'}`}>
-          {isEvenRow ? (
-            <>
-              <div className="regular-products">
-                {regularProducts.map(prod =>
-                  prod && prod._id ? (
-                    <div key={prod._id} className="regular-product-item">
-                      {renderProductCard(prod)}
-                    </div>
-                  ) : null
-                )}
-              </div>
-              <div className="featured-product">
-                {renderProductCard(featuredProduct, true)}
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="featured-product">
-                {renderProductCard(featuredProduct, true)}
-              </div>
-              <div className="regular-products">
-                {regularProducts.map(prod =>
-                  prod && prod._id ? (
-                    <div key={prod._id} className="regular-product-item">
-                      {renderProductCard(prod)}
-                    </div>
-                  ) : null
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      );
-      remainingProducts = remainingProducts.slice(7);
-    }
-    if (remainingProducts.length > 0) {
-      rows.push(
-        <div key="remaining" className="remaining-products-container mb-4">
-          {remainingProducts.map(prod =>
-            prod && prod._id ? (
-              <div key={prod._id} className="remaining-product-item">
-                {renderProductCard(prod)}
-              </div>
-            ) : null
-          )}
-        </div>
-      );
-    }
-    return rows;
-  };
+  // Example Wishlist Display in Header (if needed)
+  // <Link to="/wishlist" className="nav-button">
+  //   {wishlistCount > 0 ? (
+  //     <img src={wishlistIconUrl} alt="Wishlist" />
+  //   ) : (
+  //     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 20 20">
+  //       <path fill="#fff" d="m10.497 16.803l6.244-6.304a4.41 4.41 0 0 0-.017-6.187a4.306 4.306 0 0 0-6.135-.015l-.596.603l-.605-.61l-.1-.099a4.3 4.3 0 0 0-6.027.083c-1.688 1.705-1.68 4.476.016 6.189l6.277 6.34c.26.263.682.263.942 0M11.3 5a3.306 3.306 0 0 1 4.713.016a3.41 3.41 0 0 1 .016 4.78v.002l-6.004 6.06l-6.038-6.099c-1.313-1.326-1.314-3.47-.015-4.782a3.3 3.3 0 0 1 4.706.016l.96.97a.5.5 0 0 0 .711 0z"/>
+  //     </svg>
+  //   )}
+  //   {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
+  // </Link>
 
   if (loading)
     return (
@@ -780,7 +666,11 @@ const ProductDetails = () => {
           <h1 className="product-title">{product.productName}</h1>
           <div className="product-price-section">
             <div className="total-price">
-              <span className="current-price">₹{calculateTotalPrice()}</span>
+              <span className="current-price">
+                ₹{(selectedFrameType && selectedSubFrameType && selectedSize)
+                  ? calculateTotalPrice()
+                  : "899/-"}
+              </span>
               {product.discount > 0 && (
                 <span className="original-price">₹{product.discount}</span>
               )}

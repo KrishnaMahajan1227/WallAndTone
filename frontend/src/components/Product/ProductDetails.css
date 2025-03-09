@@ -730,7 +730,7 @@
   /* NEW OVERRIDE: For iPhone portrait, NOT landscape "Main" or "Front" images */
   .product-details-container .product-details-image:not(.landscape)[src*="Main"],
   .product-details-container .product-details-image:not(.landscape)[src*="Front"] {
-    max-width: 220px !important;
+    max-width: 150px !important;
     height: auto !important;
     box-shadow: 8px 8px 6px -5px rgba(107, 81, 73, 0.57);
   }
@@ -740,32 +740,16 @@
 @media only screen and (min-device-width: 375px) and (max-device-width: 428px) and (orientation: portrait) {
   .product-details-container .product-details-image.landscape[src*="Main"],
   .product-details-container .product-details-image.landscape[src*="Front"] {
-    max-width: 220px !important;
+    max-width: 150px !important;
     height: auto !important; /* was 140px */
     box-shadow: 8px 8px 6px -5px rgba(107, 81, 73, 0.57);
   }
   /* NEW OVERRIDE: For iPhone portrait, NOT landscape "Main" or "Front" images */
   .product-details-container .product-details-image:not(.landscape)[src*="Main"],
   .product-details-container .product-details-image:not(.landscape)[src*="Front"] {
-    max-width: 220px !important;
+    max-width: 150px !important;
     height: auto !important;
     box-shadow: 8px 8px 6px -5px rgba(107, 81, 73, 0.57);
   }
 }
 
-/* For iPhone 12, 13, 14 in landscape mode (LANDSCAPE images) */
-@media only screen and (min-device-width: 375px) and (max-device-width: 428px) and (orientation: landscape) {
-  .product-details-container .product-details-image.landscape[src*="Main"],
-  .product-details-container .product-details-image.landscape[src*="Front"] {
-    max-width: 300px !important;
-    height: auto !important; /* was 180px */
-    box-shadow: 12px 12px 8px -7px rgba(107, 81, 73, 0.57);
-  }
-  /* NEW OVERRIDE: For iPhone landscape, NOT landscape "Main" or "Front" images */
-  .product-details-container .product-details-image:not(.landscape)[src*="Main"],
-  .product-details-container .product-details-image:not(.landscape)[src*="Front"] {
-    max-width: 300px !important;
-    height: auto !important;
-    box-shadow: 12px 12px 8px -7px rgba(107, 81, 73, 0.57);
-  }
-}

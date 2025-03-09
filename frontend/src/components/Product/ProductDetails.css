@@ -698,7 +698,7 @@
   .product-details-container .product-details-image.landscape[src*="Main"],
   .product-details-container .product-details-image.landscape[src*="Front"] {
     max-width: 250px !important;
-    height: 160px !important;
+    height: auto !important;
     z-index: 2;
     background: transparent;
     position: relative;
@@ -724,7 +724,7 @@
   .product-details-container .product-details-image.landscape[src*="Main"],
   .product-details-container .product-details-image.landscape[src*="Front"] {
       max-width: 220px !important;
-      height: 140px !important;
+      height: auto !important;
       box-shadow: 8px 8px 6px -5px rgba(107, 81, 73, 0.57);
   }
 }
@@ -734,7 +734,7 @@
   .product-details-container .product-details-image.landscape[src*="Main"],
   .product-details-container .product-details-image.landscape[src*="Front"] {
       max-width: 300px !important;
-      height: 180px !important;
+      height: auto !important;
       box-shadow: 12px 12px 8px -7px rgba(107, 81, 73, 0.57);
   }
 }

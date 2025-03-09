@@ -723,14 +723,14 @@
 @media(max-width:500px){
   .product-details-container .product-details-image.landscape[src*="Main"],
   .product-details-container .product-details-image.landscape[src*="Front"] {
-    max-width: 150px !important;
+    max-width: 180px !important;
     height: auto !important; /* was 140px */
     box-shadow: 8px 8px 6px -5px rgba(107, 81, 73, 0.57);
   }
   /* NEW OVERRIDE: For iPhone portrait, NOT landscape "Main" or "Front" images */
   .product-details-container .product-details-image:not(.landscape)[src*="Main"],
   .product-details-container .product-details-image:not(.landscape)[src*="Front"] {
-    max-width: 150px !important;
+    max-width: 180px !important;
     height: auto !important;
     box-shadow: 8px 8px 6px -5px rgba(107, 81, 73, 0.57);
   }
@@ -740,14 +740,14 @@
 @media only screen and (min-device-width: 375px) and (max-device-width: 428px) and (orientation: portrait) {
   .product-details-container .product-details-image.landscape[src*="Main"],
   .product-details-container .product-details-image.landscape[src*="Front"] {
-    max-width: 150px !important;
+    max-width: 180px !important;
     height: auto !important; /* was 140px */
     box-shadow: 8px 8px 6px -5px rgba(107, 81, 73, 0.57);
   }
   /* NEW OVERRIDE: For iPhone portrait, NOT landscape "Main" or "Front" images */
   .product-details-container .product-details-image:not(.landscape)[src*="Main"],
   .product-details-container .product-details-image:not(.landscape)[src*="Front"] {
-    max-width: 150px !important;
+    max-width: 180px !important;
     height: auto !important;
     box-shadow: 8px 8px 6px -5px rgba(107, 81, 73, 0.57);
   }

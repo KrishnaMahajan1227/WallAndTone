@@ -12,34 +12,31 @@ import profileicon from '../../assets/icons/Profile-Icon.svg';
 import './SecondaryNavbar.css';
 import { UserContext } from '../../contexts/UserContext';
 
-
 const SecondaryNavbar = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 
+  const apiUrl = import.meta.env.VITE_API_URL ||
     (window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://wallandtone.com');
-  
-    const { user, logout } = useContext(UserContext);
 
-    const [historyList, setHistoryList] = useState([]);
+  const { user, logout } = useContext(UserContext);
+  const { wishlist, setWishlist } = useContext(WishlistContext);
+  
+  const [historyList, setHistoryList] = useState([]);
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const [navigationHistory, setNavigationHistory] = useState([]);
-  
-  // Get wishlist array from context; count is derived from its length
-  const { wishlist, setWishlist } = useContext(WishlistContext);
-  const wishlistCount = wishlist.length;
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const token = localStorage.getItem('token');
   const historyRef = useRef(null);
 
-  // Fetch history if token is available
+  // Wishlist count (ensuring it's 0 if empty)
+  const wishlistCount = wishlist.length || 0;
+
+  // Fetch history using axios, agar token available ho
   useEffect(() => {
     const fetchHistory = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/history`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setHistoryList(response.data);
       } catch (error) {
@@ -52,7 +49,7 @@ const SecondaryNavbar = () => {
     }
   }, [token, apiUrl]);
 
-  // Update navigation history based on location
+  // Navigation history update
   useEffect(() => {
     const currentPath = location.pathname.substring(1);
     if (!currentPath) return;
@@ -86,6 +83,7 @@ const SecondaryNavbar = () => {
     }
   }, [location]);
 
+  // Load navigation history from localStorage on mount
   useEffect(() => {
     const savedHistory = localStorage.getItem('navHistory');
     if (savedHistory) {
@@ -93,7 +91,7 @@ const SecondaryNavbar = () => {
     }
   }, []);
 
-  // Hide history dropdown if click occurs outside
+  // History dropdown ko hide karne ke liye agar click bahar ho jaye
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (historyRef.current && !historyRef.current.contains(event.target)) {
@@ -110,32 +108,34 @@ const SecondaryNavbar = () => {
     navigate(`/product/${item.productId}`);
   };
 
-  // Fetch wishlist from API and update context
+  // Fetch wishlist data from API
   useEffect(() => {
     const fetchWishlist = async () => {
-      if (token) {
-        try {
-          const wishlistResponse = await fetch(`${apiUrl}/api/wishlist`, {
-            method: 'GET',
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const wishlistData = await wishlistResponse.json();
-          if (wishlistData && Array.isArray(wishlistData.items)) {
-            setWishlist(wishlistData.items);
-          } else {
-            setWishlist([]);
-          }
-        } catch (error) {
-          console.error('Error fetching wishlist:', error.message);
+      if (!token) {
+        setWishlist([]); // Ensure empty state if not logged in
+        return;
+      }
+      try {
+        const response = await fetch(`${apiUrl}/api/wishlist`, {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const wishlistData = await response.json();
+
+        // Ensure wishlistData.items is an array and correctly update state
+        if (wishlistData && Array.isArray(wishlistData.items)) {
+          setWishlist(wishlistData.items);
+        } else {
           setWishlist([]);
         }
-      } else {
-        setWishlist([]);
+      } catch (error) {
+        console.error('Error fetching wishlist:', error.message);
+        setWishlist([]); // Reset wishlist on error
       }
     };
 
     fetchWishlist();
-  }, [location.search, token, apiUrl, setWishlist]);
+  }, [token, apiUrl, setWishlist]);
 
   return (
     <nav className="secondary-navbar">
@@ -174,17 +174,17 @@ const SecondaryNavbar = () => {
             <img src={cartIconUrl} alt="Cart" className="cart-icon" />
           </Link>
           <Link to="/wishlist" className="wishlist-button">
-            <img 
-              src={wishlistCount > 0 ? wishlistIconUrl : heartIconUrl} 
-              alt="Wishlist" 
-              className="wishlist-icon" 
+            <img
+              src={wishlistCount > 0 ? wishlistIconUrl : heartIconUrl}
+              alt="Wishlist"
+              className="wishlist-icon"
             />
             {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
           </Link>
-          {/* Render profile icon only if user is logged in */}
+          {/* Profile icon sirf tab dikhaye jab user logged in ho */}
           {user && (
             <Link to="/profile" className="profile-button">
-              <img src={profileicon} alt="Profile-Icon" />   
+              <img src={profileicon} alt="Profile-Icon" />
             </Link>
           )}
         </div>

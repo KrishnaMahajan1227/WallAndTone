@@ -37,6 +37,7 @@ const ProductDetails = () => {
   const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
   const [quantity, setQuantity] = useState(1);
+  const [inputQuantity, setInputQuantity] = useState("1"); // New state for raw input
   const [activeImage, setActiveImage] = useState('');
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
@@ -198,8 +199,21 @@ const ProductDetails = () => {
 
   // Event Handlers
   const handleQuantityChange = (e) => {
-    const newQuantity = Math.max(1, parseInt(e.target.value, 10) || 1);
-    setQuantity(newQuantity);
+    const value = e.target.value;
+    if (value === "") {
+      setInputQuantity("");
+    } else {
+      const numericValue = Math.max(1, parseInt(value, 10));
+      setInputQuantity(numericValue.toString());
+      setQuantity(numericValue);
+    }
+  };
+
+  const handleQuantityBlur = () => {
+    if (inputQuantity === "" || isNaN(parseInt(inputQuantity, 10))) {
+      setInputQuantity("1");
+      setQuantity(1);
+    }
   };
 
   const handleThumbnailClick = (thumbnail) => {
@@ -860,7 +874,15 @@ const ProductDetails = () => {
           </div>
           <div className="quantity-section">
             <label htmlFor="quantity">Quantity:</label>
-            <input id="quantity" type="number" min="1" value={quantity} onChange={handleQuantityChange} className="quantity-input" />
+            <input
+              id="quantity"
+              type="number"
+              min="1"
+              value={inputQuantity}
+              onChange={handleQuantityChange}
+              onBlur={handleQuantityBlur}
+              className="quantity-input"
+            />
           </div>
           <div className="action-buttons">
             <button className="add-to-cart" onClick={handleAddToCart} disabled={!selectedFrameType || !selectedSubFrameType || !selectedSize}>
@@ -882,11 +904,11 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
-<hr className='productDetails-spacing my-5'/>
-            <div className="recomendations mb-5">
-              <h2>Recomendations</h2>
-              <RecentlyAddedProducts/>
-            </div>
+      <hr className='productDetails-spacing my-5'/>
+      <div className="recomendations mb-5">
+        <h2>Recomendations</h2>
+        <RecentlyAddedProducts/>
+      </div>
 
       <ToastContainer position="top-right" autoClose={3000} />
 

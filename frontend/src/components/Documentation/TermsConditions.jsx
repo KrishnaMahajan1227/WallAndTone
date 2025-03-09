@@ -201,12 +201,12 @@ These terms shall be governed by and constructed in accordance with the laws of 
         Mr. Darshan Suryawanshi<br />
 Designation: Manager – CC – Escalation Desk<br />
 <a href="www.wallandtone.com"> Wall & Tone,</a><br />
-Please add address<br />
+Pl.No 18, 19, 20, First Floor,
+Near BPCL, Jalgaon, 425001,
+Maharashtra<br />
 Contact us: <a href="mailto:hello@wallandtone.com">hello@wallandtone.com</a><br/>
 Phone: <a href="tel:+91-9226735394">:+91-9226735394 </a><br />
-Time: Mon – Sat (9:00 am to 5:00 pm)<br />
-Customer Support: You can reach our customer support team to address any of your queries or complaints by clicking the link, <br />
-https://Wall&Tone.com/customer-service/contact-us/
+Time: Mon – Sat (9:00 am to 5:00 pm)
         </p>
       </div>
 

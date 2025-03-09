@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef, useContext } from "react";
+import React, { useEffect, useState, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { WishlistContext } from "./WishlistContext";
 import "./WishlistComponent.css";
@@ -22,12 +22,6 @@ const WishlistComponent = () => {
   const [notification, setNotification] = useState("");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-
-  // Guest mode wishlist and cart storage
-  const guestWishlist = JSON.parse(localStorage.getItem("guestWishlist")) || [];
-  const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
-  const guestWishlistRef = useRef(guestWishlist);
-  const guestCartRef = useRef(guestCart);
 
   const fetchWishlistAndCart = useCallback(async () => {
     setLoading(true);
@@ -58,15 +52,18 @@ const WishlistComponent = () => {
         setCart(cartData.items || []);
         setError(null);
       } else {
-        setWishlist(guestWishlistRef.current);
-        setCart(guestCartRef.current);
+        // Guest mode: directly read from localStorage
+        const storedWishlist = JSON.parse(localStorage.getItem("guestWishlist")) || [];
+        const storedCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+        setWishlist(storedWishlist);
+        setCart(storedCart);
       }
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [token, apiUrl, guestWishlistRef, guestCartRef, setWishlist]);
+  }, [token, apiUrl, setWishlist]);
 
   useEffect(() => {
     fetchWishlistAndCart();
@@ -105,7 +102,8 @@ const WishlistComponent = () => {
         showNotification("Failed to remove product from cart. Please try again.");
       }
     } else {
-      const updatedCart = guestCartRef.current.filter(
+      const storedCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+      const updatedCart = storedCart.filter(
         (item) => item.productId && item.productId._id !== product._id
       );
       setCart(updatedCart);
@@ -141,7 +139,8 @@ const WishlistComponent = () => {
         showNotification("Failed to remove product from wishlist. Please try again.");
       }
     } else {
-      const updatedWishlist = guestWishlistRef.current.filter(
+      const storedWishlist = JSON.parse(localStorage.getItem("guestWishlist")) || [];
+      const updatedWishlist = storedWishlist.filter(
         (item) => item && item.productId && item.productId._id !== product._id
       );
       setWishlist(updatedWishlist);
@@ -180,7 +179,8 @@ const WishlistComponent = () => {
               // Ensure item and productId exist before accessing _id
               if (!item || !item.productId || !item.productId._id) return null;
               const isInCart = cart.some(
-                (cartItem) => cartItem.productId && cartItem.productId._id === item.productId._id
+                (cartItem) =>
+                  cartItem.productId && cartItem.productId._id === item.productId._id
               );
               return (
                 <div key={item.productId._id} className="wishlist-item">

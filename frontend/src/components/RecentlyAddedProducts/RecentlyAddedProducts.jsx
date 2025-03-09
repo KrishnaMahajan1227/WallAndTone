@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Slider from "react-slick";
+import { Link } from "react-router-dom"; // Added Link for navigation
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./RecentlyAddedProducts.css";
-import { useNavigate } from "react-router-dom";
 
 const RecentlyAddedProducts = () => {
   const apiUrl =
@@ -17,7 +17,6 @@ const RecentlyAddedProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -78,7 +77,7 @@ const RecentlyAddedProducts = () => {
       {products.length > 0 ? (
         <Slider {...sliderSettings}>
           {products.map((product) => (
-            <ProductCard key={product._id} product={product} navigate={navigate} />
+            <ProductCard key={product._id} product={product} />
           ))}
         </Slider>
       ) : (
@@ -91,16 +90,17 @@ const RecentlyAddedProducts = () => {
 };
 
 // ---------------------- Product Card with Hover Effect ----------------------
-const ProductCard = ({ product, navigate }) => {
+const ProductCard = ({ product }) => {
   const [hovered, setHovered] = useState(false);
   const transitionDuration = 400; // Adjust for smoothness
 
   const randomMockup = useMemo(() => {
     if (!product.subFrameImages || product.subFrameImages.length === 0) return null;
-    const mockupImages = product.subFrameImages.filter(imgObj =>
-      imgObj.imageUrl &&
-      typeof imgObj.imageUrl === "string" &&
-      imgObj.imageUrl.toLowerCase().includes("mockup")
+    const mockupImages = product.subFrameImages.filter(
+      (imgObj) =>
+        imgObj.imageUrl &&
+        typeof imgObj.imageUrl === "string" &&
+        imgObj.imageUrl.toLowerCase().includes("mockup")
     );
     return mockupImages.length > 0
       ? mockupImages[Math.floor(Math.random() * mockupImages.length)].imageUrl
@@ -109,70 +109,69 @@ const ProductCard = ({ product, navigate }) => {
 
   return (
     <div className="recently-added-product-card">
-      <div
-        className="card product-card"
-        onClick={() => navigate(`/product/${product._id}`)}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          cursor: "pointer",
-        }}
-      >
-        {/* Container with a fixed height, background color, and overflow hidden */}
+      <Link to={`/product/${product._id}`} style={{ textDecoration: "none" }}>
         <div
-          style={{
-            position: "relative",
-            width: "100%",
-            height: "250px",       // All cards share the same height
-            background: "#e7e7e7", // Light-gray background
-            overflow: "hidden",
-            borderRadius: "4px",
-          }}
+          className="card product-card"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{ cursor: "pointer" }}
         >
-          {/* Main (smaller) image centered in the container */}
-          <img
-            src={product.mainImage}
-            alt={product.productName}
+          {/* Container with a fixed height, background color, and overflow hidden */}
+          <div
             style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              maxWidth: "80%",           // Smaller scale
-              maxHeight: "80%",          // Keep within container
-              objectFit: "contain",      // Prevent cropping/distortion
-              transition: `opacity ${transitionDuration}ms ease`,
-              opacity: hovered && randomMockup ? 0 : 1,
+              position: "relative",
+              width: "100%",
+              height: "250px",       // All cards share the same height
+              background: "#e7e7e7", // Light-gray background
+              overflow: "hidden",
+              borderRadius: "4px",
             }}
-          />
-
-          {/* Mockup image on hover, covering entire container */}
-          {randomMockup && (
+          >
+            {/* Main (smaller) image centered in the container */}
             <img
-              src={randomMockup}
-              alt={`${product.productName} Mockup`}
+              src={product.mainImage}
+              alt={product.productName}
               style={{
                 position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover", // Full coverage on hover
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                maxWidth: "80%",           // Smaller scale
+                maxHeight: "80%",          // Keep within container
+                objectFit: "contain",      // Prevent cropping/distortion
                 transition: `opacity ${transitionDuration}ms ease`,
-                opacity: hovered ? 1 : 0,
+                opacity: hovered && randomMockup ? 0 : 1,
               }}
             />
-          )}
-        </div>
 
-        {/* Product Details */}
-        <div className="card-body text-center">
-          <h5 className="card-title product-title">{product.productName}</h5>
-          <p className="card-text text-muted">
-            Starting From Rs {product.startFromPrice}/-
-          </p>
+            {/* Mockup image on hover, covering entire container */}
+            {randomMockup && (
+              <img
+                src={randomMockup}
+                alt={`${product.productName} Mockup`}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover", // Full coverage on hover
+                  transition: `opacity ${transitionDuration}ms ease`,
+                  opacity: hovered ? 1 : 0,
+                }}
+              />
+            )}
+          </div>
+
+          {/* Product Details */}
+          <div className="card-body text-center">
+            <h5 className="card-title product-title">{product.productName}</h5>
+            <p className="card-text text-muted">
+              Starting From Rs {product.startFromPrice}/-
+            </p>
+          </div>
         </div>
-      </div>
+      </Link>
     </div>
   );
 };

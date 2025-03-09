@@ -146,7 +146,7 @@ Additional Info: ${orderData.additional_info || ""}
     <html lang="en">
     <head>
       <meta charset="UTF-8">
-      <title>New Order Confirmation</title>
+      <title>Order Confirmation</title>
       <style>
         /* Reset some defaults */
         body, html {
@@ -163,7 +163,7 @@ Additional Info: ${orderData.additional_info || ""}
         }
         /* Main container styling */
         .container {
-          max-width: 100%;
+          max-width: 1200px;
           margin: 30px auto;
           background: #fff;
           border: 1px solid #ddd;
@@ -251,17 +251,34 @@ Additional Info: ${orderData.additional_info || ""}
         
         <!-- Header Section -->
         <div class="header">
-          <h1>New Order Created</h1>
+          <h1>Order Created</h1>
         </div>
         
         <!-- Content Section -->
         <div class="content">
           <!-- User Details Section -->
           <div class="section">
-            <h2>User Details</h2>
-            <p><strong>Name:</strong> ${customerName}</p>
-            <p><strong>Email:</strong> ${orderData.billing_email}</p>
-            <p><strong>Phone:</strong> ${orderData.billing_phone}</p>
+Dear ${customerName},
+<p>Thank you for choosing Wall & Tone to bring art into your space! Your order is confirmed, and our team is carefully preparing it to ensure it reaches you in perfect condition. </br>
+
+At Wall & Tone, we believe every wall tells a story, and now, your space is about to get a fresh perspective with your new artwork. We can’t wait for you to experience it!
+</p>
+        
+<p>Here’s what happens next:
+<ul>
+<li>Your order will be packed with care.
+</li>
+<li>You’ll receive tracking details once it’s shipped.
+</li>
+<li>Expect inspiration delivered right to your doorstep!
+</li>
+</ul>
+</p>
+
+<p>If you have any questions, feel free to reach out. We’d love to hear how your new piece transforms your space—share your photos and tag us 
+<a href="https://www.instagram.com/wallandtone?igsh=MW5hZzB0andydnpzNQ==" target="_blank" rel="noopener noreferrer" className="social-link">@wallandtone</a> !
+</p>
+
           </div>
           
           <!-- Shipping / Billing Details Section -->
@@ -283,18 +300,12 @@ Additional Info: ${orderData.additional_info || ""}
             <p><strong>Payment Method:</strong> ${orderData.payment_method || "Prepaid"}</p>
             <p><strong>Sub Total:</strong> Rs ${orderData.sub_total || ""}</p>
           </div>
-          
-          <!-- Additional Info Section -->
-          <div class="section">
-            <h2>Additional Info</h2>
-            <p>${orderData.additional_info || "N/A"}</p>
-          </div>
+      
         </div>
         
         <!-- Footer Section -->
         <div class="footer">
-          <img src="https://res.cloudinary.com/dxpf8q672/image/upload/v1741429840/Email-ThankYou-Footer_err0xo.png" alt="Footer Decoration" />
-          <p>Thank you for your order.</p>
+          <p>Thank you for being a part of our creative journey.</p>
           <p>&copy; ${new Date().getFullYear()} Wall & Tone. All rights reserved.</p>
         </div>
       </div>

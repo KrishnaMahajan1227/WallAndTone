@@ -89,7 +89,7 @@ useEffect(() => {
           subheading:
             "Turn special moments into timeless art—because your walls deserve a personal touch.",
           ctaLink1: "/Personalize",
-          ctaText1: "Explore Collection",
+          ctaText1: "Create Your Wall Art",
           onClick: handlePersonalizeClick,
         },
         {
@@ -121,7 +121,7 @@ useEffect(() => {
           subheading:
             "Turn special moments into timeless art—because your walls deserve a personal touch.",
           ctaLink1: "/Personalize",
-          ctaText1: "Explore Collection",
+          ctaText1: "Create Your Wall Art",
           onClick: handlePersonalizeClick,
         },
         {

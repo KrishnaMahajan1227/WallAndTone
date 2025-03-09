@@ -37,7 +37,7 @@ const ProductDetails = () => {
   const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
   const [quantity, setQuantity] = useState(1);
-  const [inputQuantity, setInputQuantity] = useState("1"); // New state for raw input
+  const [inputQuantity, setInputQuantity] = useState("1");
   const [activeImage, setActiveImage] = useState('');
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
@@ -197,6 +197,18 @@ const ProductDetails = () => {
     }
   }, [selectedFrameType, apiUrl]);
 
+  // Reset selections and thumbnails when productId changes (i.e., when a new product is selected from Recommendations)
+  useEffect(() => {
+    setSelectedFrameType(null);
+    setSelectedSubFrameType(null);
+    setSelectedSize(null);
+    setSizes([]);
+    setSubFrameThumbnails([]);
+    setActiveImage(''); // This will be set in fetchProduct after the new product loads
+    setInputQuantity("1");
+    setQuantity(1);
+  }, [productId]);
+
   // Event Handlers
   const handleQuantityChange = (e) => {
     const value = e.target.value;
@@ -251,13 +263,11 @@ const ProductDetails = () => {
     setSelectedSubFrameType(subFrameType);
     setLoadingSubFrame(true);
     try {
-      // If the selected frame type is "Poster", also include the product's main image in the thumbnails.
       if (selectedFrameType && selectedFrameType.name.toLowerCase() === "poster") {
-        // Combine main image + any subFrame images
         const posterThumbnails = [product.mainImage, ...(subFrameType.images || [])];
         setActiveImage(product.mainImage);
         setSubFrameThumbnails(posterThumbnails);
-        return; // Skip the rest of the logic
+        return;
       }
   
       let imagesArr = [];
@@ -276,7 +286,6 @@ const ProductDetails = () => {
         });
       }
   
-      // If no images found in the product data, fetch from the server
       if (imagesArr.length === 0) {
         const response = await fetch(
           `${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`
@@ -293,9 +302,7 @@ const ProductDetails = () => {
         }
       }
   
-      // Remove duplicates if any
       imagesArr = [...new Set(imagesArr)];
-      // Also include any constant images defined on the subFrameType
       const constantSubFrameImages = subFrameType.images || [];
       const updatedThumbnails = [...imagesArr, ...constantSubFrameImages];
   
@@ -314,7 +321,6 @@ const ProductDetails = () => {
       setLoadingSubFrame(false);
     }
   };
-  
 
   const handleSizeSelect = (size) => {
     setSelectedSize(size);
@@ -358,7 +364,7 @@ const ProductDetails = () => {
     }
   };
 
-  const handleAddToWishlist = async () => {
+  const handleAddToWishlist = async (prod = product) => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
       toast.error('Please select all required options before adding to wishlist');
       return;
@@ -371,14 +377,15 @@ const ProductDetails = () => {
       Array.isArray(wishlist) &&
       wishlist.some(
         item =>
-          item.productId._id === product._id &&
+          item.productId._id === prod._id &&
           item.frameType._id === selectedFrameType?._id &&
           item.subFrameType._id === selectedSubFrameType?._id &&
           item.size._id === selectedSize?._id
       );
     try {
+      const endpoint = inWishlist ? 'remove' : 'add';
       const response = await fetch(
-        `${apiUrl}/api/wishlist/${inWishlist ? 'remove' : 'add'}`,
+        `${apiUrl}/api/wishlist/${endpoint}`,
         {
           method: 'POST',
           headers: {
@@ -386,7 +393,7 @@ const ProductDetails = () => {
             Authorization: `Bearer ${token}`
           },
           body: JSON.stringify({
-            productId: product._id,
+            productId: prod._id,
             frameType: selectedFrameType._id,
             subFrameType: selectedSubFrameType._id,
             size: selectedSize._id
@@ -401,23 +408,53 @@ const ProductDetails = () => {
         }
         throw new Error(errorData.message || 'Failed to update wishlist');
       }
-      setWishlist(prev =>
-        inWishlist
-          ? prev.filter(
-              item =>
-                item.productId._id !== product._id ||
-                item.frameType._id !== selectedFrameType._id ||
-                item.subFrameType._id !== selectedSubFrameType._id ||
-                item.size._id !== selectedSize._id
-            )
-          : [
-              ...prev,
-              { productId: product, frameType: selectedFrameType, subFrameType: selectedSubFrameType, size: selectedSize }
-            ]
-      );
-      toast.success(inWishlist ? 'Removed from wishlist!' : 'Added to wishlist!');
+      if (!inWishlist) {
+        setWishlist(prev => [
+          ...prev,
+          { productId: prod, frameType: selectedFrameType, subFrameType: selectedSubFrameType, size: selectedSize }
+        ]);
+        toast.success('Added to wishlist!');
+      }
     } catch (err) {
       toast.error(err.message || 'Failed to update wishlist');
+    }
+  };
+
+  const handleRemoveFromWishlist = async (prod = product) => {
+    if (!token) {
+      setShowLoginModal(true);
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${apiUrl}/api/wishlist/remove`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            productId: prod._id,
+            frameType: selectedFrameType?._id,
+            subFrameType: selectedSubFrameType?._id,
+            size: selectedSize?._id
+          })
+        }
+      );
+      if (!response.ok) throw new Error('Failed to remove from wishlist');
+      setWishlist(prev =>
+        prev.filter(
+          item =>
+            !(item.productId._id === prod._id &&
+              item.frameType._id === selectedFrameType._id &&
+              item.subFrameType._id === selectedSubFrameType._id &&
+              item.size._id === selectedSize._id)
+        )
+      );
+      toast.success('Removed from wishlist!');
+    } catch (err) {
+      toast.error(err.message || 'Failed to remove from wishlist');
     }
   };
 
@@ -569,29 +606,29 @@ const ProductDetails = () => {
     ));
   };
 
-  const renderProductCard = (product, isLarge = false) => (
+  const renderProductCard = (prod, isLarge = false) => (
     <div className={`card product-card h-100 ${isLarge ? 'large-card' : ''}`}>
       <div className="product-image-wrapper position-relative">
         <img
-          src={product.mainImage}
+          src={prod.mainImage}
           className="card-img-top product-image"
-          alt={product.productName}
-          onClick={() => navigate(`/products/${product._id}`)}
+          alt={prod.productName}
+          onClick={() => navigate(`/product/${prod._id}`)}
         />
         <div
           className="wishlist-icon position-absolute"
           onClick={(e) => {
             e.stopPropagation();
-            if (wishlist && wishlist.some(item => item.productId && item.productId._id === product._id)) {
-              handleRemoveFromWishlist(product);
+            if (wishlist && wishlist.some(item => item.productId && item.productId._id === prod._id)) {
+              handleRemoveFromWishlist(prod);
             } else {
-              handleAddToWishlist(product);
+              handleAddToWishlist(prod);
             }
           }}
         >
           <img
             src={
-              wishlist && wishlist.some(item => item.productId && item.productId._id === product._id)
+              wishlist && wishlist.some(item => item.productId && item.productId._id === prod._id)
                 ? heartIconFilled
                 : heartIcon
             }
@@ -600,9 +637,9 @@ const ProductDetails = () => {
         </div>
       </div>
       <div className="card-body text-center d-flex flex-column">
-        <h5 className="card-title product-title">{product.productName}</h5>
-        <p className="card-text text-muted">{product.description.slice(0, isLarge ? 150 : 100)}...</p>
-        <p className="card-text text-muted">Starting From Rs {product.startFromPrice}/-</p>
+        <h5 className="card-title product-title">{prod.productName}</h5>
+        <p className="card-text text-muted">{prod.description.slice(0, isLarge ? 150 : 100)}...</p>
+        <p className="card-text text-muted">Starting From Rs {prod.startFromPrice}/-</p>
       </div>
     </div>
   );
@@ -620,10 +657,10 @@ const ProductDetails = () => {
           {isEvenRow ? (
             <>
               <div className="regular-products">
-                {regularProducts.map(product =>
-                  product && product._id ? (
-                    <div key={product._id} className="regular-product-item">
-                      {renderProductCard(product)}
+                {regularProducts.map(prod =>
+                  prod && prod._id ? (
+                    <div key={prod._id} className="regular-product-item">
+                      {renderProductCard(prod)}
                     </div>
                   ) : null
                 )}
@@ -638,10 +675,10 @@ const ProductDetails = () => {
                 {renderProductCard(featuredProduct, true)}
               </div>
               <div className="regular-products">
-                {regularProducts.map(product =>
-                  product && product._id ? (
-                    <div key={product._id} className="regular-product-item">
-                      {renderProductCard(product)}
+                {regularProducts.map(prod =>
+                  prod && prod._id ? (
+                    <div key={prod._id} className="regular-product-item">
+                      {renderProductCard(prod)}
                     </div>
                   ) : null
                 )}
@@ -655,10 +692,10 @@ const ProductDetails = () => {
     if (remainingProducts.length > 0) {
       rows.push(
         <div key="remaining" className="remaining-products-container mb-4">
-          {remainingProducts.map(product =>
-            product && product._id ? (
-              <div key={product._id} className="remaining-product-item">
-                {renderProductCard(product)}
+          {remainingProducts.map(prod =>
+            prod && prod._id ? (
+              <div key={prod._id} className="remaining-product-item">
+                {renderProductCard(prod)}
               </div>
             ) : null
           )}
@@ -905,8 +942,8 @@ const ProductDetails = () => {
         </div>
       </div>
       <hr className='productDetails-spacing my-5'/>
-      <div className="recomendations mb-5">
-        <h2>Recomendations</h2>
+      <div className="recommendations mb-5">
+        <h2>Recommendations</h2>
         <RecentlyAddedProducts/>
       </div>
 

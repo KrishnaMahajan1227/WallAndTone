@@ -511,7 +511,12 @@ section.aboutus-production .aboutus-impact-content p {
   font-weight: 500;
   margin: 0;
 }
-
+.aboutus-container .abt-sec1-content .content{
+  max-width: 100%;
+}
+.img-sec {
+  max-width: 100%;
+}
 }
 
 @media (max-width: 500px) {
@@ -601,5 +606,11 @@ section.aboutus-production .aboutus-impact-content {
   padding: 20px;
   color: #FFFFFF;
   text-shadow: none;
+}
+.aboutus-container .abt-sec1-content .content{
+  max-width: 100%;
+}
+.img-sec {
+  max-width: 100%;
 }
 }

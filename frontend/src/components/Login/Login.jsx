@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Helmet } from 'react-helmet-async';
 import { UserContext } from '../../contexts/UserContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Login.css';
@@ -65,6 +66,17 @@ const Login = () => {
 
   return (
     <div className="login-container">
+      <Helmet>
+        <title>Login - Wall & Tone</title>
+        <meta name="description" content="Login to Wall & Tone to discover unique wall art, frames, and decor. Access your account now to enhance your space." />
+        <meta name="robots" content="index, follow" />
+        {/* Open Graph meta tags */}
+        <meta property="og:title" content="Login - Wall & Tone" />
+        <meta property="og:description" content="Login to access your account and explore exclusive wall art and frames at Wall & Tone." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://wallandtone.com/login" />
+        <meta property="og:image" content="/assets/og-image.png" />
+      </Helmet>
       <div className="login-left">
         <form 
           className="login-form" 

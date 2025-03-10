@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Helmet } from 'react-helmet-async';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Signup.css';
 
@@ -125,6 +126,16 @@ const Signup = () => {
 
   return (
     <div className="signup-container">
+      <Helmet>
+        <title>Sign Up - Wall & Tone</title>
+        <meta name="description" content="Create your account at Wall & Tone to explore unique wall art and custom frames that transform your space." />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content="Sign Up - Wall & Tone" />
+        <meta property="og:description" content="Join Wall & Tone and start discovering unique wall art and frames designed to elevate your decor." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://wallandtone.com/signup" />
+        <meta property="og:image" content="/assets/og-image.png" />
+      </Helmet>
       <div className="signup-left">
         <form className="signup-form" onSubmit={handleSubmit} noValidate>
           <div className="form-group">

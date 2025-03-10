@@ -359,6 +359,7 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
 .product-image-wrapper.position-relative [src*=Main] {
   background: #e7e7e7;
   padding: 1.5rem;
+  object-fit: contain !important;
 }
 /* Responsive adjustments */
 @media (max-width: 576px) {

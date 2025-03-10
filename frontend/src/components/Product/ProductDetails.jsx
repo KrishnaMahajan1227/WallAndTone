@@ -368,6 +368,7 @@ const ProductDetails = () => {
   };
 
   const handleAddToWishlist = async (prod = product) => {
+    if (!prod || !prod._id) return;
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
       toast.error('Please select all required options before adding to wishlist');
       return;
@@ -376,91 +377,71 @@ const ProductDetails = () => {
       setShowLoginModal(true);
       return;
     }
-    const inWishlist =
-      Array.isArray(wishlist) &&
-      wishlist.some(
-        item =>
-          item.productId._id === prod._id &&
-          item.frameType._id === selectedFrameType?._id &&
-          item.subFrameType._id === selectedSubFrameType?._id &&
-          item.size._id === selectedSize?._id
-      );
+    // Check if already in wishlist (using product id only)
+    const inWishlist = wishlist.some(
+      item => item.productId && item.productId._id === prod._id
+    );
+    if (inWishlist) {
+      toast.info("Product is already in your wishlist!");
+      return;
+    }
     try {
-      const endpoint = inWishlist ? 'remove' : 'add';
-      const response = await fetch(
-        `${apiUrl}/api/wishlist/${endpoint}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            productId: prod._id,
-            frameType: selectedFrameType._id,
-            subFrameType: selectedSubFrameType._id,
-            size: selectedSize._id
-          })
-        }
-      );
+      const response = await fetch(`${apiUrl}/api/wishlist/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          productId: prod._id,
+          frameType: selectedFrameType._id,
+          subFrameType: selectedSubFrameType._id,
+          size: selectedSize._id
+        })
+      });
       if (!response.ok) {
         const errorData = await response.json();
-        if (!inWishlist && errorData.message === "Product already in wishlist.") {
-          toast.info("Product is already in your wishlist!");
-          return;
+        throw new Error(errorData.message || 'Failed to add product to wishlist');
+      }
+      // Update local wishlist state
+      setWishlist(prev => [
+        ...prev,
+        {
+          productId: prod,
+          frameType: selectedFrameType,
+          subFrameType: selectedSubFrameType,
+          size: selectedSize
         }
-        throw new Error(errorData.message || 'Failed to update wishlist');
-      }
-      if (!inWishlist) {
-        setWishlist(prev => [
-          ...prev,
-          { productId: prod, frameType: selectedFrameType, subFrameType: selectedSubFrameType, size: selectedSize }
-        ]);
-        toast.success('Added to wishlist!');
-      }
+      ]);
+      toast.success('Added to wishlist!');
     } catch (err) {
+      console.error('Error adding product to wishlist:', err);
       toast.error(err.message || 'Failed to update wishlist');
     }
   };
-
+  
   const handleRemoveFromWishlist = async (prod = product) => {
+    if (!prod || !prod._id) return;
     if (!token) {
       setShowLoginModal(true);
       return;
     }
     try {
-      const response = await fetch(
-        `${apiUrl}/api/wishlist/remove`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            productId: prod._id,
-            frameType: selectedFrameType?._id,
-            subFrameType: selectedSubFrameType?._id,
-            size: selectedSize?._id
-          })
-        }
-      );
-      if (!response.ok) throw new Error('Failed to remove from wishlist');
+      const response = await fetch(`${apiUrl}/api/wishlist/remove/${prod._id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Failed to remove product from wishlist');
       setWishlist(prev =>
-        prev.filter(
-          item =>
-            !(item.productId._id === prod._id &&
-              item.frameType._id === selectedFrameType._id &&
-              item.subFrameType._id === selectedSubFrameType._id &&
-              item.size._id === selectedSize._id)
-        )
+        prev.filter(item => item.productId && item.productId._id !== prod._id)
       );
       toast.success('Removed from wishlist!');
     } catch (err) {
+      console.error('Error removing product from wishlist:', err);
       toast.error(err.message || 'Failed to remove from wishlist');
     }
   };
-
+  
   const handleUpdateQuantity = async (item, newQuantity) => {
     if (newQuantity < 1) return;
     if (token) {
@@ -816,18 +797,38 @@ const ProductDetails = () => {
               <ShoppingCart size={20} />
               Add to Cart
             </button>
-            <button className="add-to-wishlist" onClick={handleAddToWishlist} disabled={!selectedFrameType || !selectedSubFrameType || !selectedSize}>
-              <Heart size={20} />
-              {Array.isArray(wishlist) && wishlist.some(
-                (item) =>
-                  item.productId._id === product._id &&
-                  item.frameType._id === selectedFrameType?._id &&
-                  item.subFrameType._id === selectedSubFrameType?._id &&
-                  item.size._id === selectedSize?._id
-              )
-                ? 'Remove from Wishlist'
-                : 'Add to Wishlist'}
-            </button>
+            <button
+  className="add-to-wishlist"
+  onClick={() => {
+    const inWishlist =
+      Array.isArray(wishlist) &&
+      wishlist.some(
+        (item) =>
+          item.productId._id === product._id &&
+          item.frameType._id === selectedFrameType?._id &&
+          item.subFrameType._id === selectedSubFrameType?._id &&
+          item.size._id === selectedSize?._id
+      );
+    if (inWishlist) {
+      handleRemoveFromWishlist(product);
+    } else {
+      handleAddToWishlist(product);
+    }
+  }}
+  disabled={!selectedFrameType || !selectedSubFrameType || !selectedSize}
+>
+  <Heart size={20} />
+  {Array.isArray(wishlist) &&
+  wishlist.some(
+    (item) =>
+      item.productId._id === product._id &&
+      item.frameType._id === selectedFrameType?._id &&
+      item.subFrameType._id === selectedSubFrameType?._id &&
+      item.size._id === selectedSize?._id
+  )
+    ? 'Remove from Wishlist'
+    : 'Add to Wishlist'}
+</button>
           </div>
         </div>
       </div>

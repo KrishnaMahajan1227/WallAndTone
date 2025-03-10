@@ -586,12 +586,11 @@
       height: 55vh;
       background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
       url('/src/assets/forBusiness/For-Business-banner.png');
-      background-size: contain;
+      background-size: auto;
       background-position: center center;
       display: flex;
       align-items: flex-end;
       padding: calc(var(--spacing-unit) * 2);
       animation: scaleIn 1s ease-out;
   }
-
   }

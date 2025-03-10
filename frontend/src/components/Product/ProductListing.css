@@ -358,8 +358,9 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
 }
 .product-image-wrapper.position-relative [src*=Main] {
   background: #e7e7e7;
-  padding: 1.5rem;
+  padding: 1rem;
   object-fit: contain !important;
+  box-shadow: 12px 12px 8px -7px #6b514991;
 }
 /* Responsive adjustments */
 @media (max-width: 576px) {
@@ -466,4 +467,7 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
   .product-listing .card-text {
     font-size: 13px;
   }
+  .regular-product-item .product-image-wrapper.position-relative {
+    height: 180px !important;
+}
 }

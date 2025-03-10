@@ -164,7 +164,7 @@ const ProductCard = ({ product }) => {
           </div>
 
           {/* Product Details */}
-          <div className="card-body text-center">
+          <div className="card-body">
             <h5 className="card-title product-title">{product.productName}</h5>
             <p className="card-text text-muted">
               Starting From Rs {product.startFromPrice}/-

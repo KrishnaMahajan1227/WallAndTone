@@ -684,24 +684,43 @@ const ProductListing = () => {
   const totalPages = Math.ceil(totalProducts / productsPerPage);
   const displayedProducts = randomizedProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
 
-  // Pagination controls
   const renderPagination = () => {
     let items = [];
     for (let number = 1; number <= totalPages; number++) {
       items.push(
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => setCurrentPage(number)}>
+        <Pagination.Item
+          key={number}
+          active={number === currentPage}
+          onClick={() => {
+            setCurrentPage(number);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        >
           {number}
         </Pagination.Item>
       );
     }
     return (
       <Pagination className="justify-content-center my-4">
-        <Pagination.Prev disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)} />
+        <Pagination.Prev
+          disabled={currentPage === 1}
+          onClick={() => {
+            setCurrentPage(currentPage - 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
         {items}
-        <Pagination.Next disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)} />
+        <Pagination.Next
+          disabled={currentPage === totalPages}
+          onClick={() => {
+            setCurrentPage(currentPage + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Pagination>
     );
   };
+  
 
   return (
     <div className="product-listing container">

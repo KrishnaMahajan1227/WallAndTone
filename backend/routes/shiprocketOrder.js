@@ -247,7 +247,7 @@ Additional Info: ${orderData.additional_info || ""}
     <body>
       <div class="container">
         <!-- Banner Image -->
-        <img src="https://res.cloudinary.com/dxpf8q672/image/upload/v1741429839/Email-ThankYou-Banner_ho2mmd.jpg" alt="Thank You Banner" class="banner" />
+        <img src="https://res.cloudinary.com/dxpf8q672/image/upload/v1741602994/Email-ThankYou-Banner_h8arah.png" alt="Thank You Banner" class="banner" />
         
         <!-- Header Section -->
         <div class="header">

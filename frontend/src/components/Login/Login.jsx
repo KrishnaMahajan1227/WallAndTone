@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet';
 import { UserContext } from '../../contexts/UserContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Login.css';

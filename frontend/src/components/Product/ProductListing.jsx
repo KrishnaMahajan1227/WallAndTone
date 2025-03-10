@@ -863,7 +863,7 @@ const ProductListing = () => {
           <Button variant="secondary" onClick={handleClearSelection}>
             Clear Selection
           </Button>
-          <Button variant="primary" onClick={applyFilters} className="ms-2">
+          <Button variant="primary" onClick={applyFilters} className="ms-2 view-result">
             View Result
           </Button>
         </div>

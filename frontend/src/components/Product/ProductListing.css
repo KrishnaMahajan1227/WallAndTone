@@ -167,13 +167,13 @@ button.category-button.active.d-flex p {
   gap: 15px;
 }
 button#sort-dropdown {
-  background-color: #E2D9D5;
+  background-color: #F2F2F2;
   border: none;
   color: #2D2D2D;
   gap: 4px;
 }
 .category-button {
-  background-color: #E2D9D5;
+  background-color: #F2F2F2;
   border: none;
   padding: 10px 20px;
 border-radius: 4px;
@@ -181,7 +181,7 @@ border-radius: 4px;
 }
 
 .category-button.active {
-  background-color: #E2D9D5;
+  background-color: #F2F2F2;
   align-items: center;
   gap: 10px;
 }
@@ -361,6 +361,25 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
   padding: 1rem;
   object-fit: contain !important;
   box-shadow: 12px 12px 8px -7px #6b514991;
+}
+.custom-offcanvas.offcanvas.offcanvas-start.show {
+  background: #F2F2F2;
+}
+.accordion-body {
+  background: #F2F2F2 !important;
+}
+.accordion-flush>.accordion-item>.accordion-header .accordion-button, .accordion-flush>.accordion-item>.accordion-header .accordion-button.collapsed {
+  border-radius: 0;
+  outline: none !important;
+  background: #F2F2F2 !important;
+}
+.accordion-button:focus{
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.view-result{
+  background-color: #2F231F !important;
 }
 /* Responsive adjustments */
 @media (max-width: 576px) {

@@ -64,8 +64,8 @@ const PersonalizeUpload = () => {
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) { // 50MB limit
-      setError("File size exceeds 50MB. Please upload a smaller image.");
+    if (file.size > 20 * 1024 * 1024) { // 20MB limit
+      setError("File size exceeds 20MB. Please upload a smaller image.");
       return;
     }
 

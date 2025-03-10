@@ -178,7 +178,7 @@ const uploadLocalToCloudinary = async (imagePath, publicId) => {
           public_id: publicId,
           folder: 'products',
           resource_type: 'image',
-          transformation: [{ quality: 'auto' }]
+          // transformation: [{ quality: 'auto' }]
         });
 
         if (!result || !result.secure_url) {

@@ -55,17 +55,28 @@ hr.separating-line {
   text-align: left;
 }
 
+.login-right {
+  height: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 .login-right h3 {
   font-size: 22px;
   font-weight: bold;
   margin-bottom: 10px;
   color: #333;
+  padding-left: 12px;
 }
 
 .login-right p {
   font-size: 14px;
   color: #555;
   margin-bottom: 20px;
+  max-width: 80%;
+  padding-left: 12px;
 }
 
 .explore-btn {
@@ -119,10 +130,7 @@ button.btn.explore-btn:hover {
 
   .login-left {
     padding-right: 0;
-    width: 100%;
+    width: 80%;
   }
 
-  .login-right {
-    text-align: center;
-  }
 }

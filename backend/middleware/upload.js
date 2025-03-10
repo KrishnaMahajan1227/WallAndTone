@@ -25,7 +25,6 @@ const storageCloudinary = new CloudinaryStorage({
       folder: 'products',
       public_id: `${fileName}-${timestamp}`,
       format: file.mimetype.split('/')[1],
-      transformation: [{ quality: 'auto' }]
     };
   }
 });
@@ -41,7 +40,6 @@ const personalizedStorageCloudinary = new CloudinaryStorage({
       folder: 'personalized_uploads',
       public_id: `personalized-${fileName}-${timestamp}`,
       format: file.mimetype.split('/')[1],
-      transformation: [{ quality: 'auto' }]
     };
   }
 });
@@ -178,7 +176,7 @@ const uploadLocalToCloudinary = async (imagePath, publicId) => {
           public_id: publicId,
           folder: 'products',
           resource_type: 'image',
-          // transformation: [{ quality: 'auto' }]
+          quality: "100",
         });
 
         if (!result || !result.secure_url) {

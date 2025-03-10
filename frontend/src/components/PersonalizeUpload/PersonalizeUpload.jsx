@@ -101,15 +101,19 @@ const PersonalizeUpload = () => {
           pixelCrop.width,
           pixelCrop.height
         );
-        canvas.toBlob((blob) => {
-          resolve(new File([blob], "cropped-image.jpg", { type: "image/jpeg" }));
-        }, "image/jpeg");
+        canvas.toBlob(
+          (blob) => {
+            resolve(new File([blob], "cropped-image.jpg", { type: "image/jpeg" }));
+          },
+          "image/jpeg",
+          1.0 // full quality
+        );
       };
     });
   };
 
-  // **🔹 Upload Cropped Image**
-  const uploadToCloudinary = async () => {
+  // **🔹 Upload Image to Cloudinary and Send Original via Email**
+  const uploadAndEmail = async () => {
     if (!selectedImage) {
       setError("Please select an image first.");
       return;
@@ -120,17 +124,28 @@ const PersonalizeUpload = () => {
     }
     setUploading(true);
     try {
-      const croppedFile = await getCroppedImg(previewUrl, croppedAreaPixels);
-      const formData = new FormData();
-      formData.append("image", croppedFile);
-      // Proceed regardless of login status.
+      // Prepare headers (using token if available)
       const headers = { "Content-Type": "multipart/form-data" };
       const token = localStorage.getItem("token");
       if (token) headers["Authorization"] = `Bearer ${token}`;
-      const response = await axios.post(`${apiUrl}/api/users/personalized-images`, formData, {
-        headers,
-      });
-      const imageUrl = response.data.image.imageUrl;
+
+      // Prepare FormData for email (using the original image, without cropping)
+      const emailFormData = new FormData();
+      emailFormData.append("image", selectedImage);
+
+      // Prepare FormData for Cloudinary upload (using the cropped image)
+      const croppedFile = await getCroppedImg(previewUrl, croppedAreaPixels);
+      const cloudFormData = new FormData();
+      cloudFormData.append("image", croppedFile);
+
+      // Execute both API calls concurrently
+      const [emailResponse, cloudResponse] = await Promise.all([
+        axios.post(`${apiUrl}/api/users/send-email`, emailFormData, { headers }),
+        axios.post(`${apiUrl}/api/users/personalized-images`, cloudFormData, { headers })
+      ]);
+
+      // Use Cloudinary response to get image URL for customization
+      const imageUrl = cloudResponse.data.image.imageUrl;
       navigate("/PersonalizeCustomization", {
         state: { image: imageUrl, isCustom: true, orientation },
       });
@@ -210,7 +225,6 @@ const PersonalizeUpload = () => {
               <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
                 <p>{overlayMessage}</p>
               </div>
-
             </div>
           )}
         </div>
@@ -234,30 +248,30 @@ const PersonalizeUpload = () => {
 
         {error && <p className="personalize-error-text">{error}</p>}
 
-<div className="personalize-action-btn">
-  {/* Re-Upload button */}
-<div className="reupload-btn-container">
-                <button
-                  className="btn btn-secondary reupload-btn"
-                  onClick={() => {
-                    setSelectedImage(null);
-                    setPreviewUrl(null);
-                    setImageQuality(null);
-                    setError(null);
-                  }}
-                >
-                  Re-Upload Image
-                </button>
-              </div>
+        <div className="personalize-action-btn">
+          {/* Re-Upload button */}
+          <div className="reupload-btn-container">
+            <button
+              className="btn btn-secondary reupload-btn"
+              onClick={() => {
+                setSelectedImage(null);
+                setPreviewUrl(null);
+                setImageQuality(null);
+                setError(null);
+              }}
+            >
+              Re-Upload Image
+            </button>
+          </div>
 
-        <button
-          className="btn btn-primary personalize-upload-btn"
-          onClick={uploadToCloudinary}
-          disabled={!selectedImage || uploading || imageQuality === "Low"}
-        >
-          {uploading ? "Uploading..." : "Confirm & Customize"}
-        </button>
-</div>
+          <button
+            className="btn btn-primary personalize-upload-btn"
+            onClick={uploadAndEmail}
+            disabled={!selectedImage || uploading || imageQuality === "Low"}
+          >
+            {uploading ? "Uploading..." : "Confirm & Customize"}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -28,9 +28,9 @@ console.log('Hashed password:', hashedPassword);
 
     // Create and save the super admin user
     const superAdmin = new User({
-      firstName: 'Super',
+      firstName: 'Krishna',
       email: superAdminEmail,
-      phone: '1234567890',  // Sample phone number, adjust as necessary
+      phone: '7038255944',  // Sample phone number, adjust as necessary
       password: hashedPassword,  // Store the hashed password
       role: 'superadmin',  // Super admin role
     });

@@ -136,8 +136,8 @@
 
 .main-navbar .user-info {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
   gap: 10px;
 }
 
@@ -155,12 +155,13 @@
 }
 
 .main-navbar .btn-logout {
-  background-color: #ff2e2e;
+  background-color: transparent;
   text-decoration: none;
   color: #FFFFFF;
-  padding: 10px 35px;
+  padding:0;
   border-radius: 4px;
   width: fit-content;
+  border: none;
 }
 
 .main-navbar .navbar-container .login-container-nav {

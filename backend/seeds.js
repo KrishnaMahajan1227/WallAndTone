@@ -4,8 +4,8 @@ const User = require('./models/user'); // Assuming the User model is already set
 require('dotenv').config();
 
 const createSuperAdmin = async () => {
-  const superAdminEmail = 'superadmin@example.com'; // Super admin email
-  const superAdminPassword = 'superadminpassword'; // Super admin password
+  const superAdminEmail = 'mahajankrishna2212@gmail.com'; // Super admin email
+  const superAdminPassword = 'Ramkrish1227@'; // Super admin password
 
   try {
     // Connect to the database

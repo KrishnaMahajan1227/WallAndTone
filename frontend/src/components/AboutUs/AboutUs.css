@@ -504,7 +504,7 @@ section.aboutus-production .aboutus-impact-content p {
 .aboutus-collection-text {
   order: 2;
 }
-.aboutus-container .aboutus-impact-content  h2 {
+.aboutus-container .aboutus-impact-content h2 {
   font-size: 30px;
   line-height: 38px;
   color: #FFFFFF;
@@ -546,12 +546,12 @@ section.aboutus-production .aboutus-impact-content p {
     color: #FFFFFF;
     text-shadow: none;
 }
-.aboutus-container .aboutus-impact-content  h2 {
+.aboutus-container .aboutus-impact-content h2 {
   font-size: 16px;
   line-height: 20px;
   color: #FFFFFF;
   font-weight: 500;
-  width: 50%;
+  width: 80%;
   text-align: center;
   margin: 0 auto;
 }
@@ -612,5 +612,10 @@ section.aboutus-production .aboutus-impact-content {
 }
 .img-sec {
   max-width: 100%;
+}
+.aboutus-impact-section p, section.aboutus-production .aboutus-impact-content p {
+  line-height: normal;
+  text-align: center;
+  max-width: 80%;
 }
 }

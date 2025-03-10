@@ -592,7 +592,7 @@ const ProductDetails = () => {
     <div className="product-details-container">
       <ProductSEO product={product} />
       <button className="back-button" onClick={() => navigate('/products')}>
-        <ArrowLeft size={21} /> Back to Products
+        <ArrowLeft size={21} /> Back
       </button>
       <div className="product-details">
         <div className="image-section">

@@ -326,7 +326,7 @@ const ProductListing = () => {
   })();
 
   useEffect(() => {
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1); // Reset to first page on filter or sort change
     navigate({ pathname: location.pathname, search: filterQuery }, { replace: true });
     const fetchProducts = async () => {
       try {
@@ -338,19 +338,21 @@ const ProductListing = () => {
         if (!data || !Array.isArray(data)) throw new Error('Invalid data received');
         setProducts(data);
         
-        // Check if a randomized order is already stored (only for the default filter, for example)
-        if (!filterQuery) {
+        // If a sort option is selected, sort the data; otherwise use random order for default view (if no filter applied)
+        if (sortOption !== "") {
+          const sorted = sortProducts(data);
+          setRandomizedProducts(sorted);
+        } else if (!filterQuery) {
           let storedOrder = localStorage.getItem('randomizedProductOrder');
           if (storedOrder) {
             storedOrder = JSON.parse(storedOrder);
-            // Reorder data based on stored order (filter out any missing products)
             const orderedData = storedOrder
               .map(id => data.find(product => product._id === id))
               .filter(product => product);
             setRandomizedProducts(orderedData);
           } else {
-            // Shuffle once and store the order (list of product IDs)
-            const randomized = shuffleArray(sortProducts(data));
+            // Shuffle and store order
+            const randomized = shuffleArray(data);
             setRandomizedProducts(randomized);
             localStorage.setItem(
               'randomizedProductOrder',
@@ -358,8 +360,8 @@ const ProductListing = () => {
             );
           }
         } else {
-          // If filters are applied, simply sort (or shuffle) without storing
-          setRandomizedProducts(shuffleArray(sortProducts(data)));
+          // If filters are applied but no sort option is chosen, you may simply set the products as is.
+          setRandomizedProducts(data);
         }
       } catch (err) {
         setError(err.message);
@@ -368,7 +370,8 @@ const ProductListing = () => {
       }
     };
     fetchProducts();
-  }, [filterQuery, apiUrl, location.pathname, navigate]);
+  }, [filterQuery, sortOption, apiUrl, location.pathname, navigate]);
+  
   
 
   // Fetch wishlist

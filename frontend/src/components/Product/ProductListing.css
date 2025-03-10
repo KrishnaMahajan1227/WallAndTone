@@ -83,7 +83,7 @@
   text-align: left;
   color: #666;
   margin: 0;
-  white-space: nowrap;
+  white-space: wrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -465,7 +465,7 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
   }
 
   .product-listing .card-text {
-    font-size: 13px;
+    font-size: 12px;
   }
   .regular-product-item .product-image-wrapper.position-relative {
     height: 180px !important;

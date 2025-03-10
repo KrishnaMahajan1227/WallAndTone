@@ -623,18 +623,7 @@ From sleek modern frames to timeless classics, let’s turn your walls into conv
         </div>
       </section>
 
-      <section className="homepage-live-preview">
-        <ImageContentComponent
-          image={LivePreviewHome}
-          heading="See the Perfect Fit Before You Commit"
-          description="No more guessing if that piece of art will look good in your room. Upload a photo of your wall, select your favorite frame, and see how the art transforms your space. It's the simplest way to ensure your new piece fits perfectly in your home, office, or business."
-          ctaText="Coming Soon !"
-          ctaLink="#"
-          reverse="yes"
-        />
-      </section>
-
-      <section className="homepage-Ai-creation">
+      <section className="homepage-Ai-creation mt-5">
         <ImageContentComponent
           image={AiCreationHome}
           heading="AI-Powered Art Creation"
@@ -643,6 +632,17 @@ From sleek modern frames to timeless classics, let’s turn your walls into conv
           ctaLink="/Ai Creation"
           onClick={handleAiCreationClick}
           openInPopup={true}
+          reverse="yes"
+        />
+      </section>
+
+      <section className="homepage-live-preview">
+        <ImageContentComponent
+          image={LivePreviewHome}
+          heading="See the Perfect Fit Before You Commit"
+          description="No more guessing if that piece of art will look good in your room. Upload a photo of your wall, select your favorite frame, and see how the art transforms your space. It's the simplest way to ensure your new piece fits perfectly in your home, office, or business."
+          ctaText="Coming Soon !"
+          ctaLink="#"
         />
       </section>
     </div>

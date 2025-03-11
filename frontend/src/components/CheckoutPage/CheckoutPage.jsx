@@ -131,7 +131,6 @@ const CheckoutPage = () => {
         description: "Order Payment",
         order_id: order.id,
         handler: async (response) => {
-          console.log("Payment Successful:", response);
           toast.success("Payment successful!");
 
           // Map each cart item to an order item with proper fallbacks.
@@ -187,7 +186,6 @@ const CheckoutPage = () => {
             );
 
             if (shiprocketResponse.data.success) {
-              console.log("Shiprocket Order Created:", shiprocketResponse.data);
               navigate("/order-confirmation", {
                 state: { orderResponse: shiprocketResponse.data.orderResponse },
               });

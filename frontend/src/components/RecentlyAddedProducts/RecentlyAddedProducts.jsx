@@ -22,8 +22,6 @@ const RecentlyAddedProducts = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/products`);
-        console.log("API Response:", response.data);
-
         if (Array.isArray(response.data)) {
           // Shuffle the products array randomly
           const shuffledProducts = response.data.sort(() => Math.random() - 0.5);

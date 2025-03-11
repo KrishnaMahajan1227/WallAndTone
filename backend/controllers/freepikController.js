@@ -10,7 +10,6 @@ const generateImage = async (req, res) => {
   }
 
   try {
-    console.log("Generating images for prompt:", prompt);
     const images = [];
 
     // Allowed style options
@@ -43,7 +42,6 @@ const generateImage = async (req, res) => {
       };
 
       // Log the payload for debugging
-      console.log("Request Payload:", JSON.stringify(requestPayload, null, 2));
 
       try {
         const response = await axios.post(

@@ -264,7 +264,6 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const productId = req.params.id;
-    console.log(`Fetching product with ID: ${productId}`);
 
     const product = await Product.findById(productId)
       .populate('frameTypes', 'name')
@@ -280,11 +279,9 @@ const getProductById = async (req, res) => {
       });
 
     if (!product) {
-      console.log(`Product with ID ${productId} not found`);
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    console.log(`Product with ID ${productId} found`);
     res.status(200).json(product);
   } catch (err) {
     console.error(`Error fetching product: ${err.message}`);
@@ -453,14 +450,10 @@ const deleteReview = async (req, res) => {
 
 const getProductSizes = async (req, res) => {
   try {
-    console.log('Getting product sizes for product ID:', req.params.productId);
     const product = await Product.findById(req.params.productId).populate('sizes');
-    console.log('Product found:', product);
     if (!product) {
-      console.log('Product not found');
       return res.status(404).json({ message: 'Product not found' });
     }
-    console.log('Sizes found:', product.sizes);
     res.status(200).json(product.sizes);
   } catch (err) {
     console.error(err);

@@ -96,7 +96,6 @@ const loginUser = async (req, res) => {
 
     // Compare entered password with stored hash using a model instance method.
     const isMatch = await user.matchPassword(password);
-    console.log('Password match result:', isMatch);
 
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });

@@ -79,7 +79,6 @@ const HomePage = () => {
 // Responsive BannerImages logic
 useEffect(() => {
   const updateBannerImages = () => {
-    console.log("Window width:", window.innerWidth);
     if (window.innerWidth <= 778) {
       setBannerImages([
         {

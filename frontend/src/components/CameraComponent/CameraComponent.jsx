@@ -335,7 +335,6 @@ const CameraComponent = () => {
   // When user selects a size, we parse its name (e.g. "8 x 12") to get the height-to-width ratio,
   // then calculate new dimensions using 30% of the preview container's width.
   const handleSizeSelect = (size) => {
-    console.log("Selected Size:", size);
     setSelectedSize(size);
     setProductDetails((prev) => ({ ...prev, size }));
     updateSelectedProductOptions({ size: size._id });
@@ -354,8 +353,6 @@ const CameraComponent = () => {
     const newWidth = containerWidth * 0.3; // 30% of container width
     const ratio = parseAspectRatioFromName(size.name);
     const newHeight = newWidth * ratio;
-
-    console.log("New Dimensions:", { newWidth, newHeight });
 
     setProductDimensions((prev) => {
       const updated = [...prev];

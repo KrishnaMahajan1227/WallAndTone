@@ -63,7 +63,6 @@ const FreepikImageGenerator = () => {
       const response = await axios.get(`${apiUrl}/api/prompts`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log('Fetched prompt data:', response.data);
       const prompts =
         response.data.remainingPrompts === undefined ||
         response.data.remainingPrompts === null
@@ -181,7 +180,6 @@ const FreepikImageGenerator = () => {
         (img) => img.imageUrl === image
       );
       if (!existingImage) {
-        console.log('Saving image before customization...');
         const base64Data = image.split(',')[1];
         const chunkSize = 5 * 1024 * 1024;
         const chunks = [];
@@ -189,7 +187,6 @@ const FreepikImageGenerator = () => {
           chunks.push(base64Data.slice(i, i + chunkSize));
         }
         for (let i = 0; i < chunks.length; i++) {
-          console.log(`Uploading chunk ${i + 1} of ${chunks.length}`);
           const response = await axios.post(
             `${apiUrl}/api/users/generated-images/chunk`,
             {
@@ -203,7 +200,6 @@ const FreepikImageGenerator = () => {
           );
           if (response.data.image && i === chunks.length - 1) {
             existingImage = response.data.image;
-            console.log('Image saved:', existingImage.imageUrl);
           }
         }
         await fetchUserGeneratedImages();

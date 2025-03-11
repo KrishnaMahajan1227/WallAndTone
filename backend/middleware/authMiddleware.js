@@ -50,7 +50,6 @@ const protectUser  = async (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
-      console.log(req.headers.authorization);
       return res.status(401).json({ message: 'Token has expired' });
     } else if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ message: 'Invalid token' });

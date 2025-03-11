@@ -392,7 +392,7 @@ const FreepikImageGenerator = () => {
           </div>
           <div className="freepik-generator__styling-row">
             <select name="style" value={styling.style} onChange={handleStylingChange} disabled={loading}>
-              <option value="">Select Style (optional)</option>
+              <option value="">Select Style</option>
               <option value="photo">Photo</option>
               <option value="digital-art">Digital Art</option>
               <option value="anime">Anime</option>

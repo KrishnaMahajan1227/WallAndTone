@@ -75,6 +75,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 0;
 }
 
 
@@ -302,7 +303,7 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
   align-items: center;
 }
 .product-listing .featured-product .card.product-card.large-card {
-  max-width: 400px;
+  max-width: 360px;
   overflow: hidden;
 
 }

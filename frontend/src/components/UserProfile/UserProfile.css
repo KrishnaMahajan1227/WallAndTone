@@ -27,13 +27,13 @@ ul.nav.nav-tabs.my-profile-page__tabs {
 }
 
 .my-profile-page__tabs button.nav-link:hover {
-  background-color: #4f2fbf !important;
+  background-color: #F2F2F2 !important;
   color: #FFFFFF !important;
   margin: 0 !important;
 }
 
 .my-profile-page__tabs button.nav-link.active {
-  background-color: #4f2fbf !important;
+  background-color: #2F231F !important;
   color: #FFFFFF !important;
  
 }

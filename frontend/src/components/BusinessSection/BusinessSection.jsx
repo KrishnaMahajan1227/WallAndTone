@@ -9,6 +9,7 @@ import ForBusinessbanner from '../../assets/forBusiness/For-Business-banner.png'
 import ForBusinessemail from '../../assets/forBusiness/For-Business-email.png';
 import ForBusinessshortlist from '../../assets/forBusiness/For-Business-shortlist.png';
 import ForBusinesswhatsappreach from '../../assets/forBusiness/For-Business-whatsapp-reach.png';
+import hearticonBusiness from '../../assets/icons/heart-icon-Business.png';
 
 const BusinessSection = () => {
   const [showThankYou, setShowThankYou] = useState(false);
@@ -148,17 +149,17 @@ const BusinessSection = () => {
           <div className="contact-methods">
             <div className="contact-method">
               <div className="contact-method-icon">
-                <img src={mailiconblack} alt="mail-icon-black" />
+                <img src={hearticonBusiness} alt="mail-icon-black" />
               </div>
               <div className="contact-method-text">
-                <p>Reach out to us using the chat bubble at the bottom of your screen.</p>
+                <p>Add your favorite prints to your cart.</p>
               </div>
               <div className="contact-method-samples">
                 <img src={ForBusinessshortlist} alt="For-Business-shortlist" />
               </div>
               <h4 className="contact-method-title">Shortlist your desired prints</h4>
               <p className="contact-method-description">
-                Navigate through our catalog (presently only on wallandtone.com) and select the prints you would like for your upcoming project.
+              Navigate through our catalog (presently only on wallandtone.com) and select the prints you would like for your upcoming project.
               </p>
             </div>
 
@@ -174,7 +175,7 @@ const BusinessSection = () => {
               </div>
               <h4 className="contact-method-title">Reach out to us</h4>
               <p className="contact-method-description">
-                Once you have selected your prints (wish-list / cart) send us a screenshot of the same via whatsapp or using the contact form.
+              Once you have selected your prints send us a screenshot of the same via whatsapp or using the contact form.
               </p>
             </div>
 
@@ -190,7 +191,7 @@ const BusinessSection = () => {
               </div>
               <h4 className="contact-method-title">Leave the rest to us</h4>
               <p className="contact-method-description">
-                Once we have received all the prints that you like, the team will go through the same and provide the best discount for you.
+              Once we have received all the prints that you like, the team will go through the same and provide the best discount for you.
               </p>
             </div>
           </div>

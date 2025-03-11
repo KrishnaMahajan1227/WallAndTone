@@ -41,13 +41,13 @@
 }
 
 .aboutus-tab-button:hover {
-  background-color: #E2D9D5;
-  transform: scale(1.02);
+  background-color: #F2F2F2;
 }
 
 .aboutus-tab-button.active {
-  background-color: #E2D9D5;
+  background-color: #2F231F;
   position: relative;
+  color: #FFFFFF;
 }
 
 .aboutus-tab-divider {
@@ -196,7 +196,7 @@ border-radius: 4px;
 /* Production Section */
 .aboutus-production {
   padding:0;
-  padding-bottom: 80px;
+  padding-bottom: 30px;
 }
 
 .aboutus-production a.cta-button {
@@ -336,7 +336,7 @@ border-radius: 4px;
     font-weight: 300;
     color: #2D2D2D;
     max-width: 600px;
-    margin: 10px 0 25px 0;
+    margin: 10px 0 10px 0;
 }
 .aboutus-production .aboutus-production-content-Paper-Matters ul.mt-2 li{
  list-style: disc;

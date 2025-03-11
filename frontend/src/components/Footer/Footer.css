@@ -1,20 +1,22 @@
 /* Base styles */
 .main-footer {
-    background-color: #2F231F;
-    color: #ffffff;
-    padding: 40px 0;
-    font-family: 'Inter', sans-serif;
-    width: 100%;
-    margin-top: auto;
-  }
+  background-color: #2F231F;
+  color: #ffffff;
+  padding: 40px 0;
+  width: 100%;
+  margin-top: auto;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
   
   .main-footer .footer-container {
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 0 20px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 40px;
+    justify-items: center;
   }
   
   .main-footer .footer-section {

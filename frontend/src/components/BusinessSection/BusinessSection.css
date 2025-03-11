@@ -169,8 +169,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: space-between;
-    gap: 1.5rem;
+    gap: 1rem;
     height: 42rem; /* Fixed height for consistency */
   }
   
@@ -200,7 +199,6 @@
   
   .business-section .contact-method-text {
     text-align: left;
-    flex: 1;
   }
   
   .business-section .contact-method-text p {
@@ -210,7 +208,7 @@
     color: var(--text-color);
     margin: 0;
     text-align: center;
-    /* min-height: 5rem; */
+    min-height: 5rem;
 }
   
   .business-section .contact-method-media {
@@ -223,10 +221,7 @@
   .business-section .contact-method-samples,
   .business-section .contact-method-illustration {
     width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    min-height: 12rem;
   }
   
   .business-section .contact-method-samples img,
@@ -559,7 +554,9 @@
     
     .business-section .contact-method {
       padding: 1.5rem;
-    }
+      justify-content: center;
+      align-items: center;
+  }
   
     .business-section .contact-method-text p,
     .business-section .contact-method-title,
@@ -567,6 +564,16 @@
       font-size: 18px;
       line-height: 28px;
     }
+    .business-section .contact-method-samples, .business-section .contact-method-illustration {
+      width: 100%;
+      min-height: 0;
+  }
+  .business-section .contact-method-text p {
+    min-height: 0rem;
+}
+.business-section .contact-method-title {
+  margin: 0;
+}
   }
   
   @media (max-width: 480px) {

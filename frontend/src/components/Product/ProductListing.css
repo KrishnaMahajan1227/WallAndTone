@@ -467,6 +467,7 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
 }
   .product-listing .regular-products {
     grid-template-columns: repeat(2, 1fr) !important; /* Keeps 2 per row */
+    justify-items: center;
   }
   .product-listing .remaining-products-container {
     grid-template-columns: repeat(2, 1fr) !important; /* Ensures 2 per row */
@@ -490,4 +491,5 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
   .regular-product-item .product-image-wrapper.position-relative {
     height: 180px !important;
 }
+
 }

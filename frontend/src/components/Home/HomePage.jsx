@@ -230,21 +230,7 @@ useEffect(() => {
                 style={{ color: "#5B2EFF" }}
               />
             </div>
-            <h2>Unlock AI Creation Magic!</h2>
-            <div
-              className="homepage-modal-subheader"
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: "0.5rem",
-                gap: "0.5rem",
-                color: "#555",
-              }}
-            >
-              <Lock size={16} />
-              <span>Exclusive AI Feature</span>
-            </div>
+            <h2>Unlock AI Creation Magic<br />FOR FREE !</h2>
           </div>
 
           <div
@@ -404,21 +390,7 @@ useEffect(() => {
                 style={{ color: "#E63946" }}
               />
             </div>
-            <h2>Personalize Your Wall Art!</h2>
-            <div
-              className="homepage-modal-subheader"
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: "0.5rem",
-                gap: "0.5rem",
-                color: "#555",
-              }}
-            >
-              <Lock size={16} />
-              <span>Exclusive Personalization</span>
-            </div>
+            <h2>Personalize Your Wall Art<br />FOR FREE !</h2>
           </div>
 
           <div

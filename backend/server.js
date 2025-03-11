@@ -35,7 +35,7 @@ const promptPaymentRoutes = require("./routes/promptPaymentRoutes");
 
 
 const compression = require('compression');
-app.use(compression());
+app.use(compression({ threshold: 0 })); // compress everything regardless of size
 
 // Middleware
 app.use(express.json({ limit: '50mb', extended: true }));

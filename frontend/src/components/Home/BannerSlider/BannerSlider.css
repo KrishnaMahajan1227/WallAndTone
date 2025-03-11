@@ -78,19 +78,19 @@
   border: none;
 }
 
-.slick-dots {
+.banner-slider-container .slick-dots {
   bottom: 20px !important;
   text-align: center !important;
   margin: auto !important;
 }
 
-.slick-dots li button:before {
-  color: #656565;
+.banner-slider-container .slick-dots li button:before {
+  color: #f2f2f2;
   font-size: 12px;
 }
 
-.slick-dots li.slick-active button:before {
-  color: #2F231F;
+.banner-slider-container .slick-dots li.slick-active button:before {
+  color: #FFFFFF;
 }
 
 @media(max-width:950px){

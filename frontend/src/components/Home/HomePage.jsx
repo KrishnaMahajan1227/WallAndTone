@@ -10,10 +10,11 @@ import BannerSlider from "./BannerSlider/BannerSlider";
 import CameraComponent from "../CameraComponent/CameraComponent";
 import RecentlyAddedProducts from "../RecentlyAddedProducts/RecentlyAddedProducts";
 import ImageContentComponent from "../ImageContentComponent/ImageContentComponent";
+
+// Imported images
 import LivePreviewHome from "../../assets/Home/Live-Preview-Home.png";
 import AiCreationHome from "../../assets/Home/Ai-Creation-Home.png";
 import ArtforEveryCorner from "../../assets/Home/Art-for-Every-Corner.png";
-
 import CreateYourWallArt from "../../assets/Home/create-your-Wall-art-home.png";
 import createyouwallartframehome from "../../assets/Home/create-you-wall-art-frame-home.png";
 
@@ -76,81 +77,79 @@ const HomePage = () => {
   );
 
   // Responsive BannerImages logic
-// Responsive BannerImages logic
-useEffect(() => {
-  const updateBannerImages = () => {
-    if (window.innerWidth <= 778) {
-      setBannerImages([
-        {
-          src: "/assets/banner-slider-images/Home-Banner-AI-Art-Mobile.png",
-          alt: "Responsive Home-Banner-AI-Art",
-          heading: "Create Your Own AI-Designed Art",
-          subheading:
-            "Design your wall, your way. We help you use AI to craft the perfect piece and make your space truly yours!",
-          ctaLink1: "/Ai Creation",
-          ctaText1: "Create Ai Art",
-          onClick: handleAiCreationClick,
-        },
-        {
-          src: "/assets/banner-slider-images/Home-Banner-Memories-Mobile.png",
-          alt: "Responsive Home-Banner-Memories",
-          heading: "Your Memories, Your Masterpiece",
-          subheading:
-            "Turn special moments into timeless art—because your walls deserve a personal touch.",
-          ctaLink1: "/Personalize",
-          ctaText1: "Create Your Wall Art",
-          onClick: handlePersonalizeClick,
-        },
-        {
-          src: "/assets/banner-slider-images/Home-Banner-ArtFor-Mobile.png",
-          alt: "Responsive Home-Banner-ArtFor",
-          heading: "Art for Every Wall, Every Mood",
-          subheading:
-            "Home, office, or cafe—whatever the space, we've got the perfect piece to match your vibe.",
-          ctaLink1: "/products",
-          ctaText1: "Explore Collection",
-        },
-      ]);
-    } else {
-      setBannerImages([
-        {
-          src: "/assets/banner-slider-images/Home-Banner-AI-Art.png",
-          alt: "Home-Banner-AI-Art",
-          heading: "Create Your Own AI-Designed Art",
-          subheading:
-            "Design your wall, your way. We help you use AI to craft the perfect piece and make your space truly yours!",
-          ctaLink1: "/Ai Creation",
-          ctaText1: "Create Ai Art",
-          onClick: handleAiCreationClick,
-        },
-        {
-          src: "/assets/banner-slider-images/Home-Banner-Memories.png",
-          alt: "Home-Banner-Memories",
-          heading: "Your Memories, Your Masterpiece",
-          subheading:
-            "Turn special moments into timeless art—because your walls deserve a personal touch.",
-          ctaLink1: "/Personalize",
-          ctaText1: "Create Your Wall Art",
-          onClick: handlePersonalizeClick,
-        },
-        {
-          src: "/assets/banner-slider-images/Home-Banner-ArtFor.png",
-          alt: "Home-Banner-ArtFor.png",
-          heading: "Art for Every Wall, Every Mood",
-          subheading:
-            "Home, office, or cafe—whatever the space, we've got the perfect piece to match your vibe.",
-          ctaLink1: "/products",
-          ctaText1: "Explore Collection",
-        },
-      ]);
-    }
-  };
+  useEffect(() => {
+    const updateBannerImages = () => {
+      if (window.innerWidth <= 778) {
+        setBannerImages([
+          {
+            src: "/assets/banner-slider-images/Home-Banner-AI-Art-Mobile.png",
+            alt: "Responsive Home-Banner-AI-Art",
+            heading: "Create Your Own AI-Designed Art",
+            subheading:
+              "Design your wall, your way. We help you use AI to craft the perfect piece and make your space truly yours!",
+            ctaLink1: "/Ai Creation",
+            ctaText1: "Create Ai Art",
+            onClick: handleAiCreationClick,
+          },
+          {
+            src: "/assets/banner-slider-images/Home-Banner-Memories-Mobile.png",
+            alt: "Responsive Home-Banner-Memories",
+            heading: "Your Memories, Your Masterpiece",
+            subheading:
+              "Turn special moments into timeless art—because your walls deserve a personal touch.",
+            ctaLink1: "/Personalize",
+            ctaText1: "Create Your Wall Art",
+            onClick: handlePersonalizeClick,
+          },
+          {
+            src: "/assets/banner-slider-images/Home-Banner-ArtFor-Mobile.png",
+            alt: "Responsive Home-Banner-ArtFor",
+            heading: "Art for Every Wall, Every Mood",
+            subheading:
+              "Home, office, or cafe—whatever the space, we've got the perfect piece to match your vibe.",
+            ctaLink1: "/products",
+            ctaText1: "Explore Collection",
+          },
+        ]);
+      } else {
+        setBannerImages([
+          {
+            src: "/assets/banner-slider-images/Home-Banner-AI-Art.png",
+            alt: "Home-Banner-AI-Art",
+            heading: "Create Your Own AI-Designed Art",
+            subheading:
+              "Design your wall, your way. We help you use AI to craft the perfect piece and make your space truly yours!",
+            ctaLink1: "/Ai Creation",
+            ctaText1: "Create Ai Art",
+            onClick: handleAiCreationClick,
+          },
+          {
+            src: "/assets/banner-slider-images/Home-Banner-Memories.png",
+            alt: "Home-Banner-Memories",
+            heading: "Your Memories, Your Masterpiece",
+            subheading:
+              "Turn special moments into timeless art—because your walls deserve a personal touch.",
+            ctaLink1: "/Personalize",
+            ctaText1: "Create Your Wall Art",
+            onClick: handlePersonalizeClick,
+          },
+          {
+            src: "/assets/banner-slider-images/Home-Banner-ArtFor.png",
+            alt: "Home-Banner-ArtFor",
+            heading: "Art for Every Wall, Every Mood",
+            subheading:
+              "Home, office, or cafe—whatever the space, we've got the perfect piece to match your vibe.",
+            ctaLink1: "/products",
+            ctaText1: "Explore Collection",
+          },
+        ]);
+      }
+    };
 
-  updateBannerImages();
-  window.addEventListener("resize", updateBannerImages);
-  return () => window.removeEventListener("resize", updateBannerImages);
-}, [handleAiCreationClick, handlePersonalizeClick]);
-
+    updateBannerImages();
+    window.addEventListener("resize", updateBannerImages);
+    return () => window.removeEventListener("resize", updateBannerImages);
+  }, [handleAiCreationClick, handlePersonalizeClick]);
 
   // Smooth fade-in animation styles (applied via a style tag)
   const modalAnimationStyles = (
@@ -223,13 +222,12 @@ useEffect(() => {
               className="homepage-modal-icon"
               style={{ marginBottom: "0.5rem" }}
             >
-              <Sparkles
-                className="sparkle-icon"
-                size={32}
-                style={{ color: "#5B2EFF" }}
-              />
+              <Sparkles size={32} style={{ color: "#5B2EFF" }} />
             </div>
-            <h2>Unlock AI Creation Magic<br />FOR FREE !</h2>
+            <h2>
+              Unlock AI Creation Magic
+              <br />FOR FREE !
+            </h2>
           </div>
 
           <div
@@ -240,10 +238,7 @@ useEffect(() => {
               Transform your ideas into stunning wall art with our AI-powered
               creation tools.
             </p>
-            <ul
-              className="homepage-modal-features"
-              style={{ listStyle: "none", padding: 0 }}
-            >
+            <ul style={{ listStyle: "none", padding: 0 }}>
               <li
                 style={{
                   marginBottom: "0.5rem",
@@ -282,12 +277,8 @@ useEffect(() => {
             </ul>
           </div>
 
-          <div
-            className="homepage-modal-buttons"
-            style={{ display: "flex", justifyContent: "space-around" }}
-          >
+          <div style={{ display: "flex", justifyContent: "space-around" }}>
             <button
-              className="homepage-btn-primary"
               onClick={() => {
                 setShowAiModal(false);
                 navigate("/login");
@@ -308,7 +299,6 @@ useEffect(() => {
               <ArrowRight size={16} />
             </button>
             <button
-              className="homepage-btn-secondary"
               onClick={() => setShowAiModal(false)}
               style={{
                 backgroundColor: "#fff",
@@ -379,17 +369,13 @@ useEffect(() => {
             className="homepage-modal-header"
             style={{ textAlign: "center", marginBottom: "1rem" }}
           >
-            <div
-              className="homepage-modal-icon"
-              style={{ marginBottom: "0.5rem" }}
-            >
-              <Heart
-                className="heart-icon"
-                size={32}
-                style={{ color: "#E63946" }}
-              />
+            <div style={{ marginBottom: "0.5rem" }}>
+              <Heart size={32} style={{ color: "#E63946" }} />
             </div>
-            <h2>Personalize Your Wall Art<br />FOR FREE !</h2>
+            <h2>
+              Personalize Your Wall Art
+              <br />FOR FREE !
+            </h2>
           </div>
 
           <div
@@ -399,10 +385,7 @@ useEffect(() => {
             <p>
               Bring your own inspiration or memories and let our experts create a unique wall art piece just for you.
             </p>
-            <ul
-              className="homepage-modal-features"
-              style={{ listStyle: "none", padding: 0 }}
-            >
+            <ul style={{ listStyle: "none", padding: 0 }}>
               <li
                 style={{
                   marginBottom: "0.5rem",
@@ -441,12 +424,8 @@ useEffect(() => {
             </ul>
           </div>
 
-          <div
-            className="homepage-modal-buttons"
-            style={{ display: "flex", justifyContent: "space-around" }}
-          >
+          <div style={{ display: "flex", justifyContent: "space-around" }}>
             <button
-              className="homepage-btn-primary"
               onClick={() => {
                 setShowPersonalizeModal(false);
                 navigate("/login");
@@ -467,7 +446,6 @@ useEffect(() => {
               <ArrowRight size={16} />
             </button>
             <button
-              className="homepage-btn-secondary"
               onClick={() => setShowPersonalizeModal(false)}
               style={{
                 backgroundColor: "#fff",
@@ -488,7 +466,7 @@ useEffect(() => {
 
   return (
     <div className="homepage">
-      {/* SEO Meta Tags for HomePage */}
+      {/* SEO Meta Tags and Preload Links for Critical Images */}
       <Helmet>
         <title>Wall & Tone | Home - Exclusive Wall Art & Decor</title>
         <meta
@@ -500,6 +478,7 @@ useEffect(() => {
           content="wall art, home decor, live preview, AI art, exclusive wall art, custom art"
         />
         <link rel="canonical" href="https://wallandtone.com/" />
+
         {/* Open Graph Tags */}
         <meta
           property="og:title"
@@ -515,6 +494,7 @@ useEffect(() => {
         />
         <meta property="og:url" content="https://wallandtone.com/" />
         <meta property="og:type" content="website" />
+
         {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta
@@ -529,6 +509,54 @@ useEffect(() => {
           name="twitter:image"
           content="https://wallandtone.com/assets/og-home.jpg"
         />
+
+        {/* Preload Banner Images for Desktop */}
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/banner-slider-images/Home-Banner-AI-Art.png"
+          media="(min-width: 779px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/banner-slider-images/Home-Banner-Memories.png"
+          media="(min-width: 779px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/banner-slider-images/Home-Banner-ArtFor.png"
+          media="(min-width: 779px)"
+        />
+
+        {/* Preload Banner Images for Mobile */}
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/banner-slider-images/Home-Banner-AI-Art-Mobile.png"
+          media="(max-width: 778px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/banner-slider-images/Home-Banner-Memories-Mobile.png"
+          media="(max-width: 778px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/banner-slider-images/Home-Banner-ArtFor-Mobile.png"
+          media="(max-width: 778px)"
+        />
+
+        {/* Preload Other Critical Images */}
+        <link rel="preload" as="image" href="/assets/og-home.jpg" />
+        <link rel="preload" as="image" href="/assets/Home/Art-for-Every-Corner.png" />
+        <link rel="preload" as="image" href="/assets/Home/create-your-Wall-art-home.png" />
+        <link rel="preload" as="image" href="/assets/Home/create-you-wall-art-frame-home.png" />
+        <link rel="preload" as="image" href="/assets/Home/Ai-Creation-Home.png" />
+        <link rel="preload" as="image" href="/assets/Home/Live-Preview-Home.png" />
       </Helmet>
 
       {showAiModal && <AiLoginModal />}
@@ -552,7 +580,6 @@ useEffect(() => {
               </button>
             </li>
           </ul>
-
           <div className="tab-content">
             <div className="tab-pane fade show active">
               <RecentlyAddedProducts />
@@ -565,9 +592,9 @@ useEffect(() => {
         <ImageContentComponent
           image={ArtforEveryCorner}
           heading="Art for Every Corner"
-          description="No more boring walls! Whether it’s your living room, office, café, hotel, or even that awkward empty hallway, the right wall art and frames can instantly transform any space. 
-Go bold with pop art, keep it classy with monochromes, or add a touch of nostalgia with vintage prints — whatever your vibe, we’ve got a piece for it. 
-From sleek modern frames to timeless classics, let’s turn your walls into conversation starters!"
+          description={`No more boring walls! Whether it’s your living room, office, café, hotel, or even that awkward empty hallway, the right wall art and frames can instantly transform any space. 
+Go bold with pop art, keep it classy with monochromes, or add a touch of nostalgia with vintage prints — whatever your vibe, we’ve got a piece for it.
+From sleek modern frames to timeless classics, let’s turn your walls into conversation starters!`}
           ctaText="Explore Collection"
           ctaLink="/products"
           reverse="yes"

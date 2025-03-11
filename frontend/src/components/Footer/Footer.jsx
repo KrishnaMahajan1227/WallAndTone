@@ -31,7 +31,7 @@ const Footer = () => {
             </li>
             <li>
               <address><p>Pl.No 18, 19, 20, First Floor, </p>
-                <p>Near BPCL, Jalgaon, 425001,</p> Maharashtra
+                <p>Near BPCL, MIDC, Jalgaon, 425001,</p> Maharashtra
                  </address>
             </li>
           </ul>

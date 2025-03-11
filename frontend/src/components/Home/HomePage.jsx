@@ -82,16 +82,6 @@ useEffect(() => {
     if (window.innerWidth <= 778) {
       setBannerImages([
         {
-          src: "/assets/banner-slider-images/Home-Banner-Memories-Mobile.png",
-          alt: "Responsive Home-Banner-Memories",
-          heading: "Your Memories, Your Masterpiece",
-          subheading:
-            "Turn special moments into timeless art—because your walls deserve a personal touch.",
-          ctaLink1: "/Personalize",
-          ctaText1: "Create Your Wall Art",
-          onClick: handlePersonalizeClick,
-        },
-        {
           src: "/assets/banner-slider-images/Home-Banner-AI-Art-Mobile.png",
           alt: "Responsive Home-Banner-AI-Art",
           heading: "Create Your Own AI-Designed Art",
@@ -100,6 +90,16 @@ useEffect(() => {
           ctaLink1: "/Ai Creation",
           ctaText1: "Create Ai Art",
           onClick: handleAiCreationClick,
+        },
+        {
+          src: "/assets/banner-slider-images/Home-Banner-Memories-Mobile.png",
+          alt: "Responsive Home-Banner-Memories",
+          heading: "Your Memories, Your Masterpiece",
+          subheading:
+            "Turn special moments into timeless art—because your walls deserve a personal touch.",
+          ctaLink1: "/Personalize",
+          ctaText1: "Create Your Wall Art",
+          onClick: handlePersonalizeClick,
         },
         {
           src: "/assets/banner-slider-images/Home-Banner-ArtFor-Mobile.png",
@@ -114,16 +114,6 @@ useEffect(() => {
     } else {
       setBannerImages([
         {
-          src: "/assets/banner-slider-images/Home-Banner-Memories.png",
-          alt: "Home-Banner-Memories",
-          heading: "Your Memories, Your Masterpiece",
-          subheading:
-            "Turn special moments into timeless art—because your walls deserve a personal touch.",
-          ctaLink1: "/Personalize",
-          ctaText1: "Create Your Wall Art",
-          onClick: handlePersonalizeClick,
-        },
-        {
           src: "/assets/banner-slider-images/Home-Banner-AI-Art.png",
           alt: "Home-Banner-AI-Art",
           heading: "Create Your Own AI-Designed Art",
@@ -132,6 +122,16 @@ useEffect(() => {
           ctaLink1: "/Ai Creation",
           ctaText1: "Create Ai Art",
           onClick: handleAiCreationClick,
+        },
+        {
+          src: "/assets/banner-slider-images/Home-Banner-Memories.png",
+          alt: "Home-Banner-Memories",
+          heading: "Your Memories, Your Masterpiece",
+          subheading:
+            "Turn special moments into timeless art—because your walls deserve a personal touch.",
+          ctaLink1: "/Personalize",
+          ctaText1: "Create Your Wall Art",
+          onClick: handlePersonalizeClick,
         },
         {
           src: "/assets/banner-slider-images/Home-Banner-ArtFor.png",

@@ -487,7 +487,7 @@ const FreepikImageGenerator = () => {
               <div className="freepik-generator-modal-body">
                 <div className="row">
                   {generatedImages.map((image, index) => (
-                    <div className="col-4 mb-4" key={index}>
+                    <div className="col-md-4 mb-4 col-sm12" key={index}>
                       <div className="card" onClick={() => handleImageSelect(image)}>
                         <img src={image} alt={`Generated art ${index}`} className="card-img-top" />
                       </div>

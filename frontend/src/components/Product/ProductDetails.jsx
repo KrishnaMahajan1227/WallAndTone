@@ -110,6 +110,18 @@ const ProductDetails = () => {
     }
   }, [availableCategories, selectedSizeCategory, isPosterFrame]);
 
+  // Ensure a valid size is selected when the size category changes.
+  useEffect(() => {
+    if (!isPosterFrame && selectedSizeCategory && groupedSizes[selectedSizeCategory]?.length > 0) {
+      const validSize = groupedSizes[selectedSizeCategory].find(
+        (s) => s._id === selectedSize?._id
+      );
+      if (!validSize) {
+        setSelectedSize(groupedSizes[selectedSizeCategory][0]);
+      }
+    }
+  }, [selectedSizeCategory, sizes, isPosterFrame, groupedSizes, selectedSize]);
+
   // Utility functions
   const calculateAverageRating = (reviews) => {
     if (!Array.isArray(reviews) || reviews.length === 0) return 0;
@@ -425,10 +437,13 @@ const ProductDetails = () => {
     }
     // Check if already in wishlist (using product id only)
     const inWishlist = wishlist.some(
-      item => item.productId && item.productId._id === prod._id
+      item => item.productId && item.productId._id === prod._id &&
+              item.frameType._id === selectedFrameType?._id &&
+              item.subFrameType._id === selectedSubFrameType?._id &&
+              item.size._id === selectedSize?._id
     );
     if (inWishlist) {
-      toast.info("Product is already in your wishlist!");
+      handleRemoveFromWishlist(product);
       return;
     }
     try {

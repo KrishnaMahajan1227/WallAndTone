@@ -7,7 +7,7 @@ import "./FreepikCustomization.css";
 // Use react-toastify for toast notifications
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-  
+
 const FreepikCustomization = () => {
   const apiUrl =
     import.meta.env.VITE_API_URL ||
@@ -155,19 +155,38 @@ const FreepikCustomization = () => {
     }, {});
   };
 
+  // Grouped sizes and available categories
+  const groupedSizes = groupSizesByCategory(sizes);
+  const categoryOrder = ["Small", "Medium", "Large", "Extra Large", "Poster"];
+  const availableCategories = Object.keys(groupedSizes).sort(
+    (a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
+  );
+
   // Set default size category for non-poster frames
   useEffect(() => {
     if (
       selectedFrameType &&
       selectedFrameType.name.toLowerCase() !== "poster"
     ) {
-      const grouped = groupSizesByCategory(sizes);
-      const categories = Object.keys(grouped);
-      if (categories.length > 0 && !selectedSizeCategory) {
-        setSelectedSizeCategory(categories[0]);
+      if (availableCategories.length > 0 && !selectedSizeCategory) {
+        setSelectedSizeCategory(availableCategories[0]);
       }
     }
-  }, [sizes, selectedSizeCategory, selectedFrameType]);
+  }, [sizes, selectedSizeCategory, selectedFrameType, availableCategories]);
+
+  // Ensure a valid size is selected when the size category changes
+  useEffect(() => {
+    if (selectedSizeCategory && groupedSizes[selectedSizeCategory]?.length > 0) {
+      const validSize = groupedSizes[selectedSizeCategory].find(
+        (s) => s._id === selectedSize?._id
+      );
+      if (!validSize) {
+        // Update to the first size in the new category if current selection is not valid
+        setSelectedSize(groupedSizes[selectedSizeCategory][0]);
+        localStorage.setItem("selectedSize", JSON.stringify(groupedSizes[selectedSizeCategory][0]));
+      }
+    }
+  }, [selectedSizeCategory, sizes]); 
 
   const calculateTotalPrice = () => {
     const framePrice = parseFloat(selectedFrameType?.price) || 0;
@@ -196,6 +215,7 @@ const FreepikCustomization = () => {
 
   const handleSizeSelect = (size) => {
     setSelectedSize(size);
+    localStorage.setItem("selectedSize", JSON.stringify(size));
   };
 
   const handleAddToCart = async () => {
@@ -297,13 +317,6 @@ const FreepikCustomization = () => {
       </div>
     );
 
-  // Group sizes by category for non-poster frames
-  const groupedSizes = groupSizesByCategory(sizes);
-  const categoryOrder = ["Small", "Medium", "Large", "Extra Large", "Poster"];
-  const availableCategories = Object.keys(groupedSizes).sort(
-    (a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
-  );
-
   return (
     <div className="freepik-customization product-details-container">
       {/* ToastContainer from react-toastify displays notifications */}
@@ -348,7 +361,7 @@ const FreepikCustomization = () => {
             <p>₹{calculateTotalPrice()}</p>
           </div>
           <div className="options-section">
-            {/* Frame Type remains as buttons */}
+            {/* Frame Type buttons */}
             <div className="frame-type-section">
               <div className="frame-type-buttons">
                 {frameTypes.map((frameType) => (

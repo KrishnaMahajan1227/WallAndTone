@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { Helmet } from "react-helmet";
 import "react-toastify/dist/ReactToastify.css";
 import "./PersonalizeCustomization.css";
-import RecentlyAddedProducts from '../RecentlyAddedProducts/RecentlyAddedProducts';
+import RecentlyAddedProducts from "../RecentlyAddedProducts/RecentlyAddedProducts";
 
 const PersonalizeCustomization = () => {
   const apiUrl =
@@ -33,7 +33,7 @@ const PersonalizeCustomization = () => {
   const [selectedFrameType, setSelectedFrameType] = useState(null);
   const [selectedSubFrameType, setSelectedSubFrameType] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
-  // For non-poster frame types, we allow grouping by size category.
+  // For non-poster frame types, allow grouping by size category.
   const [selectedSizeCategory, setSelectedSizeCategory] = useState("");
 
   // Helper: Determine size category from size name.
@@ -177,17 +177,31 @@ const PersonalizeCustomization = () => {
   const isPosterFrame =
     selectedFrameType && selectedFrameType.name.toLowerCase() === "poster";
 
-  // For non-poster frame types, set default size category.
+  // For non-poster frame types, group sizes by category.
   const groupedSizes = groupSizesByCategory(sizes);
   const categoryOrder = ["Small", "Medium", "Large", "Extra Large", "Poster"];
   const availableCategories = Object.keys(groupedSizes).sort(
     (a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
   );
+
+  // Set default size category for non-poster frames.
   useEffect(() => {
     if (!isPosterFrame && availableCategories.length > 0 && !selectedSizeCategory) {
       setSelectedSizeCategory(availableCategories[0]);
     }
   }, [availableCategories, selectedSizeCategory, isPosterFrame]);
+
+  // Ensure a valid size is selected when the size category changes.
+  useEffect(() => {
+    if (!isPosterFrame && selectedSizeCategory && groupedSizes[selectedSizeCategory]?.length > 0) {
+      const validSize = groupedSizes[selectedSizeCategory].find(
+        (s) => s._id === selectedSize?._id
+      );
+      if (!validSize) {
+        setSelectedSize(groupedSizes[selectedSizeCategory][0]);
+      }
+    }
+  }, [selectedSizeCategory, sizes, isPosterFrame, groupedSizes, selectedSize]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -245,9 +259,7 @@ const PersonalizeCustomization = () => {
               src={personalizedImage}
               alt="Uploaded Artwork"
               className={`generated-artwork ${
-                selectedFrameType?.name?.toLowerCase() === "acrylic"
-                  ? "acrylic-style"
-                  : ""
+                selectedFrameType?.name?.toLowerCase() === "acrylic" ? "acrylic-style" : ""
               }`}
             />
           </div>
@@ -259,7 +271,7 @@ const PersonalizeCustomization = () => {
             <p>Total Price: ₹{calculateTotalPrice()}</p>
           </div>
           <div className="options-section">
-            {/* Frame Type - stays as buttons */}
+            {/* Frame Type - remains as buttons */}
             <div className="frame-type-buttons">
               {frameTypes.map((frameType) => (
                 <button

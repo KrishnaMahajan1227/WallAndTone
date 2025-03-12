@@ -460,7 +460,7 @@ const FreepikImageGenerator = () => {
                   <div className="col-md-8">
                     <p>{prompt}</p>
                     <div className="row">
-                      <div className="col-md-12">
+                      <div className="col-md-12 action-btns">
                         <button type="button" className="btn btn-warning me-2" onClick={handleEditVision} disabled={customizing}>
                           Edit Vision
                         </button>

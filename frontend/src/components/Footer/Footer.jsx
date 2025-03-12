@@ -12,7 +12,7 @@ const Footer = () => {
           <h3 className="footer-heading">Customer Service</h3>
           <ul className="footer-links">
             <li><a href="/track-order">Track Your Order</a></li>
-            <li><a href="/orders">Orders</a></li>
+            {/* <li><a href="/orders">Orders</a></li> */}
             <li><NavLink to="/Shipping&Delivery">Shipping & Delivery</NavLink></li>
             <li><NavLink to="/Return&Exchange">Return & Exchange</NavLink></li>
             <li><NavLink to="/about us/">About Us</NavLink></li>

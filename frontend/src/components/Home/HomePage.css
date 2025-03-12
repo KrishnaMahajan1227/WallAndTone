@@ -328,6 +328,20 @@ border-radius: 4px;
 }
 
 @media(max-width:950px){
+  .homepage-modal-body li {
+    text-align: left;
+}
+  .loginModal-action-btns{
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    gap: 15px;
+  }
+  .homepage .banner-slider-container .slick-dots {
+    bottom: 0px !important;
+    text-align: center !important;
+    margin: auto !important;
+}
   .homepage-products-section .nav-tabs .nav-link {
     font-size: 16px;
     padding: 8px 16px;

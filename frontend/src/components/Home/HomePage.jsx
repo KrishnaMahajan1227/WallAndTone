@@ -244,7 +244,7 @@ const HomePage = () => {
                   marginBottom: "0.5rem",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
+                  justifyContent: "flex-start",
                   gap: "0.5rem",
                 }}
               >
@@ -256,7 +256,7 @@ const HomePage = () => {
                   marginBottom: "0.5rem",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
+                  justifyContent: "flex-start",
                   gap: "0.5rem",
                 }}
               >
@@ -267,7 +267,7 @@ const HomePage = () => {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
+                  justifyContent: "flex-start",
                   gap: "0.5rem",
                 }}
               >
@@ -277,7 +277,7 @@ const HomePage = () => {
             </ul>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-around" }}>
+          <div style={{ display: "flex", justifyContent: "space-around" }} className="loginModal-action-btns">
             <button
               onClick={() => {
                 setShowAiModal(false);
@@ -424,7 +424,7 @@ const HomePage = () => {
             </ul>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-around" }}>
+          <div style={{ display: "flex", justifyContent: "space-around" }} className="loginModal-action-btns">
             <button
               onClick={() => {
                 setShowPersonalizeModal(false);

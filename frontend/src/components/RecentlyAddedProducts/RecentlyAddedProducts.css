@@ -117,7 +117,9 @@
   text-align: center !important;
   margin: auto !important;
 }
-
+.recently-added-products-container .card img {
+  box-shadow: 12px 12px 8px -7px #6b514991;
+}
 /* 🟢 MOBILE RESPONSIVENESS */
 @media (max-width: 480px) {
   .recently-added-products-container .card {

@@ -218,7 +218,9 @@ const PersonalizeCustomization = () => {
         <meta property="og:url" content="https://wallandtone.com/personalize-customization" />
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
+      {/* ToastContainer ensures that toast notifications display */}
       <ToastContainer />
+
       <button className="back-button" onClick={() => navigate(-1)}>
         <ArrowLeft size={20} /> Back
       </button>
@@ -272,7 +274,7 @@ const PersonalizeCustomization = () => {
               ))}
             </div>
 
-            {/* For mobile: Sub-frame, Size, Quantity as dropdowns without extra labels */}
+            {/* For mobile: Sub-frame, Size, Quantity as dropdowns */}
             {isMobile ? (
               <>
                 <div className="dropdown-group">
@@ -358,7 +360,7 @@ const PersonalizeCustomization = () => {
                 </div>
               </>
             ) : (
-              // Desktop view: Keep original button groups.
+              // Desktop view: Use button groups
               <>
                 <div className="sub-frame-type-buttons">
                   {subFrameTypes.map((subFrameType) => (
@@ -440,12 +442,11 @@ const PersonalizeCustomization = () => {
         </div>
       </div>
 
-      <hr className='productDetails-spacing my-5'/>
+      <hr className="productDetails-spacing my-5" />
       <div className="recommendations mb-5">
         <h2>Recommendations</h2>
-        <RecentlyAddedProducts/>
+        <RecentlyAddedProducts />
       </div>
-
     </div>
   );
 };

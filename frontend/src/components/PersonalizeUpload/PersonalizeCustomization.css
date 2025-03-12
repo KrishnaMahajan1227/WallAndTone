@@ -205,7 +205,7 @@
 
 .personalize-customization .price-section {
   padding: 0;
-  background-color: #f9fafb;
+  background-color: transparent;
   border-radius: 4px;
   margin-bottom: 15px;
 }

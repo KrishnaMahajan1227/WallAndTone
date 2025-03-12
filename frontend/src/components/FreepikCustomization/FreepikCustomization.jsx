@@ -4,8 +4,10 @@ import { ArrowLeft, ShoppingCart, Heart, X } from "lucide-react";
 import axios from "axios";
 import { frameBackgrounds } from "../constants/frameImages";
 import "./FreepikCustomization.css";
-import { Modal, Button, Toast, ToastContainer } from "react-bootstrap";
-
+// Use react-toastify for toast notifications
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+  
 const FreepikCustomization = () => {
   const apiUrl =
     import.meta.env.VITE_API_URL ||
@@ -198,7 +200,7 @@ const FreepikCustomization = () => {
 
   const handleAddToCart = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
-      setAlertMessage("Please select all options before adding to cart");
+      toast.error("Please select all options before adding to cart");
       return;
     }
     try {
@@ -216,7 +218,7 @@ const FreepikCustomization = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.data.cart) {
-          setAlertMessage("Added to cart successfully!");
+          toast.success("Added to cart successfully!");
         } else {
           throw new Error("Invalid response from server");
         }
@@ -224,17 +226,17 @@ const FreepikCustomization = () => {
         const guestCart = JSON.parse(localStorage.getItem("guestCart") || "[]");
         const updatedCart = [...guestCart, cartItem];
         localStorage.setItem("guestCart", JSON.stringify(updatedCart));
-        setAlertMessage("Added to cart successfully!");
+        toast.success("Added to cart successfully!");
       }
     } catch (err) {
       console.error("Add to cart error:", err);
-      setAlertMessage(err.response?.data?.message || "Failed to add to cart");
+      toast.error(err.response?.data?.message || "Failed to add to cart");
     }
   };
 
   const handleAddToWishlist = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
-      setAlertMessage("Please select all options before adding to wishlist");
+      toast.error("Please select all options before adding to wishlist");
       return;
     }
     try {
@@ -263,15 +265,15 @@ const FreepikCustomization = () => {
           wishlistItem,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setAlertMessage("Added to wishlist successfully!");
+        toast.success("Added to wishlist successfully!");
       } else {
         const guestWishlist = JSON.parse(localStorage.getItem("guestWishlist") || "[]");
         const updatedWishlist = [...guestWishlist, wishlistItem];
         localStorage.setItem("guestWishlist", JSON.stringify(updatedWishlist));
-        setAlertMessage("Added to wishlist successfully!");
+        toast.success("Added to wishlist successfully!");
       }
     } catch (err) {
-      setAlertMessage("Failed to add to wishlist");
+      toast.error("Failed to add to wishlist");
       console.error(err);
     }
   };
@@ -304,6 +306,7 @@ const FreepikCustomization = () => {
 
   return (
     <div className="freepik-customization product-details-container">
+      {/* ToastContainer from react-toastify displays notifications */}
       <ToastContainer position="top-right" autoClose={3000} />
       <button className="back-button" onClick={() => navigate(-1)}>
         <ArrowLeft size={20} /> Back
@@ -342,7 +345,7 @@ const FreepikCustomization = () => {
             {prompt ? prompt : "Customize Your Artwork"}
           </h3>
           <div className="price-section">
-            <p>Total Price: ₹{calculateTotalPrice()}</p>
+            <p>₹{calculateTotalPrice()}</p>
           </div>
           <div className="options-section">
             {/* Frame Type remains as buttons */}
@@ -506,7 +509,7 @@ const FreepikCustomization = () => {
               </div>
             )}
 
-            {/* Quantity */}
+            {/* Quantity Section */}
             <div className="quantity-section">
               {isMobile ? (
                 <input

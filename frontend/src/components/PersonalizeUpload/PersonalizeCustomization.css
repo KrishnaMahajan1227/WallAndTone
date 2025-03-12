@@ -64,6 +64,11 @@
 .personalize-customization .image-section {
   flex: 1;
   position: relative;
+  background: #e7e7e7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
 }
 
 .personalize-customization .main-image-container {
@@ -95,9 +100,9 @@
 
 .personalize-customization .generated-artwork {
   position: relative;
-  width: 85%;
+  width: 64%;
   height: 85%;
-  object-fit: contain;
+  object-fit: cover;
   z-index: 0;
   margin: auto;
   display: block;
@@ -105,6 +110,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: 12px 12px 8px -7px #6b514991;
 }
 
 .personalize-customization .generated-artwork.acrylic-style {
@@ -120,7 +126,6 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
 
 .personalize-customization .info-section {
   flex: 1;
@@ -140,7 +145,7 @@
   flex-direction: column;
   gap: 1.5rem;
 }
-.personalize-customization .options-section h4{
+.personalize-customization .options-section h4 {
   font-size: 20px;
   margin: 0;
   font-weight: 400;
@@ -195,18 +200,19 @@
   border: 1px solid #654839;
   border-radius: 4px;
   font-size: 0.75rem;
+  margin: 0;
 }
 
 .personalize-customization .price-section {
-  margin: 2rem 0;
-  padding: 1rem;
+  padding: 0;
   background-color: #f9fafb;
   border-radius: 4px;
+  margin-bottom: 15px;
 }
 
-.personalize-customization .price-section h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
+.personalize-customization .price-section p {
+  font-size: 18px;
+  font-weight: 400;
   margin: 0;
 }
 
@@ -227,13 +233,13 @@
   font-size: 16px;
   font-weight: 500;
   transition: all 0.2s;
-  max-width: fit-content;
+  max-width: 50%;
 }
 
 .personalize-customization .add-to-cart {
-  background-color: #654839;
+  background-color: #2F231F;
   color: white;
-  border: 1px solid #654839;
+  border: 1px solid #2F231F;
 }
 
 .personalize-customization .add-to-cart:hover:not(:disabled) {
@@ -294,7 +300,14 @@
   display: flex;
   justify-content: space-between;
 }
-
+.personalize-customization .size-category-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 20px;
+}
+.personalize-customization .quantity-group {
+  margin-bottom: 20px;
+}
 @media (max-width: 930px) {
   .personalize-customization .customization-details {
     display: flex;
@@ -325,5 +338,25 @@
     display: grid;
     grid-template-columns: auto auto auto auto;
     gap: 6px;
+  }
+  .personalize-customization .options-section {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .customization-details .dropdown-group select.dropdown-select {
+    background: #654839;
+    color: #ffffff;
+    border: 1px solid #654839;
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+    border: 1px solid #654839;
+    max-width: 100%;
+    outline: none !important;
   }
 }

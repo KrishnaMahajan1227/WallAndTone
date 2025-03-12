@@ -57,12 +57,58 @@ const ProductDetails = () => {
   const [sizes, setSizes] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
 
+  // Grouping-related state (for non-poster frames)
+  const [selectedSizeCategory, setSelectedSizeCategory] = useState("");
+
   // Guest mode storage
   const guestWishlist = JSON.parse(localStorage.getItem('guestWishlist')) || [];
   const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
 
   // Computed wishlist count (use this in your header or nav component)
   const wishlistCount = wishlist.length;
+
+  // Helper: Determine size category from size name.
+  const getSizeCategory = (size) => {
+    if (size.name && size.name.includes("x")) {
+      const parts = size.name.split("x").map((part) => parseFloat(part.trim()));
+      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        const maxDim = Math.max(parts[0], parts[1]);
+        if (maxDim <= 10) return "Small";
+        if (maxDim <= 18) return "Medium";
+        if (maxDim <= 30) return "Large";
+        return "Extra Large";
+      }
+    }
+    return "Poster";
+  };
+
+  // Group sizes by category.
+  const groupSizesByCategory = (sizesArray) => {
+    return sizesArray.reduce((acc, size) => {
+      const category = getSizeCategory(size);
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(size);
+      return acc;
+    }, {});
+  };
+
+  const groupedSizes = groupSizesByCategory(sizes);
+  const categoryOrder = ["Small", "Medium", "Large", "Extra Large", "Poster"];
+  const availableCategories = Object.keys(groupedSizes).sort(
+    (a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
+  );
+
+  // Default category selection for non-poster frames.
+  const isPosterFrame =
+    selectedFrameType && selectedFrameType.name.toLowerCase() === "poster";
+
+  useEffect(() => {
+    if (!isPosterFrame && availableCategories.length > 0 && !selectedSizeCategory) {
+      setSelectedSizeCategory(availableCategories[0]);
+    }
+  }, [availableCategories, selectedSizeCategory, isPosterFrame]);
 
   // Utility functions
   const calculateAverageRating = (reviews) => {
@@ -560,18 +606,6 @@ const ProductDetails = () => {
     }
   };
 
-  // Example Wishlist Display in Header (if needed)
-  // <Link to="/wishlist" className="nav-button">
-  //   {wishlistCount > 0 ? (
-  //     <img src={wishlistIconUrl} alt="Wishlist" />
-  //   ) : (
-  //     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 20 20">
-  //       <path fill="#fff" d="m10.497 16.803l6.244-6.304a4.41 4.41 0 0 0-.017-6.187a4.306 4.306 0 0 0-6.135-.015l-.596.603l-.605-.61l-.1-.099a4.3 4.3 0 0 0-6.027.083c-1.688 1.705-1.68 4.476.016 6.189l6.277 6.34c.26.263.682.263.942 0M11.3 5a3.306 3.306 0 0 1 4.713.016a3.41 3.41 0 0 1 .016 4.78v.002l-6.004 6.06l-6.038-6.099c-1.313-1.326-1.314-3.47-.015-4.782a3.3 3.3 0 0 1 4.706.016l.96.97a.5.5 0 0 0 .711 0z"/>
-  //     </svg>
-  //   )}
-  //   {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
-  // </Link>
-
   if (loading)
     return (
       <div className="loader text-center d-flex justify-content-center my-5 ">
@@ -658,26 +692,22 @@ const ProductDetails = () => {
             </div>
           </div>
           <div className="options-section">
+            {/* Frame Type rendered as buttons for both mobile and desktop */}
+            <div className="frame-type-section">
+              <div className="frame-type-buttons d-flex">
+                {product.frameTypes?.map((frameType) => (
+                  <button
+                    key={frameType._id}
+                    className={`option-button ${selectedFrameType?._id === frameType._id ? 'active' : ''}`}
+                    onClick={() => handleFrameTypeSelect(frameType)}
+                  >
+                    {frameType.name}
+                  </button>
+                ))}
+              </div>
+            </div>
             {isMobile ? (
               <>
-                <div className="frame-type-dropdown">
-                  <select
-                    value={selectedFrameType?._id || ''}
-                    onChange={(e) => {
-                      const ft = product.frameTypes.find((ft) => ft._id === e.target.value);
-                      handleFrameTypeSelect(ft);
-                    }}
-                  >
-                    <option value="" disabled>
-                      Select Frame
-                    </option>
-                    {product.frameTypes?.map((ft) => (
-                      <option key={ft._id} value={ft._id}>
-                        {ft.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
                 {selectedFrameType && subFrameTypes.length > 0 && (
                   <div className="sub-frame-type-dropdown">
                     <select
@@ -699,41 +729,67 @@ const ProductDetails = () => {
                   </div>
                 )}
                 {selectedFrameType && sizes.length > 0 && (
-                  <div className="size-dropdown">
-                    <select
-                      value={selectedSize?._id || ''}
-                      onChange={(e) => {
-                        const sz = sizes.find((sz) => sz._id === e.target.value);
-                        handleSizeSelect(sz);
-                      }}
-                    >
-                      <option value="" disabled>
-                        Select Size
-                      </option>
-                      {sizes.map((sz) => (
-                        <option key={sz._id} value={sz._id}>
-                          {sz.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <>
+                    {isPosterFrame ? (
+                      <div className="size-dropdown">
+                        <select
+                          value={selectedSize?._id || ''}
+                          onChange={(e) => {
+                            const sz = sizes.find((sz) => sz._id === e.target.value);
+                            handleSizeSelect(sz);
+                          }}
+                        >
+                          <option value="" disabled>
+                            Select Size
+                          </option>
+                          {sizes.map((sz) => (
+                            <option key={sz._id} value={sz._id}>
+                              {sz.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="dropdown-group">
+                          <select
+                            className="dropdown-select"
+                            value={selectedSizeCategory}
+                            onChange={(e) => setSelectedSizeCategory(e.target.value)}
+                          >
+                            {availableCategories.map((cat) => (
+                              <option key={cat} value={cat}>
+                                {cat}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="dropdown-group">
+                          <select
+                            className="dropdown-select"
+                            value={selectedSize?._id || ''}
+                            onChange={(e) => {
+                              const sz = groupedSizes[selectedSizeCategory].find((s) => s._id === e.target.value);
+                              handleSizeSelect(sz);
+                            }}
+                          >
+                            <option value="" disabled>
+                              Select Size
+                            </option>
+                            {groupedSizes[selectedSizeCategory]?.map((sz) => (
+                              <option key={sz._id} value={sz._id}>
+                                {sz.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </>
+                    )}
+                  </>
                 )}
               </>
             ) : (
               <>
-                <div className="frame-type-section">
-                  <div className="frame-type-buttons d-flex">
-                    {product.frameTypes?.map((frameType) => (
-                      <button
-                        key={frameType._id}
-                        className={`option-button ${selectedFrameType?._id === frameType._id ? 'active' : ''}`}
-                        onClick={() => handleFrameTypeSelect(frameType)}
-                      >
-                        {frameType.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
                 {selectedFrameType && subFrameTypes.length > 0 && (
                   <div className="sub-frame-type-section">
                     <div className="sub-frame-type-buttons d-flex gap-2">
@@ -760,17 +816,44 @@ const ProductDetails = () => {
                 )}
                 {selectedFrameType && sizes.length > 0 && (
                   <div className="size-section">
-                    <div className="size-buttons">
-                      {sizes.map((sz) => (
-                        <button
-                          key={sz._id}
-                          className={`option-button ${selectedSize?._id === sz._id ? 'active' : ''}`}
-                          onClick={() => handleSizeSelect(sz)}
-                        >
-                          {sz.name}
-                        </button>
-                      ))}
-                    </div>
+                    {isPosterFrame ? (
+                      <div className="size-buttons">
+                        {sizes.map((sz) => (
+                          <button
+                            key={sz._id}
+                            className={`option-button ${selectedSize?._id === sz._id ? 'active' : ''}`}
+                            onClick={() => handleSizeSelect(sz)}
+                          >
+                            {sz.name}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <>
+                        <div className="size-category-buttons">
+                          {availableCategories.map((cat) => (
+                            <button
+                              key={cat}
+                              className={`option-button ${selectedSizeCategory === cat ? "active" : ""}`}
+                              onClick={() => setSelectedSizeCategory(cat)}
+                            >
+                              {cat}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="size-buttons">
+                          {groupedSizes[selectedSizeCategory]?.map((sz) => (
+                            <button
+                              key={sz._id}
+                              className={`option-button ${selectedSize?._id === sz._id ? "active" : ""}`}
+                              onClick={() => handleSizeSelect(sz)}
+                            >
+                              {sz.name}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </>
@@ -798,37 +881,37 @@ const ProductDetails = () => {
               Add to Cart
             </button>
             <button
-  className="add-to-wishlist"
-  onClick={() => {
-    const inWishlist =
-      Array.isArray(wishlist) &&
-      wishlist.some(
-        (item) =>
-          item.productId._id === product._id &&
-          item.frameType._id === selectedFrameType?._id &&
-          item.subFrameType._id === selectedSubFrameType?._id &&
-          item.size._id === selectedSize?._id
-      );
-    if (inWishlist) {
-      handleRemoveFromWishlist(product);
-    } else {
-      handleAddToWishlist(product);
-    }
-  }}
-  disabled={!selectedFrameType || !selectedSubFrameType || !selectedSize}
->
-  <Heart size={20} />
-  {Array.isArray(wishlist) &&
-  wishlist.some(
-    (item) =>
-      item.productId._id === product._id &&
-      item.frameType._id === selectedFrameType?._id &&
-      item.subFrameType._id === selectedSubFrameType?._id &&
-      item.size._id === selectedSize?._id
-  )
-    ? 'Remove from Wishlist'
-    : 'Add to Wishlist'}
-</button>
+              className="add-to-wishlist"
+              onClick={() => {
+                const inWishlist =
+                  Array.isArray(wishlist) &&
+                  wishlist.some(
+                    (item) =>
+                      item.productId._id === product._id &&
+                      item.frameType._id === selectedFrameType?._id &&
+                      item.subFrameType._id === selectedSubFrameType?._id &&
+                      item.size._id === selectedSize?._id
+                  );
+                if (inWishlist) {
+                  handleRemoveFromWishlist(product);
+                } else {
+                  handleAddToWishlist(product);
+                }
+              }}
+              disabled={!selectedFrameType || !selectedSubFrameType || !selectedSize}
+            >
+              <Heart size={20} />
+              {Array.isArray(wishlist) &&
+              wishlist.some(
+                (item) =>
+                  item.productId._id === product._id &&
+                  item.frameType._id === selectedFrameType?._id &&
+                  item.subFrameType._id === selectedSubFrameType?._id &&
+                  item.size._id === selectedSize?._id
+              )
+                ? 'Remove from Wishlist'
+                : 'Add to Wishlist'}
+            </button>
           </div>
         </div>
       </div>

@@ -386,7 +386,8 @@
 
 .product-details-container .frame-type-buttons .option-button,
 .product-details-container .sub-frame-type-buttons .option-button,
-.product-details-container .size-buttons .option-button {
+.product-details-container .size-buttons .option-button,
+.product-details-container .size-category-buttons .option-button{
   padding: 10px;
   border: 1px solid #654839;
   border-radius: 4px;
@@ -400,7 +401,8 @@
 
 .product-details-container .frame-type-buttons .option-button.active,
 .product-details-container .sub-frame-type-buttons .option-button.active,
-.product-details-container .size-buttons .option-button.active {
+.product-details-container .size-buttons .option-button.active,
+.product-details-container .size-category-buttons .option-button.active {
   background-color: #654839;
   color: #fff;
 }
@@ -690,10 +692,12 @@
     flex-wrap: wrap;
   }
   .product-details-container .options-section select {
-    background-color: #2F231F;
+    background-color: #654839;
     border-radius: 4px;
     padding: 10px;
     font-size: 14px;
+    outline: none !important;
+    max-width: fit-content;
   }
   .product-details-container .product-details-image.landscape[src*="Main"],
   .product-details-container .product-details-image.landscape[src*="Front"] {

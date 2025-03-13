@@ -71,7 +71,7 @@ const AboutContent = () => {
               <button className="aboutus-primary-button">Explore Collection</button>
             </div>
             <div className="img-sec">
-              <img src="https://res.cloudinary.com/dxpf8q672/image/upload/v1741849527/About-Turning-Canvases_xsxz2o.png" alt="about-turning-canvases" />
+              <img src={aboutturningcanvases} alt="about-turning-canvases" />
             </div>
           </div>
         </div>
@@ -82,7 +82,7 @@ const AboutContent = () => {
           <div className="aboutus-collection-grid">
             <div className="aboutus-collection-image">
               <img 
-                src="https://res.cloudinary.com/dxpf8q672/image/upload/v1741849528/About-Discover-Collection_ony6az.png" 
+                src={AboutDiscoverCollection} 
                 alt="About-Discover-Collection"
                 className="aboutus-gallery-image"
               />
@@ -169,7 +169,7 @@ const AboutContent = () => {
               </p>
             </div>
             <img 
-              src="https://res.cloudinary.com/dxpf8q672/image/upload/v1741849528/Empowering-change_jk9k1m.png"
+              src={Empoweringchange}
               alt="Happy children learning"
               className="aboutus-impact-image"
             />

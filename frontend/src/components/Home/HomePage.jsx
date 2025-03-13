@@ -82,7 +82,7 @@ const HomePage = () => {
       if (window.innerWidth <= 778) {
         setBannerImages([
           {
-            src: "/assets/banner-slider-images/Home-Banner-AI-Art-Mobile.png",
+            src: "/assets/banner-slider-images/Home-Banner-AI-Art-Mobile.webp",
             alt: "Responsive Home-Banner-AI-Art",
             heading: "Create Your Own AI-Designed Art",
             subheading:
@@ -114,7 +114,7 @@ const HomePage = () => {
       } else {
         setBannerImages([
           {
-            src: "/assets/banner-slider-images/Home-Banner-AI-Art.png",
+            src: "/assets/banner-slider-images/Home-Banner-AI-Art.webp",
             alt: "Home-Banner-AI-Art",
             heading: "Create Your Own AI-Designed Art",
             subheading:
@@ -124,7 +124,7 @@ const HomePage = () => {
             onClick: handleAiCreationClick,
           },
           {
-            src: "/assets/banner-slider-images/Home-Banner-Memories.png",
+            src: "/assets/banner-slider-images/Home-Banner-Memories.webp",
             alt: "Home-Banner-Memories",
             heading: "Your Memories, Your Masterpiece",
             subheading:
@@ -134,7 +134,7 @@ const HomePage = () => {
             onClick: handlePersonalizeClick,
           },
           {
-            src: "/assets/banner-slider-images/Home-Banner-ArtFor.png",
+            src: "/assets/banner-slider-images/Home-Banner-ArtFor.webp",
             alt: "Home-Banner-ArtFor",
             heading: "Art for Every Wall, Every Mood",
             subheading:
@@ -514,19 +514,19 @@ const HomePage = () => {
         <link
           rel="preload"
           as="image"
-          href="/assets/banner-slider-images/Home-Banner-AI-Art.png"
+          href="/assets/banner-slider-images/Home-Banner-AI-Art.webp"
           media="(min-width: 779px)"
         />
         <link
           rel="preload"
           as="image"
-          href="/assets/banner-slider-images/Home-Banner-Memories.png"
+          href="/assets/banner-slider-images/Home-Banner-Memories.webp"
           media="(min-width: 779px)"
         />
         <link
           rel="preload"
           as="image"
-          href="/assets/banner-slider-images/Home-Banner-ArtFor.png"
+          href="/assets/banner-slider-images/Home-Banner-ArtFor.webp"
           media="(min-width: 779px)"
         />
 
@@ -534,7 +534,7 @@ const HomePage = () => {
         <link
           rel="preload"
           as="image"
-          href="/assets/banner-slider-images/Home-Banner-AI-Art-Mobile.png"
+          href="/assets/banner-slider-images/Home-Banner-AI-Art-Mobile.webp"
           media="(max-width: 778px)"
         />
         <link

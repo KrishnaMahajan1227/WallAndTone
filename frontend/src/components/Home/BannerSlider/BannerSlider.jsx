@@ -48,7 +48,7 @@ const BannerSlider = ({ BannerImages, isLoggedIn }) => {
                 <div className="cta-buttons">
                   {image.onClick ? (
                     // If onClick exists, render a button that calls the provided handler.
-                    <button
+                    <button aria-hidden="true"
                       className="cta-button"
                       onClick={(e) => {
                         e.preventDefault();

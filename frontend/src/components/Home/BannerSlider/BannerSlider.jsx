@@ -45,10 +45,10 @@ const BannerSlider = ({ BannerImages, isLoggedIn }) => {
                 )}
                 <h2 className="slider-heading">{image.heading}</h2>
                 <p className="slider-subheading">{image.subheading}</p>
-                <div className="cta-buttons">
+                <div className="cta-buttons" aria-hidden="true">
                   {image.onClick ? (
                     // If onClick exists, render a button that calls the provided handler.
-                    <button aria-hidden="true"
+                    <button
                       className="cta-button"
                       onClick={(e) => {
                         e.preventDefault();

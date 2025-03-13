@@ -39,7 +39,7 @@ import TrackOrder from './components/TrackOrder/TrackOrder';
 import AdminOrders from './components/AdminOrders/AdminOrders';
 import OrderDetails from './components/AdminOrders/OrderDetails';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop'; // Import your new ScrollToTop component
-
+import AdminRoute from './components/AdminRoute'; // adjust the path as necessary
 function App() {
   const location = useLocation();
   const [isLivePreview, setIsLivePreview] = useState(false);
@@ -85,15 +85,43 @@ function App() {
                   <Route path="/custom-payment" element={<CustomPaymentPage />} />
                   <Route path="/order-confirmation" element={<OrderConfirmation />} />
                   <Route path="/track-order" element={<TrackOrder />} />
-                  {/* Admin Routes */}
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/dashboard/manageProducts" element={<ProductManager />} />
-                  <Route path="/dashboard/FrameTypeManagement" element={<FrameTypeManagement />} />
-                  <Route path="/dashboard/CouponAdmin" element={<CouponAdmin />} />
-                  <Route path="/dashboard/SizesAdmin" element={<SizesAdmin />} />
-                  <Route path="/admin/orders" element={<AdminOrders />} />
-                  <Route path="/admin/orders/:orderId" element={<OrderDetails />} />
-                </Routes>
+                 {/* Admin Routes (protected) */}
+                 <Route path="/dashboard" element={
+                    <AdminRoute>
+                      <Dashboard />
+                    </AdminRoute>
+                  } />
+                  <Route path="/dashboard/manageProducts" element={
+                    <AdminRoute>
+                      <ProductManager />
+                    </AdminRoute>
+                  } />
+                  <Route path="/dashboard/FrameTypeManagement" element={
+                    <AdminRoute>
+                      <FrameTypeManagement />
+                    </AdminRoute>
+                  } />
+                  <Route path="/dashboard/CouponAdmin" element={
+                    <AdminRoute>
+                      <CouponAdmin />
+                    </AdminRoute>
+                  } />
+                  <Route path="/dashboard/SizesAdmin" element={
+                    <AdminRoute>
+                      <SizesAdmin />
+                    </AdminRoute>
+                  } />
+                  <Route path="/admin/orders" element={
+                    <AdminRoute>
+                      <AdminOrders />
+                    </AdminRoute>
+                  } />
+                  <Route path="/admin/orders/:orderId" element={
+                    <AdminRoute>
+                      <OrderDetails />
+                    </AdminRoute>
+                  } />
+                   </Routes>
               </div>
               <Footer />
             </div>

@@ -37,7 +37,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-  <!-- Note: For dynamic product details, generate URLs for each product -->
+  <!-- For dynamic product details, consider generating individual URLs -->
   <url>
     <loc>https://wallandtone.com/product</loc>
     <changefreq>daily</changefreq>
@@ -94,22 +94,22 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://wallandtone.com/Privacy&Policy</loc>
+    <loc>https://wallandtone.com/Privacy&amp;Policy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://wallandtone.com/Terms&Conditions</loc>
+    <loc>https://wallandtone.com/Terms&amp;Conditions</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://wallandtone.com/Shipping&Delivery</loc>
+    <loc>https://wallandtone.com/Shipping&amp;Delivery</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://wallandtone.com/Return&Exchange</loc>
+    <loc>https://wallandtone.com/Return&amp;Exchange</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -160,5 +160,4 @@
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- For dynamic admin order details, generate individual URLs when possible -->
 </urlset>

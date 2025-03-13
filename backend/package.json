@@ -32,5 +32,8 @@
     "nodemon": "^3.1.7",
     "razorpay": "^2.9.6",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "glob": "^7.2.3"
   }
 }

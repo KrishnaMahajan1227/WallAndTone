@@ -6,7 +6,7 @@ import HistoryDropdown from '../History/HistoryDropdown';
 import { WishlistContext } from '../Wishlist/WishlistContext';
 import heartIcon from '../../assets/icons/heart-icon.svg';
 import heartIconFilled from '../../assets/icons/heart-icon-filled.svg';
-import filtericon from '../../assets/icons/filter-icon.png';
+import filtericon from '../../assets/icons/filter-icon.svg';
 import sorticon from '../../assets/icons/sort-icon.svg';
 import ListingSEO from './ListingSEO';
 import './ProductListing.css';

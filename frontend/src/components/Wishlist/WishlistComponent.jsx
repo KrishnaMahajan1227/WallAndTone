@@ -6,6 +6,7 @@ import heartIcon from "../../assets/icons/heart-icon.svg";
 import heartIconFilled from "../../assets/icons/heart-icon-filled.svg";
 import educationalImage from "../../assets/school-children-1.jpg"; // Replace with your image path
 import Footer from "../Footer/Footer";
+import loaderGif from '../../assets/icons/loader.gif';
 
 const WishlistComponent = () => {
   const apiUrl =
@@ -158,7 +159,9 @@ const WishlistComponent = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="loader text-center d-flex justify-content-center my-5 h-100vh">
+  <img src={loaderGif} alt="Loading..." className="img-fluid" />
+</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (

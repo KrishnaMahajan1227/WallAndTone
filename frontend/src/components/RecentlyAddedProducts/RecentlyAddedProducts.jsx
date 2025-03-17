@@ -6,6 +6,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./RecentlyAddedProducts.css";
+import loaderGif from '../../assets/icons/loader.gif';
 
 const RecentlyAddedProducts = () => {
   const apiUrl =
@@ -67,7 +68,9 @@ const RecentlyAddedProducts = () => {
     ],
   };
 
-  if (loading) return <div className="text-center my-5">Loading...</div>;
+  if (loading) return <div className="loader text-center d-flex justify-content-center my-5 h-100vh">
+  <img src={loaderGif} alt="Loading..." className="img-fluid" />
+</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (

@@ -38,10 +38,10 @@ import OrderConfirmation from './components/OrderConfirmation/OrderConfirmation'
 import TrackOrder from './components/TrackOrder/TrackOrder';
 import AdminOrders from './components/AdminOrders/AdminOrders';
 import OrderDetails from './components/AdminOrders/OrderDetails';
-import ScrollToTop from './components/ScrollToTop/ScrollToTop'; // Reset scroll position on route change
+import ScrollToTop from './components/ScrollToTop/ScrollToTop'; // Import your new ScrollToTop component
 import AdminRoute from './components/AdminRoute'; // adjust the path as necessary
 
-// Import Socket.IO client
+// Import Socket.IO client for forceLogout functionality
 import { io } from 'socket.io-client';
 
 function App() {
@@ -52,18 +52,19 @@ function App() {
     setIsLivePreview(location.pathname === "/livePreview");
   }, [location.pathname]);
 
-  // Socket.IO client integration to listen for "forceLogout" event from the server
+  // Socket.IO client integration for forceLogout event
   useEffect(() => {
-    // Replace with your server URL if not running on localhost:8080
-    const socket = io("http://localhost:8080"); 
-
+    // Replace with your actual server URL if needed.
+    const socket = io("https://wallandtone.com/");
+    
+    socket.on('connect', () => {
+      console.log('Socket connected:', socket.id);
+    });
+    
     socket.on('forceLogout', () => {
-      alert('Server ne update kiya hai. Aapko dubara login karna padega.');
-      // Yahan aap apna logout logic ya state clear kar sakte hain.
-      // For example, redirecting to the login page:
       window.location.href = '/login';
     });
-
+    
     return () => {
       socket.disconnect();
     };

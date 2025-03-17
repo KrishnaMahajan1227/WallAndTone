@@ -68,7 +68,7 @@ const server = http.createServer(app);
 // Initialize Socket.IO on the HTTP server
 const io = socketIo(server, {
   cors: {
-    origin: "*", // production mein aap is origin ko restrict kar sakte hain
+    origin: "*", // production mein is origin ko restrict kar sakte hain
     methods: ["GET", "POST"]
   }
 });
@@ -76,7 +76,6 @@ const io = socketIo(server, {
 // Socket connection event
 io.on('connection', (socket) => {
   console.log('New client connected: ' + socket.id);
-
   socket.on('disconnect', () => {
     console.log('Client disconnected: ' + socket.id);
   });
@@ -159,4 +158,10 @@ app.get('*', (req, res) => {
 // Start the server using the HTTP server (with Socket.IO)
 server.listen(port, () => {
   console.log(`🚀 Server is running on port ${port}`);
+  
+  // TEMPORARY: Force logout after 5 seconds for testing.
+  // Deployment script mein aap is call ko deployment ke baad trigger kar sakte hain.
+  setTimeout(() => {
+    notifyClientsToLogout();
+  }, 5000);
 });

@@ -33,7 +33,6 @@ const port = process.env.PORT || 8080;
 const promptRoutes = require("./routes/promptRoutes");
 const promptPaymentRoutes = require("./routes/promptPaymentRoutes");
 
-
 const compression = require('compression');
 app.use(compression({ threshold: 0 })); // compress everything regardless of size
 
@@ -58,8 +57,37 @@ mongoose
   .then(() => console.log('✅ Connected to MongoDB'))
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
+// ----------------------
+// NEW: Setup HTTP Server and Socket.IO
+const http = require('http'); // naya import
+const socketIo = require('socket.io'); // naya import
 
-  
+// Create HTTP server
+const server = http.createServer(app);
+
+// Initialize Socket.IO on the HTTP server
+const io = socketIo(server, {
+  cors: {
+    origin: "*", // production mein aap is origin ko restrict kar sakte hain
+    methods: ["GET", "POST"]
+  }
+});
+
+// Socket connection event
+io.on('connection', (socket) => {
+  console.log('New client connected: ' + socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected: ' + socket.id);
+  });
+});
+
+// Helper function to notify all clients (use this during deployment)
+function notifyClientsToLogout() {
+  io.emit('forceLogout');
+  console.log('Notified all clients to logout.');
+}
+// ----------------------
 
 // Routes
 app.use('/api', userRoutes);
@@ -114,15 +142,12 @@ const cloudinaryRoutes = require("./routes/cloudinaryRoutes");
 app.use("/api", cloudinaryRoutes);
 app.use("/api/orders", orderRoutes);
 
-
-
 // Payment Routes
 app.use("/api/payment", paymentRoutes);
 
 // Shiprocket Routes
 app.use("/api/shiprocket", shiprocketAuthRoute);
 app.use("/api/shiprocket", shiprocketOrderRoute);
-
 
 // Serve React Frontend (for production)
 const frontendPath = path.join(__dirname, '../frontend/dist');
@@ -131,8 +156,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-// Start the server
-app.listen(port, () => {
+// Start the server using the HTTP server (with Socket.IO)
+server.listen(port, () => {
   console.log(`🚀 Server is running on port ${port}`);
 });
-

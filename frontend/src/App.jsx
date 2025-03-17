@@ -38,8 +38,12 @@ import OrderConfirmation from './components/OrderConfirmation/OrderConfirmation'
 import TrackOrder from './components/TrackOrder/TrackOrder';
 import AdminOrders from './components/AdminOrders/AdminOrders';
 import OrderDetails from './components/AdminOrders/OrderDetails';
-import ScrollToTop from './components/ScrollToTop/ScrollToTop'; // Import your new ScrollToTop component
+import ScrollToTop from './components/ScrollToTop/ScrollToTop'; // Reset scroll position on route change
 import AdminRoute from './components/AdminRoute'; // adjust the path as necessary
+
+// Import Socket.IO client
+import { io } from 'socket.io-client';
+
 function App() {
   const location = useLocation();
   const [isLivePreview, setIsLivePreview] = useState(false);
@@ -47,6 +51,23 @@ function App() {
   useEffect(() => {
     setIsLivePreview(location.pathname === "/livePreview");
   }, [location.pathname]);
+
+  // Socket.IO client integration to listen for "forceLogout" event from the server
+  useEffect(() => {
+    // Replace with your server URL if not running on localhost:8080
+    const socket = io("http://localhost:8080"); 
+
+    socket.on('forceLogout', () => {
+      alert('Server ne update kiya hai. Aapko dubara login karna padega.');
+      // Yahan aap apna logout logic ya state clear kar sakte hain.
+      // For example, redirecting to the login page:
+      window.location.href = '/login';
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
     <>
@@ -85,8 +106,8 @@ function App() {
                   <Route path="/custom-payment" element={<CustomPaymentPage />} />
                   <Route path="/order-confirmation" element={<OrderConfirmation />} />
                   <Route path="/track-order" element={<TrackOrder />} />
-                 {/* Admin Routes (protected) */}
-                 <Route path="/dashboard" element={
+                  {/* Admin Routes (protected) */}
+                  <Route path="/dashboard" element={
                     <AdminRoute>
                       <Dashboard />
                     </AdminRoute>
@@ -121,7 +142,7 @@ function App() {
                       <OrderDetails />
                     </AdminRoute>
                   } />
-                   </Routes>
+                </Routes>
               </div>
               <Footer />
             </div>

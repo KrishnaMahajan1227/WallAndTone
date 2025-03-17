@@ -100,9 +100,9 @@
 
 .personalize-customization .generated-artwork {
   position: relative;
-  width: 64%;
-  height: 85%;
-  object-fit: cover;
+  width: 61%;
+  height: auto;
+  object-fit: contain;
   z-index: 0;
   margin: auto;
   display: block;
@@ -126,6 +126,19 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+.personalize-customization .generated-artwork.landscape-artwork.frame-type-style {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 61%;
+  height: auto;
+  object-fit: contain;
+  z-index: 0;
+  margin: auto;
+  display: block;
+}
+
 
 .personalize-customization .info-section {
   flex: 1;
@@ -165,17 +178,17 @@
   border-radius: 4px;
   font-size: 14px;
   transition: all 0.2s;
-  border: 1px solid #654839;
+  border: 1px solid #2F231F;
   background-color: #fff;
-  color: #654839;
+  color: #2F231F;
   width: fit-content;
   height: fit-content;
 }
 
 .personalize-customization .option-button.active {
-  background-color: #654839;
+  background-color: #2F231F;
   color: #fff;
-  border-color: #654839;
+  border-color: #2F231F;
 }
 
 .personalize-customization .option-button:not(.active):hover {
@@ -347,15 +360,14 @@
     margin-bottom: 20px;
   }
   .customization-details .dropdown-group select.dropdown-select {
-    background: #654839;
+    background: #2F231F;
     color: #ffffff;
-    border: 1px solid #654839;
+    border: 1px solid #2F231F;
     border-radius: 4px;
     padding: 0.5rem 0.75rem;
     border-radius: 4px;
     font-size: 0.75rem;
     transition: all 0.2s;
-    border: 1px solid #654839;
     max-width: 100%;
     outline: none !important;
   }

@@ -166,7 +166,7 @@ const Search = () => {
           <div className="row justify-content-center">
             <div className="col-lg-8 col-md-10 col-12">
               <div className="content">
-                <h2>Find the Perfect Art for Your Space</h2>
+                <h1>Find the Perfect Art for Your Space</h1>
                 <p>
                   Picking the right artwork is like choosing the perfect playlist—it should match your vibe! 
                   Whether you're looking for bold statement pieces or subtle elegance, we've got a curated 

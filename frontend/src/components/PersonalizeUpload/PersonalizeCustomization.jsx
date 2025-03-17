@@ -255,13 +255,21 @@ const PersonalizeCustomization = () => {
                   className="frame-background"
                 />
               )}
-            <img
-              src={personalizedImage}
-              alt="Uploaded Artwork"
-              className={`generated-artwork ${
-                selectedFrameType?.name?.toLowerCase() === "acrylic" ? "acrylic-style" : ""
-              }`}
-            />
+<img
+  src={personalizedImage}
+  alt="Uploaded Artwork"
+  className={`generated-artwork 
+    ${selectedOrientation === "landscape" ? "landscape-artwork" : ""} 
+    ${
+      selectedFrameType?.name?.toLowerCase() === "frame"
+        ? "frame-type-style"
+        : !["canvas", "poster"].includes(selectedFrameType?.name?.toLowerCase())
+        ? "acrylic-style"
+        : ""
+    }`}
+/>
+
+
           </div>
         </div>
 

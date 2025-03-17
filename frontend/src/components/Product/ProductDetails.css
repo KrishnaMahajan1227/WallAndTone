@@ -9,13 +9,18 @@
 .back-button {
   font-size: 16px;
   padding: 10px;
-  background-color: transparent;
   color: #2D2D2D;
   border: none;
   cursor: pointer;
   margin-bottom: 20px;
 }
-
+button.back-button {
+  background: #F2F2F2 !important;
+  max-width: fit-content;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
 .product-details {
   display: flex;
   flex-wrap: wrap;
@@ -224,7 +229,7 @@
 }
 
 .product-details .add-to-cart {
-  background-color: #44332d;
+  background-color: #2f231f;
   color: #FFFFFF;
   border-radius: 4px;
 }
@@ -389,11 +394,11 @@
 .product-details-container .size-buttons .option-button,
 .product-details-container .size-category-buttons .option-button{
   padding: 10px;
-  border: 1px solid #654839;
+  border: 1px solid #2f231f;
   border-radius: 4px;
   cursor: pointer;
   background-color: #fff;
-  color: #654839;
+  color: #2f231f;
   max-width: fit-content;
   margin: 10px 5px;
   font-size: 13px;
@@ -403,7 +408,7 @@
 .product-details-container .sub-frame-type-buttons .option-button.active,
 .product-details-container .size-buttons .option-button.active,
 .product-details-container .size-category-buttons .option-button.active {
-  background-color: #654839;
+  background-color: #2f231f;
   color: #fff;
 }
 
@@ -692,7 +697,7 @@
     flex-wrap: wrap;
   }
   .product-details-container .options-section select {
-    background-color: #654839;
+    background-color: #2F231F;
     border-radius: 4px;
     padding: 10px;
     font-size: 14px;

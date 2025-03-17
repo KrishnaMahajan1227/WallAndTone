@@ -30,19 +30,31 @@
   margin-bottom: 20px;
 }
 
-/* Upload Box */
+/* Default CSS: Jab koi image select nahi hui */
 .personalize-upload-box {
   position: relative;
   width: 100%;
   max-width: 100%;
-  height: 350px;
+  height: 450px;
   border: 2px dashed #ccc;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: url(https://res.cloudinary.com/dxpf8q672/image/upload/v1742201930/Group_165_ycujti.png);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* Jab image select ho jaye, tab yeh CSS apply hogi */
+.personalize-upload-box.has-image {
+  background: none;
   background-color: #fafafa;
+}
+.personalize-upload-placeholder {
+  color: #FFFFFF;
 }
 
 .personalize-upload-label {

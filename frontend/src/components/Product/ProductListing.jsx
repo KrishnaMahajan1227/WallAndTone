@@ -873,7 +873,7 @@ const ProductListing = () => {
         <div className="category-buttons d-flex align-items-center gap-2">
           <button className="category-button active d-flex" onClick={handleShowFilterOffcanvas}>
             <img src={filtericon} alt="Filter-Icon" />
-            <p>Filters By</p>
+            <p>Filter By</p>
           </button>
           <Dropdown>
             <Dropdown.Toggle variant="secondary" id="sort-dropdown" className="product-sorting d-flex align-items-center">

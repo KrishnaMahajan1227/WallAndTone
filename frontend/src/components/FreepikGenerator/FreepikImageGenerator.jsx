@@ -1,5 +1,5 @@
 // frontend/FreepikImageGenerator.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ChevronRight, X, Sparkles, Lock, ArrowRight } from 'lucide-react';
@@ -21,9 +21,12 @@ const FreepikImageGenerator = () => {
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
+  // Ref for prompt input field container
+  const promptInputRef = useRef(null);
+
   // Updated styling state: only size and style.
   const [styling, setStyling] = useState({
-    size: 'square_1_1',
+    size: 'traditional_3_4',
     style: '', // Allowed options: photo, digital-art, anime, painting, fantasy
   });
   const [showModal, setShowModal] = useState(false);
@@ -44,8 +47,6 @@ const FreepikImageGenerator = () => {
         return 'portrait';
       case 'classic_4_3':
         return 'landscape';
-      case 'square_1_1':
-        return 'square';
       default:
         return 'portrait';
     }
@@ -168,9 +169,19 @@ const FreepikImageGenerator = () => {
     setShowImageDetails(true);
   };
 
+  // Modified handleEditVision: modal band karke prompt input field par scroll aur focus set karein
   const handleEditVision = () => {
+    // Modal close kar dein
+    setShowModal(false);
     setShowImageDetails(false);
     setSelectedImage(null);
+    document.body.classList.remove('no-scroll');
+
+    // Thoda delay dene ke baad input field ke div par scroll aur focus karein
+    setTimeout(() => {
+      promptInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      promptInputRef.current?.querySelector('input')?.focus();
+    }, 100);
   };
 
   const handleCustomize = async (image) => {
@@ -369,10 +380,10 @@ const FreepikImageGenerator = () => {
       )}
 
       <div className="freepik-generator__header">
-        <h2>AI Art generator by Wall & Tone</h2>
+        <h1>AI Art generator by Wall & Tone</h1>
         <p>Use the power of limitless imagination to curate your own unique art prints!</p>
       </div>
-      <div className="freepik-generator__form">
+      <div className="freepik-generator__form" ref={promptInputRef}>
         <div className="freepik-generator__prompt">
           <input
             type="text"

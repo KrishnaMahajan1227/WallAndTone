@@ -194,40 +194,41 @@ const PersonalizeUpload = () => {
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
       <div className="personalize-upload-card">
-        <h2 className="text-center personalize-title">Personalized by You</h2>
+        <h1 className="text-center personalize-title">Personalized by You</h1>
         <p className="text-center personalize-subtitle">
           Transform your favorite photos into a <strong>WORK OF ART!</strong>
         </p>
 
-        <div className="personalize-upload-box">
-          {!previewUrl ? (
-            // If no image is selected, show the normal upload placeholder
-            <label className="personalize-upload-label">
-              <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
-              <div className="personalize-upload-placeholder">
-                <Upload size={50} className="upload-icon" />
-                <p className="upload-text">Upload Photo</p>
-                <span className="upload-support">Supported: PNG, JPG</span>
-              </div>
-            </label>
-          ) : (
-            // When an image is selected, show the Cropper component
-            <div className="personalize-preview-container">
-              <Cropper
-                image={previewUrl}
-                crop={crop}
-                zoom={zoom}
-                aspect={orientation === "portrait" ? 3 / 4 : 4 / 3}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-              />
-              <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
-                <p>{overlayMessage}</p>
-              </div>
-            </div>
-          )}
-        </div>
+        <div className={`personalize-upload-box ${previewUrl ? 'has-image' : ''}`}>
+  {!previewUrl ? (
+    // Agar koi image select nahi hui hai, to normal upload placeholder dikhayein
+    <label className="personalize-upload-label">
+      <input type="file" accept="image/*" className="d-none" onChange={handleFileChange} />
+      <div className="personalize-upload-placeholder">
+        <Upload size={50} className="upload-icon" />
+        <p className="upload-text">Upload Photo</p>
+        <span className="upload-support">Supported: PNG, JPG</span>
+      </div>
+    </label>
+  ) : (
+    // Jab image select ho jaye, to Cropper component dikhayein
+    <div className="personalize-preview-container">
+      <Cropper
+        image={previewUrl}
+        crop={crop}
+        zoom={zoom}
+        aspect={orientation === "portrait" ? 3 / 4 : 4 / 3}
+        onCropChange={setCrop}
+        onZoomChange={setZoom}
+        onCropComplete={onCropComplete}
+      />
+      <div className="quality-overlay" style={{ backgroundColor: qualityColor }}>
+        <p>{overlayMessage}</p>
+      </div>
+    </div>
+  )}
+</div>
+
 
         {previewUrl && (
           <div className="orientation-selection">

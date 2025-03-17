@@ -94,7 +94,9 @@
   font-weight: 600;
   color: #2F231F;
 }
-
+.product-listing .dropdown-toggle:after{
+display: none;
+}
 .product-listing .wishlist-icon {
   position: absolute;
   top: 10px;
@@ -172,11 +174,20 @@ button#sort-dropdown {
   border: none;
   color: #2D2D2D;
   gap: 4px;
+  font-size: 14px;
+  padding: 10px 20px 10px 15px;
+}
+.dropdown-menu.show {
+  display: block;
+  background-color: #F2F2F2;
+  color: #2D2D2D;
+  border: 1px solid transparent;
+  border-radius: 4px;
 }
 .category-button {
   background-color: #F2F2F2;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 20px 10px 15px;
 border-radius: 4px;
   cursor: pointer;
 }

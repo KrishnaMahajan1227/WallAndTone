@@ -163,5 +163,5 @@ server.listen(port, () => {
   // Deployment script mein aap is call ko deployment ke baad trigger kar sakte hain.
   setTimeout(() => {
     notifyClientsToLogout();
-  }, 5000);
+  }, 2000);
 });

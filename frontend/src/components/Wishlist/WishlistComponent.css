@@ -6,19 +6,27 @@
   max-width: 100%;
   margin: 0 auto;
   background-color: #f7f7f7;
-border-radius: 4px;
+  border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
 }
 
 /* Header */
 .wishlist-container .wishlist-header {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: bold;
   margin-bottom: 20px;
   text-align: left;
   color: #111;
   border-bottom: 1px solid #ddd;
   padding-bottom: 10px;
+  width: 100%;
+  text-align: center;
 }
 
 /* Empty Wishlist Message */
@@ -217,7 +225,9 @@ border-radius: 4px;
   .wishlist-container .wishlist-layout {
     flex-direction: column;
   }
-
+  .wishlist-container .wishlist-header {
+    font-size: 26px;
+  }
   .wishlist-container .wishlist-item {
     flex-direction: column;
     align-items: flex-start;

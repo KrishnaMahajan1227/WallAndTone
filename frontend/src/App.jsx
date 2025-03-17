@@ -54,15 +54,19 @@ function App() {
 
   // Socket.IO client integration for forceLogout event
   useEffect(() => {
-    // Replace with your actual server URL if needed.
-    const socket = io("https://wallandtone.com/");
+    // Use window.location.origin to connect to the current domain dynamically
+    const socket = io(window.location.origin);
     
     socket.on('connect', () => {
       console.log('Socket connected:', socket.id);
     });
     
     socket.on('forceLogout', () => {
-      window.location.href = '/login';
+      console.log('forceLogout event received');
+      // OPTIONAL: Clear authentication tokens or any stored user data if needed.
+      // localStorage.removeItem('token');
+      // Instead of redirecting to /login, we reload the page so that the app re-initializes.
+      window.location.reload();
     });
     
     return () => {

@@ -1,7 +1,7 @@
 /* Parent Wrapper */
 .camera-component {
   background-color: #f8f9fa;
-  min-height: 100vh;
+  /* height: 100vh; */
   animation: fadeIn 0.5s ease-out;
 }
 @keyframes fadeIn {
@@ -9,7 +9,7 @@
   to { opacity: 1; }
 }
 
-/* Header with logo and hamburger (mobile only) */
+/* Header */
 .camera-component .camera-header {
   display: flex;
   justify-content: space-between;
@@ -29,16 +29,12 @@
   font-size: 18px;
   border: none;
   background: none;
-  background-color: transparent;
-  max-width: fit-content;
   color: #e7e7e7;
 }
 .camera-component .hamburger-menu:hover {
-  background-color: transparent;
   color: #e7e7e7;
 }
 .camera-component .mobile-product-list-header button.btn.btn-outline-light {
-  max-width: fit-content;
   outline: none;
   border: none;
 }
@@ -49,7 +45,6 @@
   top: 0;
   left: 0;
   width: 100%;
-  max-width: 100%;
   height: 100%;
   background-color: #2F231F;
   z-index: 1050;
@@ -59,7 +54,6 @@
   opacity: 0;
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
-
 .camera-component .mobile-product-list-overlay.show {
   transform: translateX(0);
   opacity: 1;
@@ -70,7 +64,7 @@
   border-bottom: 1px solid #444;
 }
 
-/* Grid for product list: two columns on desktop and mobile overlay */
+/* Product Grid (2 columns) */
 .camera-component .products-scrollable .row.g-3.mx-0 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -78,11 +72,12 @@
   margin: 0;
 }
 
-/* LEFT PANEL (Desktop) */
+/* LEFT PANEL */
 .camera-component .camera-left-panel {
   background-color: #2F231F;
-  min-height: 100vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   padding: 0;
   position: relative;
 }
@@ -94,10 +89,12 @@
 .camera-component .logo-img {
   width: 120px;
 }
+/* Scrollable area */
 .camera-component .products-scrollable {
-  padding: 15px;
-  max-height: 100vh;
+  flex: 1;
   overflow-y: auto;
+  padding: 15px;
+  padding-bottom: 60px;
 }
 .camera-component .products-title {
   color: #fff;
@@ -113,7 +110,7 @@
   background-color: #3b2a25;
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   height: 100%;
 }
 .camera-component .product-image-wrapper {
@@ -135,17 +132,12 @@
   padding: 8px;
   text-align: center;
 }
-.camera-component .product-desc {
-  color: #e7e7e7;
-  font-size: 12px;
-  margin-top: 5px;
-}
 
 /* RIGHT PANEL: PREVIEW */
 .camera-component .camera-right-panel {
   background-color: #f8f9fa;
   position: relative;
-  min-height: 100vh;
+  /* height: 100vh; */
   overflow: hidden;
 }
 .camera-component .preview-container {
@@ -162,17 +154,17 @@
 .camera-component .preview-image,
 .camera-component .preview-video {
   width: 100%;
-  height: auto;
+  height: 100%;
   max-width: 100%;
   border-radius: 4px;
   object-fit: cover;
 }
 
-/* Overlay for live camera or no image */
+/* Preview Overlay */
 .camera-component .preview-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -191,7 +183,7 @@
   justify-content: center;
   gap: 10px;
   padding: 10px;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   z-index: 2;
   opacity: 0;
   transform: translateY(-10px);
@@ -208,16 +200,13 @@
   transform: translateY(0);
 }
 
-/* DRAGGABLE PRODUCT PREVIEW (UPDATED) */
+/* DRAGGABLE PRODUCT PREVIEW */
 .camera-component .selected-product {
   position: absolute;
   transform: translate(-50%, -50%);
   cursor: move;
   touch-action: none;
   animation: fadeIn 0.3s ease-out;
-  /* Ensure inline width/height from React are used */
-  width: auto !important;
-  height: auto !important;
 }
 .camera-component .product-on-wall {
   display: block;
@@ -245,10 +234,9 @@
 .camera-component .selected-product:hover .remove-from-preview {
   display: block;
 }
-
 .camera-component .product-title {
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 400;
   margin: 0;
   color: #FFFFFF;
 }
@@ -258,7 +246,7 @@
   right: 8px;
   width: 28px;
   height: 28px;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(141, 140, 140, 0.85);
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -275,7 +263,44 @@
   background-color: rgb(138, 12, 12);
 }
 
-/* RESPONSIVE ADJUSTMENTS */
+/* PAGINATION */
+.camera-component .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 15px auto;
+  padding: 0;
+  list-style: none;
+  width: auto;
+  row-gap: 1rem;
+}
+.camera-component .pagination .page-item {
+  margin: 0 5px;
+}
+.camera-component .pagination .page-link {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: #2F231F;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.camera-component .pagination .page-link:hover {
+  background-color: #e7e7e7;
+}
+.camera-component .pagination .page-item.active .page-link {
+  color: #fff;
+  background-color: #2F231F;
+  border-color: #2F231F;
+}
+.camera-component .pagination .page-item.disabled .page-link {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .camera-component .remove-from-preview {
     display: block !important;
@@ -308,7 +333,6 @@
   .camera-component .preview-controls.bottom button.btn {
     font-size: 10px;
     padding: 7px 15px;
-    max-width: fit-content;
     border-radius: 4px;
   }
 }
@@ -322,13 +346,13 @@
   margin-bottom: 5px;
 }
 .camera-component .form-select {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 .camera-component .product-details.p-3 .row.gx-2.gy-3.w-100 {
   align-items: flex-end;
 }
 
-/* Controls Bar at Bottom */
+/* Controls Bar */
 .camera-component .controls {
   margin-top: 20px;
   display: flex;
@@ -341,10 +365,10 @@
 .camera-component .controls button {
   padding: 10px 20px;
   border-radius: 4px;
-  transition: background-color 0.3s ease;
   background: #5a433c;
   border: none;
   color: #FFFFFF;
+  transition: background-color 0.3s ease;
 }
 .camera-component .controls button:hover {
   background: #2F231F;

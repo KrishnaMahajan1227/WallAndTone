@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Webcam from "react-webcam";
 import { Link, useNavigate } from "react-router-dom";
-import { Modal, Button, Toast, ToastContainer } from "react-bootstrap";
+import { Modal, Button, ToastContainer, Pagination } from "react-bootstrap";
 import { DraggableCore } from "react-draggable";
 import heartIcon from "../../assets/icons/heart-icon.svg";
 import heartIconFilled from "../../assets/icons/heart-icon-filled.svg";
@@ -21,7 +21,7 @@ const CameraComponent = () => {
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [productPositions, setProductPositions] = useState([]);
-  const [productDimensions, setProductDimensions] = useState([]); // Preview dimensions
+  const [productDimensions, setProductDimensions] = useState([]); // { width, height } per product
 
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
@@ -51,23 +51,30 @@ const CameraComponent = () => {
   const [showWebcam, setShowWebcam] = useState(false);
   const [showProductList, setShowProductList] = useState(false);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
+
+  // Track dragging status
+  const [isDragging, setIsDragging] = useState(false);
+
   const webcamRef = useRef(null);
   const fileInputRef = useRef(null);
-  // Ref for the preview container – is used to calculate new dimensions
   const previewContainerRef = useRef(null);
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  // Utility: Parse the aspect ratio from a string like "6 x 4"
-  const parseAspectRatioFromName = (name) => {
-    if (!name) return 1;
-    const parts = name.split("x");
-    if (parts.length < 2) return 1;
-    const parsedHeight = parseFloat(parts[0].trim());
-    const parsedWidth = parseFloat(parts[1].trim());
-    if (isNaN(parsedHeight) || isNaN(parsedWidth) || parsedWidth === 0) return 1;
-    return parsedHeight / parsedWidth; // height-to-width ratio
+  // Helper: Parse raw size values from a string like "6 x 4"
+  // Here the first number is interpreted as the height and the second as the width.
+  const parseSizeValues = (sizeName) => {
+    if (!sizeName) return [1, 1];
+    const parts = sizeName.split("x");
+    if (parts.length < 2) return [1, 1];
+    const rawHeight = parseFloat(parts[0].trim());
+    const rawWidth = parseFloat(parts[1].trim());
+    if (isNaN(rawHeight) || isNaN(rawWidth)) return [1, 1];
+    return [rawHeight, rawWidth];
   };
 
   // ------------------- FETCH DATA -------------------
@@ -251,7 +258,7 @@ const CameraComponent = () => {
   };
 
   const fetchSizes = async (productId) => {
-    // Sizes are derived from the selected frame type.
+    // Assume sizes are provided as part of frame type data.
   };
 
   const handleFrameTypeSelect = async (frameType) => {
@@ -332,52 +339,72 @@ const CameraComponent = () => {
   };
 
   // ------------------- UPDATED SIZE HANDLER -------------------
-  // When user selects a size, we parse its name (e.g. "8 x 12") to get the height-to-width ratio,
-  // then calculate new dimensions using 30% of the preview container's width.
+  // We now interpret the size string as: first number is the height and the second is the width.
+  // We then compute the preview dimensions by multiplying the raw values by a constant factor.
+  // This constant factor is chosen (e.g. 15px per unit) so that different sizes yield different dimensions.
+  // If the computed width exceeds a maximum (say, 50% of the preview container), we scale it down.
   const handleSizeSelect = (size) => {
     setSelectedSize(size);
     setProductDetails((prev) => ({ ...prev, size }));
     updateSelectedProductOptions({ size: size._id });
 
-    const productIndex = selectedProducts.findIndex(
-      (p) => p && p._id === selectedProduct._id
-    );
-    if (productIndex === -1) {
-      console.error("Selected product not found in selectedProducts");
+    const container = previewContainerRef.current;
+    if (!container) {
+      console.error("Preview container is not available");
       return;
     }
 
-    const containerWidth = previewContainerRef.current
-      ? previewContainerRef.current.offsetWidth
-      : window.innerWidth;
-    const newWidth = containerWidth * 0.3; // 30% of container width
-    const ratio = parseAspectRatioFromName(size.name);
-    const newHeight = newWidth * ratio;
+    // Use a constant multiplier (e.g., 15px per unit)
+    const baseMultiplier = 8;
+    const [rawHeight, rawWidth] = parseSizeValues(size.name);
+    let computedWidth = rawWidth * baseMultiplier;
+    let computedHeight = rawHeight * baseMultiplier;
 
-    setProductDimensions((prev) => {
-      const updated = [...prev];
-      updated[productIndex] = { width: newWidth, height: newHeight };
-      return updated;
-    });
+    // Optional: Clamp the computed width to not exceed 50% of container width.
+    const maxWidth = container.clientWidth * 0.5;
+    if (computedWidth > maxWidth) {
+      const scaleDown = maxWidth / computedWidth;
+      computedWidth = computedWidth * scaleDown;
+      computedHeight = computedHeight * scaleDown;
+    }
+
+    console.log(`Size "${size.name}" -> New dimensions: ${computedWidth}px (width) x ${computedHeight}px (height)`);
+
+    const productIndex = selectedProducts.findIndex(
+      (p) => p && p._id === selectedProduct._id
+    );
+    if (productIndex !== -1) {
+      setProductDimensions((prev) => {
+        const updated = [...prev];
+        updated[productIndex] = { width: computedWidth, height: computedHeight };
+        return updated;
+      });
+    }
   };
 
   // ------------------- WINDOW RESIZE LISTENER -------------------
   useEffect(() => {
     const handleResize = () => {
-      if (selectedProduct && selectedSize) {
-        const containerWidth = previewContainerRef.current
-          ? previewContainerRef.current.offsetWidth
-          : window.innerWidth;
+      if (isDragging) return;
+      if (selectedProduct && selectedSize && previewContainerRef.current) {
+        const container = previewContainerRef.current;
+        const baseMultiplier = 8;
         const productIndex = selectedProducts.findIndex(
           (p) => p && p._id === selectedProduct._id
         );
         if (productIndex !== -1) {
-          const newWidth = containerWidth * 0.3;
-          const ratio = parseAspectRatioFromName(selectedSize.name);
-          const newHeight = newWidth * ratio;
+          const [rawHeight, rawWidth] = parseSizeValues(selectedSize.name);
+          let computedWidth = rawWidth * baseMultiplier;
+          let computedHeight = rawHeight * baseMultiplier;
+          const maxWidth = container.clientWidth * 0.5;
+          if (computedWidth > maxWidth) {
+            const scaleDown = maxWidth / computedWidth;
+            computedWidth = computedWidth * scaleDown;
+            computedHeight = computedHeight * scaleDown;
+          }
           setProductDimensions((prev) => {
             const updated = [...prev];
-            updated[productIndex] = { width: newWidth, height: newHeight };
+            updated[productIndex] = { width: computedWidth, height: computedHeight };
             return updated;
           });
         }
@@ -387,10 +414,15 @@ const CameraComponent = () => {
     window.addEventListener("resize", handleResize);
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
-  }, [selectedProduct, selectedSize, selectedProducts]);
+  }, [selectedProduct, selectedSize, selectedProducts, isDragging]);
 
   // ------------------- DRAG & DROP -------------------
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
   const handleDragStop = (e, data, index) => {
+    setIsDragging(false);
     const updatedPositions = [...productPositions];
     updatedPositions[index] = { x: data.x, y: data.y };
     setProductPositions(updatedPositions);
@@ -569,6 +601,109 @@ const CameraComponent = () => {
     ));
   };
 
+  // --- Compute sortedProducts so order remains fixed ---
+  const sortedProducts = useMemo(() => {
+    const likedProductIds = wishlist.map((item) => item.productId?._id);
+    const likedProducts = products.filter((product) =>
+      likedProductIds.includes(product._id)
+    );
+    const otherProducts = products.filter(
+      (product) => !likedProductIds.includes(product._id)
+    );
+    const shuffleArray = (array) => {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    };
+    return [...shuffleArray(likedProducts), ...shuffleArray(otherProducts)];
+  }, [products, wishlist]);
+
+  // --- Compute displayedProducts for current page ---
+  const displayedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return sortedProducts.slice(startIndex, startIndex + pageSize);
+  }, [sortedProducts, currentPage, pageSize]);
+
+  // --- Truncated Pagination Rendering ---
+  const totalPages = Math.ceil(sortedProducts.length / pageSize);
+  const renderTruncatedPagination = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(
+          <Pagination.Item key={i} active={currentPage === i} onClick={() => setCurrentPage(i)}>
+            {i}
+          </Pagination.Item>
+        );
+      }
+    } else {
+      if (currentPage <= 4) {
+        for (let i = 1; i <= 5; i++) {
+          pages.push(
+            <Pagination.Item key={i} active={currentPage === i} onClick={() => setCurrentPage(i)}>
+              {i}
+            </Pagination.Item>
+          );
+        }
+        pages.push(<Pagination.Ellipsis key="e1" disabled />);
+        pages.push(
+          <Pagination.Item key={totalPages} onClick={() => setCurrentPage(totalPages)}>
+            {totalPages}
+          </Pagination.Item>
+        );
+      } else if (currentPage > totalPages - 4) {
+        pages.push(
+          <Pagination.Item key={1} onClick={() => setCurrentPage(1)}>
+            1
+          </Pagination.Item>
+        );
+        pages.push(<Pagination.Ellipsis key="e1" disabled />);
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pages.push(
+            <Pagination.Item key={i} active={currentPage === i} onClick={() => setCurrentPage(i)}>
+              {i}
+            </Pagination.Item>
+          );
+        }
+      } else {
+        pages.push(
+          <Pagination.Item key={1} onClick={() => setCurrentPage(1)}>
+            1
+          </Pagination.Item>
+        );
+        pages.push(<Pagination.Ellipsis key="e1" disabled />);
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(
+            <Pagination.Item key={i} active={currentPage === i} onClick={() => setCurrentPage(i)}>
+              {i}
+            </Pagination.Item>
+          );
+        }
+        pages.push(<Pagination.Ellipsis key="e2" disabled />);
+        pages.push(
+          <Pagination.Item key={totalPages} onClick={() => setCurrentPage(totalPages)}>
+            {totalPages}
+          </Pagination.Item>
+        );
+      }
+    }
+    return pages;
+  };
+
+  const renderPagination = () => (
+    <Pagination className="justify-content-center my-3">
+      <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+      <Pagination.Prev onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+      {renderTruncatedPagination()}
+      <Pagination.Next onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+      <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+    </Pagination>
+  );
+
+  // ------------------- PRODUCT CARD RENDERING -------------------
   const renderProductCard = (product, isLarge = false) => (
     <div className={`card product-card h-100 ${isLarge ? "large-card" : ""}`}>
       <div className="product-image-wrapper position-relative">
@@ -582,7 +717,10 @@ const CameraComponent = () => {
           className="wishlist-icon position-absolute"
           onClick={(e) => {
             e.stopPropagation();
-            if (wishlist && wishlist.some(item => item.productId && item.productId._id === product._id)) {
+            if (
+              wishlist &&
+              wishlist.some((item) => item.productId && item.productId._id === product._id)
+            ) {
               handleRemoveFromWishlist(product);
             } else {
               handleAddToWishlist(product);
@@ -591,7 +729,8 @@ const CameraComponent = () => {
         >
           <img
             src={
-              wishlist && wishlist.some(item => item.productId && item.productId._id === product._id)
+              wishlist &&
+              wishlist.some((item) => item.productId && item.productId._id === product._id)
                 ? heartIconFilled
                 : heartIcon
             }
@@ -601,7 +740,6 @@ const CameraComponent = () => {
       </div>
       <div className="card-body text-center d-flex flex-column">
         <h5 className="card-title product-title">{product.productName}</h5>
-        <p className="card-text text-muted">{product.description.slice(0, isLarge ? 150 : 100)}...</p>
         <p className="card-text text-muted">Starting From Rs {product.startFromPrice}/-</p>
       </div>
     </div>
@@ -619,8 +757,8 @@ const CameraComponent = () => {
   const calculateTotalPrice = () => {
     let total = 0;
     selectedProducts
-      .filter(p => p !== null)
-      .forEach(product => {
+      .filter((p) => p !== null)
+      .forEach((product) => {
         total += parseFloat(calculateItemPrice({ productId: product, quantity: 1 }));
       });
     return total.toFixed(2);
@@ -665,7 +803,7 @@ const CameraComponent = () => {
           </div>
           <div className="products-scrollable">
             <div className="row g-3 mx-0">
-              {products.map((product) => (
+              {displayedProducts.map((product) => (
                 <div
                   key={product._id}
                   className="col-12 product-card-wrapper"
@@ -689,6 +827,7 @@ const CameraComponent = () => {
                 </div>
               ))}
             </div>
+            <div className="d-flex justify-content-center">{renderPagination()}</div>
           </div>
         </div>
       )}
@@ -697,7 +836,7 @@ const CameraComponent = () => {
           <div className="products-scrollable">
             <h4 className="products-title">Select Product</h4>
             <div className="row g-3 mx-0">
-              {products.map((product) => (
+              {displayedProducts.map((product) => (
                 <div
                   key={product._id}
                   className="col-12 product-card-wrapper"
@@ -740,12 +879,12 @@ const CameraComponent = () => {
                     </div>
                     <div className="product-card-body">
                       <h5 className="product-title">{product.productName}</h5>
-                      <p className="product-desc">{product.description.slice(0, 60)}...</p>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
+            <div className="d-flex justify-content-center">{renderPagination()}</div>
           </div>
         </div>
         <div className="col-12 col-md-9 camera-right-panel">
@@ -818,9 +957,10 @@ const CameraComponent = () => {
                 </Button>
               </div>
             )}
-            {selectedProducts.filter(p => p !== null).map((product, index) => (
+            {selectedProducts.filter((p) => p !== null).map((product, index) => (
               <DraggableCore
                 key={`${product._id}-${productDimensions[index]?.width}-${productDimensions[index]?.height}`}
+                onStart={handleDragStart}
                 onStop={(e, data) => handleDragStop(e, data, index)}
                 onDrag={(e, data) => {
                   const updatedPositions = [...productPositions];
@@ -857,7 +997,6 @@ const CameraComponent = () => {
               </DraggableCore>
             ))}
           </div>
-
           {selectedProduct && (
             <div className="product-details p-3">
               <div className="row gx-2 gy-3 w-100">
@@ -902,9 +1041,7 @@ const CameraComponent = () => {
                   >
                     <option value="">Select Size</option>
                     {sizes.map(sz => (
-                      <option key={sz._id} value={sz._id}>
-                        {sz.name}
-                      </option>
+                      <option key={sz._id} value={sz._id}>{sz.name}</option>
                     ))}
                   </select>
                 </div>
@@ -914,7 +1051,6 @@ const CameraComponent = () => {
               </div>
             </div>
           )}
-
           {cart && cart.length > 0 && (
             <div className="sub-cart-popup">
               <div className="sub-cart-overlay" onClick={() => setCartMessage(null)} />
@@ -938,7 +1074,6 @@ const CameraComponent = () => {
               </div>
             </div>
           )}
-
           <div className="controls d-flex flex-wrap align-items-center gap-3 p-3">
             <div>
               <Button onClick={() => setWallImage('/assets/placeholder-wall.jpg')} variant="outline-primary">
@@ -954,7 +1089,6 @@ const CameraComponent = () => {
           </div>
         </div>
       </div>
-
       <Modal show={showAuthPopup} onHide={() => setShowAuthPopup(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Login Required</Modal.Title>

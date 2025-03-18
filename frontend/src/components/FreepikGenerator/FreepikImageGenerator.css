@@ -305,6 +305,7 @@ border-radius: 4px;
 .freepik-generator-modal-body p {
   color: #fff;
   margin-bottom: 1rem;
+  text-transform: capitalize;
 }
 
 .freepik-generator-modal-body .btn {
@@ -444,6 +445,14 @@ border-radius: 4px;
 }
 
 @media (max-width: 768px) {
+  .freepik-generator .col-md-12.action-btns {
+    row-gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    max-width: fit-content;
+    justify-content: center;
+    align-items: center;
+}
   .freepik-generator {
     padding: 1rem;
   }
@@ -464,6 +473,9 @@ border-radius: 4px;
   .freepik-generator-modal-body .col-md-8 {
     flex: 0 0 100%;
   }
+  .freepik-generator-modal-body .btn-warning {
+    margin: 0 !important;
+}
 }
 
 @media (max-width: 500px) {

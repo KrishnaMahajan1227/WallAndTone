@@ -34,22 +34,19 @@
 }
 
 /* Live Preview Exception */
-
 .Main-content.container-fluid.livePreview-active {
   margin-left: 0;
   width: 100%;
-  padding: 0 20px 0 20px;
-  padding-right: 0;
-  padding-bottom: 0;
+  padding: 0;
   min-height: 100vh;
   overflow-x: hidden;
-  padding-left: 0;
 }
-.Main-content.container-fluid.livePreview-active .container{
-  padding-left: 0;
+.Main-content.container-fluid.livePreview-active .container {
+  padding: 0;
   width: 100%;
   max-width: 100%;
 }
+
 
 /* Responsive Styles */
 @media (max-width: 991px) {

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import { WishlistContext } from '../Wishlist/WishlistContext';
 import { X, Sparkles, Lock, ArrowRight, Heart } from "lucide-react";
@@ -13,10 +13,16 @@ const Navbar = () => {
   const { user, logout } = useContext(UserContext);
   const { wishlistCount } = useContext(WishlistContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const [isNavOpen, setIsNavOpen] = useState(false);
   // Separate modal states for AI and Personalize
   const [showAiModal, setShowAiModal] = useState(false);
   const [showPersonalizeModal, setShowPersonalizeModal] = useState(false);
+
+  // Agar livepreview route hai to Navbar render na ho
+  if (location.pathname === '/livepreview') {
+    return null;
+  }
 
   const handleLogout = () => {
     logout();
@@ -130,7 +136,6 @@ const Navbar = () => {
               <Sparkles className="sparkle-icon" size={32} style={{ color: "#5B2EFF" }} />
             </div>
             <h2>Unlock AI Creation Magic<br />FOR FREE !</h2>
-
           </div>
 
           <div
@@ -285,8 +290,7 @@ const Navbar = () => {
             >
               <Heart className="heart-icon" size={32} style={{ color: "#E63946" }} />
             </div>
-            <h2>Personalize Your Wall Art <br />FOR FREE !
-            </h2>
+            <h2>Personalize Your Wall Art <br />FOR FREE !</h2>
           </div>
 
           <div
@@ -446,6 +450,14 @@ const Navbar = () => {
           Personalize
         </Link>
       </li>
+      <li className="nav-item">
+        <Link 
+          to="/livePreview" 
+          className="nav-link"
+        >
+          Live Preview
+        </Link>
+      </li>
     </>
   );
 
@@ -530,7 +542,6 @@ const Navbar = () => {
     <>
       <div className={`main-navbar-overlay ${isNavOpen ? 'show' : ''}`} onClick={() => setIsNavOpen(false)} />
       <nav className={`main-navbar ${isNavOpen ? 'show' : ''}`}>
-        {/* Render both modals if needed */}
         {showAiModal && <AiLoginModal />}
         {showPersonalizeModal && <PersonalizeLoginModal />}
         <div className="navbar-container">
@@ -558,20 +569,23 @@ const Navbar = () => {
             <div className="mobile-secondary-nav">
               <div className="nav-buttons">
                 <Link to="/cart" className="nav-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 512 512"><path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M80 176a16 16 0 0 0-16 16v216c0 30.24 25.76 56 56 56h272c30.24 0 56-24.51 56-54.75V192a16 16 0 0 0-16-16Zm80 0v-32a96 96 0 0 1 96-96h0a96 96 0 0 1 96 96v32"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 512 512">
+                    <path fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="32" d="M80 176a16 16 0 0 0-16 16v216c0 30.24 25.76 56 56 56h272c30.24 0 56-24.51 56-54.75V192a16 16 0 0 0-16-16Zm80 0v-32a96 96 0 0 1 96-96h0a96 96 0 0 1 96 96v32"/>
+                  </svg>
                 </Link>
                 <Link to="/wishlist" className="nav-button">
-  {wishlistCount > 0 ? (
-    <img 
-      src={wishlistIconUrl} 
-      alt="Wishlist" 
-    />
-  ) : (
-    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512"><path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81c-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0 0 18 0c96.26-65.34 184.09-143.09 183-252.42c-.54-52.67-42.32-96.81-95.08-96.81"/></svg>
-  )}
-  {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
-</Link>
-
+                  {wishlistCount > 0 ? (
+                    <img 
+                      src={wishlistIconUrl} 
+                      alt="Wishlist" 
+                    />
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
+                      <path fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="32" d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81c-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0 0 18 0c96.26-65.34 184.09-143.09 183-252.42c-.54-52.67-42.32-96.81-95.08-96.81"/>
+                    </svg>
+                  )}
+                  {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
+                </Link>
               </div>
             </div>
 
@@ -588,7 +602,9 @@ const Navbar = () => {
                     {user.firstName}
                   </p>
                   <button className="btn-logout btn btn-danger" onClick={handleLogout}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"/>
+                    </svg>
                   </button>
                 </div>
               ) : (

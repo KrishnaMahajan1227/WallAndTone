@@ -404,7 +404,7 @@ const Navbar = () => {
           className="nav-link"
           onClick={() => handleNavigation('products', 'Products')}
         >
-          Products
+          Our Collections
         </Link>
       </li>
       <li className="nav-item">

@@ -86,14 +86,14 @@
 
 .wishlist-button span.badge {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background-color: #dc3545;
+  top: -9px;
+  right: -9px;
+  background-color: #c42f3d;
   color: white;
-  border-radius: 50%;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  min-width: 1.5rem;
+  border-radius: 100%;
+  padding: 5px 6px;
+  font-size: 8px;
+  /* min-width: 1.2rem; */
   text-align: center;
 }
 

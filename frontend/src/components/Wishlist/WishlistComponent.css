@@ -222,6 +222,22 @@ border-radius: 4px;
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .educational-overlay {
+    top: 75%;
+}
+.wishlist-container .wishlist-item-title {
+  font-size: 18px;
+}
+.educational-overlay h2 {
+  font-size: 24px;
+  line-height: 34px;
+}
+p.wishlist-item-description {
+  font-size: 14px;
+}
+.wishlist-item-actions button.btn {
+  font-size: 12px;
+}
   .wishlist-container .wishlist-layout {
     flex-direction: column;
   }

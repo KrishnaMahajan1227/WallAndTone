@@ -156,13 +156,16 @@
 }
 
 .freepik-generator__styling select {
+  appearance: none;
   width: 100%;
   padding: 0.75rem;
   border: 2px solid #D0D0D0;
   border-radius: 0.5rem;
-  background: #fff;
   font-size: 0.875rem;
   transition: border-color 0.2s;
+  background: url('data:image/svg+xml;utf8,<svg fill="%23000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 10l4 4 4-4z"/></svg>') no-repeat left 10px center;
+  background-position: 95% 50%;
+  background-size: 16%;
 }
 
 .freepik-generator__styling select:focus {
@@ -333,6 +336,10 @@ border-radius: 4px;
   color: #FFFFFF;
   min-width: 120px;
 }
+.freepik-generator-modal-body .btn-info:hover {
+  background: #5B2EFF;
+  color: #FFFFFF;
+}
 
 .freepik-generator__customizing {
   display: flex;
@@ -494,15 +501,6 @@ border-radius: 4px;
   }
   .freepik-generator__styling-row {
     grid-template-columns: auto auto;
-}
-  .freepik-generator__styling select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 0.5rem;
-    background: #fff;
-    font-size: 12px;
-    transition: border-color 0.2s;
 }
 .freepik-generator__generate {
   padding: 8px 20px;

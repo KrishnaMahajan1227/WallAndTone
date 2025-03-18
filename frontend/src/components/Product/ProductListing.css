@@ -90,7 +90,6 @@
 }
 
 .product-listing .card-text:last-child {
-  margin-top: auto;
   font-weight: 600;
   color: #2F231F;
 }
@@ -316,7 +315,7 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
 .product-listing .featured-product .card.product-card.large-card {
   max-width: 360px;
   overflow: hidden;
-
+  height:98% !important
 }
 .featured-product .card.product-card.large-card .product-image-wrapper.position-relative {
   overflow: hidden;

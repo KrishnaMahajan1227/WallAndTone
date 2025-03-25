@@ -393,13 +393,7 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
 .view-result{
   background-color: #2F231F !important;
 }
-/* Responsive adjustments */
-@media (max-width: 576px) {
-  .product-listing .pagination .page-link {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.9rem;
-  }
-}
+
 
 /* Responsive Design */
 @media (max-width: 1400px) {
@@ -459,6 +453,10 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
   .product-listing .featured-product {
     padding: 0 10px;
   }
+  .product-listing .wishlist-icon img {
+    width: 30px;
+    height: 30px;
+}
 }
 
 @media (max-width: 576px) {
@@ -501,6 +499,10 @@ button.btn.btn-outline-secondary.btn-sm.ms-2 {
   }
   .regular-product-item .product-image-wrapper.position-relative {
     height: 180px !important;
+}
+.product-listing .pagination .page-link {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
 }
 
 }

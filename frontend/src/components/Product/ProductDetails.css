@@ -153,6 +153,9 @@ button.back-button {
   padding: 6px 4px;
   font-size: 14px;
   color: #FFFFFF;
+  appearance: none;
+  background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjZmZmIiBkPSJtNyAxMGw1IDVsNS01eiIvPjwvc3ZnPg==") no-repeat right 10px center;
+  background-size: 16px;
 }
 
 .product-title {
@@ -693,9 +696,10 @@ button.back-button {
   .product-details-container .options-section {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    column-gap: 22px;
+    row-gap: 10px;
     flex-wrap: wrap;
-  }
+}
   .product-details-container .options-section select {
     background-color: #2F231F;
     border-radius: 4px;

@@ -728,7 +728,7 @@ const ProductDetails = () => {
                       }}
                     >
                       <option value="" disabled>
-                        Select SubFrame
+                        Material
                       </option>
                       {subFrameTypes.map((st) => (
                         <option key={st._id} value={st._id}>

@@ -140,6 +140,7 @@
   align-items: center;
   width: 100%;
   position: relative;
+  justify-content: center;
 }
 .slider-arrow {
   background: none;
@@ -181,7 +182,7 @@
   border-color: #5b2eff;
 }
 .style-slider-item img {
-  max-width: 80px;
+  max-width: 100%;
   display: block;
   margin: 0 auto 5px;
   border-radius: 4px;
@@ -214,7 +215,7 @@
 }
 .action-container .freepik-generator__generate {
   flex: none;
-  padding: 1rem;
+  padding: 0.75rem;
   background: #5b2eff;
   color: #fff;
   border: none;
@@ -484,10 +485,5 @@
   .slider-arrow {
     font-size: 1.5rem;
     padding: 0 5px;
-  }
-  /* Adjust orientation dropdown appearance if needed */
-  .action-container select {
-    background: url('/assets/arrow-down.png') no-repeat right 10px center;
-    background-size: 16px;
   }
 }

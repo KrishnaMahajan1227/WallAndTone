@@ -3,7 +3,7 @@ h3.product-title {
   text-transform: capitalize;
 }
 .freepik-customization {
-  padding: 20px;
+  padding: 20px 0;
   font-family: Arial, sans-serif;
 }
 
@@ -128,7 +128,7 @@ h3.product-title {
 
 .freepik-customization  .generated-artwork.acrylic-style {
   position: relative;
-  width: 63%;
+  width: 61.5%;
   height: 100%;
   object-fit: contain;
   z-index: 0;

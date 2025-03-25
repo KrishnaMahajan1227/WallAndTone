@@ -90,6 +90,9 @@ border-radius: 4px;
   overflow: hidden;
   margin-right: 15px;
 }
+button.btn.btn-primary.wishlist-quick-view-btn {
+  background: #5b2eff;
+}
 
 .wishlist-container .wishlist-item-image {
   width: 100%;

@@ -280,7 +280,7 @@ border-radius: 4px;
 
 .filter-chip.d-flex.align-items-center {
   background-color: #d4c7c799;
-  padding: 2px 9px;
+  padding: 5px 9px;
   border-radius: 4px;
   text-align: center;
   max-width: fit-content;

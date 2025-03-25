@@ -390,7 +390,8 @@ const FreepikImageGenerator = () => {
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Enter your prompt"
+            placeholder="Write your prompt in detail for best result. 
+eg: Brown dog walking in a park on a bright sunny day. "
             disabled={loading}
           />
         </div>

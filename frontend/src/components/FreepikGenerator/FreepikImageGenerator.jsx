@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronRight, X, Sparkles, Lock, ArrowRight } from 'lucide-react';
+import { ChevronRight, X, Sparkles, Lock } from 'lucide-react';
 import './FreepikImageGenerator.css';
 import { Helmet } from 'react-helmet';
 
@@ -21,13 +21,14 @@ const FreepikImageGenerator = () => {
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  // Ref for prompt input field container
+  // Refs for prompt input and slider container.
   const promptInputRef = useRef(null);
+  const sliderRef = useRef(null);
 
-  // Updated styling state: only size and style.
+  // Styling state.
   const [styling, setStyling] = useState({
     size: 'traditional_3_4',
-    style: '', // Allowed options: photo, digital-art, anime, painting, fantasy
+    style: '', // Allowed: photo, digital-art, anime, painting, fantasy
   });
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -35,12 +36,21 @@ const FreepikImageGenerator = () => {
   const [remainingPrompts, setRemainingPrompts] = useState(10);
   const [showPromptLimitModal, setShowPromptLimitModal] = useState(false);
 
-  // State for first-visit welcome modal.
+  // First-visit welcome modal.
   const [showWelcomeModal, setShowWelcomeModal] = useState(
     !localStorage.getItem('visitedFreepik')
   );
 
-  // Compute orientation based on styling.size
+  // Slider options for style selection (placeholder removed).
+  const styleOptions = [
+    { value: 'photo', label: 'Photo', image: '/assets/photo-style.png' },
+    { value: 'digital-art', label: 'Digital Art', image: '/assets/digital-art-style.png' },
+    { value: 'anime', label: 'Anime', image: '/assets/anime-style.png' },
+    { value: 'painting', label: 'Painting', image: '/assets/painting-style.png' },
+    { value: 'fantasy', label: 'Fantasy', image: '/assets/fantasy-style.png' },
+  ];
+
+  // Compute orientation based on selected size.
   const computeOrientation = (size) => {
     switch (size) {
       case 'traditional_3_4':
@@ -95,12 +105,10 @@ const FreepikImageGenerator = () => {
       setError('Authorization token is missing');
       return;
     }
-
     if (remainingPrompts <= 0) {
       setShowPromptLimitModal(true);
       return;
     }
-
     try {
       await axios.post(
         `${apiUrl}/api/prompts/use-prompt`,
@@ -120,12 +128,8 @@ const FreepikImageGenerator = () => {
 
     setLoading(true);
     setError(null);
-
-    // Compute orientation based on selected styling.size
     const orientation = computeOrientation(styling.size);
-
     try {
-      // Send prompt, styling, and orientation; backend handles generating three images.
       const response = await axios.post(
         `${apiUrl}/api/freepik/generate-image`,
         { prompt, styling, orientation },
@@ -135,8 +139,6 @@ const FreepikImageGenerator = () => {
         setGeneratedImages(response.data.images);
         setShowModal(true);
         document.body.classList.add('no-scroll');
-
-        // Save generated images automatically.
         for (const image of response.data.images) {
           await axios.post(
             `${apiUrl}/api/users/generated-images`,
@@ -169,15 +171,11 @@ const FreepikImageGenerator = () => {
     setShowImageDetails(true);
   };
 
-  // Modified handleEditVision: modal band karke prompt input field par scroll aur focus set karein
   const handleEditVision = () => {
-    // Modal close kar dein
     setShowModal(false);
     setShowImageDetails(false);
     setSelectedImage(null);
     document.body.classList.remove('no-scroll');
-
-    // Thoda delay dene ke baad input field ke div par scroll aur focus karein
     setTimeout(() => {
       promptInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       promptInputRef.current?.querySelector('input')?.focus();
@@ -187,9 +185,7 @@ const FreepikImageGenerator = () => {
   const handleCustomize = async (image) => {
     try {
       setCustomizing(true);
-      let existingImage = userGeneratedImages.find(
-        (img) => img.imageUrl === image
-      );
+      let existingImage = userGeneratedImages.find((img) => img.imageUrl === image);
       if (!existingImage) {
         const base64Data = image.split(',')[1];
         const chunkSize = 5 * 1024 * 1024;
@@ -227,9 +223,7 @@ const FreepikImageGenerator = () => {
           },
         });
       } else {
-        throw new Error(
-          'Image saving failed, unable to proceed with customization.'
-        );
+        throw new Error('Image saving failed, unable to proceed with customization.');
       }
     } catch (error) {
       console.error('Error handling customization:', error);
@@ -303,10 +297,21 @@ const FreepikImageGenerator = () => {
     setShowPromptLimitModal(false);
   };
 
-  // Handler for closing the welcome modal; set flag in localStorage.
   const handleCloseWelcomeModal = () => {
     setShowWelcomeModal(false);
     localStorage.setItem('visitedFreepik', 'true');
+  };
+
+  // Slider arrow handlers.
+  const handlePrevSlide = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: -150, behavior: 'smooth' });
+    }
+  };
+  const handleNextSlide = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: 150, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -317,10 +322,7 @@ const FreepikImageGenerator = () => {
           name="description"
           content="Create unique AI-generated art with Wall & Tone's AI Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
         />
-        <meta
-          name="keywords"
-          content="AI image generator, AI art, wall art, custom art, art generator, Wall & Tone"
-        />
+        <meta name="keywords" content="AI image generator, AI art, wall art, custom art, art generator, Wall & Tone" />
         <link rel="canonical" href="https://wallandtone.com/freepik-generator" />
         <meta property="og:title" content="AImage Generator | Wall & Tone" />
         <meta
@@ -338,7 +340,7 @@ const FreepikImageGenerator = () => {
         />
         <meta name="twitter:image" content="https://wallandtone.com/assets/og-freepik.jpg" />
       </Helmet>
-      {/* Welcome Modal */}
+
       {showWelcomeModal && (
         <div className="freepik-generator-welcome-modal">
           <div className="freepik-generator-welcome-modal-content">
@@ -361,14 +363,12 @@ const FreepikImageGenerator = () => {
             </div>
             <div className="freepik-generator-welcome-modal-body">
               <p>
-                To get the appropriate results please elaborate the details of everything you want to see in your artwork. Please see the example below for reference.
+                To get the appropriate results please elaborate the details of everything you want to see in your artwork.
               </p>
               <p>
-                A portrait of a middle-aged, Nigerian woman, in profile, who is wearing large gold hoop earrings and a gele headwrap in bright red, yellow, and black colors in a color block illustration style. The woman is strong and intelligent with rosy, pink cheeks and is on a solid red, yellow, and green background in a paintbrush stroke pattern.
+                For example: A portrait of a middle-aged Nigerian woman with gold hoop earrings and a vibrant gele headwrap.
               </p>
-              <p>
-                You have 10 free prompts, you can buy more once the Limit Exceeds!
-              </p>
+              <p>You have 10 free prompts. You can buy more once the limit exceeds!</p>
             </div>
             <div className="freepik-generator-welcome-modal-buttons">
               <button className="freepik-btn-primary" onClick={handleCloseWelcomeModal}>
@@ -383,6 +383,7 @@ const FreepikImageGenerator = () => {
         <h1>AI Art generator by Wall & Tone</h1>
         <p>Use the power of limitless imagination to curate your own unique art prints!</p>
       </div>
+
       <div className="freepik-generator__form" ref={promptInputRef}>
         <div className="freepik-generator__prompt">
           <input
@@ -393,29 +394,44 @@ const FreepikImageGenerator = () => {
             disabled={loading}
           />
         </div>
+
         <div className="freepik-generator__styling">
-          <div className="freepik-generator__styling-row">
+          {/* Slider Section */}
+          <div className="slider-container">
+            <button className="slider-arrow prev" onClick={handlePrevSlide}>
+              &#10094;
+            </button>
+            <div className="style-slider" ref={sliderRef}>
+              {styleOptions.map((option) => (
+                <div
+                  key={option.value}
+                  className={`style-slider-item ${styling.style === option.value ? 'selected' : ''}`}
+                  onClick={() => setStyling({ ...styling, style: option.value })}
+                >
+                  <img src={option.image} alt={option.label} />
+                  <span>{option.label}</span>
+                </div>
+              ))}
+            </div>
+            <button className="slider-arrow next" onClick={handleNextSlide}>
+              &#10095;
+            </button>
+          </div>
+
+          {/* Orientation Dropdown & Generate Button */}
+          <div className="action-container">
             <select name="size" value={styling.size} onChange={handleStylingChange} disabled={loading}>
               <option value="">Select Orientation</option>
               <option value="traditional_3_4">Portrait</option>
               <option value="classic_4_3">Landscape</option>
             </select>
-          </div>
-          <div className="freepik-generator__styling-row">
-            <select name="style" value={styling.style} onChange={handleStylingChange} disabled={loading}>
-              <option value="">Select Style</option>
-              <option value="photo">Photo</option>
-              <option value="digital-art">Digital Art</option>
-              <option value="anime">Anime</option>
-              <option value="painting">Painting</option>
-              <option value="fantasy">Fantasy</option>
-            </select>
+            <button className="freepik-generator__generate" onClick={handleGenerateImage} disabled={loading}>
+              {loading ? 'Generating...' : 'Generate Image'}
+            </button>
           </div>
         </div>
-        <button className="freepik-generator__generate" onClick={handleGenerateImage} disabled={loading}>
-          {loading ? 'Generating...' : 'Generate Image'}
-        </button>
       </div>
+
       {userGeneratedImages.length > 0 && (
         <div className="freepik-generator__previous">
           <div className="freepik-generator__previous-header">
@@ -453,6 +469,7 @@ const FreepikImageGenerator = () => {
           </div>
         </div>
       )}
+
       {showModal && (
         <div className="freepik-generator-modal">
           <div className="freepik-generator-modal-content">
@@ -466,7 +483,7 @@ const FreepikImageGenerator = () => {
               <div className="freepik-generator-modal-body">
                 <div className="row">
                   <div className="col-md-4">
-                    {selectedImage && <img src={selectedImage} alt="Selected Image" className="img-fluid" />}
+                    {selectedImage && <img src={selectedImage} alt="Selected" className="img-fluid" />}
                   </div>
                   <div className="col-md-8">
                     <p>{prompt}</p>
@@ -483,7 +500,7 @@ const FreepikImageGenerator = () => {
                                 alt="Loading"
                                 className="freepik-generator__spinner"
                               />
-                              <span>Generating Image...</span>
+                              <span>Generating...</span>
                             </div>
                           ) : (
                             'Customize'
@@ -510,6 +527,7 @@ const FreepikImageGenerator = () => {
           </div>
         </div>
       )}
+
       {showPromptLimitModal && (
         <div className="freepik-generator-modal">
           <div className="freepik-generator-modal-content">
@@ -528,6 +546,7 @@ const FreepikImageGenerator = () => {
           </div>
         </div>
       )}
+
       {error && <div className="freepik-generator__error">{error}</div>}
     </div>
   );

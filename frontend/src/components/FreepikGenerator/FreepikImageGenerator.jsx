@@ -41,7 +41,7 @@ const FreepikImageGenerator = () => {
     !localStorage.getItem('visitedFreepik')
   );
 
-  // Slider options for style selection (placeholder removed).
+  // Slider options for style selection.
   const styleOptions = [
     { value: 'photo', label: 'Photo', image: '/assets/photo-style.png' },
     { value: 'digital-art', label: 'Digital Art', image: '/assets/digital-art-style.png' },

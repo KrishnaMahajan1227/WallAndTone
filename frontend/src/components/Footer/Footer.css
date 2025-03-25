@@ -94,6 +94,9 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 30px;
     }
+    .main-footer {
+      border-radius: 4px;
+  }
   }
   
   @media (max-width: 576px) {

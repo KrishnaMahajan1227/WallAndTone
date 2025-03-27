@@ -486,6 +486,20 @@ const deleteGeneratedImage = async (req, res) => {
   }
 };
 
+const deleteAllGeneratedImages = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("User not authenticated");
+
+    await axios.delete(`${apiUrl}/api/users/generated-images`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    setUserGeneratedImages([]);
+  } catch (error) {
+    console.error("Error deleting all images:", error);
+  }
+};
 // **🔹 Upload Personalized Image**
 const uploadPersonalizedImage = async (req, res) => {
   try {
@@ -584,21 +598,6 @@ const deletePersonalizedImage = async (req, res) => {
   }
 };
   
-const deleteAllGeneratedImages = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("User not authenticated");
-  
-      await axios.delete(`${apiUrl}/api/users/generated-images`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-  
-      setUserGeneratedImages([]);
-    } catch (error) {
-      console.error("Error deleting all images:", error);
-    }
-};
-
 // Export the functions
 module.exports = {
   signupUser ,

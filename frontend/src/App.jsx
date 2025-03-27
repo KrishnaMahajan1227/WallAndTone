@@ -52,23 +52,26 @@ function App() {
     setIsLivePreview(location.pathname === "/livePreview");
   }, [location.pathname]);
 
-  // Socket.IO client integration for forceLogout event
+  // ✅ Socket.IO client integration for forceLogout event
   useEffect(() => {
-    // Use window.location.origin to connect to the current domain dynamically
     const socket = io(window.location.origin);
-    
+
     socket.on('connect', () => {
       console.log('Socket connected:', socket.id);
     });
-    
+
     socket.on('forceLogout', () => {
       console.log('forceLogout event received');
-      // OPTIONAL: Clear authentication tokens or any stored user data if needed.
-      // localStorage.removeItem('token');
-      // Instead of redirecting to /login, we reload the page so that the app re-initializes.
-      window.location.reload();
+
+      // ✅ Clear any stored user data or tokens
+      localStorage.clear();
+      sessionStorage.clear();
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+      // ✅ Redirect to login page
+      window.location.href = "/login";
     });
-    
+
     return () => {
       socket.disconnect();
     };

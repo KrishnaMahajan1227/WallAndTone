@@ -33,7 +33,7 @@ const generateImage = async (req, res) => {
         seed: uniqueSeed,
         num_images: 1,
         image: {
-          size: styling?.size || "square_1_1",
+          size: styling?.size || "traditional_3_4",
         },
         styling: {
           // Only include style key now.

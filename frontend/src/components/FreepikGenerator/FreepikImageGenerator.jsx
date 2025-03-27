@@ -432,7 +432,7 @@ eg: Brown dog walking in a park on a bright sunny day. "
           </div>
         </div>
       </div>
-
+      {error && <div className="freepik-generator__error">{error}</div>}
       {userGeneratedImages.length > 0 && (
         <div className="freepik-generator__previous">
           <div className="freepik-generator__previous-header">
@@ -548,7 +548,7 @@ eg: Brown dog walking in a park on a bright sunny day. "
         </div>
       )}
 
-      {error && <div className="freepik-generator__error">{error}</div>}
+     
     </div>
   );
 };

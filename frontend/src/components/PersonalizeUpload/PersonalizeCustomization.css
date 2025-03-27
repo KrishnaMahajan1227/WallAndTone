@@ -336,6 +336,7 @@
   }
   .personalize-customization .back-button {
     margin: 0;
+    margin-bottom: 20px;
   }
   .personalize-customization .option-button {
     padding: 0.5rem 0.75rem;
@@ -371,4 +372,16 @@
     max-width: 100%;
     outline: none !important;
   }
+  .personalize-customization .generated-artwork.landscape-artwork.frame-type-style {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 83%;
+    height: auto;
+    object-fit: cover;
+    z-index: 0;
+    margin: auto;
+    display: block;
+}
 }

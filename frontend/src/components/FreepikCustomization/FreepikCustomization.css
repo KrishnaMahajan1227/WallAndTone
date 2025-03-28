@@ -361,13 +361,39 @@ h3.product-title {
 }
 }
 @media(max-width:500px){
-  .freepik-customization .info-section {
-    margin-top: 20px;
-  }
   .freepik-customization .product-title {
     font-size: 20px;
     text-transform: capitalize;
     margin: 20px 0;
+    margin-top: 0;
+}
+.freepik-customization  .generated-artwork.acrylic-style {
+  position: relative;
+  width: 63.5%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 0;
+  margin: auto;
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.product-details-container .options-section select {
+  background-color: #2F231F;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+  outline: none !important;
+  max-width: 40%;
+}
+.freepik-customization .image-section {
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 20px;
 }
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify"; // using react-toastify
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -30,7 +30,15 @@ const UserProfile = () => {
   const [showPasswordFields, setShowPasswordFields] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem("token");
+
+  // Set active tab based on navigation state
+  useEffect(() => {
+    if (location.state && location.state.tab) {
+      setActiveTab(location.state.tab);
+    }
+  }, [location.state]);
 
   // Fetch user profile
   const fetchUserProfile = async () => {
@@ -188,12 +196,13 @@ const UserProfile = () => {
 
   const deleteAllGeneratedImages = async () => {
     try {
+      const token = localStorage.getItem("token");
       if (!token) throw new Error("User not authenticated");
-
+  
       await axios.delete(`${apiUrl}/api/users/generated-images`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
       setUserGeneratedImages([]);
       toast.success("All images deleted successfully.");
     } catch (error) {
@@ -215,14 +224,16 @@ const UserProfile = () => {
             Profile
           </button>
         </li>
-        {/* <li className="nav-item">
+        {/* Uncomment if needed:
+        <li className="nav-item">
           <button
             className={`nav-link ${activeTab === "orderHistory" ? "active" : ""}`}
             onClick={() => setActiveTab("orderHistory")}
           >
             Order History
           </button>
-        </li> */}
+        </li>
+        */}
         <li className="nav-item">
           <button
             className={`nav-link ${activeTab === "myRoom" ? "active" : ""}`}
@@ -244,13 +255,13 @@ const UserProfile = () => {
                   className="btn my-profile-page__edit-btn"
                   onClick={() => setIsEditing(true)}
                 >
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-	<g fill="none" stroke="#5b2eff" stroke-linecap="round" stroke-linejoin ="round" stroke-width="2">
-		<path d="m16.475 5.408l2.117 2.117m-.756-3.982L12.109 9.27a2.1 2.1 0 0 0-.58 1.082L11 13l2.648-.53c.41-.082.786-.283 1.082-.579l5.727-5.727a1.853 1.853 0 1 0-2.621-2.621" />
-		<path d="M19 15v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3" />
-	</g>
-</svg>
-</button>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <g fill="none" stroke="#5b2eff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
+                      <path d="m16.475 5.408l2.117 2.117m-.756-3.982L12.109 9.27a2.1 2.1 0 0 0-.58 1.082L11 13l2.648-.53c.41-.082.786-.283 1.082-.579l5.727-5.727a1.853 1.853 0 1 0-2.621-2.621" />
+                      <path d="M19 15v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3" />
+                    </g>
+                  </svg>
+                </button>
               ) : (
                 <div>
                   <button className="btn btn-success me-2" onClick={handleSave}>
@@ -471,14 +482,14 @@ const UserProfile = () => {
           <div className="card-body">
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h4 className="my-profile-page__title">Generated Images</h4>
-              {userGeneratedImages.length > 0 && (
+              {/* {userGeneratedImages.length > 0 && (
                 <button
                   className="btn btn-danger btn-sm"
                   onClick={deleteAllGeneratedImages}
                 >
                   Delete All
                 </button>
-              )}
+              )} */}
             </div>
             <div className="row row-cols-1 row-cols-md-4 g-4">
               {userGeneratedImages.length > 0 ? (

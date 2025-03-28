@@ -395,6 +395,14 @@ h3.product-title {
   align-items: center;
   margin-bottom: 00px;
 }
+.freepik-customization .main-image-container {
+  position: relative;
+  width: 100%;
+  /* max-width: 600px; */
+  margin: 0;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
 }
 
 

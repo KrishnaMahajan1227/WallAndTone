@@ -1,4 +1,3 @@
-// frontend/FreepikImageGenerator.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -244,7 +243,6 @@ const FreepikImageGenerator = () => {
     }
   };
   
-
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
       const script = document.createElement('script');
@@ -449,7 +447,10 @@ eg: Brown dog walking in a park on a bright sunny day. "
         <div className="freepik-generator__previous">
           <div className="freepik-generator__previous-header">
             <h3>Recent Generations</h3>
-            <button className="freepik-generator__view-more" onClick={() => navigate('/profile', { state: { tab: 'myRoom' } })}>
+            <button
+              className="freepik-generator__view-more"
+              onClick={() => navigate('/profile', { state: { tab: 'myRoom' } })}
+            >
               View All <ChevronRight size={16} />
             </button>
           </div>
@@ -559,8 +560,6 @@ eg: Brown dog walking in a park on a bright sunny day. "
           </div>
         </div>
       )}
-
-     
     </div>
   );
 };

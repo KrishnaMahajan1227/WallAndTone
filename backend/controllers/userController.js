@@ -486,18 +486,17 @@ const deleteGeneratedImage = async (req, res) => {
   }
 };
 
-const deleteAllGeneratedImages = async () => {
+const deleteAllGeneratedImages = async (req, res) => {
   try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("User not authenticated");
-
-    await axios.delete(`${apiUrl}/api/users/generated-images`, {
-      headers: { Authorization: `Bearer ${token}` },
+    // Delete only the images belonging to the current user
+    const result = await GeneratedImage.deleteMany({ user: req.user.id });
+    res.status(200).json({ 
+      message: "All images deleted successfully.", 
+      deletedCount: result.deletedCount 
     });
-
-    setUserGeneratedImages([]);
   } catch (error) {
     console.error("Error deleting all images:", error);
+    res.status(500).json({ message: "Failed to delete images." });
   }
 };
 // **🔹 Upload Personalized Image**

@@ -44,6 +44,7 @@ router.get('/users/generated-images', protectUser, getGeneratedImages);
 router.delete("/users/generated-images/:imageId", protectUser, deleteGeneratedImage);
 router.delete("/users/generated-images", protectUser, deleteAllGeneratedImages);
 
+
 // Multer Storage for Uploads
 const upload = multer({ dest: "uploads/" });
 

@@ -261,6 +261,7 @@ const getAllProducts = async (req, res) => {
 };
 
 
+
 const getProductById = async (req, res) => {
   try {
     const productId = req.params.id;

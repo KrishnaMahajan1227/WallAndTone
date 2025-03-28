@@ -677,7 +677,7 @@ button.back-button {
     width: 100%;
     max-width: 300px;
     height: 300px;
-    margin: 0 auto;
+    margin: 0;
   }
   .product-details-container .product-details-image {
     max-width: 100%;

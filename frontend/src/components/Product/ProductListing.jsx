@@ -264,6 +264,9 @@ const ProductListing = () => {
   // On mount: initialize filter state from URL (only once)
   useEffect(() => {
     const qp = new URLSearchParams(location.search);
+    // Get search param if exists
+    const searchParam = qp.get('search');
+    // Optionally, you could store searchParam in state if you want to show it
     if (qp.get('orientation')) {
       setSelectedOrientations(qp.get('orientation').split(',').map(s => s.trim()));
     }
@@ -313,11 +316,17 @@ const ProductListing = () => {
     }
   }, [location.search]);
 
-  // Compute the filter query string from filter state
+  // Compute the filter query string from filter state, including search param if present
   const filterQuery = (() => {
+    const qp = new URLSearchParams();
+    // Include search parameter from URL if exists
+    const originalQP = new URLSearchParams(location.search);
+    const searchParam = originalQP.get('search');
+    if (searchParam) {
+      qp.set('search', searchParam);
+    }
     const colors = selectedColorGroups.reduce((acc, group) => acc.concat(groupedColorOptions[group]), []);
     const categories = selectedCategoryGroups.reduce((acc, group) => acc.concat(groupedCategoryOptions[group]), []);
-    const qp = new URLSearchParams();
     if (colors.length > 0) qp.set('colors', colors.join(','));
     if (selectedOrientations.length > 0) qp.set('orientation', selectedOrientations.join(','));
     if (categories.length > 0) qp.set('categories', categories.join(','));
@@ -373,8 +382,6 @@ const ProductListing = () => {
     fetchProducts();
   }, [filterQuery, sortOption, apiUrl, location.pathname, navigate]);
   
-  
-
   // Fetch wishlist
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -917,74 +924,72 @@ const ProductListing = () => {
         <div className="text-center my-5">No products found.</div>
       )}
 
-<Modal
-  show={showAuthPopup}
-  onHide={handleAuthPopupClose}
-  centered
-  style={{
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    padding: "1rem",
-  }}
->
-  <Modal.Header
-    closeButton
-    style={{
-      border: "none",
-      backgroundColor: "transparent",
-      justifyContent: "center",
-      position: "relative",
-    }}
-  >
-    <Modal.Title style={{ textAlign: "center", width: "100%" }}>
-      Login Required
-    </Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <p style={{ textAlign: "center" }}>
-      Please login to continue.
-    </p>
-  </Modal.Body>
-  <Modal.Footer
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      gap: "1rem",
-      border: "none",
-      backgroundColor: "transparent",
-    }}
-  >
-    <Button
-      variant="primary"
-      onClick={handleAuthLogin}
-      style={{
-        backgroundColor: "#5B2EFF",
-        color: "#fff",
-        border: "none",
-        padding: "0.75rem 1.5rem",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }}
-    >
-      Login
-    </Button>
-    <Button
-      variant="secondary"
-      onClick={handleAuthPopupClose}
-      style={{
-        backgroundColor: "#fff",
-        color: "#5B2EFF",
-        border: "2px solid #5B2EFF",
-        padding: "0.75rem 1.5rem",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }}
-    >
-      Cancel
-    </Button>
-  </Modal.Footer>
-</Modal>
-
-
+      <Modal
+        show={showAuthPopup}
+        onHide={handleAuthPopupClose}
+        centered
+        style={{
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          padding: "1rem",
+        }}
+      >
+        <Modal.Header
+          closeButton
+          style={{
+            border: "none",
+            backgroundColor: "transparent",
+            justifyContent: "center",
+            position: "relative",
+          }}
+        >
+          <Modal.Title style={{ textAlign: "center", width: "100%" }}>
+            Login Required
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p style={{ textAlign: "center" }}>
+            Please login to continue.
+          </p>
+        </Modal.Body>
+        <Modal.Footer
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "1rem",
+            border: "none",
+            backgroundColor: "transparent",
+          }}
+        >
+          <Button
+            variant="primary"
+            onClick={handleAuthLogin}
+            style={{
+              backgroundColor: "#5B2EFF",
+              color: "#fff",
+              border: "none",
+              padding: "0.75rem 1.5rem",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Login
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleAuthPopupClose}
+            style={{
+              backgroundColor: "#fff",
+              color: "#5B2EFF",
+              border: "2px solid #5B2EFF",
+              padding: "0.75rem 1.5rem",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

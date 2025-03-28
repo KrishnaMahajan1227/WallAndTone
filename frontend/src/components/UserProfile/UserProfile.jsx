@@ -512,15 +512,17 @@ const UserProfile = () => {
                       />
                       <div className="card-body text-center">
                         <p className="card-text">{img.prompt}</p>
+                        <div className="action-btn">
                         <span className="text-muted">
                           {new Date(img.createdAt).toLocaleDateString()}
                         </span>
                         <button
-                          className="btn btn-outline-danger btn-sm mt-2"
+                          className="btn btn-outline-danger btn-sm"
                           onClick={() => deleteGeneratedImage(img._id)}
                         >
                           Delete
                         </button>
+                        </div>
                       </div>
                     </div>
                   </div>

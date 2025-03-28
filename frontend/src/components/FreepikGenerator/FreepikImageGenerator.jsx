@@ -185,14 +185,20 @@ const FreepikImageGenerator = () => {
   const handleCustomize = async (image) => {
     try {
       setCustomizing(true);
+  
+      // Check if image is a Cloudinary URL (already uploaded)
       let existingImage = userGeneratedImages.find((img) => img.imageUrl === image);
-      if (!existingImage) {
+      const isBase64 = image.startsWith('data:image');
+  
+      if (!existingImage && isBase64) {
         const base64Data = image.split(',')[1];
         const chunkSize = 5 * 1024 * 1024;
         const chunks = [];
+  
         for (let i = 0; i < base64Data.length; i += chunkSize) {
           chunks.push(base64Data.slice(i, i + chunkSize));
         }
+  
         for (let i = 0; i < chunks.length; i++) {
           const response = await axios.post(
             `${apiUrl}/api/users/generated-images/chunk`,
@@ -205,18 +211,23 @@ const FreepikImageGenerator = () => {
             },
             { headers: { Authorization: `Bearer ${token}` } }
           );
+  
           if (response.data.image && i === chunks.length - 1) {
             existingImage = response.data.image;
           }
         }
+  
         await fetchUserGeneratedImages();
       }
-      if (existingImage) {
+  
+      if (existingImage || !isBase64) {
+        const imageUrl = existingImage?.imageUrl || image;
         const orientation = computeOrientation(styling.size);
+  
         navigate('/customize', {
           state: {
-            image: existingImage.imageUrl,
-            prompt: existingImage.prompt,
+            image: imageUrl,
+            prompt,
             isCustom: true,
             styling,
             orientation,
@@ -232,6 +243,7 @@ const FreepikImageGenerator = () => {
       setCustomizing(false);
     }
   };
+  
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {

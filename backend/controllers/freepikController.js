@@ -1,5 +1,40 @@
 const axios = require("axios");
+const { cloudinary } = require("../utils/cloudinary");
 require("dotenv").config();
+const apiKey = process.env.FREEPIK_API_KEY;
+
+const pollForImages = async (taskId, apiKey, maxAttempts = 10, delay = 2000) => {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const pollResponse = await axios.get(
+      `https://api.freepik.com/v1/ai/text-to-image/imagen3/${taskId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-freepik-api-key": apiKey,
+        },
+      }
+    );
+    console.log(`Polling attempt ${attempt + 1}:`, pollResponse.data);
+    const data = pollResponse.data?.data;
+    if (data && data.status !== "CREATED") {
+      if (Array.isArray(data.generated) && data.generated.length > 0) {
+        return data.generated;
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+  throw new Error("Timeout waiting for images to be generated");
+};
+
+const getAspectRatioCrop = (size) => {
+  if (size === "traditional_3_4") {
+    return { aspect_ratio: "3:4", crop: "fill" };
+  } else if (size === "classic_4_3") {
+    return { aspect_ratio: "4:3", crop: "fill" };
+  } else {
+    return { aspect_ratio: "1:1", crop: "fill" };
+  }
+};
 
 const generateImage = async (req, res) => {
   const apiKey = process.env.FREEPIK_API_KEY;
@@ -10,21 +45,14 @@ const generateImage = async (req, res) => {
   }
 
   try {
-    const images = [];
-
-    // Allowed style options
     const allowedStyles = ["photo", "digital-art", "anime", "painting", "fantasy"];
+    let styleValue = "";
+    if (styling?.style && allowedStyles.includes(styling.style.toLowerCase())) {
+      styleValue = styling.style.toLowerCase();
+    }
 
-    // Loop three times for independent image generations.
-    for (let i = 0; i < 3; i++) {
-      // Generate a seed that is less than 1,000,000.
+    const generateSingleImage = async () => {
       const uniqueSeed = Math.floor(Math.random() * 1000000);
-
-      // Validate the style value; if it's not one of the allowed, use an empty string.
-      let styleValue = "";
-      if (styling && styling.style && allowedStyles.includes(styling.style.toLowerCase())) {
-        styleValue = styling.style.toLowerCase();
-      }
 
       const requestPayload = {
         prompt,
@@ -32,65 +60,79 @@ const generateImage = async (req, res) => {
         guidance_scale: 2,
         seed: uniqueSeed,
         num_images: 1,
-        image: {
-          size: styling?.size || "traditional_3_4",
-        },
-        styling: {
-          // Only include style key now.
-          style: styleValue,
-        },
+        image: { size: styling?.size || "traditional_3_4" },
+        styling: { style: styleValue },
       };
 
-      // Log the payload for debugging
-
-      try {
-        const response = await axios.post(
-          "https://api.freepik.com/v1/ai/text-to-image",
-          requestPayload,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "x-freepik-api-key": apiKey,
-            },
-          }
-        );
-
-        const imagesData = response.data?.data || [];
-        // Filter out NSFW images and select one image.
-        const safeImageData = imagesData.find((imgData) => !imgData.has_nsfw);
-        if (safeImageData) {
-          images.push(`data:image/png;base64,${safeImageData.base64}`);
+      const response = await axios.post(
+        "https://api.freepik.com/v1/ai/text-to-image/imagen3",
+        requestPayload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-freepik-api-key": apiKey,
+          },
         }
-      } catch (innerError) {
-        console.error(
-          "API call failed for iteration",
-          i,
-          innerError.response ? innerError.response.data : innerError.message
-        );
-        return res.status(400).json({
-          message: "Error generating images",
-          error: innerError.response ? innerError.response.data : innerError.message,
-        });
-      }
-    }
+      );
 
-    if (images.length > 0) {
+      const taskData = response.data?.data;
+      const taskId = taskData.task_id;
+      let imagesData = taskData.generated;
+
+      if (!Array.isArray(imagesData) || imagesData.length === 0) {
+        imagesData = await pollForImages(taskId, apiKey);
+      }
+
+      const firstImage = imagesData[0];
+      let finalImageUrl;
+
+      if (typeof firstImage === "string") {
+        const transformation = getAspectRatioCrop(styling?.size);
+        const upload = await cloudinary.uploader.upload(firstImage, {
+          folder: "freepik-generated",
+          transformation: [transformation],
+        });
+        finalImageUrl = upload.secure_url;
+      } else if (firstImage?.base64 && !firstImage?.has_nsfw) {
+        const base64Url = `data:image/png;base64,${firstImage.base64}`;
+        const transformation = getAspectRatioCrop(styling?.size);
+        const upload = await cloudinary.uploader.upload(base64Url, {
+          folder: "freepik-generated",
+          transformation: [transformation],
+        });
+        finalImageUrl = upload.secure_url;
+      }
+
+      return finalImageUrl;
+    };
+
+    // Run 3 generations in parallel
+    const results = await Promise.all([
+      generateSingleImage(),
+      generateSingleImage(),
+      generateSingleImage(),
+    ]);
+
+    const validImages = results.filter(Boolean);
+
+    if (validImages.length > 0) {
       return res.status(200).json({
-        message: "Images generated successfully",
-        images,
+        message: "3 Images generated successfully",
+        images: validImages,
+      });
+    } else {
+      return res.status(400).json({
+        message: "No suitable images generated. Please try a different prompt.",
       });
     }
-
-    return res.status(400).json({
-      message: "No suitable images generated. Please try a different prompt.",
-    });
   } catch (error) {
-    console.error("Error generating images:", error);
+    console.error("Error generating image:", error.response?.data || error.message);
     return res.status(500).json({
-      message: "Error generating images",
-      error: error.message,
+      message: "Error generating image",
+      error: error.response?.data || error.message,
     });
   }
 };
+
 
 module.exports = { generateImage };

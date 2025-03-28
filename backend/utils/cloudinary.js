@@ -14,12 +14,9 @@ if (!cloudinary.config().cloud_name) {
   throw new Error('Cloudinary configuration failed');
 }
 
-const uploadBase64Image = async (base64String, folder = 'general', publicId = null, options = {}) => {
+const uploadBase64Image = async (input, folder = 'general', publicId = null, options = {}) => {
   try {
-    const base64Data = base64String.startsWith('data:image/') 
-      ? base64String 
-      : `data:image/png;base64,${base64String}`;
-
+    const isBase64 = input.startsWith('data:image/');
     const uploadOptions = {
       folder,
       resource_type: 'auto',
@@ -30,8 +27,8 @@ const uploadBase64Image = async (base64String, folder = 'general', publicId = nu
         { width: 1200, crop: 'limit' },
         { quality: 'auto' }
       ],
-      chunk_size: options.chunk_size || 6000000, // 6MB chunks by default
-      timeout: options.timeout || 60000 // 60 seconds timeout by default
+      chunk_size: options.chunk_size || 6000000,
+      timeout: options.timeout || 60000,
     };
 
     if (publicId) {
@@ -39,7 +36,7 @@ const uploadBase64Image = async (base64String, folder = 'general', publicId = nu
     }
 
     return new Promise((resolve, reject) => {
-      cloudinary.uploader.upload(base64Data, uploadOptions, (error, result) => {
+      cloudinary.uploader.upload(input, uploadOptions, (error, result) => {
         if (error) reject(error);
         else resolve(result);
       });

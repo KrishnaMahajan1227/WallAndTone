@@ -268,7 +268,7 @@ const PersonalizeUpload = () => {
           <button
             className="btn btn-primary personalize-upload-btn"
             onClick={uploadAndEmail}
-            disabled={!selectedImage || uploading || imageQuality === "Low"}
+            disabled={!selectedImage || uploading || imageQuality === "Low" || !orientation }
           >
             {uploading ? "Uploading..." : "Confirm & Customize"}
           </button>

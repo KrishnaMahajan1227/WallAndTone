@@ -98,6 +98,7 @@ function App() {
     maxWidth: "500px", width: "100%", boxShadow: "0 4px 12px rgba(0,0,0,0.15)", position: "relative"
   };
 
+  // Updated renderModal: For "personalize" type, pass current location in state.
   const renderModal = (type) => (
     <div style={modalStyle}>
       <div style={modalContentStyle}>
@@ -111,7 +112,15 @@ function App() {
             : "Bring your memories and let us create something unique for you."}
         </p>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <button onClick={() => navigate("/login")}
+          <button 
+            onClick={() => {
+              // Only for personalize, pass state to redirect back after login
+              if(type === 'personalize'){
+                navigate("/login", { state: { from: location.pathname } });
+              } else {
+                navigate("/login");
+              }
+            }}
             style={{ backgroundColor: type === 'ai' ? "#5B2EFF" : "#E63946", color: "#fff", padding: "0.75rem 1.5rem", border: "none", borderRadius: "4px", cursor: "pointer" }}>
             <span>Login Now</span>
             <ArrowRight size={16} />

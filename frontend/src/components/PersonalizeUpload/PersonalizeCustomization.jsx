@@ -142,6 +142,7 @@ const PersonalizeCustomization = () => {
     return (total * quantity).toFixed(2);
   };
 
+  // Updated handleAddToCart: after successful addition, redirect user directly to cart.
   const handleAddToCart = async () => {
     if (!selectedFrameType || !selectedSubFrameType || !selectedSize) {
       toast.error("Please select all options before adding to cart");
@@ -163,6 +164,7 @@ const PersonalizeCustomization = () => {
         });
         setCart(response.data.cart);
         toast.success("Added to cart successfully!");
+        navigate("/cart");
       }
     } catch (err) {
       toast.error("Failed to add to cart");
@@ -232,7 +234,6 @@ const PersonalizeCustomization = () => {
         <meta property="og:url" content="https://wallandtone.com/personalize-customization" />
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
-      {/* ToastContainer ensures that toast notifications display */}
       <ToastContainer />
 
       <button className="back-button" onClick={() => navigate(-1)}>
@@ -255,21 +256,19 @@ const PersonalizeCustomization = () => {
                   className="frame-background"
                 />
               )}
-<img
-  src={personalizedImage}
-  alt="Uploaded Artwork"
-  className={`generated-artwork 
-    ${selectedOrientation === "landscape" ? "landscape-artwork" : ""} 
-    ${
-      selectedFrameType?.name?.toLowerCase() === "frame"
-        ? "frame-type-style"
-        : !["canvas", "poster"].includes(selectedFrameType?.name?.toLowerCase())
-        ? "acrylic-style"
-        : ""
-    }`}
-/>
-
-
+            <img
+              src={personalizedImage}
+              alt="Uploaded Artwork"
+              className={`generated-artwork 
+                ${selectedOrientation === "landscape" ? "landscape-artwork" : ""} 
+                ${
+                  selectedFrameType?.name?.toLowerCase() === "frame"
+                    ? "frame-type-style"
+                    : !["canvas", "poster"].includes(selectedFrameType?.name?.toLowerCase())
+                    ? "acrylic-style"
+                    : ""
+                }`}
+            />
           </div>
         </div>
 
@@ -279,7 +278,6 @@ const PersonalizeCustomization = () => {
             <p>Total Price: ₹{calculateTotalPrice()}</p>
           </div>
           <div className="options-section">
-            {/* Frame Type - remains as buttons */}
             <div className="frame-type-buttons">
               {frameTypes.map((frameType) => (
                 <button
@@ -294,7 +292,6 @@ const PersonalizeCustomization = () => {
               ))}
             </div>
 
-            {/* For mobile: Sub-frame, Size, Quantity as dropdowns */}
             {isMobile ? (
               <>
                 <div className="dropdown-group">
@@ -380,7 +377,6 @@ const PersonalizeCustomization = () => {
                 </div>
               </>
             ) : (
-              // Desktop view: Use button groups
               <>
                 <div className="sub-frame-type-buttons">
                   {subFrameTypes.map((subFrameType) => (

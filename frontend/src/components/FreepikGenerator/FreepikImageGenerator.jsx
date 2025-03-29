@@ -126,6 +126,10 @@ const FreepikImageGenerator = () => {
       return;
     }
 
+    // Immediately show modal with loading state
+    setShowModal(true);
+    document.body.classList.add('no-scroll');
+    setGeneratedImages([]);
     setLoading(true);
     setError(null);
     const orientation = computeOrientation(styling.size);
@@ -137,8 +141,6 @@ const FreepikImageGenerator = () => {
       );
       if (response.data.images && response.data.images.length > 0) {
         setGeneratedImages(response.data.images);
-        setShowModal(true);
-        document.body.classList.add('no-scroll');
         for (const image of response.data.images) {
           await axios.post(
             `${apiUrl}/api/users/generated-images`,
@@ -489,13 +491,24 @@ eg: Brown dog walking in a park on a bright sunny day."
         <div className="freepik-generator-modal">
           <div className="freepik-generator-modal-content">
             <div className="freepik-generator-modal-header">
-              <h5>Vision</h5>
+              <h5>{loading ? 'Generating Your Vision...' : 'Vision'}</h5>
               <button type="button" className="btn-close" onClick={handleCloseModal} aria-label="Close">
                 ×
               </button>
             </div>
-            {showImageDetails ? (
-              <div className="freepik-generator-modal-body">
+            <div className="freepik-generator-modal-body">
+              {loading ? (
+                <div className="freepik-generator__loading-state">
+                  <img
+                    src="/assets/generating-art.gif"
+                    alt="Generating..."
+                    className="freepik-generator__spinner-large"
+                  />
+                  <p className="freepik-generator__loading-text">
+                    Brewing your artistic magic... hang tight! ✨
+                  </p>
+                </div>
+              ) : showImageDetails ? (
                 <div className="row">
                   <div className="col-md-4">
                     {selectedImage && <img src={selectedImage} alt="Selected" className="img-fluid" />}
@@ -525,9 +538,7 @@ eg: Brown dog walking in a park on a bright sunny day."
                     </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="freepik-generator-modal-body">
+              ) : (
                 <div className="row">
                   {generatedImages.map((image, index) => (
                     <div className="col-md-4 mb-4 col-sm12" key={index}>
@@ -537,8 +548,8 @@ eg: Brown dog walking in a park on a bright sunny day."
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}

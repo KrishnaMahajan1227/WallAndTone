@@ -3,7 +3,7 @@ const { cloudinary } = require("../utils/cloudinary");
 require("dotenv").config();
 const apiKey = process.env.FREEPIK_API_KEY;
 
-const pollForImages = async (taskId, apiKey, maxAttempts = 10, delay = 2000) => {
+const pollForImages = async (taskId, apiKey, maxAttempts = 20, delay = 2000) => {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const pollResponse = await axios.get(
       `https://api.freepik.com/v1/ai/text-to-image/imagen3/${taskId}`,
@@ -50,7 +50,7 @@ const generateImage = async (req, res) => {
       const requestPayload = {
         prompt,
         negative_prompt: negativePrompt || "b&w, earth, cartoon, ugly",
-        guidance_scale: 2, // default guidance scale
+        guidance_scale: 2,
         seed: uniqueSeed,
         num_images: 1,
         image: { size: styling?.size || "traditional_3_4" },
@@ -59,17 +59,15 @@ const generateImage = async (req, res) => {
       if (styling?.style && styling.style.trim() !== "") {
         const styleKey = styling.style.trim().toLowerCase();
         if (styleKey === "ghibli") {
-          // For a true Studio Ghibli feel, use "anime" as the base style combined with watercolor effects.
-          requestPayload.guidance_scale = 2; // Increase guidance to adhere closely to the prompt
+          requestPayload.guidance_scale = 4;
           requestPayload.styling = {
-            style: "anime", // base style
+            style: "anime",
             effects: {
-              color: "pastel",         // soft pastel tones evoke watercolor textures
-              lightning: "golden-hour",  // golden-hour lighting for a warm, magical glow
-              framing: "portrait"        // portrait framing to focus on characters/scenes
+              color: "pastel",
+              lightning: "golden-hour",
+              framing: "portrait"
             }
           };
-          // Enhance the prompt with detailed descriptors for the desired Studio Ghibli look.
           requestPayload.prompt += ", in the style of Studio Ghibli with a watercolor finish, soft brush strokes, and a hand-painted, whimsical aesthetic";
         } else {
           requestPayload.styling = { style: styleKey };
@@ -121,18 +119,20 @@ const generateImage = async (req, res) => {
       return finalImageUrl;
     };
 
-    // Run 3 generations in parallel
-    const results = await Promise.all([
+    // 🔄 Generate 3 images concurrently, handle partial success
+    const settledResults = await Promise.allSettled([
       generateSingleImage(),
       generateSingleImage(),
       generateSingleImage(),
     ]);
 
-    const validImages = results.filter(Boolean);
+    const validImages = settledResults
+      .filter(result => result.status === 'fulfilled' && result.value)
+      .map(result => result.value);
 
     if (validImages.length > 0) {
       return res.status(200).json({
-        message: "3 Images generated successfully",
+        message: `${validImages.length} image(s) generated successfully`,
         images: validImages,
       });
     } else {

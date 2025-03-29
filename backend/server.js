@@ -61,20 +61,22 @@ const io = socketIo(server, {
   }
 });
 
+// Track if logout has been triggered already
 let hasBroadcastedLogout = false;
+
 io.on('connection', (socket) => {
-  console.log('New client connected: ' + socket.id);
+  console.log('New client connected:', socket.id);
 
   if (!hasBroadcastedLogout) {
     setTimeout(() => {
       io.emit('forceLogout');
-      console.log('Notified all clients to logout.');
+      console.log('✅ forceLogout sent to all connected clients.');
       hasBroadcastedLogout = true;
-    }, 3000);
+    }, 2000); // Delay to allow clients to connect
   }
 
   socket.on('disconnect', () => {
-    console.log('Client disconnected: ' + socket.id);
+    console.log('Client disconnected:', socket.id);
   });
 });
 

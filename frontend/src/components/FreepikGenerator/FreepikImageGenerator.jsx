@@ -42,7 +42,7 @@ const FreepikImageGenerator = () => {
 
   // Slider options for style selection.
   const styleOptions = [
-    { value: 'ghibli', label: 'Ghibli', image: '/assets/ghibli-style.jpg' }, // New Ghibli option
+    // { value: 'ghibli', label: 'Ghibli', image: '/assets/ghibli-style.jpg' }, // New Ghibli option
     { value: 'photo', label: 'Photo', image: '/assets/photo-style.png' },
     { value: 'digital-art', label: 'Digital Art', image: '/assets/digital-art-style.png' },
     { value: 'anime', label: 'Anime', image: '/assets/anime-style.png' },

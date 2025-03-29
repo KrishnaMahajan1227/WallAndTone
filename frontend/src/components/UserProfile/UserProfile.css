@@ -24,6 +24,7 @@ ul.nav.nav-tabs.my-profile-page__tabs {
   background: transparent;
   border: none;
   box-shadow: none;
+  height: 100vh;
 }
 
 .my-profile-page__tabs button.nav-link:hover {

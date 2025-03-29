@@ -24,10 +24,10 @@ const FreepikImageGenerator = () => {
   const promptInputRef = useRef(null);
   const sliderRef = useRef(null);
 
-  // Styling state.
+  // Styling state with default style as empty so only prompt is used if no style is chosen
   const [styling, setStyling] = useState({
     size: 'traditional_3_4',
-    style: '', // Allowed: photo, digital-art, anime, painting, fantasy
+    style: '', // Allowed values: photo, digital-art, anime, painting, fantasy, ghibli
   });
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -42,6 +42,7 @@ const FreepikImageGenerator = () => {
 
   // Slider options for style selection.
   const styleOptions = [
+    { value: 'ghibli', label: 'Ghibli', image: '/assets/ghibli-style.jpg' }, // New Ghibli option
     { value: 'photo', label: 'Photo', image: '/assets/photo-style.png' },
     { value: 'digital-art', label: 'Digital Art', image: '/assets/digital-art-style.png' },
     { value: 'anime', label: 'Anime', image: '/assets/anime-style.png' },
@@ -401,7 +402,7 @@ const FreepikImageGenerator = () => {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Write your prompt in detail for best result. 
-eg: Brown dog walking in a park on a bright sunny day. "
+eg: Brown dog walking in a park on a bright sunny day."
             disabled={loading}
           />
         </div>

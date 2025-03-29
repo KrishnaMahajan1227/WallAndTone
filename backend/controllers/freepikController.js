@@ -45,24 +45,39 @@ const generateImage = async (req, res) => {
   }
 
   try {
-    const allowedStyles = ["photo", "digital-art", "anime", "painting", "fantasy"];
-    let styleValue = "";
-    if (styling?.style && allowedStyles.includes(styling.style.toLowerCase())) {
-      styleValue = styling.style.toLowerCase();
-    }
-
     const generateSingleImage = async () => {
       const uniqueSeed = Math.floor(Math.random() * 1000000);
-
       const requestPayload = {
         prompt,
         negative_prompt: negativePrompt || "b&w, earth, cartoon, ugly",
-        guidance_scale: 2,
+        guidance_scale: 2, // default guidance scale
         seed: uniqueSeed,
         num_images: 1,
         image: { size: styling?.size || "traditional_3_4" },
-        styling: { style: styleValue },
       };
+
+      if (styling?.style && styling.style.trim() !== "") {
+        const styleKey = styling.style.trim().toLowerCase();
+        if (styleKey === "ghibli") {
+          // For a true Studio Ghibli feel, use "anime" as the base style combined with watercolor effects.
+          requestPayload.guidance_scale = 2; // Increase guidance to adhere closely to the prompt
+          requestPayload.styling = {
+            style: "anime", // base style
+            effects: {
+              color: "pastel",         // soft pastel tones evoke watercolor textures
+              lightning: "golden-hour",  // golden-hour lighting for a warm, magical glow
+              framing: "portrait"        // portrait framing to focus on characters/scenes
+            }
+          };
+          // Enhance the prompt with detailed descriptors for the desired Studio Ghibli look.
+          requestPayload.prompt += ", in the style of Studio Ghibli with a watercolor finish, soft brush strokes, and a hand-painted, whimsical aesthetic";
+        } else {
+          requestPayload.styling = { style: styleKey };
+          if (styling.effects) {
+            requestPayload.styling.effects = styling.effects;
+          }
+        }
+      }
 
       const response = await axios.post(
         "https://api.freepik.com/v1/ai/text-to-image/imagen3",
@@ -133,6 +148,5 @@ const generateImage = async (req, res) => {
     });
   }
 };
-
 
 module.exports = { generateImage };

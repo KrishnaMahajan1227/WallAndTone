@@ -316,6 +316,18 @@ h3.product-title {
   cursor: pointer;
 }
 
+h3.product-title {
+  text-transform: capitalize;
+  word-wrap: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.4em;
+  max-height: 2.8em;
+  text-overflow: ellipsis;
+}
+
 /* Responsive Styles */
 @media (max-width: 992px) {
   .freepik-customization .add-to-cart, .freepik-customization .add-to-wishlist {

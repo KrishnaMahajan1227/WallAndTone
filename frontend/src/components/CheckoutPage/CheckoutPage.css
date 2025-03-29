@@ -1,126 +1,148 @@
-/* Parent class for checkout page styles */
+/* CheckoutPage.css */
+
 .checkout-page {
-    padding: 30px 0;
-    background-color: #f7f7f7;
-    font-family: "Lexend Deca", serif;
+  padding: 40px 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.checkout-container h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.checkout-card {
+  background-color: #fff;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.checkout-card h4 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #444;
+}
+
+.checkout-card .form-control {
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.checkout-card .form-check-label {
+  font-size: 16px;
+  color: #555;
+}
+
+.order-summary-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.order-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item-info h5 {
+  font-size: 18px;
+  color: #333;
+  margin: 0 0 5px;
+}
+
+.order-item-info p {
+  font-size: 14px;
+  color: #666;
+  margin: 2px 0;
+}
+
+.order-item-price {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e60000;
+}
+
+.total {
+  font-size: 22px;
+  font-weight: bold;
+  color: #222;
+  margin: 20px 0 10px;
+  text-align: right;
+}
+
+.inclusive-note {
+  font-size: 14px;
+  color: #777;
+  text-align: right;
+  margin-top: -10px;
+}
+
+.payment-method p {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.checkout-btn {
+  font-size: 18px;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 20px;
+  background-color: #28a745;
+  border: none;
+  color: #fff;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.checkout-btn:hover {
+  background-color: #218838;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .checkout-page {
+    padding: 20px 10px;
   }
-  
-  /* Container styling */
-  .checkout-container {
-    max-width: 1200px;
-    margin: auto;
+  .checkout-container h2 {
+    font-size: 28px;
   }
-  
-  /* Card Styling */
   .checkout-card {
-    border: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    background-color: #fff;
     padding: 20px;
     margin-bottom: 20px;
   }
-  
-  /* Form Controls */
-  .checkout-page .form-control {
-    border-radius: 4px;
-    font-size: 16px;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  
-  /* Alert Messages */
-  .checkout-page .alert {
-    font-size: 16px;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-  }
-  
-  /* Order Summary Items */
-  .order-summary-items {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 15px;
-  }
-  
-  .order-item {
-    display: flex;
-    gap: 15px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-  }
-  
-  .order-item:last-child {
-    border-bottom: none;
-  }
-  
-  .order-item-image {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-  
-  .order-item-info h5 {
+  .checkout-card h4 {
     font-size: 18px;
-    margin: 0;
-    color: #333;
   }
-  
-  .order-item-info p {
-    margin: 2px 0;
+  .checkout-card .form-control {
     font-size: 14px;
-    color: #555;
+    padding: 10px 12px;
   }
-  
-  .order-item-price {
-    font-size: 16px;
-    font-weight: bold;
-    color: #e60000;
-  }
-  
-  /* Payment Method */
-  .payment-method p {
-    font-size: 18px;
-    font-weight: 500;
-    color: #333;
-  }
-  
-  /* Submit Button */
   .checkout-btn {
-    font-size: 18px;
+    font-size: 16px;
     padding: 12px;
-    border-radius: 4px;
-    margin-top: 20px;
   }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .checkout-page {
-      padding: 20px 10px;
-    }
-    .checkout-card h4 {
-      font-size: 18px;
-    }
-    .checkout-page .form-control {
-      font-size: 14px;
-    }
-    .checkout-btn {
-      font-size: 16px;
-      padding: 10px;
-    }
-    .order-item {
-      flex-direction: column;
-      align-items: center;
-    }
-    .order-item-image {
-      width: 100%;
-      height: auto;
-    }
-    .order-item-info {
-      text-align: center;
-    }
+  .order-summary-items {
+    gap: 10px;
   }
-  
+}

@@ -145,9 +145,8 @@ const CheckoutPage = () => {
               (item.subFrameType?.price || 0) +
               (item.size?.price || 0),
             discount: 0,
-            tax: 50,
+            tax: 0,
             hsn: 44140010,
-            // Ensure we always pass an object with a name.
             frameType: item.frameType ? item.frameType : { name: "Not Provided" },
             subFrameType: item.subFrameType ? item.subFrameType : { name: "Not Provided" },
             size: item.size ? item.size : { name: "Not Provided" },
@@ -252,58 +251,8 @@ const CheckoutPage = () => {
     ));
   };
 
-  const shippingCost = 300;
-  const taxAmount = 50;
-  const subtotal = totalPrice - shippingCost - taxAmount;
-
-  const handleProceedToCheckout = () => {
-    const checkoutItems = cartItems.map((item) => {
-      if (item.isCustom) {
-        return {
-          productId: null,
-          productName: "Customized Artwork",
-          mainImage: item.image,
-          quantity: item.quantity,
-          frameType: item.frameType,
-          subFrameType: item.subFrameType,
-          size: item.size,
-          itemTotal: calculateItemPrice(item),
-        };
-      } else {
-        return {
-          productId: item.productId?._id || null,
-          productName: item.productId?.productName || "",
-          mainImage: item.productId?.mainImage || "",
-          quantity: item.quantity,
-          frameType: item.frameType,
-          subFrameType: item.subFrameType,
-          size: item.size,
-          itemTotal: calculateItemPrice(item),
-        };
-      }
-    });
-
-    navigate("/checkout", {
-      state: {
-        total: Number(finalTotal.toFixed(2)),
-        cartItems: checkoutItems,
-        subtotal,
-        shippingCost,
-        taxAmount,
-        discountAmount,
-        couponApplied,
-        couponDiscount,
-      },
-    });
-  };
-
-  const calculateItemPrice = (item) => {
-    const framePrice = item.frameType?.price || 0;
-    const subFramePrice = item.subFrameType?.price || 0;
-    const sizePrice = item.size?.price || 0;
-    const basePrice = item.isCustom ? 0 : item.productId?.price || 0;
-    return (framePrice + subFramePrice + sizePrice + basePrice) * item.quantity;
-  };
+  // In this design, totalPrice already includes shipping & tax.
+  const finalTotal = totalPrice;
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -419,13 +368,10 @@ const CheckoutPage = () => {
           <h4>Order Summary</h4>
           <div className="order-summary-items">{renderOrderSummaryItems()}</div>
           <hr />
-          <p>Subtotal: {subtotal.toFixed(2)} Rs.</p>
-          <p>Shipping Cost: {shippingCost} Rs.</p>
-          <p>Tax: {taxAmount} Rs.</p>
-          <hr />
           <h4 className="total">
-            <strong>Total:</strong> {totalPrice.toFixed(2)} Rs.
+            <strong>Total:</strong> {finalTotal.toFixed(2)} Rs.
           </h4>
+          <p className="inclusive-note">(Price is inclusive of shipping & tax)</p>
         </div>
 
         {/* Payment Method – Only Online Payment */}

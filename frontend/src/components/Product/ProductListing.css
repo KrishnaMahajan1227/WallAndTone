@@ -71,7 +71,7 @@
   font-weight: 500;
   text-align: left;
   margin: 10px 0;
-  color: #2F231F;
+  color: #2D2D2D;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -82,7 +82,7 @@
 .product-listing .card-text {
   font-size: 14px;
   text-align: left;
-  color: #666;
+  color: #2D2D2D !important;
   margin: 0;
   white-space: wrap;
   overflow: hidden;
@@ -91,7 +91,7 @@
 }
 
 .product-listing .card-text:last-child {
-  color: #2F231F;
+  color: #2D2D2D !important;
 }
 .product-listing .dropdown-toggle:after{
 display: none;

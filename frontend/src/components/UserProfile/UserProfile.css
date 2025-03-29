@@ -27,7 +27,7 @@ ul.nav.nav-tabs.my-profile-page__tabs {
 }
 
 .my-profile-page__tabs button.nav-link:hover {
-  background-color: #F2F2F2 !important;
+  background-color: #2F231F !important;
   color: #FFFFFF !important;
   margin: 0 !important;
 }
@@ -87,7 +87,8 @@ ul.nav.nav-tabs.my-profile-page__tabs {
 
 /* ----- BUTTONS ----- */
 .my-profile-page__edit-btn {
-  min-width: 100px;
+  min-width: fit-content;
+  padding: 0 !important;
   font-weight: 500;
 }
 

@@ -499,11 +499,11 @@ eg: Brown dog walking in a park on a bright sunny day."
             <div className="freepik-generator-modal-body">
               {loading ? (
                 <div className="freepik-generator__loading-state">
-                  <img
+                  {/* <img
                     src="/assets/generating-art.gif"
                     alt="Generating..."
                     className="freepik-generator__spinner-large"
-                  />
+                  /> */}
                   <p className="freepik-generator__loading-text">
                     Brewing your artistic magic... hang tight! ✨
                   </p>

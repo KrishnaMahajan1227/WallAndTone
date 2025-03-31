@@ -353,7 +353,7 @@ const FreepikImageGenerator = () => {
         />
         <meta name="twitter:image" content="https://wallandtone.com/assets/og-freepik.jpg" />
       </Helmet>
-
+{/* 
       {showWelcomeModal && (
         <div className="freepik-generator-welcome-modal">
           <div className="freepik-generator-welcome-modal-content">
@@ -390,7 +390,7 @@ const FreepikImageGenerator = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       <div className="freepik-generator__header">
         <h1>AI Art generator by Wall & Tone</h1>

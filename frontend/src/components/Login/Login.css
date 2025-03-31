@@ -98,15 +98,19 @@ button.btn.login-btn {
   border-radius: 4px;
 }
 
-p.redirect-link {
+.login-container p.redirect-link {
   margin: 0;
-  margin-top: 20px;
   color: #543d2d;
 }
 
 p.redirect-link a {
   text-decoration: none;
   color: #543d2d;
+}
+
+p.forgot-password-link a {
+  text-decoration: none;
+  color: #5B2EFF;
 }
 
 button.btn.explore-btn {
@@ -116,6 +120,10 @@ button.btn.explore-btn {
 button.btn.explore-btn:hover {
   background-color: #543d2d;
   color: #FFFFFF;
+}
+
+p.forgot-password-link {
+  margin: 15px 0;
 }
 
 /* Responsive */

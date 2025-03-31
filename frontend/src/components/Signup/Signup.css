@@ -11,8 +11,9 @@
   height: 90vh;
 }
 
-.error-message {
+.error-message, small.error-text {
   margin: 10px 0;
+  color: rgb(197, 27, 27);
 }
 .signup-form  input.form-control:focus {
   outline: none !important;

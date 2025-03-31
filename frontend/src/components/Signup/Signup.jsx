@@ -48,7 +48,7 @@ const Signup = () => {
         if (!value.trim()) {
           error = 'Phone number is required';
         } else if (!/^\d{10}$/.test(value.trim())) {
-          error = 'Phone number must be exactly 10 digits';
+          error = 'Please Enter Valid Mobile Number';
         }
         break;
       case 'password':
@@ -144,7 +144,7 @@ const Signup = () => {
               name="firstName"
               required
               className="form-control"
-              placeholder="Enter your name"
+              placeholder="Your Name"
               value={formData.firstName}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -159,7 +159,7 @@ const Signup = () => {
               name="email"
               required
               className="form-control"
-              placeholder="Enter your email"
+              placeholder="Email"
               value={formData.email}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -174,7 +174,7 @@ const Signup = () => {
               name="phone"
               required
               className="form-control"
-              placeholder="Enter your phone"
+              placeholder="Mobile"
               value={formData.phone}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -189,7 +189,7 @@ const Signup = () => {
               name="password"
               required
               className="form-control"
-              placeholder="Enter your password"
+              placeholder="Password"
               value={formData.password}
               onChange={handleChange}
               onBlur={handleBlur}

@@ -42,6 +42,8 @@ import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import AdminRoute from './components/AdminRoute';
 import { io } from 'socket.io-client';
 import { X, Sparkles, ArrowRight, Heart } from 'lucide-react';
+import ForgotPassword from './components/Login/ForgotPassword';
+import ResetPassword from './components/Login/ResetPassword';
 
 function App() {
   const location = useLocation();
@@ -168,6 +170,8 @@ function App() {
                   <Route path="/custom-payment" element={<CustomPaymentPage />} />
                   <Route path="/order-confirmation" element={<OrderConfirmation />} />
                   <Route path="/track-order" element={<TrackOrder />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password/:token" element={<ResetPassword />} />
                   <Route path="/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
                   <Route path="/dashboard/manageProducts" element={<AdminRoute><ProductManager /></AdminRoute>} />
                   <Route path="/dashboard/FrameTypeManagement" element={<AdminRoute><FrameTypeManagement /></AdminRoute>} />

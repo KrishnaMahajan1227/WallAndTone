@@ -123,6 +123,9 @@ const Login = () => {
           <button type="submit" className="btn login-btn" disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
+          <p className="forgot-password-link">
+            <Link to="/forgot-password">Forgot Password?</Link>
+          </p>
         </form>
         <p className="redirect-link">
           Don't have an account? <Link to="/signup">Sign up</Link>

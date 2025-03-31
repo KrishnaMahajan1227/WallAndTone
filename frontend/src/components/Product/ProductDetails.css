@@ -134,7 +134,7 @@ button.back-button {
 .thumbnail:hover,
 .thumbnail.active {
   transform: scale(1.05);
-  border: 2px solid #007bff;
+  border: 2px solid #5B2EFF;
 }
 
 .info-section {
@@ -625,6 +625,12 @@ button.back-button {
 
 .product-details-container .recently-added-products-container .recently-added-product-card {
   width: 100%;
+}
+.product-details-container .container.recently-added-products-container {
+  padding: 0;
+}
+.product-details-container .recently-added-products-container .card {
+  max-width: 295px;
 }
 
 /* Responsive Design */

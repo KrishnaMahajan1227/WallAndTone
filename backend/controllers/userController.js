@@ -7,6 +7,8 @@ const { uploadBase64Image } = require('../utils/cloudinary');
 require("dotenv").config();
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 // Sign up a new user
 const signupUser = async (req, res) => {
@@ -122,6 +124,85 @@ const loginUser = async (req, res) => {
   }
 };
 
+// Forgot Password – request reset email
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email.trim())) {
+    return res.status(400).json({ message: 'A valid email address is required' });
+  }
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User with this email does not exist' });
+    }
+    // Generate a reset token
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    // Set token and expiry (1 hour from now)
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour in milliseconds
+    await user.save();
+
+    // Build reset URL using your frontend URL (update FRONTEND_URL in your env if needed)
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+
+    // Configure Nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    // Email options
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: user.email,
+      subject: 'Password Reset',
+      text: `You are receiving this email because you (or someone else) have requested a password reset for your account.\n\n` +
+            `Please click on the following link, or paste it into your browser to complete the process:\n\n` +
+            `${resetUrl}\n\n` +
+            `If you did not request this, please ignore this email.\n`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Password reset email sent successfully' });
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+// Reset Password – update password using the token
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+  if (!token || !newPassword) {
+    return res.status(400).json({ message: 'Token and new password are required' });
+  }
+  try {
+    // Find the user with the provided token that hasn't expired yet
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+      return res.status(400).json({ message: 'Password reset token is invalid or has expired' });
+    }
+    // Update the user's password (assuming your pre-save hook hashes it)
+    user.password = newPassword;
+    // Clear the reset token fields so they can’t be reused
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+    res.status(200).json({ message: 'Password has been reset successfully' });
+  } catch (error) {
+    console.error('Error in resetPassword:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
 
 
 // **🔹 Get All Users (Admin & Superadmin)**
@@ -614,4 +695,6 @@ module.exports = {
   uploadPersonalizedImage,
   getPersonalizedImages,
   deletePersonalizedImage,
+  forgotPassword,
+  resetPassword
 };

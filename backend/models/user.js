@@ -32,7 +32,9 @@ const userSchema = new mongoose.Schema({
     publicId: { type: String, required: true },  // Cloudinary public ID for easy deletion
     createdAt: { type: Date, default: Date.now }
   }],
-  remainingPrompts: { type: Number, default: 10 } // Har user ko 10 prompts se start karne ke liye
+  remainingPrompts: { type: Number, default: 10 }, // Har user ko 10 prompts se start karne ke liye
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date }
 
 }, { timestamps: true });
 

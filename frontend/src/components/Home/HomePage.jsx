@@ -32,6 +32,7 @@ const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [bannerImages, setBannerImages] = useState([]);
 
+
   // Check if user is logged in on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -570,14 +571,16 @@ const HomePage = () => {
         <div className="container">
           <ul className="nav nav-tabs">
             <li className="nav-item">
-              <button
-                className={`nav-link ${
-                  activeTab === "recently-added" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("recently-added")}
-              >
-                New In
-              </button>
+            <button
+  className={`nav-link ${activeTab === "recently-added" ? "active" : ""}`}
+  onClick={() => {
+    setActiveTab("recently-added");
+    navigate('/products');
+  }}
+>
+  New In
+</button>
+
             </li>
           </ul>
           <div className="tab-content">

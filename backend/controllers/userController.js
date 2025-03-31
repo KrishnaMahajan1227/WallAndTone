@@ -127,26 +127,36 @@ const loginUser = async (req, res) => {
 // Forgot Password – request reset email
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
+
   if (!email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email.trim())) {
     return res.status(400).json({ message: 'A valid email address is required' });
   }
+
   try {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User with this email does not exist' });
     }
+
     // Generate a reset token
     const resetToken = crypto.randomBytes(20).toString('hex');
     // Set token and expiry (1 hour from now)
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour in milliseconds
+    user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    // Build reset URL using your frontend URL (update FRONTEND_URL in your env if needed)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+    // 🔁 Dynamically set frontend URL
+    const getFrontendUrl = () => {
+      if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
+      const isLocal = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
+      return isLocal
+        ? 'http://localhost:5173'
+        : 'https://wallandtone.com'; // ✅ Update to actual frontend domain
+    };
 
-    // Configure Nodemailer transporter
+    const resetUrl = `${getFrontendUrl()}/reset-password/${resetToken}`;
+
+    // Configure Nodemailer
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
@@ -157,15 +167,13 @@ const forgotPassword = async (req, res) => {
       },
     });
 
-    // Email options
     const mailOptions = {
       from: process.env.EMAIL_FROM,
       to: user.email,
       subject: 'Password Reset',
-      text: `You are receiving this email because you (or someone else) have requested a password reset for your account.\n\n` +
-            `Please click on the following link, or paste it into your browser to complete the process:\n\n` +
-            `${resetUrl}\n\n` +
-            `If you did not request this, please ignore this email.\n`,
+      text: `You are receiving this email because you (or someone else) requested a password reset.\n\n` +
+            `Click or paste this link to reset your password:\n\n${resetUrl}\n\n` +
+            `If you didn't request this, you can ignore this email.`,
     };
 
     await transporter.sendMail(mailOptions);
@@ -175,6 +183,7 @@ const forgotPassword = async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
 
 // Reset Password – update password using the token
 const resetPassword = async (req, res) => {

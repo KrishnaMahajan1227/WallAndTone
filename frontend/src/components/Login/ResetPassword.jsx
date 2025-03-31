@@ -8,10 +8,7 @@ import './ResetPassword.css';
 const ResetPassword = () => {
   // Extract the token from the URL (e.g., /reset-password/:token)
   const { token } = useParams();
-  const apiUrl =  import.meta.env.VITE_API_URL ||
-  (window.location.hostname === 'localhost'
-    ? 'http://localhost:8080'
-    : 'https://wallandtone.com');
+  const apiUrl = import.meta.env.VITE_API_URL ?? `${window.location.origin}`;
   const navigate = useNavigate();
 
   const [newPassword, setNewPassword] = useState('');

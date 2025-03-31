@@ -18,12 +18,12 @@
 }
 
 /* Left Login Form */
-.login-left {
+.login-container .login-left {
   flex: 1;
   padding-right: 40px;
 }
 
-.login-form label {
+.login-container .login-form label {
   display: block;
   font-size: 14px;
   font-weight: 500;
@@ -31,7 +31,7 @@
   color: #333;
 }
 
-.login-form input {
+.login-container .login-form input {
   width: 100%;
   padding: 10px;
   font-size: 16px;
@@ -41,13 +41,13 @@
   transition: all 0.3s;
 }
 
-hr.separating-line {
+.login-container hr.separating-line {
   color: #543d2d;
   margin-top: 0;
 }
 
 /* Right Info Section */
-.login-right {
+.login-container .login-right {
   flex: 1;
   background: #e7d7cc;
   padding: 30px;
@@ -55,7 +55,7 @@ hr.separating-line {
   text-align: left;
 }
 
-.login-right {
+.login-container .login-right {
   height: 350px;
   display: flex;
   flex-direction: column;
@@ -63,7 +63,7 @@ hr.separating-line {
   align-items: flex-start;
 }
 
-.login-right h3 {
+.login-container .login-right h3 {
   font-size: 22px;
   font-weight: bold;
   margin-bottom: 10px;
@@ -71,7 +71,7 @@ hr.separating-line {
   padding-left: 12px;
 }
 
-.login-right p {
+.login-container .login-right p {
   font-size: 14px;
   color: #555;
   margin-bottom: 20px;
@@ -79,19 +79,19 @@ hr.separating-line {
   padding-left: 12px;
 }
 
-.explore-btn {
+.login-container .explore-btn {
   padding: 10px 20px;
   font-size: 14px;
   border-radius: 4px;
   transition: all 0.3s ease;
 }
 
-.explore-btn:hover {
+.login-container .explore-btn:hover {
   background: #333;
   color: #fff;
 }
 
-button.btn.login-btn {
+.login-container button.btn.login-btn {
   background-color: #543d2d;
   color: #FFFFFF;
   max-width: fit-content;
@@ -101,29 +101,38 @@ button.btn.login-btn {
 .login-container p.redirect-link {
   margin: 0;
   color: #543d2d;
+  text-align: left;
 }
 
-p.redirect-link a {
+.login-container p.redirect-link a {
   text-decoration: none;
   color: #543d2d;
+  text-align: left;
 }
 
-p.forgot-password-link a {
+.login-container p.forgot-password-link a {
   text-decoration: none;
   color: #5B2EFF;
+  text-align: left;
 }
 
-button.btn.explore-btn {
+.login-container button.btn.explore-btn {
   border-radius: 4px;
 }
 
-button.btn.explore-btn:hover {
+.login-container button.btn.explore-btn:hover {
   background-color: #543d2d;
   color: #FFFFFF;
 }
 
-p.forgot-password-link {
+.login-container p.forgot-password-link {
   margin: 15px 0;
+}
+.login-container .form-group input, .form-group select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  padding-left: 0;
 }
 
 /* Responsive */
@@ -136,7 +145,7 @@ p.forgot-password-link {
     padding: 50px 0;
   }
 
-  .login-left {
+  .login-container .login-left {
     padding-right: 0;
     width: 80%;
   }

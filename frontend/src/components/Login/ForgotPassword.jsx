@@ -42,6 +42,7 @@ const ForgotPassword = () => {
       </Helmet>
       <h1>Forgot Password</h1>
       <div className="forgot-password-form-container">
+        <p className='muted-text'>Please provide us with your email, and we’ll send you the link to recover your password or make changes.</p>
         <form onSubmit={handleSubmit} noValidate autoComplete="on">
           <div className="form-group">
             <input
@@ -56,6 +57,7 @@ const ForgotPassword = () => {
                 setError('');
               }}
             />
+            <hr className="seperating-line"/>
           </div>
           {error && <div className="error-message">{error}</div>}
           {message && <div className="success-message">{message}</div>}

@@ -73,6 +73,9 @@ const ResetPassword = () => {
         
         <form onSubmit={handleSubmit} noValidate autoComplete="on">
           <div className="form-group">
+          <p className="muted-text">Please enter and confirm your new password.
+          Minimum of 8 characters.</p>
+          {error && <div className="error-message">{error}</div>}
             <input
               type="password"
               required
@@ -84,6 +87,7 @@ const ResetPassword = () => {
                 setError('');
               }}
             />
+             <hr className="seperating-line"/>
           </div>
           <div className="form-group">
             <input
@@ -97,8 +101,8 @@ const ResetPassword = () => {
                 setError('');
               }}
             />
+             <hr className="seperating-line"/>
           </div>
-          {error && <div className="error-message">{error}</div>}
           {message && <div className="success-message">{message}</div>}
           <button type="submit" className="btn reset-password-btn" disabled={isLoading}>
             {isLoading ? 'Resetting...' : 'Reset Password'}

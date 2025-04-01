@@ -759,12 +759,12 @@ button.back-button {
     padding: 10px;
     font-size: 14px;
     outline: none!important;
-    max-width: 100%;
-    width: 100%;
+    max-width: 100% !important;
+    width: 100% !important;
 }
 .product-details-container .sub-frame-type-dropdown {
-  max-width: 100%;
-  width: 50%;
+  max-width: 100% !important;
+  width: 50% !important;
 }
 }
 

@@ -53,6 +53,8 @@ mongoose
 
 const http = require('http');
 const socketIo = require('socket.io');
+const jwt = require('jsonwebtoken'); // Added for token decoding
+
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
@@ -61,20 +63,30 @@ const io = socketIo(server, {
   }
 });
 
-// Track if logout has been triggered already
-let hasBroadcastedLogout = false;
+// Set a global variable with the server start time (in milliseconds)
+const serverStartTime = Date.now();
+console.log("Server start time:", serverStartTime);
 
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
-  if (!hasBroadcastedLogout) {
-    setTimeout(() => {
-      io.emit('forceLogout');
-      console.log('✅ forceLogout sent to all connected clients.');
-      hasBroadcastedLogout = true;
-    }, 2000); // Delay to allow clients to connect
+  // Check if the client provided a token in the socket handshake auth.
+  const token = socket.handshake.auth.token;
+  if (token) {
+    try {
+      // Decode token (we assume token contains an "iat" field in seconds)
+      const decoded = jwt.decode(token);
+      if (decoded && decoded.iat && (decoded.iat * 1000) < serverStartTime) {
+        // Token was issued before the server started; force logout.
+        socket.emit('forceLogout');
+        console.log(`ForceLogout sent to socket ${socket.id} (token issued at ${decoded.iat * 1000}, before serverStartTime ${serverStartTime})`);
+      }
+    } catch (err) {
+      console.error("Error decoding token:", err);
+      socket.emit('forceLogout');
+    }
   }
-
+  
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });

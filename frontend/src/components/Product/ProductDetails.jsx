@@ -123,30 +123,12 @@ const ProductDetails = () => {
     }
   }, [selectedSizeCategory, sizes, isPosterFrame, groupedSizes, selectedSize]);
 
-  // Utility functions
-  const calculateAverageRating = (reviews) => {
-    if (!Array.isArray(reviews) || reviews.length === 0) return 0;
-    const total = reviews.reduce((acc, review) => acc + review.rating, 0);
-    return (total / reviews.length).toFixed(1);
-  };
-
-  const calculateItemPrice = (item) => {
-    if (!item || !item.productId || !item.quantity) return 0;
-    const basePrice = parseFloat(item.productId.price) || 0;
-    const frameTypePrice = parseFloat(item.frameType?.price) || 0;
-    const subFrameTypePrice = parseFloat(item.subFrameType?.price) || 0;
-    const sizePrice = parseFloat(item.size?.price) || 0;
-    return ((basePrice + frameTypePrice + subFrameTypePrice + sizePrice) * item.quantity).toFixed(2);
-  };
-
-  const calculateTotalPrice = () => {
-    if (!product) return 0;
-    let total = parseFloat(product.price) || 0;
-    if (selectedFrameType?.price) total += parseFloat(selectedFrameType.price);
-    if (selectedSubFrameType?.price) total += parseFloat(selectedSubFrameType.price);
-    if (selectedSize?.price) total += parseFloat(selectedSize.price);
-    return (total * quantity).toFixed(2);
-  };
+  // For poster frames, auto-select the first available size.
+  useEffect(() => {
+    if (isPosterFrame && sizes.length > 0 && !selectedSize) {
+      setSelectedSize(sizes[0]);
+    }
+  }, [sizes, isPosterFrame, selectedSize]);
 
   // Update history
   useEffect(() => {
@@ -194,6 +176,13 @@ const ProductDetails = () => {
     fetchProduct();
   }, [productId, token]);
 
+  // Auto select default frame type when product loads
+  useEffect(() => {
+    if (product && product.frameTypes && product.frameTypes.length > 0 && !selectedFrameType) {
+      handleFrameTypeSelect(product.frameTypes[0]);
+    }
+  }, [product, selectedFrameType]);
+
   // Reset image loaded state when activeImage changes
   useEffect(() => {
     setImgLoaded(false);
@@ -236,6 +225,72 @@ const ProductDetails = () => {
   }, [selectedFrameType, selectedSubFrameType, selectedSize]);
 
   // When a frame type is selected, fetch its sub-frame types and update available sizes
+// Updated handleFrameTypeSelect function
+const handleFrameTypeSelect = async (frameType) => {
+  try {
+    const response = await fetch(`${apiUrl}/api/frame-types/${frameType._id}`);
+    if (!response.ok) throw new Error('Failed to fetch frame type details');
+    const data = await response.json();
+    setSelectedFrameType(data);
+    // Reset related selections on frame type change
+    setSelectedSubFrameType(null);
+    setSelectedSize(null);
+    setSelectedSizeCategory(null);
+    setSubFrameThumbnails([]);
+    
+    if (data.frameSizes && Array.isArray(data.frameSizes) && data.frameSizes.length > 0) {
+      setSizes(data.frameSizes);
+      // For poster frames, select first size directly
+      if (data.name.toLowerCase() === "poster") {
+        setSelectedSize(data.frameSizes[0]);
+      } else {
+        // For non-poster frames, group sizes and select first category & size
+        const grouped = groupSizesByCategory(data.frameSizes);
+        const categories = Object.keys(grouped).sort(
+          (a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
+        );
+        if (categories.length > 0) {
+          setSelectedSizeCategory(categories[0]);
+          setSelectedSize(grouped[categories[0]][0]);
+        }
+      }
+    } else {
+      setSizes([]);
+      setSelectedSize(null);
+    }
+  } catch (err) {
+    console.error('Error selecting frame type:', err);
+    toast.error('Failed to select frame type');
+  }
+};
+
+// Updated useEffect for fetching sub-frame types and auto-selecting default
+useEffect(() => {
+  if (selectedFrameType?._id) {
+    fetch(`${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`)
+      .then(res => res.json())
+      .then(data => {
+        const subFrameData = Array.isArray(data) ? data : [];
+        setSubFrameTypes(subFrameData);
+        if (subFrameData.length > 0) {
+          // Auto select the first sub-frame type
+          handleSubFrameTypeSelect(subFrameData[0]);
+        } else {
+          // Agar koi sub-frame type na ho to subFrameThumbnails ko clear kar dein
+          setSubFrameThumbnails([]);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching sub-frame types:', err);
+        toast.error('Failed to load sub-frame types');
+      });
+  } else {
+    setSubFrameTypes([]);
+  }
+}, [selectedFrameType, apiUrl]);
+
+
+  // Fetch sub-frame types when selectedFrameType changes
   useEffect(() => {
     if (selectedFrameType?._id) {
       fetch(`${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`)
@@ -259,6 +314,13 @@ const ProductDetails = () => {
     }
   }, [selectedFrameType, apiUrl]);
 
+  // Auto select default sub-frame type when subFrameTypes are loaded
+  useEffect(() => {
+    if (selectedFrameType && subFrameTypes && subFrameTypes.length > 0 && !selectedSubFrameType) {
+      handleSubFrameTypeSelect(subFrameTypes[0]);
+    }
+  }, [subFrameTypes, selectedFrameType, selectedSubFrameType]);
+
   // Reset selections and thumbnails when productId changes (i.e., when a new product is selected from Recommendations)
   useEffect(() => {
     setSelectedFrameType(null);
@@ -270,6 +332,108 @@ const ProductDetails = () => {
     setInputQuantity("1");
     setQuantity(1);
   }, [productId]);
+
+  // Utility functions
+  const calculateAverageRating = (reviews) => {
+    if (!Array.isArray(reviews) || reviews.length === 0) return 0;
+    const total = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (total / reviews.length).toFixed(1);
+  };
+
+  const calculateItemPrice = (item) => {
+    if (!item || !item.productId || !item.quantity) return 0;
+    const basePrice = parseFloat(item.productId.price) || 0;
+    const frameTypePrice = parseFloat(item.frameType?.price) || 0;
+    const subFrameTypePrice = parseFloat(item.subFrameType?.price) || 0;
+    const sizePrice = parseFloat(item.size?.price) || 0;
+    return ((basePrice + frameTypePrice + subFrameTypePrice + sizePrice) * item.quantity).toFixed(2);
+  };
+
+  const calculateTotalPrice = () => {
+    if (!product) return 0;
+    let total = parseFloat(product.price) || 0;
+    if (selectedFrameType?.price) total += parseFloat(selectedFrameType.price);
+    if (selectedSubFrameType?.price) total += parseFloat(selectedSubFrameType.price);
+    if (selectedSize?.price) total += parseFloat(selectedSize.price);
+    return (total * quantity).toFixed(2);
+  };
+
+  const handleSubFrameTypeSelect = async (subFrameType) => {
+    setSelectedSubFrameType(subFrameType);
+    setLoadingSubFrame(true);
+    try {
+      if (selectedFrameType && selectedFrameType.name.toLowerCase() === "poster") {
+        const posterThumbnails = [product.mainImage, ...(subFrameType.images || [])];
+        setActiveImage(product.mainImage);
+        setSubFrameThumbnails(posterThumbnails);
+        return;
+      }
+  
+      let imagesArr = [];
+      if (product?.subFrameImages && product.subFrameImages.length > 0) {
+        const matchingGroups = product.subFrameImages.filter(
+          (group) =>
+            group.subFrameType &&
+            group.subFrameType.toString() === subFrameType._id.toString()
+        );
+        matchingGroups.forEach((group) => {
+          if (Array.isArray(group.imageUrls) && group.imageUrls.length > 0) {
+            imagesArr = imagesArr.concat(group.imageUrls);
+          } else if (group.imageUrl) {
+            imagesArr.push(group.imageUrl);
+          }
+        });
+      }
+  
+      // Agar imagesArray abhi bhi khali hai, API se try karein
+      if (imagesArr.length === 0) {
+        const response = await fetch(
+          `${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`
+        );
+        // Agar response status 404 hai, toh samajh lo koi subframe image nahi mil rahi, isko error na maano
+        if (!response.ok) {
+          if (response.status === 404) {
+            // Koi subframe image available nahin, imagesArr rehne dein empty
+          } else {
+            throw new Error(`Error fetching subframe image: ${response.status} ${response.statusText}`);
+          }
+        } else {
+          const data = await response.json();
+          if (data.images && Array.isArray(data.images)) {
+            imagesArr = data.images;
+          }
+          if (data.imageUrl) {
+            imagesArr.push(data.imageUrl);
+          }
+        }
+      }
+  
+      imagesArr = [...new Set(imagesArr)];
+      const constantSubFrameImages = subFrameType.images || [];
+      const updatedThumbnails = [...imagesArr, ...constantSubFrameImages];
+  
+      if (updatedThumbnails.length > 0) {
+        setActiveImage(updatedThumbnails[0]);
+      } else {
+        setActiveImage(product.mainImage);
+      }
+      setSubFrameThumbnails(updatedThumbnails);
+    } catch (err) {
+      // Yahan hum error ko log to karenge par toast error show nahin karenge,
+      // kyunki agar API se koi subframe image na aaye, toh hum default images use kar rahe hain.
+      setActiveImage(product.mainImage);
+      setSubFrameThumbnails(subFrameType.images || []);
+      // Optionally, aap niche comment hata kar toast error show kar sakte hain agar chahen:
+      // toast.error('Failed to load subframe images');
+    } finally {
+      setLoadingSubFrame(false);
+    }
+  };
+  
+
+  const handleSizeSelect = (size) => {
+    setSelectedSize(size);
+  };
 
   // Event Handlers
   const handleQuantityChange = (e) => {
@@ -300,92 +464,6 @@ const ProductDetails = () => {
 
   const handleImageChange = (e) => {
     setReviewImages(Array.from(e.target.files));
-  };
-
-  const handleFrameTypeSelect = async (frameType) => {
-    try {
-      const response = await fetch(`${apiUrl}/api/frame-types/${frameType._id}`);
-      if (!response.ok) throw new Error('Failed to fetch frame type details');
-      const data = await response.json();
-      setSelectedFrameType(data);
-      setSelectedSubFrameType(null);
-      setSelectedSize(null);
-      if (data.frameSizes && Array.isArray(data.frameSizes)) {
-        setSizes(data.frameSizes);
-      } else {
-        setSizes([]);
-      }
-    } catch (err) {
-      console.error('Error selecting frame type:', err);
-      toast.error('Failed to select frame type');
-    }
-  };
-
-  const handleSubFrameTypeSelect = async (subFrameType) => {
-    setSelectedSubFrameType(subFrameType);
-    setLoadingSubFrame(true);
-    try {
-      if (selectedFrameType && selectedFrameType.name.toLowerCase() === "poster") {
-        const posterThumbnails = [product.mainImage, ...(subFrameType.images || [])];
-        setActiveImage(product.mainImage);
-        setSubFrameThumbnails(posterThumbnails);
-        return;
-      }
-  
-      let imagesArr = [];
-      if (product?.subFrameImages && product.subFrameImages.length > 0) {
-        const matchingGroups = product.subFrameImages.filter(
-          (group) =>
-            group.subFrameType &&
-            group.subFrameType.toString() === subFrameType._id.toString()
-        );
-        matchingGroups.forEach((group) => {
-          if (Array.isArray(group.imageUrls) && group.imageUrls.length > 0) {
-            imagesArr = imagesArr.concat(group.imageUrls);
-          } else if (group.imageUrl) {
-            imagesArr.push(group.imageUrl);
-          }
-        });
-      }
-  
-      if (imagesArr.length === 0) {
-        const response = await fetch(
-          `${apiUrl}/api/products/${product._id}/subframe-image/${subFrameType._id}`
-        );
-        if (!response.ok) {
-          throw new Error(`Error fetching subframe image: ${response.status} ${response.statusText}`);
-        }
-        const data = await response.json();
-        if (data.images && Array.isArray(data.images)) {
-          imagesArr = data.images;
-        }
-        if (data.imageUrl) {
-          imagesArr.push(data.imageUrl);
-        }
-      }
-  
-      imagesArr = [...new Set(imagesArr)];
-      const constantSubFrameImages = subFrameType.images || [];
-      const updatedThumbnails = [...imagesArr, ...constantSubFrameImages];
-  
-      if (updatedThumbnails.length > 0) {
-        setActiveImage(updatedThumbnails[0]);
-      } else {
-        setActiveImage(product.mainImage);
-      }
-      setSubFrameThumbnails(updatedThumbnails);
-    } catch (err) {
-      console.error(err);
-      setActiveImage(product.mainImage);
-      setSubFrameThumbnails(subFrameType.images || []);
-      toast.error('Failed to load subframe images');
-    } finally {
-      setLoadingSubFrame(false);
-    }
-  };
-
-  const handleSizeSelect = (size) => {
-    setSelectedSize(size);
   };
 
   // Cart and wishlist handlers – require frame type, subframe type, and size
@@ -436,7 +514,6 @@ const ProductDetails = () => {
       setShowLoginModal(true);
       return;
     }
-    // Check if already in wishlist (using product id only)
     const inWishlist = wishlist.some(
       item => item.productId && item.productId._id === prod._id &&
               item.frameType._id === selectedFrameType?._id &&
@@ -465,7 +542,6 @@ const ProductDetails = () => {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to add product to wishlist');
       }
-      // Update local wishlist state
       setWishlist(prev => [
         ...prev,
         {
@@ -625,8 +701,7 @@ const ProductDetails = () => {
   if (loading)
     return (
       <div className="loader text-center d-flex justify-content-center my-5 ">
-              <img src={loaderGif} alt="Loading..." className="img-fluid" />
-
+        <img src={loaderGif} alt="Loading..." className="img-fluid" />
       </div>
     );
   if (error) return <div className="alert alert-danger">{error}</div>;

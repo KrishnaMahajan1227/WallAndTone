@@ -77,6 +77,15 @@ const FreepikCustomization = () => {
     fetchFrameTypes();
   }, [apiUrl, selectedFrameType]);
 
+  // When frame type changes, reset related selections and update activeImage
+  const handleFrameTypeSelect = (frameType) => {
+    setSelectedFrameType(frameType);
+    setSelectedSubFrameType(null);
+    setSelectedSize(null);
+    setSelectedSizeCategory("");
+    setActiveImage(generatedImage);
+  };
+
   // Fetch sub-frame types when frame type changes
   useEffect(() => {
     const fetchSubFrameTypes = async () => {
@@ -86,9 +95,12 @@ const FreepikCustomization = () => {
             `${apiUrl}/api/sub-frame-types/${selectedFrameType._id}`
           );
           setSubFrameTypes(response.data);
-          if (response.data.length > 0 && !selectedSubFrameType) {
+          if (response.data.length > 0) {
             setSelectedSubFrameType(response.data[0]);
             localStorage.setItem("selectedSubFrameType", JSON.stringify(response.data[0]));
+          } else {
+            setSelectedSubFrameType(null);
+            localStorage.removeItem("selectedSubFrameType");
           }
         } catch (err) {
           setError("Failed to fetch sub-frame types");
@@ -97,9 +109,9 @@ const FreepikCustomization = () => {
       }
     };
     fetchSubFrameTypes();
-  }, [selectedFrameType, apiUrl, selectedSubFrameType]);
+  }, [selectedFrameType, apiUrl]);
 
-  // Update sizes based on selected frame type
+  // Update sizes based on selected frame type and set default size(s)
   useEffect(() => {
     if (
       selectedFrameType &&
@@ -107,9 +119,21 @@ const FreepikCustomization = () => {
       selectedFrameType.frameSizes.length > 0
     ) {
       setSizes(selectedFrameType.frameSizes);
-      if (!selectedSize) {
+      if (selectedFrameType.name.toLowerCase() === "poster") {
+        // For poster frames, directly select the first available size
         setSelectedSize(selectedFrameType.frameSizes[0]);
         localStorage.setItem("selectedSize", JSON.stringify(selectedFrameType.frameSizes[0]));
+      } else {
+        // For non-poster frames, group sizes by category and select default category and first size
+        const grouped = groupSizesByCategory(selectedFrameType.frameSizes);
+        const cats = Object.keys(grouped).sort(
+          (a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
+        );
+        if (cats.length > 0) {
+          setSelectedSizeCategory(cats[0]);
+          setSelectedSize(grouped[cats[0]][0]);
+          localStorage.setItem("selectedSize", JSON.stringify(grouped[cats[0]][0]));
+        }
       }
     } else {
       setSizes([]);
@@ -117,9 +141,9 @@ const FreepikCustomization = () => {
       localStorage.removeItem("selectedSize");
     }
     setLoading(false);
-  }, [selectedFrameType, selectedSize]);
+  }, [selectedFrameType]);
 
-  // Persist selections
+  // Persist selections to localStorage
   useEffect(() => {
     if (selectedFrameType && selectedSubFrameType && selectedSize) {
       localStorage.setItem("selectedFrameType", JSON.stringify(selectedFrameType));
@@ -162,7 +186,7 @@ const FreepikCustomization = () => {
     (a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
   );
 
-  // Set default size category for non-poster frames
+  // Set default size category for non-poster frames if not already set
   useEffect(() => {
     if (
       selectedFrameType &&
@@ -181,12 +205,11 @@ const FreepikCustomization = () => {
         (s) => s._id === selectedSize?._id
       );
       if (!validSize) {
-        // Update to the first size in the new category if current selection is not valid
         setSelectedSize(groupedSizes[selectedSizeCategory][0]);
         localStorage.setItem("selectedSize", JSON.stringify(groupedSizes[selectedSizeCategory][0]));
       }
     }
-  }, [selectedSizeCategory, sizes]); 
+  }, [selectedSizeCategory, sizes]);
 
   const calculateTotalPrice = () => {
     const framePrice = parseFloat(selectedFrameType?.price) || 0;
@@ -198,12 +221,6 @@ const FreepikCustomization = () => {
 
   const handleQuantityChange = (e) => {
     setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1));
-  };
-
-  const handleFrameTypeSelect = (frameType) => {
-    setSelectedFrameType(frameType);
-    setSelectedSubFrameType(null);
-    setActiveImage(generatedImage);
   };
 
   const handleSubFrameTypeSelect = (subFrameType) => {

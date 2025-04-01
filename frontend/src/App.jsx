@@ -77,15 +77,26 @@ function App() {
   }, [location.pathname]);
 
   useEffect(() => {
-    const socket = io(window.location.origin);
-    socket.on('connect', () => console.log('Socket connected:', socket.id));
-    socket.on('forceLogout', () => {
-      console.log('forceLogout event received');
+    // Retrieve token from localStorage or sessionStorage
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const socket = io(window.location.origin, {
+      auth: { token },
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+    });
+  
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+    });
+  
+    socket.on("forceLogout", () => {
+      console.log("forceLogout event received");
       localStorage.clear();
       sessionStorage.clear();
       document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      window.location.href = "/login";
+      window.location.reload();
     });
+  
     return () => socket.disconnect();
   }, []);
 
@@ -100,7 +111,6 @@ function App() {
     maxWidth: "500px", width: "100%", boxShadow: "0 4px 12px rgba(0,0,0,0.15)", position: "relative"
   };
 
-  // Updated renderModal: For "personalize" type, pass current location in state.
   const renderModal = (type) => (
     <div style={modalStyle}>
       <div style={modalContentStyle}>
@@ -116,7 +126,6 @@ function App() {
         <div style={{ display: "flex", justifyContent: "center" }}>
           <button 
             onClick={() => {
-              // Only for personalize, pass state to redirect back after login
               if(type === 'personalize'){
                 navigate("/login", { state: { from: location.pathname } });
               } else {
@@ -145,6 +154,7 @@ function App() {
                 {showAiModal && renderModal('ai')}
                 {showPersonalizeModal && renderModal('personalize')}
                 <Routes>
+                  {/* Define your Routes here */}
                   <Route path="/search" element={<Search />} />
                   <Route path="/" element={<HomePage />} />
                   <Route path="/login" element={<Login />} />

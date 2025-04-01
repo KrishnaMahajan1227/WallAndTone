@@ -71,6 +71,16 @@ const ForgotPassword = () => {
         </p>
       </div>
       </div>
+      <div className="forgot-right">
+        <h3>Discover the Art of Framing</h3>
+        <p>
+          Enhance your walls with high-quality frames, tailored to your style. Wall & Tone offers a unique
+          selection to transform your space.
+        </p>
+        <button className="btn explore-btn" onClick={() => navigate('/')}>
+          Explore Now
+        </button>
+      </div>
     </div>
   );
 };

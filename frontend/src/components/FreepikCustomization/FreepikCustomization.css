@@ -415,6 +415,21 @@ h3.product-title {
   aspect-ratio: 1;
   overflow: hidden;
 }
+.freepik-customization.product-details-container .options-section select {
+  background-color: #2F231F;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+  outline: none !important;
+  max-width: 50% !important;
+}
+.freepik-customization .quantity-section {
+  margin: 0;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 }
 
 

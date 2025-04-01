@@ -512,4 +512,9 @@
     font-size: 1.5rem;
     padding: 0 5px;
   }
+  .freepik-generator-modal-body .col-md-12.action-btns {
+    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+}
 }

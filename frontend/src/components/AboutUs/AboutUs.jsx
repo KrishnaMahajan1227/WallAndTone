@@ -128,7 +128,7 @@ const AboutContent = () => {
                   <li>
                     <span 
                       style={{ color: "#5B2EFF", cursor: "pointer" }}
-                      onClick={() => handleAiCreationClick('/Ai Creation')}
+                      onClick={() => handleAiCreationClick('/Ai-Creation')}
                     >
                       Create your Own wall art using AI
                     </span>

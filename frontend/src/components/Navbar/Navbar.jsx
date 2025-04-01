@@ -47,7 +47,7 @@ const Navbar = () => {
       setShowAiModal(true);
       return;
     }
-    navigate('/Ai Creation');
+    navigate('/Ai-Creation');
     setIsNavOpen(false);
   };
 
@@ -195,7 +195,7 @@ const Navbar = () => {
               className="homepage-btn-primary"
               onClick={() => {
                 setShowAiModal(false);
-                navigate("/login");
+                navigate("/login", { state: { redirectTo: '/Ai-Creation' } });
               }}
               style={{
                 backgroundColor: "#5B2EFF",
@@ -350,7 +350,7 @@ const Navbar = () => {
               className="homepage-btn-primary"
               onClick={() => {
                 setShowPersonalizeModal(false);
-                navigate("/login");
+                navigate("/login", { state: { redirectTo: '/Personalize' } });
               }}
               style={{
                 backgroundColor: "#E63946",
@@ -418,7 +418,7 @@ const Navbar = () => {
       </li>
       <li className="nav-item">
         <Link 
-          to="/Ai Creation" 
+          to="/Ai-Creation" 
           className="nav-link"
           onClick={(e) => {
             handleAiCreationClick(e);

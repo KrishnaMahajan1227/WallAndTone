@@ -41,7 +41,7 @@ import OrderDetails from './components/AdminOrders/OrderDetails';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import AdminRoute from './components/AdminRoute';
 import { io } from 'socket.io-client';
-import { X, Sparkles, ArrowRight, Heart } from 'lucide-react';
+import { Sparkles, ArrowRight, Heart } from 'lucide-react';
 import ForgotPassword from './components/Login/ForgotPassword';
 import ResetPassword from './components/Login/ResetPassword';
 
@@ -60,7 +60,7 @@ function App() {
     const isLoggedIn = !!localStorage.getItem("token") || !!sessionStorage.getItem("token");
     const path = decodeURIComponent(location.pathname);
     if (!isLoggedIn) {
-      if (path === "/Ai Creation") {
+      if (path === "/Ai-Creation") {
         setShowAiModal(true);
         setShowPersonalizeModal(false);
       } else if (path === "/Personalize") {
@@ -77,18 +77,23 @@ function App() {
   }, [location.pathname]);
 
   useEffect(() => {
-    // Retrieve token from localStorage or sessionStorage
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     const socket = io(window.location.origin, {
-      auth: { token },
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
     });
-  
+
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
     });
-  
+
+    socket.on("disconnect", (reason) => {
+      console.log("Socket disconnected, reason:", reason);
+      localStorage.clear();
+      sessionStorage.clear();
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      window.location.reload();
+    });
+
     socket.on("forceLogout", () => {
       console.log("forceLogout event received");
       localStorage.clear();
@@ -96,27 +101,50 @@ function App() {
       document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       window.location.reload();
     });
-  
+
     return () => socket.disconnect();
   }, []);
 
   const modalStyle = {
-    position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
-    backgroundColor: "rgba(0, 0, 0, 0.6)", display: "flex",
-    justifyContent: "center", alignItems: "center", zIndex: 9999, padding: "1rem"
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+    padding: "1rem"
   };
 
   const modalContentStyle = {
-    backgroundColor: "#fff", borderRadius: "8px", padding: "2rem",
-    maxWidth: "500px", width: "100%", boxShadow: "0 4px 12px rgba(0,0,0,0.15)", position: "relative"
+    backgroundColor: "#fff",
+    borderRadius: "8px",
+    padding: "2rem",
+    maxWidth: "500px",
+    width: "100%",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+    position: "relative"
   };
 
+  // For both AI Creation and Personalize modals,
+  // the login button now passes the current location state
+  // so users can be redirected back after logging in.
   const renderModal = (type) => (
     <div style={modalStyle}>
       <div style={modalContentStyle}>
         <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-          {type === 'ai' ? <Sparkles size={32} style={{ color: "#5B2EFF" }} /> : <Heart size={32} style={{ color: "#E63946" }} />}
-          <h2>{type === 'ai' ? "Unlock AI Creation Magic" : "Personalize Your Wall Art"}<br />FOR FREE !</h2>
+          {type === 'ai' ? (
+            <Sparkles size={32} style={{ color: "#5B2EFF" }} />
+          ) : (
+            <Heart size={32} style={{ color: "#E63946" }} />
+          )}
+          <h2>
+            {type === 'ai' ? "Unlock AI Creation Magic" : "Personalize Your Wall Art"}
+            <br />FOR FREE!
+          </h2>
         </div>
         <p style={{ textAlign: "center", marginBottom: "1rem" }}>
           {type === 'ai'
@@ -124,15 +152,19 @@ function App() {
             : "Bring your memories and let us create something unique for you."}
         </p>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <button 
+          <button
             onClick={() => {
-              if(type === 'personalize'){
-                navigate("/login", { state: { from: location.pathname } });
-              } else {
-                navigate("/login");
-              }
+              navigate("/login", { state: { from: location.pathname } });
             }}
-            style={{ backgroundColor: type === 'ai' ? "#5B2EFF" : "#E63946", color: "#fff", padding: "0.75rem 1.5rem", border: "none", borderRadius: "4px", cursor: "pointer" }}>
+            style={{
+              backgroundColor: type === 'ai' ? "#5B2EFF" : "#E63946",
+              color: "#fff",
+              padding: "0.75rem 1.5rem",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer"
+            }}
+          >
             <span>Login Now</span>
             <ArrowRight size={16} />
           </button>
@@ -154,7 +186,6 @@ function App() {
                 {showAiModal && renderModal('ai')}
                 {showPersonalizeModal && renderModal('personalize')}
                 <Routes>
-                  {/* Define your Routes here */}
                   <Route path="/search" element={<Search />} />
                   <Route path="/" element={<HomePage />} />
                   <Route path="/login" element={<Login />} />
@@ -164,7 +195,7 @@ function App() {
                   <Route path="/Wishlist" element={<WishlistComponent />} />
                   <Route path="/product/:productId" element={<ProductDetails />} />
                   <Route path="/profile" element={<UserProfile />} />
-                  <Route path="/Ai Creation" element={<FreepikGenerator />} />
+                  <Route path="/Ai-Creation" element={<FreepikGenerator />} />
                   <Route path="/livePreview" element={<CameraComponent />} />
                   <Route path="/customize" element={<FreepikCustomization />} />
                   <Route path="/about us/*" element={<AboutUs />} />

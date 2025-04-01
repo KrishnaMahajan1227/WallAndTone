@@ -343,7 +343,7 @@ const FreepikImageGenerator = () => {
           content="Create unique AI-generated art with Wall & Tone's AI Image Generator. Transform your ideas into stunning art prints and customize your vision effortlessly."
         />
         <meta property="og:image" content="https://wallandtone.com/assets/og-freepik.jpg" />
-        <meta property="og:url" content="https://wallandtone.com/Ai Creation" />
+        <meta property="og:url" content="https://wallandtone.com/Ai-Creation" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="AI Image Generator | Wall & Tone" />
@@ -507,6 +507,7 @@ eg: Brown dog walking in a park on a bright sunny day."
                   <p className="freepik-generator__loading-text">
                     Brewing your artistic magic... hang tight! ✨
                   </p>
+                  {error && <div className="freepik-generator__error">{error}</div>}
                 </div>
               ) : showImageDetails ? (
                 <div className="row">

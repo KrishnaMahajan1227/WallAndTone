@@ -60,7 +60,7 @@ const HomePage = () => {
         setShowAiModal(true);
         return;
       }
-      navigate("/Ai Creation");
+      navigate("/Ai-Creation");
     },
     [isLoggedIn, navigate]
   );
@@ -88,7 +88,7 @@ const HomePage = () => {
             heading: "Create Your Own AI-Designed Art",
             subheading:
               "Design your wall, your way. We help you use AI to craft the perfect piece and make your space truly yours!",
-            ctaLink1: "/Ai Creation",
+            ctaLink1: "/Ai-Creation",
             ctaText1: "Create Ai Art",
             onClick: handleAiCreationClick,
           },
@@ -120,7 +120,7 @@ const HomePage = () => {
             heading: "Create Your Own AI-Designed Art",
             subheading:
               "Design your wall, your way. We help you use AI to craft the perfect piece and make your space truly yours!",
-            ctaLink1: "/Ai Creation",
+            ctaLink1: "/Ai-Creation",
             ctaText1: "Create Ai Art",
             onClick: handleAiCreationClick,
           },
@@ -630,7 +630,7 @@ From sleek modern frames to timeless classics, let’s turn your walls into conv
           heading="AI-Powered Art Creation"
           description="Discover the art of personalization with our AI-powered design tool. Whether you're looking for the perfect frame or canvas, our intelligent system helps you craft a masterpiece that complements your style and space effortlessly. Choose from a variety of sizes, materials, and finishes to bring your vision to life—all in just a few clicks!"
           ctaText="Create with AI"
-          ctaLink="/Ai Creation"
+          ctaLink="/Ai-Creation"
           onClick={handleAiCreationClick}
           openInPopup={true}
           reverse="yes"

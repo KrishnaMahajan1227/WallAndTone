@@ -40,6 +40,7 @@ const ForgotPassword = () => {
         <meta name="description" content="Reset your password for Wall & Tone." />
         <meta name="robots" content="index, follow" />
       </Helmet>
+      <div className="forgot-left">
       <h1>Forgot Password</h1>
       <div className="forgot-password-form-container">
         <p className='muted-text'>Please provide us with your email, and we’ll send you the link to recover your password or make changes.</p>
@@ -68,6 +69,7 @@ const ForgotPassword = () => {
         <p className="redirect-link">
           Remembered your password? <Link to="/login">Login</Link>
         </p>
+      </div>
       </div>
     </div>
   );

@@ -1,4 +1,16 @@
+console.log('📄 userRoutes.js: file execution STARTED');
 const express = require('express');
+console.log('📄 userRoutes.js: express required, typeof express:', typeof express, 'typeof express.Router:', typeof express.Router);
+
+let userControllerModule;
+try {
+  userControllerModule = require('../controllers/userController');
+  console.log('📄 userRoutes.js: userController required OK, keys:', Object.keys(userControllerModule));
+} catch (e) {
+  console.log('📄 userRoutes.js: userController require THREW:', e.message);
+  throw e;
+}
+
 const {
   signupUser,
   loginUser,
@@ -17,9 +29,20 @@ const {
   deletePersonalizedImage,
   forgotPassword,
   resetPassword
-} = require('../controllers/userController');
+} = userControllerModule;
+
 const router = express.Router();
-const { protectAdmin, protectUser } = require('../middleware/authMiddleware');
+console.log('📄 userRoutes.js: router created, typeof router:', typeof router, 'has stack:', !!router.stack);
+
+let authMiddlewareModule;
+try {
+  authMiddlewareModule = require('../middleware/authMiddleware');
+  console.log('📄 userRoutes.js: authMiddleware required OK, keys:', Object.keys(authMiddlewareModule));
+} catch (e) {
+  console.log('📄 userRoutes.js: authMiddleware require THREW:', e.message);
+  throw e;
+}
+const { protectAdmin, protectUser } = authMiddlewareModule;
 const multer = require("multer");
 const nodemailer = require('nodemailer');
 const fs = require('fs');
@@ -110,4 +133,6 @@ router.post("/users/personalized-images", protectUser, upload.single("image"), u
 router.get('/users/personalized-images', protectUser, getPersonalizedImages);
 router.delete('/users/personalized-images/:imageId', protectUser, deletePersonalizedImage);
 
+console.log('📄 userRoutes.js: about to export, typeof router:', typeof router, 'stack length:', router.stack ? router.stack.length : 'NO STACK');
 module.exports = router;
+console.log('📄 userRoutes.js: file execution FINISHED, exported successfully');

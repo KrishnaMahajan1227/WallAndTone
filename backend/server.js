@@ -4,6 +4,38 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 const userRoutes = require('./routes/userRoutes');
+console.log('🔎 DEBUG userRoutes typeof:', typeof userRoutes);
+console.log('🔎 DEBUG userRoutes is function:', typeof userRoutes === 'function');
+console.log('🔎 DEBUG userRoutes keys:', userRoutes ? Object.keys(userRoutes) : 'null/undefined');
+console.log('🔎 DEBUG userRoutes.stack exists (router indicator):', !!(userRoutes && userRoutes.stack));
+try {
+  console.log('🔎 DEBUG express resolved path (server.js context):', require.resolve('express'));
+} catch (e) {
+  console.log('🔎 DEBUG express path check failed:', e.message);
+}
+try {
+  const fs = require('fs');
+  const path2 = require('path');
+  const findExpress = (dir, depth) => {
+    if (depth > 4) return [];
+    let found = [];
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch (e) { return []; }
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        if (entry.name === 'express') found.push(path2.join(dir, entry.name));
+        else if (entry.name === 'node_modules' || !entry.name.startsWith('.')) {
+          found = found.concat(findExpress(path2.join(dir, entry.name), depth + 1));
+        }
+      }
+    }
+    return found;
+  };
+  const allExpress = findExpress(__dirname, 0);
+  console.log('🔎 DEBUG all express installs found under backend:', allExpress);
+} catch (e) {
+  console.log('🔎 DEBUG express scan failed:', e.message);
+}
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cart');
 const wishlistRoutes = require('./routes/wishlist');

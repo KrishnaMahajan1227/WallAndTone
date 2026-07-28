@@ -53,7 +53,7 @@ mongoose
 
 const http = require('http');
 const socketIo = require('socket.io');
-const jwt = require('jsonwebtoken'); // Added for token decoding
+const jwt = require('jsonwebtoken');
 
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -63,50 +63,59 @@ const io = socketIo(server, {
   }
 });
 
-// Set a global variable with the server start time (in milliseconds)
 const serverStartTime = Date.now();
 console.log("Server start time:", serverStartTime);
 
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
-
-  // Check if the client provided a token in the socket handshake auth.
   const token = socket.handshake.auth.token;
   if (token) {
     try {
-      // Decode token (we assume token contains an "iat" field in seconds)
       const decoded = jwt.decode(token);
       if (decoded && decoded.iat && (decoded.iat * 1000) < serverStartTime) {
-        // Token was issued before the server started; force logout.
         socket.emit('forceLogout');
-        console.log(`ForceLogout sent to socket ${socket.id} (token issued at ${decoded.iat * 1000}, before serverStartTime ${serverStartTime})`);
+        console.log(`ForceLogout sent to socket ${socket.id}`);
       }
     } catch (err) {
       console.error("Error decoding token:", err);
       socket.emit('forceLogout');
     }
   }
-  
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });
 });
 
-app.use('/api', userRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/secure', protectAdmin, protectUser, (req, res) => {
+// ===================================================================
+// DIAGNOSTIC HELPER — logs exactly which route registration fails
+// ===================================================================
+function safeUse(label, ...args) {
+  try {
+    console.log(`⏳ Registering: ${label}`);
+    app.use(...args);
+    console.log(`✅ OK: ${label}`);
+  } catch (err) {
+    console.error(`❌❌❌ CRASHED while registering "${label}":`, err.message);
+    console.error(err.stack);
+    throw err; // rethrow so behavior stays the same, but now we have the culprit logged
+  }
+}
+
+safeUse("userRoutes -> /api", '/api', userRoutes);
+safeUse("productRoutes -> /api/products", '/api/products', productRoutes);
+safeUse("secure endpoint -> /api/secure", '/api/secure', protectAdmin, protectUser, (req, res) => {
   res.json({ message: 'This is a secure endpoint!' });
 });
-app.use('/api/cart', cartRoutes);
-app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/freepik', freepikRoutes);
-app.use('/api', categoryRoutes);
-app.use("/api/admin/coupons", couponAdminRouter);
-app.use('/api/users/coupons', couponUserRouter);
-app.use('/api/search', searchRoutes);
-app.use('/api/history', historyRoutes);
-app.use('/api/prompts', promptRoutes);
-app.use('/api/prompt-payment', promptPaymentRoutes);
+safeUse("cartRoutes -> /api/cart", '/api/cart', cartRoutes);
+safeUse("wishlistRoutes -> /api/wishlist", '/api/wishlist', wishlistRoutes);
+safeUse("freepikRoutes -> /api/freepik", '/api/freepik', freepikRoutes);
+safeUse("categoryRoutes -> /api", '/api', categoryRoutes);
+safeUse("couponAdminRouter -> /api/admin/coupons", "/api/admin/coupons", couponAdminRouter);
+safeUse("couponUserRouter -> /api/users/coupons", '/api/users/coupons', couponUserRouter);
+safeUse("searchRoutes -> /api/search", '/api/search', searchRoutes);
+safeUse("historyRoutes -> /api/history", '/api/history', historyRoutes);
+safeUse("promptRoutes -> /api/prompts", '/api/prompts', promptRoutes);
+safeUse("promptPaymentRoutes -> /api/prompt-payment", '/api/prompt-payment', promptPaymentRoutes);
 
 app.use((err, req, res, next) => {
   console.error('❌ Error:', err.message);
@@ -123,11 +132,11 @@ app.post('/api/upload', uploadImage.single('image'), (req, res) => {
 });
 
 const cloudinaryRoutes = require("./routes/cloudinaryRoutes");
-app.use("/api", cloudinaryRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/payment", paymentRoutes);
-app.use("/api/shiprocket", shiprocketAuthRoute);
-app.use("/api/shiprocket", shiprocketOrderRoute);
+safeUse("cloudinaryRoutes -> /api", "/api", cloudinaryRoutes);
+safeUse("orderRoutes -> /api/orders", "/api/orders", orderRoutes);
+safeUse("paymentRoutes -> /api/payment", "/api/payment", paymentRoutes);
+safeUse("shiprocketAuthRoute -> /api/shiprocket", "/api/shiprocket", shiprocketAuthRoute);
+safeUse("shiprocketOrderRoute -> /api/shiprocket", "/api/shiprocket", shiprocketOrderRoute);
 
 const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));

@@ -4,7 +4,7 @@ const Cart = require("../models/Cart");
 const Product = require("../models/product");
 const { protectUser } = require("../middleware/authMiddleware");
 
-// ✅ Add Item to Cart
+// âœ… Add Item to Cart
 router.post("/add", protectUser, async (req, res) => {
   try {
     const { quantity, frameType, subFrameType, size, image, isCustom, productId } = req.body;
@@ -63,7 +63,7 @@ router.post("/add", protectUser, async (req, res) => {
   }
 });
 
-// ✅ Get Cart
+// âœ… Get Cart
 router.get("/", protectUser, async (req, res) => {
   try {
     const cart = await Cart.findOne({ userId: req.user.id });
@@ -79,7 +79,7 @@ router.get("/", protectUser, async (req, res) => {
   }
 });
 
-// ✅ Update Cart Item Quantity
+// âœ… Update Cart Item Quantity
 router.put("/update/:itemId", protectUser, async (req, res) => {
   try {
     const { quantity } = req.body;
@@ -109,7 +109,7 @@ router.put("/update/:itemId", protectUser, async (req, res) => {
   }
 });
 
-// ✅ Remove Item from Cart
+// âœ… Remove Item from Cart
 router.delete("/remove/:itemId", protectUser, async (req, res) => {
   try {
     const { itemId } = req.params;
@@ -135,9 +135,9 @@ router.delete("/remove/:itemId", protectUser, async (req, res) => {
 });
 
 
-// ✅ Clear Cart (New Endpoint)
+// âœ… Clear Cart (New Endpoint)
 // This endpoint will remove all items from the user's cart.
-// ✅ Clear Cart (New Endpoint)
+// âœ… Clear Cart (New Endpoint)
 // This endpoint will remove all items from the user's cart.
 router.delete("/clear", protectUser, async (req, res) => {
   try {
@@ -160,7 +160,7 @@ router.delete("/clear", protectUser, async (req, res) => {
   }
 });
 
-// ✅ Helper Function: Populate Cart Data
+// âœ… Helper Function: Populate Cart Data
 async function populateCart(cart) {
   await cart.populate([
     { path: "items.productId", select: "productName price mainImage" },
@@ -170,7 +170,7 @@ async function populateCart(cart) {
   ]);
 }
 
-// ✅ Helper Function: Format Cart Response
+// âœ… Helper Function: Format Cart Response
 function formatCartResponse(cart) {
   const totalPrice = cart.items.reduce((total, item) => {
     const frameTypePrice = item.frameType?.price || 0;

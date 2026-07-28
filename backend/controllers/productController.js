@@ -116,7 +116,7 @@ const addProduct = async (req, res) => {
     }
 
     // Validate colors, orientations, categories, medium and rooms (validation code unchanged)
-    // [Validation code omitted for brevity — same as your current code]
+    // [Validation code omitted for brevity â€” same as your current code]
 
     let mainImageUrl = '';
     if (req.files && req.files.mainImage) {
@@ -149,7 +149,7 @@ const addProduct = async (req, res) => {
     }
 
     // Validate subFrameTypes (code unchanged)
-    // [Validation code omitted for brevity — same as your current code]
+    // [Validation code omitted for brevity â€” same as your current code]
 
     // Automatically derive sizes from the provided frameTypes.
     // Here, we assume frameTypes is an array of IDs.
@@ -313,7 +313,7 @@ const updateProduct = async (req, res) => {
     let thumbnails = [];
 
     // Validate colors, orientations, categories, medium and rooms (validation code unchanged)
-    // [Validation code omitted for brevity — same as above]
+    // [Validation code omitted for brevity â€” same as above]
 
     if (req.files.mainImage) {
       mainImage = await uploadImage(req.files.mainImage[0]);
@@ -753,7 +753,7 @@ const processExcelFile = async (req, res) => {
           "Music Room",
           "Dining Room",
           "Kitchen",
-          "Café & Coffee Shop",
+          "CafÃ© & Coffee Shop",
           "Bar & Lounge",
           "Hotel & Lobby",
           "Yoga & Meditation Room",

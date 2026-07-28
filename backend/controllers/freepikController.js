@@ -119,7 +119,7 @@ const generateImage = async (req, res) => {
       return finalImageUrl;
     };
 
-    // 🔄 Generate 3 images concurrently, handle partial success
+    // ðŸ”„ Generate 3 images concurrently, handle partial success
     const settledResults = await Promise.allSettled([
       generateSingleImage(),
       generateSingleImage(),

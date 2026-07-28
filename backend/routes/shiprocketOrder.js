@@ -9,7 +9,7 @@ const router = express.Router();
  * Helper function: Send WhatsApp notification using a messaging service (e.g. Twilio)
  */
 async function sendWhatsappNotification(phone, message) {
-  // Example using Twilio – ensure you install the twilio package and configure your env vars.
+  // Example using Twilio â€“ ensure you install the twilio package and configure your env vars.
   // const client = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
   // await client.messages.create({
   //   from: "whatsapp:+14155238886", // Your Twilio WhatsApp-enabled number
@@ -261,21 +261,21 @@ Additional Info: ${orderData.additional_info || ""}
 Dear ${customerName},
 <p>Thank you for choosing Wall & Tone to bring art into your space! Your order is confirmed, and our team is carefully preparing it to ensure it reaches you in perfect condition. </br>
 
-At Wall & Tone, we believe every wall tells a story, and now, your space is about to get a fresh perspective with your new artwork. We can’t wait for you to experience it!
+At Wall & Tone, we believe every wall tells a story, and now, your space is about to get a fresh perspective with your new artwork. We canâ€™t wait for you to experience it!
 </p>
         
-<p>Here’s what happens next:
+<p>Hereâ€™s what happens next:
 <ul>
 <li>Your order will be packed with care.
 </li>
-<li>You’ll receive tracking details once it’s shipped.
+<li>Youâ€™ll receive tracking details once itâ€™s shipped.
 </li>
 <li>Expect inspiration delivered right to your doorstep!
 </li>
 </ul>
 </p>
 
-<p>If you have any questions, feel free to reach out. We’d love to hear how your new piece transforms your space—share your photos and tag us 
+<p>If you have any questions, feel free to reach out. Weâ€™d love to hear how your new piece transforms your spaceâ€”share your photos and tag us 
 <a href="https://www.instagram.com/wallandtone?igsh=MW5hZzB0andydnpzNQ==" target="_blank" rel="noopener noreferrer" className="social-link">@wallandtone</a> !
 </p>
 

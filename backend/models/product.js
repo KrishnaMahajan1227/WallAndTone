@@ -127,7 +127,7 @@ const productSchema = new Schema(
           "Music Room",
           "Dining Room",
           "Kitchen",
-          "Café & Coffee Shop",
+          "CafÃ© & Coffee Shop",
           "Bar & Lounge",
           "Hotel & Lobby",
           "Yoga & Meditation Room",

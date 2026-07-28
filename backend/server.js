@@ -48,12 +48,12 @@ cloudinary.config({
 
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
+  .then(() => console.log('âœ… Connected to MongoDB'))
+  .catch((err) => console.error('âŒ MongoDB connection error:', err));
 
 // ===================================================================
 // NOTE ON SOCKET.IO: Removed from the Vercel serverless path.
-// Serverless functions are stateless/short-lived per request — they
+// Serverless functions are stateless/short-lived per request â€” they
 // cannot hold a persistent WebSocket connection open, so Socket.IO
 // simply cannot work here regardless of code changes. If you need
 // real-time features (e.g. forced logout, live notifications), that
@@ -90,9 +90,9 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/shiprocket", shiprocketAuthRoute);
 app.use("/api/shiprocket", shiprocketOrderRoute);
 
-// Generic error handler — must come after routes
+// Generic error handler â€” must come after routes
 app.use((err, req, res, next) => {
-  console.error('❌ Error:', err.message);
+  console.error('âŒ Error:', err.message);
   res.status(err.status || 500).json({
     message: err.message || 'Internal Server Error',
   });
@@ -118,7 +118,7 @@ if (!process.env.VERCEL) {
 // ===================================================================
 if (!process.env.VERCEL) {
   app.listen(port, () => {
-    console.log(`🚀 Server is running on port ${port}`);
+    console.log(`ðŸš€ Server is running on port ${port}`);
   });
 }
 

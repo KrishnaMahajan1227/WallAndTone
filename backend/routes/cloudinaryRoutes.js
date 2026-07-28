@@ -4,7 +4,7 @@ require("dotenv").config();
 
 const router = express.Router();
 
-// **🔹 Generate Cloudinary Signature**
+// **ðŸ”¹ Generate Cloudinary Signature**
 router.post("/cloudinary-signature", (req, res) => {
   const { timestamp, folder } = req.body;
 
@@ -12,7 +12,7 @@ router.post("/cloudinary-signature", (req, res) => {
     return res.status(400).json({ message: "Timestamp is required" });
   }
 
-  // Construct the **exact** string to sign as per Cloudinary’s docs
+  // Construct the **exact** string to sign as per Cloudinaryâ€™s docs
   const stringToSign = `folder=${folder}&timestamp=${timestamp}`;
 
   // Generate signature using Cloudinary API secret

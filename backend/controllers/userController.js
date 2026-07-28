@@ -124,7 +124,7 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Forgot Password – request reset email
+// Forgot Password â€“ request reset email
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -145,13 +145,13 @@ const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    // 🔁 Dynamically set frontend URL
+    // ðŸ” Dynamically set frontend URL
     const getFrontendUrl = () => {
       if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
       const isLocal = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
       return isLocal
         ? 'http://localhost:5173'
-        : 'https://wallandtone.com'; // ✅ Update to actual frontend domain
+        : 'https://wallandtone.com'; // âœ… Update to actual frontend domain
     };
 
     const resetUrl = `${getFrontendUrl()}/reset-password/${resetToken}`;
@@ -185,7 +185,7 @@ const forgotPassword = async (req, res) => {
 };
 
 
-// Reset Password – update password using the token
+// Reset Password â€“ update password using the token
 const resetPassword = async (req, res) => {
   const { token, newPassword } = req.body;
   if (!token || !newPassword) {
@@ -202,7 +202,7 @@ const resetPassword = async (req, res) => {
     }
     // Update the user's password (assuming your pre-save hook hashes it)
     user.password = newPassword;
-    // Clear the reset token fields so they can’t be reused
+    // Clear the reset token fields so they canâ€™t be reused
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
@@ -214,7 +214,7 @@ const resetPassword = async (req, res) => {
 };
 
 
-// **🔹 Get All Users (Admin & Superadmin)**
+// **ðŸ”¹ Get All Users (Admin & Superadmin)**
 const getAllUsers = async (req, res) => {
   try {
     if (req.user.role !== 'superadmin') {
@@ -285,8 +285,8 @@ const deleteUser = async (req, res) => {
     }
   };
   
-// **🔹 Get User Profile**
-// **🔹 Get User Profile**
+// **ðŸ”¹ Get User Profile**
+// **ðŸ”¹ Get User Profile**
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password'); // Exclude password
@@ -312,22 +312,22 @@ const getUserProfile = async (req, res) => {
 };
 
 
-// **🔹 Update User Profile**
+// **ðŸ”¹ Update User Profile**
 const updateUserProfile = async (req, res) => {
   try {
     const { firstName, email, phone, oldPassword, newPassword, shippingDetails } = req.body;
     
-    // ✅ Find User
+    // âœ… Find User
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // ✅ Update Basic Details (only if provided)
+    // âœ… Update Basic Details (only if provided)
     if (firstName) user.firstName = firstName;
     if (phone) user.phone = phone;
 
-    // ✅ Check if the new email already exists
+    // âœ… Check if the new email already exists
     if (email && email !== user.email) {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -336,7 +336,7 @@ const updateUserProfile = async (req, res) => {
       user.email = email;
     }
 
-    // ✅ Handle Password Update
+    // âœ… Handle Password Update
     if (oldPassword && newPassword) {
       const isMatch = await user.matchPassword(oldPassword);
       if (!isMatch) {
@@ -350,7 +350,7 @@ const updateUserProfile = async (req, res) => {
       user.password = newPassword; // Password will be auto-hashed due to pre-save hook
     }
 
-    // ✅ Update Shipping Details (if provided)
+    // âœ… Update Shipping Details (if provided)
     if (shippingDetails) {
       user.shippingDetails = {
         shippingAddress: shippingDetails.shippingAddress || user.shippingDetails?.shippingAddress || '',
@@ -362,10 +362,10 @@ const updateUserProfile = async (req, res) => {
       };
     }
 
-    // ✅ Save Updated User Data
+    // âœ… Save Updated User Data
     await user.save();
 
-    // ✅ Return Updated Profile
+    // âœ… Return Updated Profile
     res.status(200).json({
       message: "Profile updated successfully",
       user: {
@@ -589,11 +589,11 @@ const deleteAllGeneratedImages = async (req, res) => {
     res.status(500).json({ message: "Failed to delete images." });
   }
 };
-// **🔹 Upload Personalized Image**
+// **ðŸ”¹ Upload Personalized Image**
 const uploadPersonalizedImage = async (req, res) => {
   try {
     const userId = req.user._id;
-    const imageFile = req.file; // ✅ Get the uploaded file
+    const imageFile = req.file; // âœ… Get the uploaded file
 
     if (!imageFile) {
       return res.status(400).json({ message: "Image file is required" });
@@ -602,7 +602,7 @@ const uploadPersonalizedImage = async (req, res) => {
     const timestamp = Date.now();
     const publicId = `personalized_uploads/${userId}/personalized-${timestamp}`;
 
-    // ✅ Upload file to Cloudinary
+    // âœ… Upload file to Cloudinary
     const uploadResult = await cloudinary.uploader.upload(imageFile.path, {
       public_id: publicId,
       folder: "personalized_uploads",
@@ -611,10 +611,10 @@ const uploadPersonalizedImage = async (req, res) => {
       transformation: [{ width: 1200, crop: "limit" }],
     });
 
-    // ✅ Delete the local file after upload
+    // âœ… Delete the local file after upload
     fs.unlinkSync(imageFile.path);
 
-    // ✅ Save uploaded image details in user database
+    // âœ… Save uploaded image details in user database
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -639,7 +639,7 @@ const uploadPersonalizedImage = async (req, res) => {
   }
 };
 
-// **🔹 Get User's Personalized Images**
+// **ðŸ”¹ Get User's Personalized Images**
 const getPersonalizedImages = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -656,7 +656,7 @@ const getPersonalizedImages = async (req, res) => {
   }
 };
 
-// **🔹 Delete a Personalized Image**
+// **ðŸ”¹ Delete a Personalized Image**
 const deletePersonalizedImage = async (req, res) => {
   try {
     const userId = req.user._id;

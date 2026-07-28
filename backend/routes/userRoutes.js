@@ -31,6 +31,26 @@ const {
   resetPassword
 } = userControllerModule;
 
+// Log the type of every single controller function we pulled out above.
+// If any of these prints "undefined", THAT is our culprit.
+console.log('📄 CHECK signupUser:', typeof signupUser);
+console.log('📄 CHECK loginUser:', typeof loginUser);
+console.log('📄 CHECK getAllUsers:', typeof getAllUsers);
+console.log('📄 CHECK updateUser:', typeof updateUser);
+console.log('📄 CHECK deleteUser:', typeof deleteUser);
+console.log('📄 CHECK getUserProfile:', typeof getUserProfile);
+console.log('📄 CHECK updateUserProfile:', typeof updateUserProfile);
+console.log('📄 CHECK addGeneratedImage:', typeof addGeneratedImage);
+console.log('📄 CHECK getGeneratedImages:', typeof getGeneratedImages);
+console.log('📄 CHECK addImageChunk:', typeof addImageChunk);
+console.log('📄 CHECK deleteGeneratedImage:', typeof deleteGeneratedImage);
+console.log('📄 CHECK deleteAllGeneratedImages:', typeof deleteAllGeneratedImages);
+console.log('📄 CHECK uploadPersonalizedImage:', typeof uploadPersonalizedImage);
+console.log('📄 CHECK getPersonalizedImages:', typeof getPersonalizedImages);
+console.log('📄 CHECK deletePersonalizedImage:', typeof deletePersonalizedImage);
+console.log('📄 CHECK forgotPassword:', typeof forgotPassword);
+console.log('📄 CHECK resetPassword:', typeof resetPassword);
+
 const router = express.Router();
 console.log('📄 userRoutes.js: router created, typeof router:', typeof router, 'has stack:', !!router.stack);
 
@@ -43,62 +63,76 @@ try {
   throw e;
 }
 const { protectAdmin, protectUser } = authMiddlewareModule;
+console.log('📄 CHECK protectAdmin:', typeof protectAdmin);
+console.log('📄 CHECK protectUser:', typeof protectUser);
+
 const multer = require("multer");
+console.log('📄 CHECKPOINT 1: multer required, typeof:', typeof multer);
 const nodemailer = require('nodemailer');
+console.log('📄 CHECKPOINT 2: nodemailer required, typeof:', typeof nodemailer);
 const fs = require('fs');
+console.log('📄 CHECKPOINT 3: fs required, typeof:', typeof fs);
 
 // Routes
 router.post('/signup', signupUser);
+console.log('📄 CHECKPOINT 4: /signup registered');
 router.post('/login', loginUser);
+console.log('📄 CHECKPOINT 5: /login registered');
 
-// Protect these routes to ensure only admins can access
 router.get('/users', protectAdmin, getAllUsers);
+console.log('📄 CHECKPOINT 6: GET /users registered');
 
-// Update and delete routes with admin protection
 router.put('/users/:id', protectAdmin, updateUser);
+console.log('📄 CHECKPOINT 7: PUT /users/:id registered');
 router.delete('/users/:id', protectAdmin, deleteUser);
+console.log('📄 CHECKPOINT 8: DELETE /users/:id registered');
 
-// Profile routes for viewing and updating profile
 router.get('/profile', protectUser, getUserProfile);
+console.log('📄 CHECKPOINT 9: GET /profile registered');
 router.put('/profile/update', protectUser, updateUserProfile);
+console.log('📄 CHECKPOINT 10: PUT /profile/update registered');
 
-// Generated images routes
 router.post('/users/generated-images', protectUser, addGeneratedImage);
+console.log('📄 CHECKPOINT 11: POST /users/generated-images registered');
 router.post('/users/generated-images/chunk', protectUser, addImageChunk);
+console.log('📄 CHECKPOINT 12: POST /users/generated-images/chunk registered');
 router.get('/users/generated-images', protectUser, getGeneratedImages);
+console.log('📄 CHECKPOINT 13: GET /users/generated-images registered');
 router.delete("/users/generated-images/:imageId", protectUser, deleteGeneratedImage);
+console.log('📄 CHECKPOINT 14: DELETE /users/generated-images/:imageId registered');
 router.delete("/users/generated-images", protectUser, deleteAllGeneratedImages);
+console.log('📄 CHECKPOINT 15: DELETE /users/generated-images registered');
 router.post('/forgot-password', forgotPassword);
+console.log('📄 CHECKPOINT 16: POST /forgot-password registered');
 router.post('/reset-password', resetPassword);
+console.log('📄 CHECKPOINT 17: POST /reset-password registered');
 
 // Multer Storage for Uploads
 const upload = multer({ dest: "uploads/" });
+console.log('📄 CHECKPOINT 18: multer upload instance created');
 
 // Controller for sending the image via email to the admin email
 const sendEmail = async (req, res) => {
   try {
     const imageFile = req.file;
-    // Use the ADMIN_EMAIL from env variables as the recipient.
     const adminEmail = process.env.ADMIN_EMAIL;
 
     if (!adminEmail || !imageFile) {
       return res.status(400).json({ message: 'Admin email and image file are required.' });
     }
 
-    // Configure Nodemailer transporter with your SMTP settings
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST, // e.g., smtpout.secureserver.net
-      port: Number(process.env.SMTP_PORT), // e.g., 465
-      secure: true, // true for port 465, false for other ports
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: true,
       auth: {
-        user: process.env.SMTP_USER, // e.g., hello@wallandtone.com
-        pass: process.env.SMTP_PASS, // e.g., Ramkrish1227@
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
 
-    // Email options with the admin email as recipient
     const mailOptions = {
-      from: process.env.EMAIL_FROM, // e.g., hello@wallandtone.com
+      from: process.env.EMAIL_FROM,
       to: adminEmail,
       subject: 'User Uploaded Image',
       text: 'Please find the uploaded image attached.',
@@ -110,10 +144,8 @@ const sendEmail = async (req, res) => {
       ],
     };
 
-    // Send the email
     await transporter.sendMail(mailOptions);
 
-    // Remove the file from the server after sending the email
     fs.unlink(imageFile.path, (err) => {
       if (err) console.error('Error deleting file:', err);
     });
@@ -124,14 +156,17 @@ const sendEmail = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error.' });
   }
 };
+console.log('📄 CHECKPOINT 19: sendEmail function defined, typeof:', typeof sendEmail);
 
-// Route definitions
 router.post("/users/send-email", protectUser, upload.single("image"), sendEmail);
+console.log('📄 CHECKPOINT 20: POST /users/send-email registered');
 
-// Personalized Image Upload Routes
 router.post("/users/personalized-images", protectUser, upload.single("image"), uploadPersonalizedImage);
+console.log('📄 CHECKPOINT 21: POST /users/personalized-images registered');
 router.get('/users/personalized-images', protectUser, getPersonalizedImages);
+console.log('📄 CHECKPOINT 22: GET /users/personalized-images registered');
 router.delete('/users/personalized-images/:imageId', protectUser, deletePersonalizedImage);
+console.log('📄 CHECKPOINT 23: DELETE /users/personalized-images/:imageId registered');
 
 console.log('📄 userRoutes.js: about to export, typeof router:', typeof router, 'stack length:', router.stack ? router.stack.length : 'NO STACK');
 module.exports = router;

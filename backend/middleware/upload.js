@@ -45,9 +45,13 @@ const personalizedStorageCloudinary = new CloudinaryStorage({
 });
 
 // =================== Local Storage for Excel Files ===================
+// NOTE: Vercel's serverless filesystem is read-only except the OS temp dir.
+// Using process.cwd()/uploads fails there — use os.tmpdir() instead so this
+// works both locally and on Vercel.
+const os = require('os');
 const storageLocal = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(process.cwd(), 'uploads', 'excel');
+    const uploadPath = path.join(os.tmpdir(), 'uploads', 'excel');
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }

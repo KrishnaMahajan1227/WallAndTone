@@ -108,7 +108,13 @@ router.post('/reset-password', resetPassword);
 console.log('📄 CHECKPOINT 17: POST /reset-password registered');
 
 // Multer Storage for Uploads
-const upload = multer({ dest: "uploads/" });
+// NOTE: Vercel's serverless filesystem is read-only except for the OS temp
+// directory. A relative "uploads/" path fails there (read-only filesystem),
+// which is what was crashing this whole file on Vercel. Using os.tmpdir()
+// works both locally and on Vercel.
+const os = require('os');
+const path = require('path');
+const upload = multer({ dest: path.join(os.tmpdir(), 'uploads') });
 console.log('📄 CHECKPOINT 18: multer upload instance created');
 
 // Controller for sending the image via email to the admin email
